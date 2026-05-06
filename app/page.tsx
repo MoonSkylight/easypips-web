@@ -1,113 +1,82 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-// ✅ DEPLOY-READY API (FIXED)
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
-const PAIRS: Record<string, string> = {
-  XAUUSD: "OANDA:XAUUSD",
-  EURUSD: "OANDA:EURUSD",
-  GBPUSD: "OANDA:GBPUSD",
-  USDJPY: "OANDA:USDJPY",
-  GBPJPY: "OANDA:GBPJPY",
-  EURJPY: "OANDA:EURJPY",
-  NASDAQ: "NASDAQ:IXIC",
-  SP500: "SP:SPX",
-  OIL: "TVC:USOIL",
-};
-
 export default function Home() {
   const [data, setData] = useState<any>(null);
-  const [selectedPair, setSelectedPair] = useState("XAUUSD");
-  const [banner, setBanner] = useState("");
-  const knownSignals = useRef<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [time, setTime] = useState(new Date());
 
   async function load() {
     try {
-      const res = await fetch(`${API_URL}/pro-signals?interval=5m`, {
-        cache: "no-store",
-      });
-
+      const res = await fetch(`${API_URL}/pro-signals?interval=5m`);
       const json = await res.json();
-
-      const active = json.active || [];
-      const pending = json.pending || [];
-
-      for (const s of [...active, ...pending]) {
-        if (!s.id) continue;
-
-        if (!knownSignals.current.has(s.id)) {
-          knownSignals.current.add(s.id);
-          setBanner(`New ${s.display_decision}: ${s.market}`);
-
-          setTimeout(() => setBanner(""), 5000);
-        }
-      }
-
       setData(json);
     } catch {
       setData(null);
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => {
     load();
-    const refresh = setInterval(load, 60000);
-    return () => clearInterval(refresh);
+    const refresh = setInterval(load, 10000); // 10 sec
+    const clock = setInterval(() => setTime(new Date()), 1000);
+
+    return () => {
+      clearInterval(refresh);
+      clearInterval(clock);
+    };
   }, []);
 
-  const chartSymbol = encodeURIComponent(PAIRS[selectedPair]);
+  function getSession() {
+    const hour = new Date().getUTCHours();
+
+    if (hour >= 0 && hour < 8) return "Asia";
+    if (hour >= 8 && hour < 16) return "London";
+    if (hour >= 16 && hour < 22) return "New York";
+    return "Off Market";
+  }
 
   return (
-    <main className="min-h-screen bg-black px-6 py-6 text-white">
-
-      {/* ALERT */}
-      {banner && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold">
-          🔔 {banner}
-        </div>
-      )}
+    <main className="min-h-screen bg-black text-white p-6">
 
       {/* HEADER */}
-      <h1 className="text-3xl text-yellow-400 mb-6 font-bold">
-        EasyPips AI Dashboard
-      </h1>
+      <div className="flex justify-between mb-6">
+        <div>
+          <h1 className="text-3xl text-yellow-400 font-bold">
+            EasyPips AI
+          </h1>
+          <p className="text-gray-400 text-sm">
+            Live Trading Dashboard
+          </p>
+        </div>
 
-      {/* STATS */}
-      <div className="grid md:grid-cols-4 gap-4 mb-6">
-        <Card title="Engine" value={data ? "ONLINE" : "OFFLINE"} />
-        <Card title="Active" value={data?.active?.length ?? 0} />
-        <Card title="Pending" value={data?.pending?.length ?? 0} />
-        <Card title="Closed" value={data?.closed?.length ?? 0} />
+        <div className="text-right">
+          <p className="text-sm text-gray-400">
+            {time.toLocaleTimeString()}
+          </p>
+          <p className="text-yellow-300 font-bold">
+            {getSession()}
+          </p>
+        </div>
       </div>
 
-      {/* PAIR SWITCH */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {Object.keys(PAIRS).map((pair) => (
-          <button
-            key={pair}
-            onClick={() => setSelectedPair(pair)}
-            className={`px-4 py-2 rounded ${
-              selectedPair === pair
-                ? "bg-yellow-400 text-black"
-                : "bg-gray-900 text-gray-300"
-            }`}
-          >
-            {pair}
-          </button>
-        ))}
+      {/* STATUS */}
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <Box label="Engine" value={data ? "ONLINE" : "OFFLINE"} />
+        <Box label="Active" value={data?.active?.length ?? 0} />
+        <Box label="Pending" value={data?.pending?.length ?? 0} />
       </div>
 
-      {/* CHART */}
-      <div className="mb-6 border border-gray-800 rounded-xl overflow-hidden">
-        <iframe
-          key={selectedPair}
-          src={`https://www.tradingview.com/widgetembed/?symbol=${chartSymbol}&interval=5&theme=dark`}
-          className="w-full h-[500px]"
-        />
-      </div>
+      {/* LOADING */}
+      {loading && (
+        <div className="text-gray-400">Loading signals...</div>
+      )}
 
       {/* ACTIVE */}
       <h2 className="text-green-400 mb-3">Active Signals</h2>
@@ -119,17 +88,9 @@ export default function Home() {
 
       {/* PENDING */}
       <h2 className="text-yellow-300 mb-3">Pending Orders</h2>
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
+      <div className="grid md:grid-cols-3 gap-4">
         {data?.pending?.map((s: any, i: number) => (
           <SignalCard key={i} s={s} pending />
-        ))}
-      </div>
-
-      {/* CLOSED */}
-      <h2 className="text-blue-400 mb-3">Closed Results</h2>
-      <div className="grid md:grid-cols-3 gap-4">
-        {data?.closed?.map((s: any, i: number) => (
-          <ClosedCard key={i} s={s} />
         ))}
       </div>
 
@@ -139,38 +100,63 @@ export default function Home() {
 
 /* ---------- COMPONENTS ---------- */
 
-function Card({ title, value }: any) {
+function Box({ label, value }: any) {
   return (
-    <div className="border border-gray-700 p-4 rounded-xl">
-      <p className="text-xs text-gray-400">{title}</p>
+    <div className="bg-gray-900 p-4 rounded-xl border border-gray-800">
+      <p className="text-xs text-gray-400">{label}</p>
       <p className="text-2xl">{value}</p>
     </div>
   );
 }
 
 function SignalCard({ s, pending = false }: any) {
+  const expiry = s.valid_until
+    ? new Date(s.valid_until).getTime()
+    : 0;
+
+  const now = Date.now();
+  const total = 30 * 60 * 1000;
+  const remaining = Math.max(0, expiry - now);
+
+  const percent = Math.min(100, (remaining / total) * 100);
+
   return (
     <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl">
-      <h3>{s.market}</h3>
 
-      <p>{pending ? "Trigger" : "Entry"}: {s.entry ?? s.trigger_price}</p>
+      <div className="flex justify-between">
+        <h3>{s.market}</h3>
+
+        <span
+          className={`px-2 py-1 text-xs rounded ${
+            s.display_decision?.includes("BUY")
+              ? "bg-green-500 text-black"
+              : "bg-red-500 text-white"
+          }`}
+        >
+          {s.display_decision}
+        </span>
+      </div>
+
+      <p>Entry: {s.entry ?? s.trigger_price}</p>
       <p>SL: {s.stop_loss}</p>
       <p>TP1: {s.tp1}</p>
 
-      <p className="text-xs text-gray-400 mt-2">
+      {/* COUNTDOWN BAR */}
+      <div className="mt-3">
+        <div className="h-2 bg-gray-800 rounded">
+          <div
+            className="h-2 bg-yellow-400 rounded"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+        <p className="text-xs text-gray-400 mt-1">
+          {Math.floor(remaining / 60000)} min left
+        </p>
+      </div>
+
+      <p className="text-xs text-gray-500 mt-2">
         {pending ? "Pending" : "Active"}
       </p>
-    </div>
-  );
-}
-
-function ClosedCard({ s }: any) {
-  return (
-    <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl">
-      <h3>{s.market}</h3>
-      <p>Result: {s.result}</p>
-      <p>Entry: {s.entry ?? s.trigger_price}</p>
-      <p>Closed: {s.closed_price}</p>
     </div>
   );
 }
