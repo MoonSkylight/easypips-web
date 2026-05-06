@@ -21,14 +21,12 @@ export default function Home() {
   const [data, setData] = useState<any>(null);
   const [selectedPair, setSelectedPair] = useState("XAUUSD");
   const [loading, setLoading] = useState(true);
-  const [now, setNow] = useState(Date.now());
 
   async function load() {
     try {
       const res = await fetch(`${API_URL}/pro-signals?interval=5m`, {
         cache: "no-store",
       });
-
       const json = await res.json();
       setData(json);
 
@@ -46,317 +44,358 @@ export default function Home() {
 
   useEffect(() => {
     load();
-
-    const refresh = setInterval(load, 10000);
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-
-    return () => {
-      clearInterval(refresh);
-      clearInterval(timer);
-    };
+    const i = setInterval(load, 10000);
+    return () => clearInterval(i);
   }, []);
 
+  const active = data?.active || [];
+  const pending = data?.pending || [];
+  const closed = data?.closed || [];
+  const top = data?.top_trade || data?.top_pending;
   const chartSymbol = encodeURIComponent(PAIRS[selectedPair] || "OANDA:XAUUSD");
-  const topTrade = data?.top_trade || data?.top_pending;
 
   return (
-    <main className="min-h-screen bg-black px-5 py-6 text-white">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <main className="min-h-screen bg-[#07111f] text-[#eef4ff]">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07111f]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 place-items-center rounded-2xl border border-teal-400/40 bg-teal-400/10 text-teal-300">
+              ↗
+            </div>
+            <div>
+              <h1 className="text-xl font-extrabold tracking-tight">EasyPips AI</h1>
+              <p className="text-xs text-slate-400">AI Forex Signals Platform</p>
+            </div>
+          </div>
+
+          <button
+            onClick={load}
+            className="rounded-2xl bg-gradient-to-r from-teal-400 to-cyan-300 px-5 py-3 font-bold text-slate-950"
+          >
+            {loading ? "Updating..." : "Refresh"}
+          </button>
+        </div>
+      </header>
+
+      <section className="mx-auto grid max-w-7xl gap-6 px-5 py-10 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
-          <h1 className="text-3xl font-bold text-yellow-400">EasyPips AI</h1>
-          <p className="text-sm text-gray-400">
-            Balanced performance signals with chart trade levels
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+            <span className="h-2.5 w-2.5 rounded-full bg-green-400 shadow-[0_0_18px_rgba(34,197,94,0.7)]" />
+            Engine {data ? "online" : "offline"} · Auto refresh 10s
+          </div>
+
+          <h2 className="max-w-3xl text-5xl font-extrabold leading-tight tracking-tight md:text-7xl">
+            AI forex signals with clean execution and visible risk.
+          </h2>
+
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-400">
+            Live active signals, pending orders, stop loss, targets, confidence,
+            expiry and chart levels in one professional dashboard.
           </p>
-          <p className="mt-1 text-xs text-gray-500">
-            API: {data ? "ONLINE" : "OFFLINE"} · Mode: {data?.summary?.mode || "-"}
-          </p>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Stat label="Active Signals" value={active.length} />
+            <Stat label="Pending Orders" value={pending.length} />
+            <Stat label="Closed Results" value={closed.length} />
+          </div>
         </div>
 
-        <button
-          onClick={load}
-          className="rounded-xl bg-blue-600 px-4 py-2 font-bold"
-        >
-          {loading ? "Loading..." : "Refresh"}
-        </button>
-      </div>
+        <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 shadow-2xl">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                Live AI scanner
+              </p>
+              <h3 className="text-xl font-bold">
+                {top ? `${top.market} · ${top.display_decision}` : "Waiting for setup"}
+              </h3>
+            </div>
+            <span className="rounded-full bg-green-400/15 px-3 py-2 text-xs font-extrabold uppercase text-green-300">
+              {data?.summary?.mode || "Live"}
+            </span>
+          </div>
 
-      <div className="mb-6 grid gap-4 md:grid-cols-4">
-        <Stat label="Engine" value={data ? "ONLINE" : "OFFLINE"} tone="green" />
-        <Stat label="Active" value={data?.active?.length ?? 0} tone="green" />
-        <Stat label="Pending" value={data?.pending?.length ?? 0} tone="yellow" />
-        <Stat label="Closed" value={data?.closed?.length ?? 0} tone="blue" />
-      </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-3xl border border-white/10 bg-[#0c1729] p-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                Top Signal
+              </p>
+              <h4 className="mt-2 text-2xl font-bold">
+                {top?.market || "No signal"}
+              </h4>
+              <div className="mt-5 space-y-3">
+                <MiniRow label="Type" value={top?.display_decision || "-"} />
+                <MiniRow label="Entry" value={format(top?.entry ?? top?.trigger_price)} />
+                <MiniRow label="Stop Loss" value={format(top?.stop_loss)} danger />
+                <MiniRow label="TP1" value={format(top?.tp1)} success />
+              </div>
+            </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {Object.keys(PAIRS).map((pair) => (
-          <button
-            key={pair}
-            onClick={() => setSelectedPair(pair)}
-            className={`rounded-lg px-4 py-2 text-sm font-bold ${
-              selectedPair === pair
-                ? "bg-yellow-400 text-black"
-                : "bg-gray-900 text-gray-300"
-            }`}
-          >
-            {pair}
-          </button>
-        ))}
-      </div>
+            <div className="rounded-3xl border border-white/10 bg-[#0c1729] p-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                Watchlist
+              </p>
+              {Object.keys(PAIRS).slice(0, 6).map((pair) => (
+                <button
+                  key={pair}
+                  onClick={() => setSelectedPair(pair)}
+                  className="flex w-full items-center justify-between border-b border-white/10 py-3 text-left last:border-0"
+                >
+                  <span>{pair}</span>
+                  <span className="font-mono text-teal-300">
+                    {selectedPair === pair ? "CHART" : "VIEW"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div className="mb-6 overflow-hidden rounded-2xl border border-gray-800 bg-gray-950">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-800 px-4 py-3">
-          <h2 className="font-bold text-yellow-400">Live Chart: {selectedPair}</h2>
-          {topTrade && (
+      <section className="mx-auto max-w-7xl px-5 py-4">
+        <div className="mb-4 flex flex-wrap gap-2">
+          {Object.keys(PAIRS).map((pair) => (
             <button
-              onClick={() => setSelectedPair(topTrade.market)}
-              className="rounded-lg bg-yellow-400 px-3 py-1 text-sm font-bold text-black"
+              key={pair}
+              onClick={() => setSelectedPair(pair)}
+              className={`rounded-full px-4 py-2 text-sm font-bold ${
+                selectedPair === pair
+                  ? "bg-teal-300 text-slate-950"
+                  : "border border-white/10 bg-white/5 text-slate-300"
+              }`}
             >
-              Show Top Signal
+              {pair}
             </button>
+          ))}
+        </div>
+
+        <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0c1729] shadow-2xl">
+          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                Live Chart
+              </p>
+              <h3 className="text-xl font-bold">{selectedPair}</h3>
+            </div>
+            {top && (
+              <button
+                onClick={() => setSelectedPair(top.market)}
+                className="rounded-2xl bg-teal-300 px-4 py-2 font-bold text-slate-950"
+              >
+                Show Top Signal
+              </button>
+            )}
+          </div>
+
+          <iframe
+            key={selectedPair}
+            src={`https://www.tradingview.com/widgetembed/?symbol=${chartSymbol}&interval=5&theme=dark&style=1`}
+            className="h-[540px] w-full"
+            allowFullScreen
+          />
+
+          {top && (
+            <div className="border-t border-white/10 p-5">
+              <h3 className="mb-4 text-xl font-bold text-teal-300">
+                Chart Trade Levels · {top.market}
+              </h3>
+              <div className="grid gap-4 md:grid-cols-5">
+                <Level label="Entry / Trigger" value={top.entry ?? top.trigger_price} />
+                <Level label="Stop Loss" value={top.stop_loss} danger />
+                <Level label="TP1" value={top.tp1} success />
+                <Level label="TP2" value={top.tp2} success />
+                <Level label="TP3" value={top.tp3} success />
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-10">
+        <div className="mb-5 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-slate-400">
+              Signal feed
+            </p>
+            <h2 className="text-4xl font-extrabold tracking-tight">
+              Best entries without overwhelming the user.
+            </h2>
+          </div>
+        </div>
+
+        <h3 className="mb-3 text-xl font-bold text-green-400">Active Signals</h3>
+        <div className="mb-8 grid gap-5 md:grid-cols-3">
+          {active.length ? (
+            active.map((s: any, i: number) => (
+              <SignalCard key={`a-${i}`} s={s} onClick={() => setSelectedPair(s.market)} />
+            ))
+          ) : (
+            <Empty text="No active signals right now." />
           )}
         </div>
 
-        <iframe
-          key={selectedPair}
-          src={`https://www.tradingview.com/widgetembed/?symbol=${chartSymbol}&interval=5&theme=dark&style=1`}
-          className="h-[520px] w-full"
-          allowFullScreen
-        />
+        <h3 className="mb-3 text-xl font-bold text-yellow-300">Pending Orders</h3>
+        <div className="mb-8 grid gap-5 md:grid-cols-3">
+          {pending.length ? (
+            pending.map((s: any, i: number) => (
+              <SignalCard
+                key={`p-${i}`}
+                s={s}
+                pending
+                onClick={() => setSelectedPair(s.market)}
+              />
+            ))
+          ) : (
+            <Empty text="No pending orders right now." />
+          )}
+        </div>
 
-        {topTrade && (
-          <div className="border-t border-gray-800 p-4">
-            <h3 className="mb-3 font-bold text-yellow-400">
-              Trade Levels on Chart: {topTrade.market} · {topTrade.display_decision}
-            </h3>
+        <h3 className="mb-3 text-xl font-bold text-blue-400">Closed Results</h3>
+        <div className="grid gap-5 md:grid-cols-3">
+          {closed.length ? (
+            closed.map((s: any, i: number) => <ClosedCard key={`c-${i}`} s={s} />)
+          ) : (
+            <Empty text="No closed results yet." />
+          )}
+        </div>
+      </section>
 
-            <div className="grid gap-3 md:grid-cols-5">
-              <Level label="Entry / Trigger" value={topTrade.entry ?? topTrade.trigger_price} tone="white" />
-              <Level label="Stop Loss" value={topTrade.stop_loss} tone="red" />
-              <Level label="TP1" value={topTrade.tp1} tone="green" />
-              <Level label="TP2" value={topTrade.tp2} tone="green" />
-              <Level label="TP3" value={topTrade.tp3} tone="green" />
-            </div>
-
-            <p className="mt-3 text-xs text-gray-400">
-              TradingView iframe cannot draw custom lines directly, so levels are shown below the chart as exact trade markers.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {data?.top_trade && (
-        <TopBox title="TOP ACTIVE SIGNAL" item={data.top_trade} />
-      )}
-
-      {data?.top_pending && (
-        <TopBox title="TOP PENDING ORDER" item={data.top_pending} pending />
-      )}
-
-      <h2 className="mb-3 text-xl font-bold text-green-400">Active Signals</h2>
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
-        {data?.active?.length ? (
-          data.active.map((s: any, i: number) => (
-            <SignalCard
-              key={`active-${i}`}
-              s={s}
-              now={now}
-              onClick={() => setSelectedPair(s.market)}
-            />
-          ))
-        ) : (
-          <Empty text="No active signals right now." />
-        )}
-      </div>
-
-      <h2 className="mb-3 text-xl font-bold text-yellow-300">Pending Orders</h2>
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
-        {data?.pending?.length ? (
-          data.pending.map((s: any, i: number) => (
-            <SignalCard
-              key={`pending-${i}`}
-              s={s}
-              pending
-              now={now}
-              onClick={() => setSelectedPair(s.market)}
-            />
-          ))
-        ) : (
-          <Empty text="No pending orders right now." />
-        )}
-      </div>
-
-      <h2 className="mb-3 text-xl font-bold text-blue-400">Closed Results</h2>
-      <div className="grid gap-4 md:grid-cols-3">
-        {data?.closed?.length ? (
-          data.closed.map((s: any, i: number) => (
-            <ClosedCard key={`closed-${i}`} s={s} />
-          ))
-        ) : (
-          <Empty text="No closed results yet." />
-        )}
-      </div>
+      <footer className="mx-auto max-w-7xl px-5 pb-10 text-sm text-slate-500">
+        Risk warning: Forex and leveraged products carry high risk. Signals are
+        decision-support only, not financial advice.
+      </footer>
     </main>
   );
 }
 
-function Stat({ label, value, tone }: any) {
-  const colors: any = {
-    green: "border-green-500 text-green-400",
-    yellow: "border-yellow-400 text-yellow-300",
-    blue: "border-blue-500 text-blue-400",
-  };
-
+function Stat({ label, value }: any) {
   return (
-    <div className={`rounded-xl border ${colors[tone]} bg-gray-950 p-4`}>
-      <p className="text-xs text-gray-400">{label}</p>
-      <p className="text-2xl font-bold">{value}</p>
+    <div className="rounded-3xl border border-white/10 bg-[#0c1729] p-5 shadow-xl">
+      <p className="text-sm text-slate-400">{label}</p>
+      <strong className="mt-2 block text-3xl">{value}</strong>
     </div>
   );
 }
 
-function Level({ label, value, tone }: any) {
-  const colors: any = {
-    white: "text-white",
-    red: "text-red-400",
-    green: "text-green-400",
-  };
-
+function MiniRow({ label, value, success, danger }: any) {
   return (
-    <div className="rounded-xl border border-gray-800 bg-black p-3">
-      <p className="text-xs text-gray-400">{label}</p>
-      <p className={`text-lg font-bold ${colors[tone]}`}>{formatValue(value)}</p>
+    <div className="flex justify-between rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3">
+      <span className="text-sm text-slate-400">{label}</span>
+      <span
+        className={`font-mono font-bold ${
+          success ? "text-green-400" : danger ? "text-red-400" : "text-white"
+        }`}
+      >
+        {value}
+      </span>
     </div>
   );
 }
 
-function TopBox({ title, item, pending = false }: any) {
+function Level({ label, value, success, danger }: any) {
   return (
-    <div className={`mb-6 rounded-2xl border p-5 ${
-      pending
-        ? "border-yellow-400 bg-yellow-400/10"
-        : "border-green-500 bg-green-500/10"
-    }`}>
-      <h2 className={`mb-3 text-xl font-bold ${pending ? "text-yellow-300" : "text-green-400"}`}>
-        {title}
-      </h2>
-
-      <div className="grid gap-3 md:grid-cols-5">
-        <Level label="Pair" value={item.market} tone="white" />
-        <Level label={pending ? "Trigger" : "Entry"} value={item.entry ?? item.trigger_price} tone="white" />
-        <Level label="SL" value={item.stop_loss} tone="red" />
-        <Level label="TP1" value={item.tp1} tone="green" />
-        <Level label="Confidence" value={`${item.confidence}%`} tone="white" />
-      </div>
-
-      <p className="mt-3 text-sm text-gray-300">
-        {item.reasons?.join(", ")}
+    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] p-4">
+      <p className="text-xs uppercase tracking-widest text-slate-400">{label}</p>
+      <p
+        className={`mt-2 font-mono text-xl font-bold ${
+          success ? "text-green-400" : danger ? "text-red-400" : "text-white"
+        }`}
+      >
+        {format(value)}
       </p>
     </div>
   );
 }
 
-function SignalCard({ s, pending = false, now, onClick }: any) {
-  const confidence = s.confidence || 0;
-  const expiry = s.valid_until ? new Date(s.valid_until).getTime() : 0;
-  const seconds = Math.max(0, Math.floor((expiry - now) / 1000));
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-
-  let barColor = "bg-red-500";
-  if (confidence >= 75) barColor = "bg-green-500";
-  else if (confidence >= 60) barColor = "bg-yellow-400";
+function SignalCard({ s, pending = false, onClick }: any) {
+  const confidence = Number(s.confidence || 0);
+  const isBuy = String(s.display_decision || "").includes("BUY");
+  const isSell = String(s.display_decision || "").includes("SELL");
 
   return (
-    <div
+    <button
       onClick={onClick}
-      className="cursor-pointer rounded-2xl border border-gray-800 bg-gray-950 p-4 transition hover:border-yellow-400"
+      className="rounded-3xl border border-white/10 bg-[#0c1729] p-5 text-left shadow-xl transition hover:-translate-y-1 hover:border-teal-300/60"
     >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h3 className="text-xl font-bold">{s.market}</h3>
-
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-slate-400">
+            {pending ? "Pending order" : "Live signal"}
+          </p>
+          <h3 className="mt-1 text-2xl font-bold">{s.market}</h3>
+        </div>
         <span
-          className={`rounded-full px-3 py-1 text-xs font-bold ${
-            s.display_decision?.includes("BUY")
-              ? "bg-green-500 text-black"
-              : s.display_decision?.includes("SELL")
-              ? "bg-red-500 text-white"
-              : "bg-yellow-400 text-black"
+          className={`rounded-full px-3 py-2 text-xs font-extrabold uppercase ${
+            isBuy
+              ? "bg-green-400/15 text-green-300"
+              : isSell
+              ? "bg-red-400/15 text-red-300"
+              : "bg-yellow-400/15 text-yellow-300"
           }`}
         >
           {s.display_decision}
         </span>
       </div>
 
-      <div className="space-y-1 text-sm">
-        <p>{pending ? "Trigger" : "Entry"}: {formatValue(s.entry ?? s.trigger_price)}</p>
-        <p>Latest: {formatValue(s.latest_price)}</p>
-        <p>SL: <span className="text-red-400">{formatValue(s.stop_loss)}</span></p>
-        <p>TP1: <span className="text-green-400">{formatValue(s.tp1)}</span></p>
-        <p>TP2: <span className="text-green-400">{formatValue(s.tp2)}</span></p>
-        <p>TP3: <span className="text-green-400">{formatValue(s.tp3)}</span></p>
+      <div className="grid grid-cols-2 gap-3">
+        <Level label={pending ? "Trigger" : "Entry"} value={s.entry ?? s.trigger_price} />
+        <Level label="Stop Loss" value={s.stop_loss} danger />
+        <Level label="TP1" value={s.tp1} success />
+        <Level label="Confidence" value={`${confidence}%`} />
       </div>
 
-      <div className="mt-3">
-        <div className="h-2 rounded bg-gray-800">
-          <div
-            className={`h-2 rounded ${barColor}`}
-            style={{ width: `${Math.min(confidence, 100)}%` }}
-          />
-        </div>
-        <p className="mt-1 text-xs text-gray-400">{confidence}% confidence</p>
+      <div className="mt-4 h-2 rounded-full bg-white/10">
+        <div
+          className="h-2 rounded-full bg-gradient-to-r from-teal-400 to-cyan-300"
+          style={{ width: `${Math.min(confidence, 100)}%` }}
+        />
       </div>
-
-      <p className="mt-2 text-xs text-yellow-300">
-        Valid: {mins}:{String(secs).padStart(2, "0")}
-      </p>
-    </div>
+    </button>
   );
 }
 
 function ClosedCard({ s }: any) {
   const result = String(s.result || "CLOSED");
+  const good = result.includes("TP");
+  const bad = result.includes("STOP");
 
   return (
-    <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
-      <div className="mb-2 flex justify-between">
-        <h3 className="font-bold">{s.market}</h3>
+    <div className="rounded-3xl border border-white/10 bg-[#0c1729] p-5 shadow-xl">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-xl font-bold">{s.market}</h3>
         <span
-          className={`rounded px-2 py-1 text-xs font-bold ${
-            result.includes("TP")
-              ? "bg-green-500 text-black"
-              : result.includes("STOP")
-              ? "bg-red-500 text-white"
-              : "bg-yellow-400 text-black"
+          className={`rounded-full px-3 py-2 text-xs font-extrabold ${
+            good
+              ? "bg-green-400/15 text-green-300"
+              : bad
+              ? "bg-red-400/15 text-red-300"
+              : "bg-yellow-400/15 text-yellow-300"
           }`}
         >
           {result}
         </span>
       </div>
-
-      <p>Entry: {formatValue(s.entry ?? s.trigger_price)}</p>
-      <p>Closed: {formatValue(s.closed_price)}</p>
-      <p>SL: {formatValue(s.stop_loss)}</p>
-      <p>TP1: {formatValue(s.tp1)}</p>
+      <MiniRow label="Entry" value={format(s.entry ?? s.trigger_price)} />
+      <div className="mt-3">
+        <MiniRow label="Closed" value={format(s.closed_price)} />
+      </div>
     </div>
   );
 }
 
 function Empty({ text }: { text: string }) {
   return (
-    <div className="col-span-full rounded-xl border border-gray-800 bg-gray-950 p-5 text-gray-400">
+    <div className="col-span-full rounded-3xl border border-white/10 bg-[#0c1729] p-6 text-slate-400">
       {text}
     </div>
   );
 }
 
-function formatValue(value: any) {
+function format(value: any) {
   if (value === null || value === undefined || value === "") return "-";
-
   const num = Number(value);
   if (Number.isNaN(num)) return value;
-
   if (Math.abs(num) < 10) return num.toFixed(5);
   if (Math.abs(num) < 1000) return num.toFixed(3);
-
   return num.toFixed(2);
 }
