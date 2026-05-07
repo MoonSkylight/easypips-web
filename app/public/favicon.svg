@@ -1,0 +1,7 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="EasyPips AI favicon" role="img">
+  <rect width="64" height="64" rx="18" fill="#07111F"/>
+  <rect x="14" y="16" width="36" height="32" rx="10" stroke="#5EEAD4" stroke-width="2.5"/>
+  <path d="M22 41L28 34L34 38L42 26" stroke="#5EEAD4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="22" cy="41" r="2.4" fill="#34D399"/>
+  <circle cx="42" cy="26" r="2.4" fill="#22D3EE"/>
+</svg>
