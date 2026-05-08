@@ -192,7 +192,7 @@ export default function Home() {
                     <Stat label="Price" value={fmt(selectedSignal.latest_price)} />
                     <Stat label="Entry" value={fmt(selectedSignal.entry ?? selectedSignal.trigger_price)} />
                     <Stat label="SL" value={fmt(selectedSignal.stop_loss)} tone="red" />
-                    <Stat label="TP1" value={fmt(selectedSignal.tp1 ?? selectedSignal.take_profit)} tone="green" />
+                    <Stat label="TP1" value={fmt(selectedSignal.tp1)} tone="green" />
                     <Stat label="Confidence" value={selectedSignal.confidence != null ? `${selectedSignal.confidence}%` : "-"} />
                   </div>
 
