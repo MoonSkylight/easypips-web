@@ -6,8 +6,8 @@ import {
   LineStyle,
   createChart,
   type IChartApi,
-  type ISeriesApi,
   type IPriceLine,
+  type ISeriesApi,
   type UTCTimestamp,
 } from "lightweight-charts";
 
@@ -44,6 +44,8 @@ type SignalLike = {
   latest_price?: number;
   stop_loss?: number;
   tp1?: number;
+  tp2?: number;
+  tp3?: number;
   confidence?: number;
   risk?: string;
   published_at?: string;
@@ -92,8 +94,6 @@ type DebugState = {
   chartStatus: string;
   engineError: string;
   chartError: string;
-  enginePreview: string;
-  chartPreview: string;
 };
 
 type DeskId = "RANO" | "FAHDI";
@@ -111,6 +111,7 @@ export default function Home() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [candles, setCandles] = useState<Candle[]>([]);
   const [selectedPair, setSelectedPair] = useState("XAUUSD");
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [engineLoading, setEngineLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
   const [debugOpen, setDebugOpen] = useState(false);
@@ -120,37 +121,36 @@ export default function Home() {
     chartStatus: "loading",
     engineError: "none",
     chartError: "none",
-    enginePreview: "No engine payload yet.",
-    chartPreview: "No chart payload yet.",
   });
 
   const active = data?.active || [];
   const pending = data?.pending || [];
   const closed = data?.closed || [];
+  const combinedSignals = [...active, ...pending];
   const top = data?.top_trade || data?.top_pending || null;
 
   const selectedSignal = useMemo(() => {
+    if (selectedSignalId) {
+      const found = combinedSignals.find((s) => s.id === selectedSignalId);
+      if (found) return found;
+    }
+
     return (
       active.find((s) => s.market === selectedPair) ||
       pending.find((s) => s.market === selectedPair) ||
       data?.latest_scan?.[selectedPair] ||
+      top ||
       null
     );
-  }, [active, pending, data, selectedPair]);
+  }, [active, pending, data, selectedPair, selectedSignalId, combinedSignals, top]);
 
   async function loadEngine() {
     setEngineLoading(true);
-
-    let nextEngineStatus = "loading";
-    let nextEngineError = "none";
-    let nextEnginePreview = "No engine payload yet.";
 
     try {
       const res = await fetch(`${API_URL}/pro-signals?interval=5m`, {
         cache: "no-store",
       });
-
-      nextEngineStatus = String(res.status);
 
       if (!res.ok) {
         throw new Error(`Engine HTTP ${res.status}`);
@@ -158,7 +158,6 @@ export default function Home() {
 
       const json: DashboardData = await res.json();
       setData(json);
-      nextEnginePreview = safePreview(json);
 
       const preferred =
         json?.top_trade?.market ||
@@ -166,33 +165,34 @@ export default function Home() {
         selectedPair;
 
       if (preferred && PAIRS[preferred]) {
-        setSelectedPair((current) => {
-          if (!current || !PAIRS[current]) return preferred;
-          return current;
-        });
+        setSelectedPair(preferred);
       }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to fetch";
-      nextEngineError = message;
-      nextEngineStatus = "failed";
-      setData(null);
-    } finally {
+
+      if (!selectedSignalId) {
+        const preferredSignal = json?.top_trade || json?.top_pending || null;
+        if (preferredSignal?.id) setSelectedSignalId(preferredSignal.id);
+      }
+
       setDebug((prev) => ({
         ...prev,
-        engineStatus: nextEngineStatus,
-        engineError: nextEngineError,
-        enginePreview: nextEnginePreview,
+        engineStatus: String(res.status),
+        engineError: "none",
       }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to fetch";
+      setData(null);
+      setDebug((prev) => ({
+        ...prev,
+        engineStatus: "failed",
+        engineError: message,
+      }));
+    } finally {
       setEngineLoading(false);
     }
   }
 
   async function loadChart(market: string) {
     setChartLoading(true);
-
-    let nextChartStatus = "loading";
-    let nextChartError = "none";
-    let nextChartPreview = "No chart payload yet.";
 
     try {
       const res = await fetch(
@@ -202,28 +202,27 @@ export default function Home() {
         { cache: "no-store" }
       );
 
-      nextChartStatus = String(res.status);
-
       if (!res.ok) {
         throw new Error(`Chart HTTP ${res.status}`);
       }
 
       const json: CandleResponse = await res.json();
-      const rows = Array.isArray(json?.candles) ? json.candles : [];
-      setCandles(rows);
-      nextChartPreview = safePreview(json);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to fetch";
-      nextChartError = message;
-      nextChartStatus = "failed";
-      setCandles([]);
-    } finally {
+      setCandles(Array.isArray(json?.candles) ? json.candles : []);
+
       setDebug((prev) => ({
         ...prev,
-        chartStatus: nextChartStatus,
-        chartError: nextChartError,
-        chartPreview: nextChartPreview,
+        chartStatus: String(res.status),
+        chartError: "none",
       }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to fetch";
+      setCandles([]);
+      setDebug((prev) => ({
+        ...prev,
+        chartStatus: "failed",
+        chartError: message,
+      }));
+    } finally {
       setChartLoading(false);
     }
   }
@@ -245,23 +244,18 @@ export default function Home() {
   }, [selectedPair]);
 
   const selectedPairMeta = PAIRS[selectedPair] || selectedPair;
-  const scannerTitle = top
-    ? `${top.market} · ${top.display_decision || top.decision || "LIVE"}`
-    : "Waiting for setup";
-
   const side = getTradeSide(selectedSignal);
   const entryValue = getSimpleEntry(selectedSignal);
   const stopValue = getSimpleStop(selectedSignal);
   const targetValue = getSimpleTarget(selectedSignal);
 
-  const deskAllowed = isDeskPair(selectedPair);
   const desk1Signal = buildDeskSignal(selectedSignal, "RANO");
   const desk2Signal = buildDeskSignal(selectedSignal, "FAHDI");
 
   return (
     <main className="min-h-screen bg-[#07111f] text-[#eef4ff]">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07111f]/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="grid h-11 w-11 place-items-center rounded-2xl border border-teal-400/30 bg-teal-400/10 text-lg text-teal-300">
               ↗
@@ -279,7 +273,6 @@ export default function Home() {
             >
               {debugOpen ? "Hide Debug" : "Debug"}
             </button>
-
             <button
               onClick={refreshAll}
               className="rounded-2xl bg-teal-300 px-5 py-3 font-bold text-slate-950"
@@ -290,7 +283,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-5 pt-6">
+      <section className="mx-auto max-w-[1500px] px-5 pt-5">
         <div className="grid gap-3 md:grid-cols-4">
           <StatusPill label="Engine" value={debug.engineStatus} ok={debug.engineStatus === "200"} />
           <StatusPill label="Chart" value={debug.chartStatus} ok={debug.chartStatus === "200"} />
@@ -299,309 +292,246 @@ export default function Home() {
         </div>
 
         {debugOpen ? (
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <DebugBox title="Errors">
-              <p className="text-sm text-slate-300">
-                Engine: <span className="font-mono text-white">{debug.engineError}</span>
-              </p>
-              <p className="mt-2 text-sm text-slate-300">
-                Chart: <span className="font-mono text-white">{debug.chartError}</span>
-              </p>
-            </DebugBox>
-
-            <DebugBox title="Payload Preview">
-              <p className="mb-2 text-xs uppercase tracking-widest text-slate-500">
-                Engine payload
-              </p>
-              <pre className="max-h-32 overflow-auto rounded-2xl bg-[#0f1c31] p-3 text-xs text-cyan-200">
-                {debug.enginePreview}
-              </pre>
-              <p className="mb-2 mt-4 text-xs uppercase tracking-widest text-slate-500">
-                Chart payload
-              </p>
-              <pre className="max-h-32 overflow-auto rounded-2xl bg-[#0f1c31] p-3 text-xs text-cyan-200">
-                {debug.chartPreview}
-              </pre>
-            </DebugBox>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <DebugCard title="Engine Error" value={debug.engineError} />
+            <DebugCard title="Chart Error" value={debug.chartError} />
           </div>
         ) : null}
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-5 py-8 lg:grid-cols-[1.08fr_0.92fr]">
-        <div>
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
-            <span
-              className={`h-2.5 w-2.5 rounded-full shadow-[0_0_18px_rgba(34,197,94,0.7)] ${
-                debug.engineStatus === "200" ? "bg-green-400" : "bg-red-400"
-              }`}
-            />
-            Engine {debug.engineStatus === "200" ? "online" : "offline"} · Auto refresh 10s
-          </div>
-
-          <h2 className="max-w-3xl text-5xl font-extrabold leading-tight tracking-tight md:text-7xl">
-            AI forex signals with clean execution and visible risk.
-          </h2>
-
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-400">
-            Live active signals, pending orders, stop loss, target, confidence,
-            expiry and chart levels in one professional dashboard.
-          </p>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <Stat label="Active Signals" value={active.length} />
-            <Stat label="Pending Orders" value={pending.length} />
-            <Stat label="Closed Results" value={closed.length} />
-          </div>
-        </div>
-
-        <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 shadow-2xl">
-          <div className="mb-4 flex items-center justify-between gap-3">
+      <section className="mx-auto max-w-[1500px] px-5 py-5">
+        <HighlightPanel
+          tint="yellow"
+          title="Selected Signal"
+          subtitle="Full trade information appears here when customer clicks a signal."
+        >
+          <div className="grid gap-4 xl:grid-cols-[1.15fr_1fr]">
             <div>
-              <p className="text-xs uppercase tracking-widest text-slate-400">
-                Live AI scanner
-              </p>
-              <h3 className="text-xl font-bold">{scannerTitle}</h3>
-            </div>
-            <span
-              className={`rounded-full px-3 py-2 text-xs font-extrabold uppercase ${
-                side === "LONG"
-                  ? "bg-green-400/15 text-green-300"
-                  : side === "SHORT"
-                  ? "bg-red-400/15 text-red-300"
-                  : "bg-yellow-400/15 text-yellow-300"
-              }`}
-            >
-              {side === "LONG" ? "LONG" : side === "SHORT" ? "SHORT" : "LIVE"}
-            </span>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-3xl border border-white/10 bg-[#0c1729] p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-slate-400">
-                    Top setup
-                  </p>
-                  <h4 className="mt-2 text-2xl font-bold">{top?.market || "No signal"}</h4>
-                  <p className="mt-1 text-sm text-slate-400">
-                    {top?.display_decision || "Waiting for a strong setup"}
-                  </p>
-                </div>
-                <span className="rounded-full bg-white/5 px-3 py-2 text-xs font-extrabold uppercase text-teal-300">
-                  {top?.confidence !== undefined ? `${top.confidence}%` : "—"}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1.5 text-xs font-bold uppercase text-yellow-100">
+                  {selectedSignal?.market || selectedPair}
+                </span>
+                <span
+                  className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase ${
+                    side === "LONG"
+                      ? "bg-green-400/15 text-green-300"
+                      : side === "SHORT"
+                      ? "bg-red-400/15 text-red-300"
+                      : "bg-slate-400/15 text-slate-300"
+                  }`}
+                >
+                  {selectedSignal?.display_decision || selectedSignal?.decision || "WAIT"}
                 </span>
               </div>
 
-              <div className="mt-5 space-y-3">
-                <MiniRow label="Type" value={top?.display_decision || "-"} />
-                <MiniRow label="Entry" value={format(getSimpleEntry(top))} />
-                <MiniRow label="Stop Loss" value={format(getSimpleStop(top))} danger />
-                <MiniRow label="Take Profit" value={format(getSimpleTarget(top))} success />
-              </div>
+              <h2 className="mt-4 text-3xl font-extrabold text-white">
+                {selectedSignal?.market || "No signal selected"}
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
+                {selectedSignal?.reasons?.length
+                  ? selectedSignal.reasons.slice(0, 2).join(" • ")
+                  : "Choose an active or pending signal to show complete trade details in this highlighted area."}
+              </p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-[#0c1729] p-4">
-              <p className="text-xs uppercase tracking-widest text-slate-400">
-                Watchlist
-              </p>
-              <div className="mt-3 space-y-1">
-                {Object.keys(PAIRS).slice(0, 8).map((pair) => (
-                  <button
-                    key={pair}
-                    onClick={() => setSelectedPair(pair)}
-                    className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left transition ${
-                      selectedPair === pair
-                        ? "bg-teal-300 text-slate-950"
-                        : "text-slate-200 hover:bg-white/5"
-                    }`}
-                  >
-                    <span className="font-semibold">{pair}</span>
-                    <span
-                      className={`text-xs font-mono ${
-                        selectedPair === pair ? "text-slate-900" : "text-teal-300"
-                      }`}
-                    >
-                      {selectedPair === pair ? "LIVE" : "VIEW"}
-                    </span>
-                  </button>
-                ))}
-              </div>
+            <div className="grid gap-3 md:grid-cols-4">
+              <MiniStat label="Entry" value={format(entryValue)} />
+              <MiniStat label="Stop Loss" value={format(stopValue)} danger />
+              <MiniStat label="Take Profit" value={format(targetValue)} success />
+              <MiniStat
+                label="Confidence"
+                value={
+                  selectedSignal?.confidence !== undefined
+                    ? `${selectedSignal.confidence}%`
+                    : "-"
+                }
+              />
             </div>
           </div>
-        </div>
+        </HighlightPanel>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-2">
-        <div className="mb-4 flex flex-wrap gap-2">
-          {Object.keys(PAIRS).map((pair) => (
-            <button
-              key={pair}
-              onClick={() => setSelectedPair(pair)}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition ${
-                selectedPair === pair
-                  ? "bg-teal-300 text-slate-950"
-                  : "border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
-              }`}
+      <section className="mx-auto max-w-[1500px] px-5 pb-10">
+        <div className="grid gap-5 xl:grid-cols-[300px_minmax(0,1fr)_330px]">
+          <div className="space-y-5">
+            <HighlightPanel
+              tint="blue"
+              title="Active & Pending Orders"
+              subtitle="Customer clicks any signal to show full information above."
             >
-              {pair}
-            </button>
-          ))}
-        </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-3 text-xs uppercase tracking-[0.22em] text-blue-200/70">
+                    Active Signals
+                  </p>
+                  <div className="space-y-2">
+                    {active.length ? (
+                      active.map((s, i) => (
+                        <SignalListItem
+                          key={`active-${i}`}
+                          signal={s}
+                          selected={selectedSignal?.id === s.id}
+                          onClick={() => {
+                            if (s.market) setSelectedPair(s.market);
+                            if (s.id) setSelectedSignalId(s.id);
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <EmptyInline text="No active signals right now." />
+                    )}
+                  </div>
+                </div>
 
-        <div className="mb-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <Panel title={`Daily Trade Levels · ${selectedSignal?.market || selectedPair}`}>
-            <div className="grid gap-3 md:grid-cols-3">
-              <Level label="Entry" value={entryValue} />
-              <Level label="Stop Loss" value={stopValue} danger />
-              <Level label="Take Profit" value={targetValue} success />
-            </div>
-          </Panel>
-
-          <Panel title="Senior Traders Desk">
-            {deskAllowed ? (
-              <div className="grid gap-4 md:grid-cols-2">
-                <SimpleDeskCard
-                  title="Desk 1"
-                  trader="Doctor Rano"
-                  about="Senior trader with 12 years experience."
-                  accent="sky"
-                  pair={selectedPair}
-                  signal={desk1Signal}
-                />
-                <SimpleDeskCard
-                  title="Desk 2"
-                  trader="Doctor Fahdi"
-                  about="Senior trader focused on disciplined daily market execution."
-                  accent="amber"
-                  pair={selectedPair}
-                  signal={desk2Signal}
-                />
+                <div>
+                  <p className="mb-3 text-xs uppercase tracking-[0.22em] text-blue-200/70">
+                    Pending Orders
+                  </p>
+                  <div className="space-y-2">
+                    {pending.length ? (
+                      pending.map((s, i) => (
+                        <SignalListItem
+                          key={`pending-${i}`}
+                          signal={s}
+                          selected={selectedSignal?.id === s.id}
+                          onClick={() => {
+                            if (s.market) setSelectedPair(s.market);
+                            if (s.id) setSelectedSignalId(s.id);
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <EmptyInline text="No pending orders right now." />
+                    )}
+                  </div>
+                </div>
               </div>
-            ) : (
-              <EmptyInline text="Senior trader desk signals are available only for Gold, Oil, and Nasdaq." />
-            )}
-          </Panel>
-        </div>
+            </HighlightPanel>
 
-        <div className="mb-6 grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.85fr)]">
-          <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0c1729] shadow-2xl">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-slate-400">
-                  Trading Chart
-                </p>
-                <h3 className="text-2xl font-bold">{selectedPair}</h3>
-                <p className="text-sm text-slate-500">{selectedPairMeta} · 5 minute view</p>
+            <HighlightPanel
+              tint="lightblue"
+              title="Contact & More Info"
+              subtitle="Telegram, contact details and customer support area."
+            >
+              <div className="space-y-3">
+                <ContactRow label="Telegram" value="@easypips_ai" />
+                <ContactRow label="Support" value="support@easypips.ai" />
+                <ContactRow label="Website" value="easypips-web.vercel.app" />
+                <ContactRow label="Hours" value="Mon - Fri · Market hours" />
+                <button className="mt-2 w-full rounded-2xl bg-sky-300 px-4 py-3 font-bold text-slate-950">
+                  Contact Us
+                </button>
               </div>
+            </HighlightPanel>
+          </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <LegendBadge label="Bullish" color="bg-green-400" />
-                <LegendBadge label="Bearish" color="bg-red-400" />
-                {top?.market && (
-                  <button
-                    onClick={() => top.market && setSelectedPair(top.market)}
-                    className="rounded-2xl bg-teal-300 px-4 py-2 font-bold text-slate-950"
-                  >
-                    Show Top Signal
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="p-4">
+          <div className="space-y-5">
+            <HighlightPanel
+              tint="green"
+              title="Live Chart"
+              subtitle={`${selectedPair} · ${selectedPairMeta} · Entry / SL / TP shown with the live chart`}
+            >
               <TradingViewLikeChart
                 candles={candles}
                 signal={selectedSignal}
                 loading={chartLoading}
                 pair={selectedPair}
               />
-            </div>
-          </div>
 
-          <div className="space-y-4">
-            <Panel title={`Trade Levels · ${selectedSignal?.market || selectedPair}`}>
-              <div className="grid gap-3">
-                <Level label="Entry" value={entryValue} />
-                <Level label="Stop Loss" value={stopValue} danger />
-                <Level label="Take Profit" value={targetValue} success />
+              <div className="mt-4 grid gap-3 md:grid-cols-4">
+                <MiniStat label="Entry" value={format(entryValue)} />
+                <MiniStat label="Stop Loss" value={format(stopValue)} danger />
+                <MiniStat label="Take Profit" value={format(targetValue)} success />
+                <MiniStat
+                  label="Timeframe"
+                  value={selectedSignal?.timeframe || "5m"}
+                />
               </div>
-            </Panel>
+            </HighlightPanel>
 
-            <Panel title="Reasons">
-              {selectedSignal?.reasons?.length ? (
-                <ul className="space-y-2 text-sm text-slate-300">
-                  {selectedSignal.reasons.slice(0, 5).map((reason, i) => (
-                    <li key={i} className="rounded-2xl bg-[#0f1c31] px-4 py-3">
-                      {reason}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <EmptyInline text="No reasons available for this pair yet." />
-              )}
-            </Panel>
+            <HighlightPanel
+              tint="purple"
+              title="Trade History"
+              subtitle="Recent closed trades, outcomes and results history."
+            >
+              <div className="space-y-2">
+                {closed.length ? (
+                  closed.slice(0, 6).map((s, i) => (
+                    <HistoryRow key={`closed-${i}`} signal={s} />
+                  ))
+                ) : (
+                  <EmptyInline text="No closed results yet." />
+                )}
+              </div>
+            </HighlightPanel>
+          </div>
+
+          <div className="space-y-5">
+            <HighlightPanel
+              tint="red"
+              title="Desk 1 & Desk 2"
+              subtitle="Senior traders area with separate information cards."
+            >
+              <div className="space-y-4">
+                <DeskCard
+                  title="Desk 1"
+                  trader="Doctor Rano"
+                  about="Senior trader with 12 years experience."
+                  accent="red"
+                  pair={selectedPair}
+                  signal={desk1Signal}
+                />
+                <DeskCard
+                  title="Desk 2"
+                  trader="Doctor Fahdi"
+                  about="Senior trader focused on disciplined daily market execution."
+                  accent="red"
+                  pair={selectedPair}
+                  signal={desk2Signal}
+                />
+              </div>
+            </HighlightPanel>
           </div>
         </div>
       </section>
-
-      <section className="mx-auto max-w-7xl px-5 py-10">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-slate-400">
-              Signal feed
-            </p>
-            <h2 className="text-4xl font-extrabold tracking-tight">
-              Best entries without overwhelming the user.
-            </h2>
-          </div>
-        </div>
-
-        <h3 className="mb-3 text-xl font-bold text-green-400">Active Signals</h3>
-        <div className="mb-8 grid gap-5 md:grid-cols-3">
-          {active.length ? (
-            active.map((s, i) => (
-              <SignalCard
-                key={`a-${i}`}
-                s={s}
-                onClick={() => s.market && setSelectedPair(s.market)}
-              />
-            ))
-          ) : (
-            <Empty text="No active signals right now." />
-          )}
-        </div>
-
-        <h3 className="mb-3 text-xl font-bold text-yellow-300">Pending Orders</h3>
-        <div className="mb-8 grid gap-5 md:grid-cols-3">
-          {pending.length ? (
-            pending.map((s, i) => (
-              <SignalCard
-                key={`p-${i}`}
-                s={s}
-                pending
-                onClick={() => s.market && setSelectedPair(s.market)}
-              />
-            ))
-          ) : (
-            <Empty text="No pending orders right now." />
-          )}
-        </div>
-
-        <h3 className="mb-3 text-xl font-bold text-blue-400">Closed Results</h3>
-        <div className="grid gap-5 md:grid-cols-3">
-          {closed.length ? (
-            closed.map((s, i) => <ClosedCard key={`c-${i}`} s={s} />)
-          ) : (
-            <Empty text="No closed results yet." />
-          )}
-        </div>
-      </section>
-
-      <footer className="mx-auto max-w-7xl px-5 pb-10 text-sm text-slate-500">
-        Risk warning: Forex and leveraged products carry high risk. Signals are
-        decision-support only, not financial advice.
-      </footer>
     </main>
+  );
+}
+
+function HighlightPanel({
+  title,
+  subtitle,
+  tint,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  tint: "yellow" | "blue" | "green" | "purple" | "lightblue" | "red";
+  children: React.ReactNode;
+}) {
+  const theme = {
+    yellow:
+      "border-yellow-400/25 shadow-[0_0_0_1px_rgba(250,204,21,0.08)] bg-[linear-gradient(180deg,rgba(250,204,21,0.10),rgba(12,23,41,0.94))]",
+    blue:
+      "border-blue-400/25 shadow-[0_0_0_1px_rgba(96,165,250,0.08)] bg-[linear-gradient(180deg,rgba(59,130,246,0.10),rgba(12,23,41,0.94))]",
+    green:
+      "border-emerald-400/25 shadow-[0_0_0_1px_rgba(52,211,153,0.08)] bg-[linear-gradient(180deg,rgba(16,185,129,0.10),rgba(12,23,41,0.94))]",
+    purple:
+      "border-fuchsia-400/20 shadow-[0_0_0_1px_rgba(217,70,239,0.08)] bg-[linear-gradient(180deg,rgba(168,85,247,0.10),rgba(12,23,41,0.94))]",
+    lightblue:
+      "border-sky-300/25 shadow-[0_0_0_1px_rgba(125,211,252,0.08)] bg-[linear-gradient(180deg,rgba(56,189,248,0.10),rgba(12,23,41,0.94))]",
+    red:
+      "border-rose-400/25 shadow-[0_0_0_1px_rgba(251,113,133,0.08)] bg-[linear-gradient(180deg,rgba(244,63,94,0.10),rgba(12,23,41,0.94))]",
+  }[tint];
+
+  return (
+    <section className={`rounded-[28px] border p-4 shadow-2xl ${theme}`}>
+      <div className="mb-4">
+        <p className="text-xs uppercase tracking-[0.25em] text-slate-400">{title}</p>
+        <p className="mt-1 text-sm text-slate-300">{subtitle}</p>
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -626,7 +556,7 @@ function TradingViewLikeChart({
 
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 620,
+      height: 500,
       layout: {
         background: { color: "#091425" },
         textColor: "#8fa3bf",
@@ -718,7 +648,6 @@ function TradingViewLikeChart({
   useEffect(() => {
     const chart = chartRef.current;
     const series = candleSeriesRef.current;
-
     if (!chart || !series) return;
 
     priceLinesRef.current.forEach((line) => {
@@ -799,7 +728,7 @@ function TradingViewLikeChart({
 
   if (loading) {
     return (
-      <div className="grid h-[620px] place-items-center rounded-[24px] border border-white/10 bg-[#091425] text-slate-400">
+      <div className="grid h-[500px] place-items-center rounded-[24px] border border-white/10 bg-[#091425] text-slate-400">
         Loading chart...
       </div>
     );
@@ -807,7 +736,7 @@ function TradingViewLikeChart({
 
   if (!candles.length) {
     return (
-      <div className="grid h-[620px] place-items-center rounded-[24px] border border-white/10 bg-[#091425] text-slate-400">
+      <div className="grid h-[500px] place-items-center rounded-[24px] border border-white/10 bg-[#091425] text-slate-400">
         No chart data for {pair}.
       </div>
     );
@@ -815,12 +744,55 @@ function TradingViewLikeChart({
 
   return (
     <div className="rounded-[24px] border border-white/10 bg-[#091425] p-2">
-      <div ref={chartContainerRef} className="h-[620px] w-full" />
+      <div ref={chartContainerRef} className="h-[500px] w-full" />
     </div>
   );
 }
 
-function SimpleDeskCard({
+function SignalListItem({
+  signal,
+  selected,
+  onClick,
+}: {
+  signal: SignalLike;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  const side = getTradeSide(signal);
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
+        selected
+          ? "border-blue-300/35 bg-blue-300/10"
+          : "border-white/10 bg-[#0f1c31] hover:border-blue-400/30 hover:bg-[#12233d]"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-bold text-white">{signal.market || "-"}</p>
+          <p className="text-xs text-slate-400">
+            {signal.display_decision || signal.decision || "WAIT"}
+          </p>
+        </div>
+        <span
+          className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${
+            side === "LONG"
+              ? "bg-green-400/15 text-green-300"
+              : side === "SHORT"
+              ? "bg-red-400/15 text-red-300"
+              : "bg-slate-500/15 text-slate-300"
+          }`}
+        >
+          {side}
+        </span>
+      </div>
+    </button>
+  );
+}
+
+function DeskCard({
   title,
   trader,
   about,
@@ -831,83 +803,68 @@ function SimpleDeskCard({
   title: string;
   trader: string;
   about: string;
-  accent: "sky" | "amber";
+  accent: "red";
   pair: string;
   signal: DeskSignal;
 }) {
-  const accentClasses =
-    accent === "sky"
-      ? {
-          badge: "border-sky-300/20 bg-sky-300/10 text-sky-100",
-          button: "bg-sky-300 text-slate-950",
-        }
-      : {
-          badge: "border-amber-300/20 bg-amber-300/10 text-amber-100",
-          button: "bg-amber-300 text-slate-950",
-        };
-
   return (
-    <div className="rounded-[24px] border border-white/10 bg-[#0f1c31] p-4">
+    <div className="rounded-[24px] border border-rose-300/20 bg-[#0f1c31] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-slate-400">{title}</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-rose-200/75">{title}</p>
           <h4 className="mt-2 text-xl font-bold text-white">{trader}</h4>
           <p className="mt-2 text-sm leading-6 text-slate-300">{about}</p>
         </div>
-        <span className={`rounded-full border px-3 py-1.5 text-xs font-bold uppercase ${accentClasses.badge}`}>
+        <span className="rounded-full border border-rose-300/20 bg-rose-300/10 px-3 py-1.5 text-xs font-bold uppercase text-rose-100">
           Live
         </span>
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <MiniInfo label="Pair" value={pair} />
-        <MiniInfo label="Bias" value={signal.side} />
-        <MiniInfo label="Entry" value={format(signal.entry)} />
-        <MiniInfo label="Stop Loss" value={format(signal.stopLoss)} />
-        <MiniInfo label="Take Profit" value={format(signal.target)} />
-        <MiniInfo label="Time" value={signal.time} />
+        <MiniStat label="Pair" value={pair} />
+        <MiniStat label="Bias" value={signal.side} />
+        <MiniStat label="Entry" value={format(signal.entry)} />
+        <MiniStat label="Stop Loss" value={format(signal.stopLoss)} danger />
+        <MiniStat label="Take Profit" value={format(signal.target)} success />
+        <MiniStat label="Time" value={signal.time} />
       </div>
 
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-slate-300">
         {signal.note}
       </div>
 
-      <button
-        className={`mt-4 w-full rounded-2xl px-4 py-3 font-bold ${accentClasses.button}`}
-      >
+      <button className="mt-4 w-full rounded-2xl bg-rose-300 px-4 py-3 font-bold text-slate-950">
         Chat with {trader}
       </button>
     </div>
   );
 }
 
-function Panel({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function HistoryRow({ signal }: { signal: SignalLike }) {
   return (
-    <div className="rounded-[28px] border border-white/10 bg-[#0c1729] p-4 shadow-2xl">
-      <p className="mb-4 text-xs uppercase tracking-widest text-slate-400">{title}</p>
-      {children}
+    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="font-bold text-white">{signal.market || "-"}</p>
+          <p className="text-xs text-slate-400">{signal.result || "Closed"}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-mono text-sm text-white">{format(signal.closed_price)}</p>
+          <p className="text-xs text-slate-500">
+            {signal.published_at ? new Date(signal.published_at).toLocaleString() : "-"}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
 
-function LegendBadge({
-  label,
-  color,
-}: {
-  label: string;
-  color: string;
-}) {
+function ContactRow({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-slate-300">
-      <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
-      {label}
-    </span>
+    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3">
+      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{label}</p>
+      <p className="mt-1 text-sm font-semibold text-white">{value}</p>
+    </div>
   );
 }
 
@@ -930,31 +887,16 @@ function StatusPill({
   );
 }
 
-function DebugBox({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function DebugCard({ title, value }: { title: string; value: string }) {
   return (
-    <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-4 shadow-xl">
-      <p className="mb-3 text-xs uppercase tracking-widest text-slate-400">{title}</p>
-      {children}
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+      <p className="text-xs uppercase tracking-widest text-slate-500">{title}</p>
+      <p className="mt-2 text-sm text-slate-300">{value}</p>
     </div>
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0c1729] p-5 shadow-xl">
-      <p className="text-sm text-slate-400">{label}</p>
-      <strong className="mt-2 block text-3xl">{value}</strong>
-    </div>
-  );
-}
-
-function MiniRow({
+function MiniStat({
   label,
   value,
   success,
@@ -966,154 +908,25 @@ function MiniRow({
   danger?: boolean;
 }) {
   return (
-    <div className="flex justify-between gap-4 rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3">
-      <span className="text-sm text-slate-400">{label}</span>
-      <span
-        className={`text-right font-mono font-bold ${
+    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3">
+      <p className="text-xs uppercase tracking-[0.22em] text-slate-400">{label}</p>
+      <p
+        className={`mt-2 text-sm font-bold ${
           success ? "text-green-400" : danger ? "text-red-400" : "text-white"
         }`}
       >
         {value}
-      </span>
-    </div>
-  );
-}
-
-function MiniInfo({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-[#12233d] p-4">
-      <p className="text-xs uppercase tracking-widest text-slate-400">{label}</p>
-      <p className="mt-2 text-sm font-semibold text-white">{value}</p>
-    </div>
-  );
-}
-
-function Level({
-  label,
-  value,
-  success,
-  danger,
-}: {
-  label: string;
-  value: number | string | undefined;
-  success?: boolean;
-  danger?: boolean;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] p-4">
-      <p className="text-xs uppercase tracking-widest text-slate-400">{label}</p>
-      <p
-        className={`mt-2 font-mono text-xl font-bold ${
-          success ? "text-green-400" : danger ? "text-red-400" : "text-white"
-        }`}
-      >
-        {format(value)}
       </p>
-    </div>
-  );
-}
-
-function SignalCard({
-  s,
-  pending = false,
-  onClick,
-}: {
-  s: SignalLike;
-  pending?: boolean;
-  onClick: () => void;
-}) {
-  const confidence = Number(s.confidence || 0);
-  const side = getTradeSide(s);
-
-  return (
-    <button
-      onClick={onClick}
-      className="rounded-3xl border border-white/10 bg-[#0c1729] p-5 text-left shadow-xl transition hover:-translate-y-1 hover:border-teal-300/60"
-    >
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-slate-400">
-            {pending ? "Pending order" : "Live signal"}
-          </p>
-          <h3 className="mt-1 text-2xl font-bold">{s.market || "-"}</h3>
-          <p className="mt-1 text-sm text-slate-500">{s.timeframe || "5m"}</p>
-        </div>
-        <span
-          className={`rounded-full px-3 py-2 text-xs font-extrabold uppercase ${
-            side === "LONG"
-              ? "bg-green-400/15 text-green-300"
-              : side === "SHORT"
-              ? "bg-red-400/15 text-red-300"
-              : "bg-yellow-400/15 text-yellow-300"
-          }`}
-        >
-          {s.display_decision || s.decision || "WAIT"}
-        </span>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Level label="Entry" value={getSimpleEntry(s)} />
-        <Level label="Stop Loss" value={getSimpleStop(s)} danger />
-        <Level label="Take Profit" value={getSimpleTarget(s)} success />
-        <Level label="Confidence" value={`${confidence}%`} />
-      </div>
-    </button>
-  );
-}
-
-function ClosedCard({ s }: { s: SignalLike }) {
-  const result = String(s.result || "CLOSED");
-  const good = result.includes("TP");
-  const bad = result.includes("STOP");
-
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0c1729] p-5 shadow-xl">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-xl font-bold">{s.market || "-"}</h3>
-        <span
-          className={`rounded-full px-3 py-2 text-xs font-extrabold ${
-            good
-              ? "bg-green-400/15 text-green-300"
-              : bad
-              ? "bg-red-400/15 text-red-300"
-              : "bg-yellow-400/15 text-yellow-300"
-          }`}
-        >
-          {result}
-        </span>
-      </div>
-      <MiniRow label="Entry" value={format(getSimpleEntry(s))} />
-      <div className="mt-3">
-        <MiniRow label="Closed" value={format(s.closed_price)} />
-      </div>
-    </div>
-  );
-}
-
-function Empty({ text }: { text: string }) {
-  return (
-    <div className="col-span-full rounded-3xl border border-white/10 bg-[#0c1729] p-6 text-slate-400">
-      {text}
     </div>
   );
 }
 
 function EmptyInline({ text }: { text: string }) {
   return (
-    <div className="rounded-2xl bg-[#0f1c31] px-4 py-4 text-sm text-slate-400">
+    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-4 text-sm text-slate-400">
       {text}
     </div>
   );
-}
-
-function isDeskPair(pair: string) {
-  return ["XAUUSD", "OIL", "NASDAQ"].includes(pair);
 }
 
 function getTradeSide(signal?: SignalLike | null) {
@@ -1180,14 +993,4 @@ function format(value: unknown) {
   if (Math.abs(num) < 10) return num.toFixed(5);
   if (Math.abs(num) < 1000) return num.toFixed(3);
   return num.toFixed(2);
-}
-
-function safePreview(input: unknown, limit = 1400) {
-  try {
-    const text = JSON.stringify(input);
-    if (!text) return "No payload yet.";
-    return text.length > limit ? `${text.slice(0, limit)}...` : text;
-  } catch {
-    return "Preview unavailable.";
-  }
 }
