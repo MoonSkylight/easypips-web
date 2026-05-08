@@ -84,6 +84,19 @@ type ManualSignalDraft = {
   note: string;
 };
 
+type DeskSignal = {
+  title: string;
+  trader: string;
+  about: string;
+  side: "LONG" | "SHORT";
+  pair: string;
+  entry?: number;
+  stopLoss?: number;
+  target?: number;
+  time: string;
+  note: string;
+};
+
 export default function Home() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -105,12 +118,12 @@ export default function Home() {
   const active = data?.active || [];
   const pending = data?.pending || [];
   const closed = data?.closed || [];
-  const combinedSignals = [...active, ...pending];
+  const tradingZoneSignals = [...active, ...pending];
   const top = data?.top_trade || data?.top_pending || null;
 
   const selectedSignal = useMemo(() => {
     if (selectedSignalId) {
-      const found = combinedSignals.find((s) => s.id === selectedSignalId);
+      const found = tradingZoneSignals.find((s) => s.id === selectedSignalId);
       if (found) return found;
     }
     return (
@@ -120,7 +133,7 @@ export default function Home() {
       top ||
       null
     );
-  }, [active, pending, data, selectedPair, selectedSignalId, combinedSignals, top]);
+  }, [active, pending, data, selectedPair, selectedSignalId, tradingZoneSignals, top]);
 
   async function loadEngine() {
     setLoading(true);
@@ -131,6 +144,15 @@ export default function Home() {
       if (!res.ok) throw new Error(`Engine HTTP ${res.status}`);
       const json: DashboardData = await res.json();
       setData(json);
+
+      const preferred = json?.top_trade?.market || json?.top_pending?.market;
+      if (preferred && !selectedSignalId) {
+        setSelectedPair(preferred);
+      }
+
+      if (!selectedSignalId && (json?.top_trade?.id || json?.top_pending?.id)) {
+        setSelectedSignalId(json?.top_trade?.id || json?.top_pending?.id || null);
+      }
     } catch {
       setData(null);
     } finally {
@@ -142,9 +164,7 @@ export default function Home() {
     setChartLoading(true);
     try {
       const res = await fetch(
-        `${API_URL}/candles?market=${encodeURIComponent(
-          market
-        )}&interval=5m&limit=220`,
+        `${API_URL}/candles?market=${encodeURIComponent(market)}&interval=5m&limit=240`,
         { cache: "no-store" }
       );
       if (!res.ok) throw new Error(`Chart HTTP ${res.status}`);
@@ -168,23 +188,30 @@ export default function Home() {
     if (pairToLoad) loadChart(pairToLoad);
   }, [selectedPair, selectedSignal?.market]);
 
-  const clickedSignal = selectedSignal;
-  const currentMarket = clickedSignal?.market || selectedPair;
-  const currentSide = getTradeSide(clickedSignal);
-  const currentEntry = getSimpleEntry(clickedSignal);
-  const currentStop = getSimpleStop(clickedSignal);
-  const currentTarget = getSimpleTarget(clickedSignal);
-  const currentPrice = getCurrentPrice(clickedSignal, candles);
+  const currentMarket = selectedSignal?.market || selectedPair;
+  const currentSide = getTradeSide(selectedSignal);
+  const currentEntry = getSimpleEntry(selectedSignal);
+  const currentStop = getSimpleStop(selectedSignal);
+  const currentTarget = getSimpleTarget(selectedSignal);
+  const currentPrice = getCurrentPrice(selectedSignal, candles);
+
+  const desk1Signal = buildDeskSignal(selectedSignal, "DESK_1");
+  const desk2Signal = buildDeskSignal(selectedSignal, "DESK_2");
 
   function quickFill(side: "BUY" | "SELL") {
     const live = currentPrice ?? currentEntry;
     setDraft((prev) => ({
       ...prev,
-      side,
+      trader: side === "BUY" ? "Doctor Rano" : "Doctor Fahdi",
       pair: currentMarket || "XAUUSD",
+      side,
       entry: live ? String(live) : "",
       sl: currentStop ? String(currentStop) : "",
       tp: currentTarget ? String(currentTarget) : "",
+      note:
+        side === "BUY"
+          ? "Senior buy setup ready for publishing."
+          : "Senior sell setup ready for publishing.",
     }));
   }
 
@@ -209,10 +236,10 @@ export default function Home() {
 
         <section className="grid gap-4 lg:grid-cols-[290px_minmax(0,1fr)_360px]">
           <div className="space-y-4">
-            <Panel tint="blue" title="Senior Trade Control">
+            <Panel tint="blue" title="Senior Publish Control">
               <div className="space-y-4">
                 <p className="text-sm leading-6 text-slate-300">
-                  This area is kept clean for senior traders only. Use these controls to prepare and publish signals manually.
+                  This box is reserved for senior traders only. AI does not publish from this panel.
                 </p>
 
                 <div className="grid gap-2">
@@ -220,13 +247,13 @@ export default function Home() {
                     onClick={() => quickFill("BUY")}
                     className="rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-bold text-slate-950"
                   >
-                    Add Buy Signal
+                    Prepare Buy Signal
                   </button>
                   <button
                     onClick={() => quickFill("SELL")}
                     className="rounded-2xl bg-rose-400 px-4 py-3 text-sm font-bold text-slate-950"
                   >
-                    Add Sell Signal
+                    Prepare Sell Signal
                   </button>
                   <button className="rounded-2xl border border-blue-300/25 bg-blue-300/10 px-4 py-3 text-sm font-semibold text-blue-100">
                     Publish Senior Signal
@@ -235,10 +262,10 @@ export default function Home() {
 
                 <div className="rounded-2xl border border-white/10 bg-[#0f1c31] p-4">
                   <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                    Room Notes
+                    Publish Draft
                   </p>
                   <p className="mt-2 text-sm text-slate-300">
-                    Waiting for senior traders to prepare and publish new signals.
+                    Pair: {draft.pair || "-"} · Side: {draft.side} · Entry: {draft.entry || "-"}
                   </p>
                 </div>
               </div>
@@ -247,26 +274,36 @@ export default function Home() {
 
           <div className="space-y-4">
             <Panel tint="yellow" title="Selected Signal">
-              {clickedSignal ? (
+              {selectedSignal ? (
                 <>
                   <div className="flex flex-wrap items-center gap-3">
-                    <Badge>{clickedSignal.market || "No market"}</Badge>
-                    <Badge tone={currentSide === "LONG" ? "green" : currentSide === "SHORT" ? "red" : "muted"}>
-                      {clickedSignal.display_decision || clickedSignal.decision || "WAIT"}
+                    <Badge>{selectedSignal.market || "No market"}</Badge>
+                    <Badge
+                      tone={
+                        currentSide === "LONG"
+                          ? "green"
+                          : currentSide === "SHORT"
+                          ? "red"
+                          : "muted"
+                      }
+                    >
+                      {selectedSignal.display_decision ||
+                        selectedSignal.decision ||
+                        "WAIT"}
                     </Badge>
-                    <Badge>{clickedSignal.timeframe || "5m"}</Badge>
+                    <Badge>{selectedSignal.timeframe || "5m"}</Badge>
                   </div>
 
                   <div className="mt-4 grid gap-3 md:grid-cols-5">
-                    <Stat label="Current Price" value={format(currentPrice)} />
+                    <Stat label="Gold Current" value={format(currentPrice)} />
                     <Stat label="Entry" value={format(currentEntry)} />
                     <Stat label="SL" value={format(currentStop)} tone="red" />
                     <Stat label="TP" value={format(currentTarget)} tone="green" />
                     <Stat
                       label="Confidence"
                       value={
-                        clickedSignal?.confidence != null
-                          ? `${clickedSignal.confidence}%`
+                        selectedSignal.confidence != null
+                          ? `${selectedSignal.confidence}%`
                           : "-"
                       }
                     />
@@ -274,17 +311,17 @@ export default function Home() {
 
                   <div className="mt-4 rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-4">
                     <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                      Signal Logic
+                      Signal Explanation
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-300">
-                      {clickedSignal.reasons?.length
-                        ? clickedSignal.reasons.join(" • ")
-                        : "Signal selected. Detailed reasoning will appear here."}
+                      {selectedSignal.reasons?.length
+                        ? selectedSignal.reasons.join(" • ")
+                        : "Selected signal details will appear here."}
                     </p>
                   </div>
                 </>
               ) : (
-                <EmptyInline text="Click a signal from the Trading Room to show the selected signal information here." />
+                <EmptyInline text="No signal selected. Click a signal from the Trading Zone." />
               )}
             </Panel>
 
@@ -299,59 +336,62 @@ export default function Home() {
                 <ToolbarChip label="Crosshair" />
               </div>
 
-              <ChartBox
-                candles={candles}
-                loading={chartLoading}
-                signal={clickedSignal}
-              />
+              <ChartBox candles={candles} loading={chartLoading} signal={selectedSignal} />
 
               <div className="mt-4 grid gap-3 md:grid-cols-5">
                 <Stat label="Current" value={format(currentPrice)} />
                 <Stat label="Entry" value={format(currentEntry)} />
                 <Stat label="SL" value={format(currentStop)} tone="red" />
                 <Stat label="TP" value={format(currentTarget)} tone="green" />
-                <Stat label="Timeframe" value={clickedSignal?.timeframe || "5m"} />
+                <Stat label="Timeframe" value={selectedSignal?.timeframe || "5m"} />
               </div>
             </Panel>
 
-            <Panel tint="purple" title="Trading Room">
+            <Panel tint="purple" title="Trading Zone">
               <div className="space-y-3">
-                {combinedSignals.length ? (
-                  combinedSignals.slice(0, 8).map((signal, index) => (
-                    <button
-                      key={`${signal.id || signal.market || "signal"}-${index}`}
-                      onClick={() => {
-                        if (signal.market) setSelectedPair(signal.market);
-                        if (signal.id) setSelectedSignalId(signal.id);
-                      }}
-                      className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
-                        selectedSignalId === signal.id
-                          ? "border-fuchsia-300/30 bg-fuchsia-300/10"
-                          : "border-white/10 bg-[#0f1c31] hover:border-fuchsia-300/20"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-bold text-white">
-                            {signal.market || "-"}
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            {signal.display_decision || signal.decision || "WAIT"}
-                          </p>
+                {tradingZoneSignals.length ? (
+                  tradingZoneSignals.slice(0, 10).map((signal, index) => {
+                    const livePrice =
+                      signal.market === currentMarket
+                        ? getCurrentPrice(signal, candles)
+                        : signal.latest_price ?? signal.trigger_price ?? signal.entry;
+
+                    return (
+                      <button
+                        key={`${signal.id || signal.market || "signal"}-${index}`}
+                        onClick={() => {
+                          if (signal.market) setSelectedPair(signal.market);
+                          if (signal.id) setSelectedSignalId(signal.id);
+                        }}
+                        className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                          selectedSignalId === signal.id
+                            ? "border-fuchsia-300/30 bg-fuchsia-300/10"
+                            : "border-white/10 bg-[#0f1c31] hover:border-fuchsia-300/20"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold text-white">
+                              {signal.market || "-"}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              {signal.display_decision || signal.decision || "WAIT"}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-white">
+                              {format(livePrice)}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {signal.timeframe || "5m"}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-white">
-                            {format(getCurrentPrice(signal, candles) ?? getSimpleEntry(signal))}
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            {signal.timeframe || "5m"}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  ))
+                      </button>
+                    );
+                  })
                 ) : (
-                  <EmptyInline text="No live signals available yet for the trading room." />
+                  <EmptyInline text="No active or pending signals in the Trading Zone." />
                 )}
               </div>
             </Panel>
@@ -363,110 +403,23 @@ export default function Home() {
                     <HistoryRow key={`closed-${i}`} signal={s} />
                   ))
                 ) : (
-                  <EmptyInline text="No closed history yet." />
+                  <EmptyInline text="No trade history yet." />
                 )}
               </div>
             </Panel>
           </div>
 
           <div className="space-y-4">
-            <Panel tint="red" title="Trading Room Publish Board">
+            <Panel tint="red" title="Senior Publish Room">
               <div className="space-y-4">
-                <div className="rounded-[24px] border border-rose-300/20 bg-[#0f1c31] p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-rose-200/75">
-                        Senior Signal Publisher
-                      </p>
-                      <h3 className="mt-2 text-xl font-bold text-white">
-                        Manual Trade Entry
-                      </h3>
-                    </div>
-                    <span className="rounded-full border border-rose-300/20 bg-rose-300/10 px-3 py-1.5 text-xs font-bold uppercase text-rose-100">
-                      Senior Only
-                    </span>
-                  </div>
+                <ManualPublishCard draft={draft} setDraft={setDraft} />
+              </div>
+            </Panel>
 
-                  <div className="mt-4 grid gap-3">
-                    <select
-                      value={draft.trader}
-                      onChange={(e) =>
-                        setDraft((prev) => ({
-                          ...prev,
-                          trader: e.target.value as "Doctor Rano" | "Doctor Fahdi",
-                        }))
-                      }
-                      className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-                    >
-                      <option>Doctor Rano</option>
-                      <option>Doctor Fahdi</option>
-                    </select>
-
-                    <input
-                      value={draft.pair}
-                      onChange={(e) =>
-                        setDraft((prev) => ({ ...prev, pair: e.target.value }))
-                      }
-                      placeholder="Pair"
-                      className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-                    />
-
-                    <select
-                      value={draft.side}
-                      onChange={(e) =>
-                        setDraft((prev) => ({
-                          ...prev,
-                          side: e.target.value as "BUY" | "SELL",
-                        }))
-                      }
-                      className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-                    >
-                      <option>BUY</option>
-                      <option>SELL</option>
-                    </select>
-
-                    <div className="grid gap-3 md:grid-cols-3">
-                      <input
-                        value={draft.entry}
-                        onChange={(e) =>
-                          setDraft((prev) => ({ ...prev, entry: e.target.value }))
-                        }
-                        placeholder="Entry"
-                        className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-                      />
-                      <input
-                        value={draft.sl}
-                        onChange={(e) =>
-                          setDraft((prev) => ({ ...prev, sl: e.target.value }))
-                        }
-                        placeholder="SL"
-                        className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-                      />
-                      <input
-                        value={draft.tp}
-                        onChange={(e) =>
-                          setDraft((prev) => ({ ...prev, tp: e.target.value }))
-                        }
-                        placeholder="TP"
-                        className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-                      />
-                    </div>
-
-                    <textarea
-                      value={draft.note}
-                      onChange={(e) =>
-                        setDraft((prev) => ({ ...prev, note: e.target.value }))
-                      }
-                      placeholder="Trader note"
-                      rows={4}
-                      className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-                    />
-
-                    <button className="rounded-2xl bg-rose-300 px-4 py-3 font-bold text-slate-950">
-                      Publish To Trading Room
-                    </button>
-                  </div>
-                </div>
+            <Panel tint="purple" title="Desk 1 and Desk 2">
+              <div className="space-y-4">
+                <DeskCard signal={desk1Signal} />
+                <DeskCard signal={desk2Signal} />
               </div>
             </Panel>
 
@@ -474,7 +427,7 @@ export default function Home() {
               <div className="space-y-3">
                 <InfoRow label="Telegram" value="@easypips_ai" />
                 <InfoRow label="Support" value="support@easypips.ai" />
-                <InfoRow label="Trading Room" value="Senior private publishing room" />
+                <InfoRow label="Trading Zone" value="Live AI and senior trading flow" />
                 <InfoRow label="Website" value="easypips-web.vercel.app" />
               </div>
             </Panel>
@@ -482,6 +435,134 @@ export default function Home() {
         </section>
       </div>
     </main>
+  );
+}
+
+function ManualPublishCard({
+  draft,
+  setDraft,
+}: {
+  draft: ManualSignalDraft;
+  setDraft: React.Dispatch<React.SetStateAction<ManualSignalDraft>>;
+}) {
+  return (
+    <div className="rounded-[24px] border border-rose-300/20 bg-[#0f1c31] p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.22em] text-rose-200/75">
+            Manual Publish
+          </p>
+          <h3 className="mt-2 text-xl font-bold text-white">
+            Senior Trader Entry
+          </h3>
+        </div>
+        <span className="rounded-full border border-rose-300/20 bg-rose-300/10 px-3 py-1.5 text-xs font-bold uppercase text-rose-100">
+          Senior Only
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        <select
+          value={draft.trader}
+          onChange={(e) =>
+            setDraft((prev) => ({
+              ...prev,
+              trader: e.target.value as "Doctor Rano" | "Doctor Fahdi",
+            }))
+          }
+          className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
+        >
+          <option>Doctor Rano</option>
+          <option>Doctor Fahdi</option>
+        </select>
+
+        <input
+          value={draft.pair}
+          onChange={(e) => setDraft((prev) => ({ ...prev, pair: e.target.value }))}
+          placeholder="Pair"
+          className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
+        />
+
+        <select
+          value={draft.side}
+          onChange={(e) =>
+            setDraft((prev) => ({
+              ...prev,
+              side: e.target.value as "BUY" | "SELL",
+            }))
+          }
+          className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
+        >
+          <option>BUY</option>
+          <option>SELL</option>
+        </select>
+
+        <div className="grid gap-3 md:grid-cols-3">
+          <input
+            value={draft.entry}
+            onChange={(e) => setDraft((prev) => ({ ...prev, entry: e.target.value }))}
+            placeholder="Entry"
+            className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
+          />
+          <input
+            value={draft.sl}
+            onChange={(e) => setDraft((prev) => ({ ...prev, sl: e.target.value }))}
+            placeholder="SL"
+            className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
+          />
+          <input
+            value={draft.tp}
+            onChange={(e) => setDraft((prev) => ({ ...prev, tp: e.target.value }))}
+            placeholder="TP"
+            className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
+          />
+        </div>
+
+        <textarea
+          value={draft.note}
+          onChange={(e) => setDraft((prev) => ({ ...prev, note: e.target.value }))}
+          placeholder="Trader note"
+          rows={4}
+          className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
+        />
+
+        <button className="rounded-2xl bg-rose-300 px-4 py-3 font-bold text-slate-950">
+          Publish To Trading Zone
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DeskCard({ signal }: { signal: DeskSignal }) {
+  return (
+    <div className="rounded-[24px] border border-fuchsia-300/20 bg-[#0f1c31] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.22em] text-fuchsia-200/75">
+            {signal.title}
+          </p>
+          <h3 className="mt-2 text-xl font-bold text-white">{signal.trader}</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-300">{signal.about}</p>
+        </div>
+        <span className="rounded-full border border-fuchsia-300/20 bg-fuchsia-300/10 px-3 py-1.5 text-xs font-bold uppercase text-fuchsia-100">
+          Live
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <Stat label="Pair" value={signal.pair} />
+        <Stat label="Bias" value={signal.side} />
+        <Stat label="Entry" value={format(signal.entry)} />
+        <Stat label="SL" value={format(signal.stopLoss)} tone="red" />
+        <Stat label="TP" value={format(signal.target)} tone="green" />
+        <Stat label="Time" value={signal.time} />
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-slate-300">
+        {signal.note}
+      </div>
+    </div>
   );
 }
 
@@ -633,18 +714,13 @@ function ChartBox({
     });
     linesRef.current = [];
 
-    const add = (
-      price: number | undefined,
-      color: string,
-      title: string,
-      style: LineStyle = LineStyle.Dashed
-    ) => {
+    const add = (price: number | undefined, color: string, title: string) => {
       if (typeof price !== "number") return;
       const line = series.createPriceLine({
         price,
         color,
         lineWidth: 2,
-        lineStyle: style,
+        lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
         title,
       });
@@ -832,7 +908,52 @@ function getSimpleTarget(signal?: SignalLike | null) {
 
 function getCurrentPrice(signal?: SignalLike | null, candles?: Candle[]) {
   const lastCandle = candles?.[candles.length - 1];
-  return lastCandle?.close ?? signal?.latest_price ?? signal?.trigger_price ?? signal?.entry;
+  return (
+    lastCandle?.close ??
+    signal?.latest_price ??
+    signal?.trigger_price ??
+    signal?.entry
+  );
+}
+
+function buildDeskSignal(
+  signal: SignalLike | null,
+  desk: "DESK_1" | "DESK_2"
+): DeskSignal {
+  const side: "LONG" | "SHORT" =
+    getTradeSide(signal) === "SHORT" ? "SHORT" : "LONG";
+
+  const baseTime = signal?.published_at
+    ? new Date(signal.published_at).toLocaleString()
+    : new Date().toLocaleString();
+
+  if (desk === "DESK_1") {
+    return {
+      title: "Desk 1",
+      trader: "Doctor Rano",
+      about: "Senior trader and market analyst.",
+      side,
+      pair: signal?.market || "XAUUSD",
+      entry: getSimpleEntry(signal),
+      stopLoss: getSimpleStop(signal),
+      target: getSimpleTarget(signal),
+      time: baseTime,
+      note: "Patient entry, disciplined stop, and one clean target.",
+    };
+  }
+
+  return {
+    title: "Desk 2",
+    trader: "Doctor Fahdi",
+    about: "Execution focused trader and signal supervisor.",
+    side,
+    pair: signal?.market || "XAUUSD",
+    entry: getSimpleEntry(signal),
+    stopLoss: getSimpleStop(signal),
+    target: getSimpleTarget(signal),
+    time: baseTime,
+    note: "Daily tactical execution with one entry, one stop, and one target.",
+  };
 }
 
 function format(value: unknown) {
