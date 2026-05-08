@@ -48,16 +48,6 @@ type SignalLike = {
   closed_price?: number;
 };
 
-type DashboardSummary = {
-  active_count?: number;
-  pending_count?: number;
-  closed_count?: number;
-  updated_at?: string;
-  min_active_confidence?: number;
-  min_pending_confidence?: number;
-  mode?: string;
-};
-
 type DashboardData = {
   latest_scan?: Record<string, SignalLike>;
   top_trade?: SignalLike | null;
@@ -65,7 +55,15 @@ type DashboardData = {
   active?: SignalLike[];
   pending?: SignalLike[];
   closed?: SignalLike[];
-  summary?: DashboardSummary;
+  summary?: {
+    active_count?: number;
+    pending_count?: number;
+    closed_count?: number;
+    updated_at?: string;
+    min_active_confidence?: number;
+    min_pending_confidence?: number;
+    mode?: string;
+  };
 };
 
 type Candle = {
@@ -91,6 +89,23 @@ type DebugState = {
   chartPreview: string;
 };
 
+type DeskId = "RANO" | "FAHDI";
+
+type ChatMessage = {
+  id: string;
+  sender: "client" | "desk";
+  text: string;
+  time: string;
+};
+
+type DeskSignal = {
+  side: "LONG" | "SHORT";
+  entry?: number;
+  stopLoss?: number;
+  target?: number;
+  note: string;
+};
+
 export default function Home() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -98,6 +113,28 @@ export default function Home() {
   const [engineLoading, setEngineLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
   const [debugOpen, setDebugOpen] = useState(false);
+  const [activeDesk, setActiveDesk] = useState<DeskId>("RANO");
+  const [chatInput, setChatInput] = useState("");
+
+  const [deskChats, setDeskChats] = useState<Record<DeskId, ChatMessage[]>>({
+    RANO: [
+      {
+        id: "r1",
+        sender: "desk",
+        text: "Good morning. I will post disciplined daily desk signals for Gold, Oil, and Nasdaq.",
+        time: new Date().toLocaleTimeString(),
+      },
+    ],
+    FAHDI: [
+      {
+        id: "f1",
+        sender: "desk",
+        text: "Desk active. Focus stays on one clear entry, one stop loss, and one target.",
+        time: new Date().toLocaleTimeString(),
+      },
+    ],
+  });
+
   const [debug, setDebug] = useState<DebugState>({
     engineStatus: "loading",
     chartStatus: "loading",
@@ -231,6 +268,42 @@ export default function Home() {
     ? `${top.market} · ${top.display_decision || top.decision || "LIVE"}`
     : "Waiting for setup";
 
+  const side = getTradeSide(selectedSignal);
+  const entryLabel = getEntryLabel(selectedSignal);
+  const stopLabel = getStopLabel(selectedSignal);
+  const tp1Label = getTpLabel(selectedSignal, 1);
+
+  const deskAllowed = isDeskPair(selectedPair);
+  const activeDeskName =
+    activeDesk === "RANO" ? "Desk 1 (Doctor Rano)" : "Desk 2 (Doctor Fahdi)";
+  const currentDeskChat = deskChats[activeDesk];
+  const deskSignal = buildDeskSignal(selectedSignal, activeDesk);
+
+  function sendDeskMessage() {
+    if (!chatInput.trim()) return;
+
+    const userMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      sender: "client",
+      text: chatInput.trim(),
+      time: new Date().toLocaleTimeString(),
+    };
+
+    const replyMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      sender: "desk",
+      text: buildDeskReply(activeDesk, selectedPair, chatInput.trim(), deskSignal),
+      time: new Date().toLocaleTimeString(),
+    };
+
+    setDeskChats((prev) => ({
+      ...prev,
+      [activeDesk]: [...prev[activeDesk], userMessage, replyMessage],
+    }));
+
+    setChatInput("");
+  }
+
   return (
     <main className="min-h-screen bg-[#07111f] text-[#eef4ff]">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07111f]/85 backdrop-blur-xl">
@@ -346,8 +419,16 @@ export default function Home() {
               </p>
               <h3 className="text-xl font-bold">{scannerTitle}</h3>
             </div>
-            <span className="rounded-full bg-green-400/15 px-3 py-2 text-xs font-extrabold uppercase text-green-300">
-              {data?.summary?.mode || "Live"}
+            <span
+              className={`rounded-full px-3 py-2 text-xs font-extrabold uppercase ${
+                side === "LONG"
+                  ? "bg-green-400/15 text-green-300"
+                  : side === "SHORT"
+                  ? "bg-red-400/15 text-red-300"
+                  : "bg-yellow-400/15 text-yellow-300"
+              }`}
+            >
+              {side === "LONG" ? "LONG" : side === "SHORT" ? "SHORT" : "LIVE"}
             </span>
           </div>
 
@@ -363,15 +444,7 @@ export default function Home() {
                     {top?.display_decision || "Waiting for a strong setup"}
                   </p>
                 </div>
-                <span
-                  className={`rounded-full px-3 py-2 text-xs font-extrabold uppercase ${
-                    String(top?.display_decision || "").includes("BUY")
-                      ? "bg-green-400/15 text-green-300"
-                      : String(top?.display_decision || "").includes("SELL")
-                      ? "bg-red-400/15 text-red-300"
-                      : "bg-yellow-400/15 text-yellow-300"
-                  }`}
-                >
+                <span className="rounded-full bg-white/5 px-3 py-2 text-xs font-extrabold uppercase text-teal-300">
                   {top?.confidence !== undefined ? `${top.confidence}%` : "—"}
                 </span>
               </div>
@@ -446,7 +519,75 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
+        <div className="mb-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
+          <Panel title={`Daily Trade Levels · ${selectedSignal?.market || selectedPair}`}>
+            <div className="grid gap-3 md:grid-cols-3">
+              <Level
+                label="Entry"
+                value={selectedSignal?.entry ?? selectedSignal?.trigger_price ?? selectedSignal?.latest_price}
+              />
+              <Level label={stopLabel} value={selectedSignal?.stop_loss} danger />
+              <Level label={tp1Label} value={selectedSignal?.tp1} success />
+            </div>
+          </Panel>
+
+          <Panel title="Senior Trader Analysis">
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => setActiveDesk("RANO")}
+                className={`rounded-2xl px-4 py-3 text-sm font-bold ${
+                  activeDesk === "RANO"
+                    ? "bg-teal-300 text-slate-950"
+                    : "border border-white/10 bg-white/5 text-slate-200"
+                }`}
+              >
+                Desk 1 (Doctor Rano)
+              </button>
+
+              <button
+                onClick={() => setActiveDesk("FAHDI")}
+                className={`rounded-2xl px-4 py-3 text-sm font-bold ${
+                  activeDesk === "FAHDI"
+                    ? "bg-teal-300 text-slate-950"
+                    : "border border-white/10 bg-white/5 text-slate-200"
+                }`}
+              >
+                Desk 2 (Doctor Fahdi)
+              </button>
+            </div>
+
+            <div className="mt-4">
+              {deskAllowed ? (
+                <>
+                  <p className="text-sm text-slate-400">
+                    {activeDeskName} posts daily desk signals only for Gold, Oil, and Nasdaq.
+                  </p>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-4">
+                    <MiniInfo label="Desk" value={activeDeskName} />
+                    <MiniInfo label="Pair" value={selectedPair} />
+                    <MiniInfo label="Bias" value={deskSignal.side} />
+                    <MiniInfo label="Plan" value="1 Entry · 1 SL · 1 TP" />
+                  </div>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-3">
+                    <Level label="Entry" value={deskSignal.entry} />
+                    <Level label="Stop Loss" value={deskSignal.stopLoss} danger />
+                    <Level label="Target" value={deskSignal.target} success />
+                  </div>
+
+                  <div className="mt-4 rounded-2xl bg-[#0f1c31] px-4 py-4 text-sm text-slate-300">
+                    {deskSignal.note}
+                  </div>
+                </>
+              ) : (
+                <EmptyInline text="Senior trader desks are available only for Gold, Oil, and Nasdaq." />
+              )}
+            </div>
+          </Panel>
+        </div>
+
+        <div className="mb-6 grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
           <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0c1729] shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
               <div>
@@ -473,6 +614,7 @@ export default function Home() {
                 signal={selectedSignal}
                 loading={chartLoading}
                 pair={selectedPair}
+                deskSignal={deskAllowed ? deskSignal : null}
               />
             </div>
           </div>
@@ -480,52 +622,60 @@ export default function Home() {
           <div className="space-y-4">
             <Panel title={`Trade Levels · ${selectedSignal?.market || selectedPair}`}>
               <div className="grid gap-3">
-                <Level
-                  label={
-                    selectedSignal?.trigger_price !== undefined
-                      ? "Entry / Trigger"
-                      : "Entry"
-                  }
-                  value={selectedSignal?.entry ?? selectedSignal?.trigger_price}
-                />
-                <Level label="Stop Loss" value={selectedSignal?.stop_loss} danger />
-                <Level label="TP1" value={selectedSignal?.tp1} success />
-                <Level label="TP2" value={selectedSignal?.tp2} success />
-                <Level label="TP3" value={selectedSignal?.tp3} success />
+                <Level label={entryLabel} value={selectedSignal?.entry ?? selectedSignal?.trigger_price} />
+                <Level label={stopLabel} value={selectedSignal?.stop_loss} danger />
+                <Level label={tp1Label} value={selectedSignal?.tp1} success />
               </div>
             </Panel>
 
-            <Panel title="Signal Meta">
-              <div className="grid gap-3">
-                <MiniInfo
-                  label="Decision"
-                  value={
-                    selectedSignal?.display_decision ||
-                    selectedSignal?.decision ||
-                    "WATCHLIST"
-                  }
-                />
-                <MiniInfo
-                  label="Latest Price"
-                  value={format(selectedSignal?.latest_price)}
-                />
-                <MiniInfo
-                  label="Confidence"
-                  value={
-                    selectedSignal?.confidence !== undefined
-                      ? `${selectedSignal.confidence}%`
-                      : "-"
-                  }
-                />
-                <MiniInfo
-                  label="Risk"
-                  value={selectedSignal?.risk || selectedSignal?.status || "-"}
-                />
-                <MiniInfo
-                  label="Expiry"
-                  value={formatTime(selectedSignal?.valid_until)}
-                />
-              </div>
+            <Panel title={`${activeDeskName} Chat`}>
+              {deskAllowed ? (
+                <>
+                  <div className="mb-4 h-[280px] overflow-y-auto rounded-2xl bg-[#0f1c31] p-4">
+                    <div className="space-y-3">
+                      {currentDeskChat.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${
+                            message.sender === "client" ? "justify-end" : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
+                              message.sender === "client"
+                                ? "bg-teal-300 text-slate-950"
+                                : "bg-white/10 text-slate-100"
+                            }`}
+                          >
+                            <div className="mb-1 text-[11px] uppercase tracking-wider opacity-70">
+                              {message.sender === "client" ? "Client" : activeDeskName}
+                            </div>
+                            <div>{message.text}</div>
+                            <div className="mt-1 text-[10px] opacity-60">{message.time}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <input
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      placeholder={`Message ${activeDeskName}`}
+                      className="flex-1 rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3 text-sm text-white outline-none"
+                    />
+                    <button
+                      onClick={sendDeskMessage}
+                      className="rounded-2xl bg-teal-300 px-4 py-3 font-bold text-slate-950"
+                    >
+                      Send
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <EmptyInline text="Chat with senior desks is enabled only on Gold, Oil, and Nasdaq." />
+              )}
             </Panel>
 
             <Panel title="Reasons">
@@ -611,11 +761,13 @@ function ChartPanel({
   signal,
   loading,
   pair,
+  deskSignal,
 }: {
   candles: Candle[];
   signal: SignalLike | null;
   loading: boolean;
   pair: string;
+  deskSignal: DeskSignal | null;
 }) {
   if (loading) {
     return (
@@ -636,29 +788,30 @@ function ChartPanel({
   const width = 980;
   const height = 520;
   const padTop = 28;
-  const padRight = 64;
+  const padRight = 68;
   const padBottom = 34;
-  const padLeft = 18;
+  const padLeft = 20;
   const innerWidth = width - padLeft - padRight;
   const innerHeight = height - padTop - padBottom;
 
   const lows = candles.map((c) => c.low);
   const highs = candles.map((c) => c.high);
 
-  const levels = [
+  const overlayLevels = [
     signal?.entry ?? signal?.trigger_price,
     signal?.stop_loss,
     signal?.tp1,
-    signal?.tp2,
-    signal?.tp3,
+    deskSignal?.entry,
+    deskSignal?.stopLoss,
+    deskSignal?.target,
   ].filter((v): v is number => typeof v === "number" && !Number.isNaN(v));
 
-  const minPrice = Math.min(...lows, ...(levels.length ? levels : [Number.MAX_SAFE_INTEGER]));
-  const maxPrice = Math.max(...highs, ...(levels.length ? levels : [0]));
-  const priceRange = maxPrice - minPrice || 1;
+  const minPrice = Math.min(...lows, ...(overlayLevels.length ? overlayLevels : [Math.min(...lows)]));
+  const maxPrice = Math.max(...highs, ...(overlayLevels.length ? overlayLevels : [Math.max(...highs)]));
+  const priceRange = Math.max(maxPrice - minPrice, 0.00001);
 
   const candleGap = innerWidth / candles.length;
-  const candleWidth = Math.max(3, candleGap * 0.58);
+  const candleWidth = Math.max(4, candleGap * 0.56);
 
   const y = (price: number) =>
     padTop + ((maxPrice - price) / priceRange) * innerHeight;
@@ -668,6 +821,11 @@ function ChartPanel({
   const gridPrices = Array.from({ length: 6 }, (_, i) =>
     maxPrice - (priceRange / 5) * i
   );
+
+  const entryValue = signal?.entry ?? signal?.trigger_price;
+  const entryLineLabel = getEntryLabel(signal).toUpperCase();
+  const stopLineLabel = getStopLabel(signal).toUpperCase();
+  const tp1LineLabel = getTpLabel(signal, 1).toUpperCase();
 
   return (
     <div className="rounded-[24px] border border-white/10 bg-[#091425] p-4">
@@ -681,13 +839,8 @@ function ChartPanel({
         <div className="flex flex-wrap gap-2 text-xs">
           <LegendBadge label="Bullish" color="bg-green-400" />
           <LegendBadge label="Bearish" color="bg-red-400" />
-          {signal?.entry || signal?.trigger_price ? (
-            <LegendBadge label="Entry" color="bg-cyan-300" />
-          ) : null}
-          {signal?.stop_loss ? (
-            <LegendBadge label="Stop" color="bg-red-300" />
-          ) : null}
-          {signal?.tp1 ? <LegendBadge label="TP" color="bg-green-300" /> : null}
+          {entryValue ? <LegendBadge label="Engine Entry" color="bg-cyan-300" /> : null}
+          {deskSignal?.entry ? <LegendBadge label="Desk Entry" color="bg-fuchsia-300" /> : null}
         </div>
       </div>
 
@@ -722,61 +875,6 @@ function ChartPanel({
             </g>
           ))}
 
-          {signal?.entry || signal?.trigger_price ? (
-            <PriceLine
-              y={y((signal.entry ?? signal.trigger_price) as number)}
-              label={`ENTRY ${format(signal.entry ?? signal.trigger_price)}`}
-              color="#67e8f9"
-              width={width}
-              padLeft={padLeft}
-              padRight={padRight}
-            />
-          ) : null}
-
-          {signal?.stop_loss ? (
-            <PriceLine
-              y={y(signal.stop_loss)}
-              label={`SL ${format(signal.stop_loss)}`}
-              color="#fca5a5"
-              width={width}
-              padLeft={padLeft}
-              padRight={padRight}
-            />
-          ) : null}
-
-          {signal?.tp1 ? (
-            <PriceLine
-              y={y(signal.tp1)}
-              label={`TP1 ${format(signal.tp1)}`}
-              color="#86efac"
-              width={width}
-              padLeft={padLeft}
-              padRight={padRight}
-            />
-          ) : null}
-
-          {signal?.tp2 ? (
-            <PriceLine
-              y={y(signal.tp2)}
-              label={`TP2 ${format(signal.tp2)}`}
-              color="#4ade80"
-              width={width}
-              padLeft={padLeft}
-              padRight={padRight}
-            />
-          ) : null}
-
-          {signal?.tp3 ? (
-            <PriceLine
-              y={y(signal.tp3)}
-              label={`TP3 ${format(signal.tp3)}`}
-              color="#22c55e"
-              width={width}
-              padLeft={padLeft}
-              padRight={padRight}
-            />
-          ) : null}
-
           {candles.map((candle, index) => {
             const bullish = candle.close >= candle.open;
             const color = bullish ? "#4ade80" : "#f87171";
@@ -808,6 +906,72 @@ function ChartPanel({
               </g>
             );
           })}
+
+          {entryValue ? (
+            <PriceLine
+              y={y(entryValue)}
+              label={`${entryLineLabel} ${format(entryValue)}`}
+              color="#67e8f9"
+              width={width}
+              padLeft={padLeft}
+              padRight={padRight}
+            />
+          ) : null}
+
+          {signal?.stop_loss ? (
+            <PriceLine
+              y={y(signal.stop_loss)}
+              label={`${stopLineLabel} ${format(signal.stop_loss)}`}
+              color="#fca5a5"
+              width={width}
+              padLeft={padLeft}
+              padRight={padRight}
+            />
+          ) : null}
+
+          {signal?.tp1 ? (
+            <PriceLine
+              y={y(signal.tp1)}
+              label={`${tp1LineLabel} ${format(signal.tp1)}`}
+              color="#86efac"
+              width={width}
+              padLeft={padLeft}
+              padRight={padRight}
+            />
+          ) : null}
+
+          {deskSignal?.entry ? (
+            <PriceLine
+              y={y(deskSignal.entry)}
+              label={`DESK ENTRY ${format(deskSignal.entry)}`}
+              color="#e879f9"
+              width={width}
+              padLeft={padLeft}
+              padRight={padRight}
+            />
+          ) : null}
+
+          {deskSignal?.stopLoss ? (
+            <PriceLine
+              y={y(deskSignal.stopLoss)}
+              label={`DESK SL ${format(deskSignal.stopLoss)}`}
+              color="#fb7185"
+              width={width}
+              padLeft={padLeft}
+              padRight={padRight}
+            />
+          ) : null}
+
+          {deskSignal?.target ? (
+            <PriceLine
+              y={y(deskSignal.target)}
+              label={`DESK TP ${format(deskSignal.target)}`}
+              color="#a3e635"
+              width={width}
+              padLeft={padLeft}
+              padRight={padRight}
+            />
+          ) : null}
 
           {candles.length >= 6
             ? candles
@@ -861,9 +1025,9 @@ function PriceLine({
         strokeDasharray="8 6"
       />
       <rect
-        x={width - padRight - 120}
+        x={width - padRight - 156}
         y={y - 12}
-        width="110"
+        width="146"
         height="22"
         rx="8"
         fill="#07111f"
@@ -871,7 +1035,7 @@ function PriceLine({
         strokeWidth="1"
       />
       <text
-        x={width - padRight - 65}
+        x={width - padRight - 83}
         y={y + 3}
         fill={color}
         fontSize="11"
@@ -1032,9 +1196,7 @@ function SignalCard({
   onClick: () => void;
 }) {
   const confidence = Number(s.confidence || 0);
-  const decision = String(s.display_decision || s.decision || "");
-  const isBuy = decision.includes("BUY");
-  const isSell = decision.includes("SELL");
+  const side = getTradeSide(s);
 
   return (
     <button
@@ -1051,24 +1213,21 @@ function SignalCard({
         </div>
         <span
           className={`rounded-full px-3 py-2 text-xs font-extrabold uppercase ${
-            isBuy
+            side === "LONG"
               ? "bg-green-400/15 text-green-300"
-              : isSell
+              : side === "SHORT"
               ? "bg-red-400/15 text-red-300"
               : "bg-yellow-400/15 text-yellow-300"
           }`}
         >
-          {decision || "WAIT"}
+          {s.display_decision || s.decision || "WAIT"}
         </span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Level
-          label={pending ? "Trigger" : "Entry"}
-          value={s.entry ?? s.trigger_price}
-        />
-        <Level label="Stop Loss" value={s.stop_loss} danger />
-        <Level label="TP1" value={s.tp1} success />
+        <Level label={getEntryLabel(s)} value={s.entry ?? s.trigger_price} />
+        <Level label={getStopLabel(s)} value={s.stop_loss} danger />
+        <Level label={getTpLabel(s, 1)} value={s.tp1} success />
         <Level label="Confidence" value={`${confidence}%`} />
       </div>
 
@@ -1134,6 +1293,95 @@ function Empty({ text }: { text: string }) {
 
 function EmptyInline({ text }: { text: string }) {
   return <div className="rounded-2xl bg-[#0f1c31] px-4 py-4 text-sm text-slate-400">{text}</div>;
+}
+
+function isDeskPair(pair: string) {
+  return ["XAUUSD", "OIL", "NASDAQ"].includes(pair);
+}
+
+function getTradeSide(signal?: SignalLike | null) {
+  const raw = `${signal?.display_decision || ""} ${signal?.decision || ""} ${signal?.bias || ""}`.toUpperCase();
+  if (raw.includes("BUY")) return "LONG";
+  if (raw.includes("SELL")) return "SHORT";
+  return "NEUTRAL";
+}
+
+function getEntryLabel(signal?: SignalLike | null) {
+  const side = getTradeSide(signal);
+  const pending = signal?.trigger_price !== undefined;
+  if (side === "LONG") return pending ? "Long Trigger" : "Long Entry";
+  if (side === "SHORT") return pending ? "Short Trigger" : "Short Entry";
+  return pending ? "Entry / Trigger" : "Entry";
+}
+
+function getStopLabel(signal?: SignalLike | null) {
+  const side = getTradeSide(signal);
+  if (side === "LONG") return "Long SL";
+  if (side === "SHORT") return "Short SL";
+  return "Stop Loss";
+}
+
+function getTpLabel(signal: SignalLike | null | undefined, n: 1 | 2 | 3) {
+  const side = getTradeSide(signal);
+  if (side === "LONG") return `Long TP${n}`;
+  if (side === "SHORT") return `Short TP${n}`;
+  return `TP${n}`;
+}
+
+function buildDeskSignal(signal: SignalLike | null, desk: DeskId): DeskSignal {
+  const side = getTradeSide(signal) === "SHORT" ? "SHORT" : "LONG";
+  const baseEntry = signal?.entry ?? signal?.trigger_price ?? signal?.latest_price;
+  const baseStop = signal?.stop_loss;
+  const baseTarget = signal?.tp1;
+
+  const tweak = desk === "RANO" ? 0 : 1;
+
+  return {
+    side,
+    entry: typeof baseEntry === "number" ? baseEntry : undefined,
+    stopLoss:
+      typeof baseStop === "number"
+        ? tweak === 0
+          ? baseStop
+          : baseStop * 1.0002
+        : undefined,
+    target:
+      typeof baseTarget === "number"
+        ? tweak === 0
+          ? baseTarget
+          : baseTarget * 0.9998
+        : undefined,
+    note:
+      desk === "RANO"
+        ? "Doctor Rano desk plan: patient entry, disciplined stop placement, first clean target only."
+        : "Doctor Fahdi desk plan: tactical daily execution with one clear target and strict downside control.",
+  };
+}
+
+function buildDeskReply(
+  desk: DeskId,
+  pair: string,
+  input: string,
+  deskSignal: DeskSignal
+) {
+  const deskName = desk === "RANO" ? "Doctor Rano" : "Doctor Fahdi";
+  const lower = input.toLowerCase();
+
+  if (lower.includes("entry")) {
+    return `${deskName}: For ${pair}, current desk entry is ${format(deskSignal.entry)} with one clean execution only.`;
+  }
+
+  if (lower.includes("stop")) {
+    return `${deskName}: Risk stays controlled. Current stop loss is ${format(deskSignal.stopLoss)}.`;
+  }
+
+  if (lower.includes("target") || lower.includes("tp")) {
+    return `${deskName}: First target for ${pair} is ${format(deskSignal.target)}. We are using a single take-profit level.`;
+  }
+
+  return `${deskName}: I am watching ${pair}. My daily desk plan is ${deskSignal.side} with entry ${format(
+    deskSignal.entry
+  )}, stop ${format(deskSignal.stopLoss)}, and target ${format(deskSignal.target)}.`;
 }
 
 function format(value: unknown) {
