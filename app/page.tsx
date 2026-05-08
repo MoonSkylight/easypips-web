@@ -98,19 +98,13 @@ type DebugState = {
 
 type DeskId = "RANO" | "FAHDI";
 
-type ChatMessage = {
-  id: string;
-  sender: "client" | "desk";
-  text: string;
-  time: string;
-};
-
 type DeskSignal = {
   side: "LONG" | "SHORT";
   entry?: number;
   stopLoss?: number;
   target?: number;
   note: string;
+  time: string;
 };
 
 export default function Home() {
@@ -120,27 +114,6 @@ export default function Home() {
   const [engineLoading, setEngineLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
   const [debugOpen, setDebugOpen] = useState(false);
-  const [activeDesk, setActiveDesk] = useState<DeskId>("RANO");
-  const [chatInput, setChatInput] = useState("");
-
-  const [deskChats, setDeskChats] = useState<Record<DeskId, ChatMessage[]>>({
-    RANO: [
-      {
-        id: "r1",
-        sender: "desk",
-        text: "Good morning. I will post disciplined daily desk signals for Gold, Oil, and Nasdaq.",
-        time: new Date().toLocaleTimeString(),
-      },
-    ],
-    FAHDI: [
-      {
-        id: "f1",
-        sender: "desk",
-        text: "Desk active. Focus stays on one clear entry, one stop loss, and one target.",
-        time: new Date().toLocaleTimeString(),
-      },
-    ],
-  });
 
   const [debug, setDebug] = useState<DebugState>({
     engineStatus: "loading",
@@ -282,38 +255,8 @@ export default function Home() {
   const targetValue = getSimpleTarget(selectedSignal);
 
   const deskAllowed = isDeskPair(selectedPair);
-  const currentDeskChat = deskChats[activeDesk];
-
-  const ranoSignal = buildDeskSignal(selectedSignal, "RANO");
-  const fahdiSignal = buildDeskSignal(selectedSignal, "FAHDI");
-  const deskSignal = activeDesk === "RANO" ? ranoSignal : fahdiSignal;
-  const activeDeskName =
-    activeDesk === "RANO" ? "Desk 1 (Doctor Rano)" : "Desk 2 (Doctor Fahdi)";
-
-  function sendDeskMessage() {
-    if (!chatInput.trim()) return;
-
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      sender: "client",
-      text: chatInput.trim(),
-      time: new Date().toLocaleTimeString(),
-    };
-
-    const replyMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      sender: "desk",
-      text: buildDeskReply(activeDesk, selectedPair, chatInput.trim(), deskSignal),
-      time: new Date().toLocaleTimeString(),
-    };
-
-    setDeskChats((prev) => ({
-      ...prev,
-      [activeDesk]: [...prev[activeDesk], userMessage, replyMessage],
-    }));
-
-    setChatInput("");
-  }
+  const desk1Signal = buildDeskSignal(selectedSignal, "RANO");
+  const desk2Signal = buildDeskSignal(selectedSignal, "FAHDI");
 
   return (
     <main className="min-h-screen bg-[#07111f] text-[#eef4ff]">
@@ -485,19 +428,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          {top?.reasons?.length ? (
-            <div className="mt-4 rounded-3xl border border-white/10 bg-[#0c1729] p-4">
-              <p className="text-xs uppercase tracking-widest text-slate-400">
-                Why this setup
-              </p>
-              <ul className="mt-3 space-y-2 text-sm text-slate-300">
-                {top.reasons.slice(0, 3).map((reason, i) => (
-                  <li key={i}>• {reason}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
         </div>
       </section>
 
@@ -528,146 +458,32 @@ export default function Home() {
           </Panel>
 
           <Panel title="Senior Traders Desk">
-            <div className="overflow-hidden rounded-[28px] border border-[#3a3124] bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.10),_transparent_28%),linear-gradient(135deg,#17120d_0%,#0f1724_52%,#111827_100%)] shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-              <div className="border-b border-[#3a3124] px-5 py-5">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-amber-200/70">
-                      Human-led market desk
-                    </p>
-                    <h3 className="mt-2 text-2xl font-bold text-white">
-                      Senior Traders Desk
-                    </h3>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-                      Public desk calls from senior traders. Each published signal contains
-                      one entry, one stop loss, and one take profit for disciplined execution.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="inline-flex items-center rounded-full border border-amber-300/20 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-100">
-                      $3 per signal
-                    </span>
-                    <span className="inline-flex items-center rounded-full border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-sm font-semibold text-sky-100">
-                      Human analysts only
-                    </span>
-                  </div>
-                </div>
+            {deskAllowed ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                <SimpleDeskCard
+                  title="Desk 1"
+                  trader="Doctor Rano"
+                  about="Senior trader with 12 years experience."
+                  accent="sky"
+                  pair={selectedPair}
+                  signal={desk1Signal}
+                />
+                <SimpleDeskCard
+                  title="Desk 2"
+                  trader="Doctor Fahdi"
+                  about="Senior trader focused on disciplined daily market execution."
+                  accent="amber"
+                  pair={selectedPair}
+                  signal={desk2Signal}
+                />
               </div>
-
-              <div className="grid gap-4 p-5 lg:grid-cols-2">
-                <button
-                  onClick={() => setActiveDesk("RANO")}
-                  className={`rounded-[24px] border p-5 text-left transition ${
-                    activeDesk === "RANO"
-                      ? "border-sky-300/35 bg-[linear-gradient(135deg,rgba(56,189,248,0.16),rgba(15,23,42,0.95))] shadow-[0_0_30px_rgba(56,189,248,0.12)]"
-                      : "border-white/10 bg-white/[0.03] hover:border-sky-700/40 hover:bg-slate-900/60"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-sky-200/75">
-                        Desk 1
-                      </p>
-                      <h4 className="mt-2 text-xl font-bold text-white">
-                        Doctor Rano
-                      </h4>
-                      <p className="mt-2 text-sm leading-6 text-slate-300">
-                        Structured execution, patient entries, and strict risk framing for
-                        daily public desk calls.
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1.5 text-xs font-bold uppercase text-sky-100">
-                      Active
-                    </span>
-                  </div>
-
-                  <div className="mt-5 grid gap-3 md:grid-cols-3">
-                    <Level label="Entry" value={ranoSignal.entry} />
-                    <Level label="Stop Loss" value={ranoSignal.stopLoss} danger />
-                    <Level label="Take Profit" value={ranoSignal.target} success />
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setActiveDesk("FAHDI")}
-                  className={`rounded-[24px] border p-5 text-left transition ${
-                    activeDesk === "FAHDI"
-                      ? "border-amber-300/35 bg-[linear-gradient(135deg,rgba(251,191,36,0.14),rgba(24,24,20,0.96))] shadow-[0_0_30px_rgba(251,191,36,0.10)]"
-                      : "border-white/10 bg-white/[0.03] hover:border-amber-700/40 hover:bg-[#1b1712]"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-amber-200/75">
-                        Desk 2
-                      </p>
-                      <h4 className="mt-2 text-xl font-bold text-white">
-                        Doctor Fahdi
-                      </h4>
-                      <p className="mt-2 text-sm leading-6 text-slate-300">
-                        Tactical daily market view with one clear entry, one stop, and one
-                        clean target for public traders.
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-xs font-bold uppercase text-amber-100">
-                      Active
-                    </span>
-                  </div>
-
-                  <div className="mt-5 grid gap-3 md:grid-cols-3">
-                    <Level label="Entry" value={fahdiSignal.entry} />
-                    <Level label="Stop Loss" value={fahdiSignal.stopLoss} danger />
-                    <Level label="Take Profit" value={fahdiSignal.target} success />
-                  </div>
-                </button>
-              </div>
-
-              <div className="border-t border-[#3a3124] px-5 py-5">
-                {deskAllowed ? (
-                  <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-                    <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                        Selected desk
-                      </p>
-                      <h4 className="mt-2 text-xl font-bold text-white">{activeDeskName}</h4>
-                      <p className="mt-2 text-sm leading-6 text-slate-300">
-                        Market: {selectedPair} · Public delivery format: one entry, one stop
-                        loss, one take profit.
-                      </p>
-
-                      <div className="mt-4 grid gap-3 md:grid-cols-3">
-                        <Level label="Entry" value={deskSignal.entry} />
-                        <Level label="Stop Loss" value={deskSignal.stopLoss} danger />
-                        <Level label="Take Profit" value={deskSignal.target} success />
-                      </div>
-
-                      <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-slate-300">
-                        {deskSignal.note}
-                      </div>
-                    </div>
-
-                    <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                        Access
-                      </p>
-                      <div className="mt-3 grid gap-3 md:grid-cols-2">
-                        <MiniInfo label="Desk Fee" value="$3 / signal" />
-                        <MiniInfo label="Signal Type" value="Human Public Call" />
-                        <MiniInfo label="Markets" value="Gold · Oil · Nasdaq" />
-                        <MiniInfo label="Format" value="Entry · SL · TP" />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <EmptyInline text="Senior trader desk signals are available only for Gold, Oil, and Nasdaq." />
-                )}
-              </div>
-            </div>
+            ) : (
+              <EmptyInline text="Senior trader desk signals are available only for Gold, Oil, and Nasdaq." />
+            )}
           </Panel>
         </div>
 
-        <div className="mb-6 grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,0.85fr)]">
+        <div className="mb-6 grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.85fr)]">
           <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0c1729] shadow-2xl">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
               <div>
@@ -698,7 +514,6 @@ export default function Home() {
                 signal={selectedSignal}
                 loading={chartLoading}
                 pair={selectedPair}
-                deskSignal={deskAllowed ? deskSignal : null}
               />
             </div>
           </div>
@@ -710,62 +525,6 @@ export default function Home() {
                 <Level label="Stop Loss" value={stopValue} danger />
                 <Level label="Take Profit" value={targetValue} success />
               </div>
-            </Panel>
-
-            <Panel title={`${activeDeskName} Chat`}>
-              {deskAllowed ? (
-                <>
-                  <div className="mb-4 h-[320px] overflow-y-auto rounded-2xl bg-[#0f1c31] p-4">
-                    <div className="space-y-3">
-                      {currentDeskChat.map((message) => (
-                        <div
-                          key={message.id}
-                          className={`flex ${
-                            message.sender === "client" ? "justify-end" : "justify-start"
-                          }`}
-                        >
-                          <div
-                            className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm ${
-                              message.sender === "client"
-                                ? "bg-teal-300 text-slate-950"
-                                : activeDesk === "RANO"
-                                ? "border border-sky-500/20 bg-sky-500/10 text-sky-50"
-                                : "border border-amber-500/20 bg-amber-500/10 text-amber-50"
-                            }`}
-                          >
-                            <div className="mb-1 text-[11px] uppercase tracking-wider opacity-70">
-                              {message.sender === "client" ? "Client" : activeDeskName}
-                            </div>
-                            <div>{message.text}</div>
-                            <div className="mt-1 text-[10px] opacity-60">{message.time}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <input
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      placeholder={`Message ${activeDeskName}`}
-                      className="flex-1 rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3 text-sm text-white outline-none"
-                    />
-                    <button
-                      onClick={sendDeskMessage}
-                      className={`rounded-2xl px-4 py-3 font-bold ${
-                        activeDesk === "RANO"
-                          ? "bg-sky-300 text-slate-950"
-                          : "bg-amber-300 text-slate-950"
-                      }`}
-                    >
-                      Send
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <EmptyInline text="Chat with senior desks is enabled only on Gold, Oil, and Nasdaq." />
-              )}
             </Panel>
 
             <Panel title="Reasons">
@@ -851,13 +610,11 @@ function TradingViewLikeChart({
   signal,
   loading,
   pair,
-  deskSignal,
 }: {
   candles: Candle[];
   signal: SignalLike | null;
   loading: boolean;
   pair: string;
-  deskSignal: DeskSignal | null;
 }) {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -905,8 +662,6 @@ function TradingViewLikeChart({
         rightOffset: 6,
         barSpacing: 7,
         minBarSpacing: 5,
-        fixLeftEdge: false,
-        fixRightEdge: false,
       },
       handleScroll: {
         mouseWheel: true,
@@ -994,7 +749,6 @@ function TradingViewLikeChart({
     }[];
 
     series.setData(seriesData);
-
     chart.timeScale().fitContent();
 
     const priceValues = [
@@ -1003,15 +757,13 @@ function TradingViewLikeChart({
       getSimpleEntry(signal),
       getSimpleStop(signal),
       getSimpleTarget(signal),
-      deskSignal?.entry,
-      deskSignal?.stopLoss,
-      deskSignal?.target,
     ].filter((v): v is number => typeof v === "number" && !Number.isNaN(v));
 
     if (priceValues.length) {
       const max = Math.max(...priceValues);
       const min = Math.min(...priceValues);
       const range = Math.max(max - min, 0.0001);
+
       series.applyOptions({
         autoscaleInfoProvider: () => ({
           priceRange: {
@@ -1043,11 +795,7 @@ function TradingViewLikeChart({
     createLevel(getSimpleEntry(signal), "#67e8f9", "ENTRY", LineStyle.Dashed);
     createLevel(getSimpleStop(signal), "#fda4af", "SL", LineStyle.Dashed);
     createLevel(getSimpleTarget(signal), "#86efac", "TP", LineStyle.Dashed);
-
-    createLevel(deskSignal?.entry, "#e879f9", "DESK ENTRY", LineStyle.Solid);
-    createLevel(deskSignal?.stopLoss, "#fb7185", "DESK SL", LineStyle.Solid);
-    createLevel(deskSignal?.target, "#a3e635", "DESK TP", LineStyle.Solid);
-  }, [candles, signal, deskSignal, pair]);
+  }, [candles, signal, pair]);
 
   if (loading) {
     return (
@@ -1068,6 +816,67 @@ function TradingViewLikeChart({
   return (
     <div className="rounded-[24px] border border-white/10 bg-[#091425] p-2">
       <div ref={chartContainerRef} className="h-[620px] w-full" />
+    </div>
+  );
+}
+
+function SimpleDeskCard({
+  title,
+  trader,
+  about,
+  accent,
+  pair,
+  signal,
+}: {
+  title: string;
+  trader: string;
+  about: string;
+  accent: "sky" | "amber";
+  pair: string;
+  signal: DeskSignal;
+}) {
+  const accentClasses =
+    accent === "sky"
+      ? {
+          badge: "border-sky-300/20 bg-sky-300/10 text-sky-100",
+          button: "bg-sky-300 text-slate-950",
+        }
+      : {
+          badge: "border-amber-300/20 bg-amber-300/10 text-amber-100",
+          button: "bg-amber-300 text-slate-950",
+        };
+
+  return (
+    <div className="rounded-[24px] border border-white/10 bg-[#0f1c31] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.22em] text-slate-400">{title}</p>
+          <h4 className="mt-2 text-xl font-bold text-white">{trader}</h4>
+          <p className="mt-2 text-sm leading-6 text-slate-300">{about}</p>
+        </div>
+        <span className={`rounded-full border px-3 py-1.5 text-xs font-bold uppercase ${accentClasses.badge}`}>
+          Live
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <MiniInfo label="Pair" value={pair} />
+        <MiniInfo label="Bias" value={signal.side} />
+        <MiniInfo label="Entry" value={format(signal.entry)} />
+        <MiniInfo label="Stop Loss" value={format(signal.stopLoss)} />
+        <MiniInfo label="Take Profit" value={format(signal.target)} />
+        <MiniInfo label="Time" value={signal.time} />
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-slate-300">
+        {signal.note}
+      </div>
+
+      <button
+        className={`mt-4 w-full rounded-2xl px-4 py-3 font-bold ${accentClasses.button}`}
+      >
+        Chat with {trader}
+      </button>
     </div>
   );
 }
@@ -1178,7 +987,7 @@ function MiniInfo({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] p-4">
+    <div className="rounded-2xl border border-white/10 bg-[#12233d] p-4">
       <p className="text-xs uppercase tracking-widest text-slate-400">{label}</p>
       <p className="mt-2 text-sm font-semibold text-white">{value}</p>
     </div>
@@ -1253,26 +1062,6 @@ function SignalCard({
         <Level label="Stop Loss" value={getSimpleStop(s)} danger />
         <Level label="Take Profit" value={getSimpleTarget(s)} success />
         <Level label="Confidence" value={`${confidence}%`} />
-      </div>
-
-      {!!s.reasons?.length && (
-        <div className="mt-4 rounded-2xl border border-white/10 bg-[#0f1c31] p-3">
-          <p className="mb-2 text-xs uppercase tracking-widest text-slate-400">
-            Reasons
-          </p>
-          <ul className="space-y-1 text-sm text-slate-300">
-            {s.reasons.slice(0, 2).map((reason, i) => (
-              <li key={i}>• {reason}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="mt-4 h-2 rounded-full bg-white/10">
-        <div
-          className="h-2 rounded-full bg-gradient-to-r from-teal-400 to-cyan-300"
-          style={{ width: `${Math.min(confidence, 100)}%` }}
-        />
       </div>
     </button>
   );
@@ -1370,35 +1159,12 @@ function buildDeskSignal(signal: SignalLike | null, desk: DeskId): DeskSignal {
         : undefined,
     note:
       desk === "RANO"
-        ? "Doctor Rano desk plan: patient entry, disciplined stop placement, one clean target only."
-        : "Doctor Fahdi desk plan: tactical daily execution with one target and strict downside control.",
+        ? "Patient entry, disciplined stop placement, and one clean target."
+        : "Daily tactical execution with one entry, one stop, and one target.",
+    time: signal?.published_at
+      ? new Date(signal.published_at).toLocaleString()
+      : new Date().toLocaleString(),
   };
-}
-
-function buildDeskReply(
-  desk: DeskId,
-  pair: string,
-  input: string,
-  deskSignal: DeskSignal
-) {
-  const deskName = desk === "RANO" ? "Doctor Rano" : "Doctor Fahdi";
-  const lower = input.toLowerCase();
-
-  if (lower.includes("entry")) {
-    return `${deskName}: For ${pair}, current desk entry is ${format(deskSignal.entry)}.`;
-  }
-
-  if (lower.includes("stop")) {
-    return `${deskName}: Current stop loss is ${format(deskSignal.stopLoss)}.`;
-  }
-
-  if (lower.includes("target") || lower.includes("tp")) {
-    return `${deskName}: Current target for ${pair} is ${format(deskSignal.target)}.`;
-  }
-
-  return `${deskName}: I am watching ${pair}. My daily desk plan is ${deskSignal.side} with entry ${format(
-    deskSignal.entry
-  )}, stop ${format(deskSignal.stopLoss)}, and target ${format(deskSignal.target)}.`;
 }
 
 function toUnixTime(value: string): UTCTimestamp | null {
