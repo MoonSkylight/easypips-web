@@ -1,18 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  CandlestickSeries,
-  LineStyle,
-  createChart,
-  type IChartApi,
-  type IPriceLine,
-  type ISeriesApi,
-  type UTCTimestamp,
-} from "lightweight-charts";
+import { useEffect, useMemo, useState } from "react";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://easypips-engine.onrender.com";
+
+const PAIRS: Record<string, string> = {
+  XAUUSD: "OANDA:XAUUSD",
+  EURUSD: "OANDA:EURUSD",
+  GBPUSD: "OANDA:GBPUSD",
+  USDJPY: "OANDA:USDJPY",
+  USDCHF: "OANDA:USDCHF",
+  USDCAD: "OANDA:USDCAD",
+  AUDUSD: "OANDA:AUDUSD",
+  NZDUSD: "OANDA:NZDUSD",
+  EURJPY: "OANDA:EURJPY",
+  GBPJPY: "OANDA:GBPJPY",
+  EURGBP: "OANDA:EURGBP",
+  AUDJPY: "OANDA:AUDJPY",
+  EURAUD: "OANDA:EURAUD",
+  NASDAQ: "NASDAQ:IXIC",
+  SP500: "SP:SPX",
+  OIL: "TVC:USOIL",
+};
 
 type SignalLike = {
   id?: string;
@@ -60,20 +70,6 @@ type DashboardData = {
   };
 };
 
-type Candle = {
-  time: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-};
-
-type CandleResponse = {
-  market?: string;
-  interval?: string;
-  candles?: Candle[];
-};
-
 type DeskSignal = {
   title: string;
   trader: string;
@@ -87,13 +83,21 @@ type DeskSignal = {
   note: string;
 };
 
+const TIMEFRAMES = [
+  { label: "1m", value: "1" },
+  { label: "5m", value: "5" },
+  { label: "15m", value: "15" },
+  { label: "1h", value: "60" },
+  { label: "4h", value: "240" },
+  { label: "1D", value: "D" },
+];
+
 export default function Home() {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [candles, setCandles] = useState<Candle[]>([]);
   const [selectedPair, setSelectedPair] = useState("XAUUSD");
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [chartLoading, setChartLoading] = useState(true);
+  const [tvInterval, setTvInterval] = useState("5");
 
   const active = data?.active || [];
   const pending = data?.pending || [];
@@ -106,6 +110,7 @@ export default function Home() {
       const found = tradingZoneSignals.find((s) => s.id === selectedSignalId);
       if (found) return found;
     }
+
     return (
       active.find((s) => s.market === selectedPair) ||
       pending.find((s) => s.market === selectedPair) ||
@@ -126,9 +131,7 @@ export default function Home() {
       setData(json);
 
       const preferred = json?.top_trade?.market || json?.top_pending?.market;
-      if (preferred && !selectedSignalId) {
-        setSelectedPair(preferred);
-      }
+      if (preferred && !selectedSignalId) setSelectedPair(preferred);
 
       if (!selectedSignalId && (json?.top_trade?.id || json?.top_pending?.id)) {
         setSelectedSignalId(json?.top_trade?.id || json?.top_pending?.id || null);
@@ -140,43 +143,27 @@ export default function Home() {
     }
   }
 
-  async function loadChart(market: string) {
-    setChartLoading(true);
-    try {
-      const res = await fetch(
-        `${API_URL}/candles?market=${encodeURIComponent(market)}&interval=5m&limit=240`,
-        { cache: "no-store" }
-      );
-      if (!res.ok) throw new Error(`Chart HTTP ${res.status}`);
-      const json: CandleResponse = await res.json();
-      setCandles(Array.isArray(json?.candles) ? json.candles : []);
-    } catch {
-      setCandles([]);
-    } finally {
-      setChartLoading(false);
-    }
-  }
-
   useEffect(() => {
     loadEngine();
     const id = setInterval(loadEngine, 12000);
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    const pairToLoad = selectedSignal?.market || selectedPair;
-    if (pairToLoad) loadChart(pairToLoad);
-  }, [selectedPair, selectedSignal?.market]);
-
   const currentMarket = selectedSignal?.market || selectedPair;
   const currentSide = getTradeSide(selectedSignal);
   const currentEntry = getSimpleEntry(selectedSignal);
   const currentStop = getSimpleStop(selectedSignal);
   const currentTarget = getSimpleTarget(selectedSignal);
-  const currentPrice = getCurrentPrice(selectedSignal, candles);
+  const currentPrice =
+    selectedSignal?.latest_price ??
+    selectedSignal?.trigger_price ??
+    selectedSignal?.entry;
 
   const desk1Signal = buildDeskSignal(selectedSignal, "DESK_1");
   const desk2Signal = buildDeskSignal(selectedSignal, "DESK_2");
+
+  const chartSymbol = encodeURIComponent(PAIRS[currentMarket] || "OANDA:XAUUSD");
+  const tradingViewUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${chartSymbol}&interval=${tvInterval}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0f172a&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1&studies_overrides={}&overrides={}&enabled_features=["study_templates"]&disabled_features=[]&locale=en`;
 
   return (
     <main className="min-h-screen bg-[#07111f] text-white">
@@ -221,7 +208,7 @@ export default function Home() {
                   </div>
 
                   <div className="mt-4 grid gap-3 md:grid-cols-5">
-                    <Stat label="Gold Current" value={format(currentPrice)} />
+                    <Stat label="Current Price" value={format(currentPrice)} />
                     <Stat label="Entry" value={format(currentEntry)} />
                     <Stat label="SL" value={format(currentStop)} tone="red" />
                     <Stat label="TP" value={format(currentTarget)} tone="green" />
@@ -303,23 +290,37 @@ export default function Home() {
 
             <Panel tint="green" title="Live Trading Chart">
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                <ToolbarChip label="1m" />
-                <ToolbarChip label="5m" active />
-                <ToolbarChip label="15m" />
-                <ToolbarChip label="Indicators" />
-                <ToolbarChip label="Trendline" />
-                <ToolbarChip label="Fib" />
-                <ToolbarChip label="Crosshair" />
+                {TIMEFRAMES.map((tf) => (
+                  <button
+                    key={tf.value}
+                    onClick={() => setTvInterval(tf.value)}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                      tvInterval === tf.value
+                        ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-200"
+                        : "border-white/10 bg-white/5 text-slate-300"
+                    }`}
+                  >
+                    {tf.label}
+                  </button>
+                ))}
+                <ToolbarChip label="TradingView Tools" active />
               </div>
 
-              <ChartBox candles={candles} loading={chartLoading} signal={selectedSignal} />
+              <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#091425]">
+                <iframe
+                  key={`${currentMarket}-${tvInterval}`}
+                  src={tradingViewUrl}
+                  className="h-[530px] w-full"
+                  allowFullScreen
+                />
+              </div>
 
               <div className="mt-4 grid gap-3 md:grid-cols-5">
                 <Stat label="Current" value={format(currentPrice)} />
                 <Stat label="Entry" value={format(currentEntry)} />
                 <Stat label="SL" value={format(currentStop)} tone="red" />
                 <Stat label="TP" value={format(currentTarget)} tone="green" />
-                <Stat label="Timeframe" value={selectedSignal?.timeframe || "5m"} />
+                <Stat label="Timeframe" value={tvInterval} />
               </div>
             </Panel>
 
@@ -328,9 +329,7 @@ export default function Home() {
                 {tradingZoneSignals.length ? (
                   tradingZoneSignals.slice(0, 10).map((signal, index) => {
                     const livePrice =
-                      signal.market === currentMarket
-                        ? getCurrentPrice(signal, candles)
-                        : signal.latest_price ?? signal.trigger_price ?? signal.entry;
+                      signal.latest_price ?? signal.trigger_price ?? signal.entry;
 
                     return (
                       <button
@@ -511,163 +510,6 @@ function Panel({
   );
 }
 
-function ChartBox({
-  candles,
-  signal,
-  loading,
-}: {
-  candles: Candle[];
-  signal: SignalLike | null;
-  loading: boolean;
-}) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
-  const linesRef = useRef<IPriceLine[]>([]);
-
-  useEffect(() => {
-    if (!ref.current) return;
-
-    const chart = createChart(ref.current, {
-      width: ref.current.clientWidth,
-      height: 430,
-      layout: {
-        background: { color: "#091425" },
-        textColor: "#8fa3bf",
-        attributionLogo: false,
-      },
-      grid: {
-        vertLines: { color: "rgba(255,255,255,0.05)" },
-        horzLines: { color: "rgba(255,255,255,0.05)" },
-      },
-      crosshair: {
-        mode: 1,
-        vertLine: {
-          color: "rgba(148,163,184,0.35)",
-          width: 1,
-          style: LineStyle.Dashed,
-          labelBackgroundColor: "#0f172a",
-        },
-        horzLine: {
-          color: "rgba(148,163,184,0.35)",
-          width: 1,
-          style: LineStyle.Dashed,
-          labelBackgroundColor: "#0f172a",
-        },
-      },
-      rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
-      timeScale: {
-        borderColor: "rgba(255,255,255,0.08)",
-        timeVisible: true,
-        secondsVisible: false,
-      },
-    });
-
-    const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#22c55e",
-      downColor: "#ef4444",
-      borderUpColor: "#22c55e",
-      borderDownColor: "#ef4444",
-      wickUpColor: "#22c55e",
-      wickDownColor: "#ef4444",
-    });
-
-    chartRef.current = chart;
-    seriesRef.current = series;
-
-    const ro = new ResizeObserver(() => {
-      if (!ref.current || !chartRef.current) return;
-      chartRef.current.applyOptions({ width: ref.current.clientWidth });
-      chartRef.current.timeScale().fitContent();
-    });
-
-    ro.observe(ref.current);
-
-    return () => {
-      ro.disconnect();
-      chart.remove();
-      chartRef.current = null;
-      seriesRef.current = null;
-      linesRef.current = [];
-    };
-  }, []);
-
-  useEffect(() => {
-    const chart = chartRef.current;
-    const series = seriesRef.current;
-    if (!chart || !series) return;
-
-    const data = candles
-      .map((c) => {
-        const t = new Date(c.time).getTime();
-        if (Number.isNaN(t)) return null;
-        return {
-          time: Math.floor(t / 1000) as UTCTimestamp,
-          open: c.open,
-          high: c.high,
-          low: c.low,
-          close: c.close,
-        };
-      })
-      .filter(Boolean) as {
-      time: UTCTimestamp;
-      open: number;
-      high: number;
-      low: number;
-      close: number;
-    }[];
-
-    series.setData(data);
-    chart.timeScale().fitContent();
-
-    linesRef.current.forEach((l) => {
-      try {
-        series.removePriceLine(l);
-      } catch {}
-    });
-    linesRef.current = [];
-
-    const add = (price: number | undefined, color: string, title: string) => {
-      if (typeof price !== "number") return;
-      const line = series.createPriceLine({
-        price,
-        color,
-        lineWidth: 2,
-        lineStyle: LineStyle.Dashed,
-        axisLabelVisible: true,
-        title,
-      });
-      linesRef.current.push(line);
-    };
-
-    add(getSimpleEntry(signal), "#67e8f9", "ENTRY");
-    add(getSimpleStop(signal), "#fda4af", "SL");
-    add(getSimpleTarget(signal), "#86efac", "TP");
-  }, [candles, signal]);
-
-  if (loading) {
-    return (
-      <div className="grid h-[430px] place-items-center rounded-[24px] border border-white/10 bg-[#091425] text-slate-400">
-        Loading live chart...
-      </div>
-    );
-  }
-
-  if (!candles.length) {
-    return (
-      <div className="grid h-[430px] place-items-center rounded-[24px] border border-white/10 bg-[#091425] text-slate-400">
-        No live chart data available.
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-[24px] border border-white/10 bg-[#091425] p-2">
-      <div ref={ref} className="h-[430px] w-full" />
-    </div>
-  );
-}
-
 function HistoryRow({ signal }: { signal: SignalLike }) {
   const result = (signal.result || "").toUpperCase();
   const isTp = result.includes("TP") || result.includes("PROFIT");
@@ -817,16 +659,6 @@ function getSimpleStop(signal?: SignalLike | null) {
 
 function getSimpleTarget(signal?: SignalLike | null) {
   return signal?.tp1;
-}
-
-function getCurrentPrice(signal?: SignalLike | null, candles?: Candle[]) {
-  const lastCandle = candles?.[candles.length - 1];
-  return (
-    lastCandle?.close ??
-    signal?.latest_price ??
-    signal?.trigger_price ??
-    signal?.entry
-  );
 }
 
 function buildDeskSignal(
