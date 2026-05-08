@@ -74,16 +74,6 @@ type CandleResponse = {
   candles?: Candle[];
 };
 
-type ManualSignalDraft = {
-  trader: "Doctor Rano" | "Doctor Fahdi";
-  pair: string;
-  side: "BUY" | "SELL";
-  entry: string;
-  sl: string;
-  tp: string;
-  note: string;
-};
-
 type DeskSignal = {
   title: string;
   trader: string;
@@ -104,16 +94,6 @@ export default function Home() {
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
-
-  const [draft, setDraft] = useState<ManualSignalDraft>({
-    trader: "Doctor Rano",
-    pair: "XAUUSD",
-    side: "BUY",
-    entry: "",
-    sl: "",
-    tp: "",
-    note: "",
-  });
 
   const active = data?.active || [];
   const pending = data?.pending || [];
@@ -198,23 +178,6 @@ export default function Home() {
   const desk1Signal = buildDeskSignal(selectedSignal, "DESK_1");
   const desk2Signal = buildDeskSignal(selectedSignal, "DESK_2");
 
-  function quickFill(side: "BUY" | "SELL") {
-    const live = currentPrice ?? currentEntry;
-    setDraft((prev) => ({
-      ...prev,
-      trader: side === "BUY" ? "Doctor Rano" : "Doctor Fahdi",
-      pair: currentMarket || "XAUUSD",
-      side,
-      entry: live ? String(live) : "",
-      sl: currentStop ? String(currentStop) : "",
-      tp: currentTarget ? String(currentTarget) : "",
-      note:
-        side === "BUY"
-          ? "Senior buy setup ready for publishing."
-          : "Senior sell setup ready for publishing.",
-    }));
-  }
-
   return (
     <main className="min-h-screen bg-[#07111f] text-white">
       <div className="mx-auto max-w-[1650px] px-4 py-4">
@@ -234,44 +197,7 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="grid gap-4 lg:grid-cols-[290px_minmax(0,1fr)_360px]">
-          <div className="space-y-4">
-            <Panel tint="blue" title="Senior Publish Control">
-              <div className="space-y-4">
-                <p className="text-sm leading-6 text-slate-300">
-                  This box is reserved for senior traders only. AI does not publish from this panel.
-                </p>
-
-                <div className="grid gap-2">
-                  <button
-                    onClick={() => quickFill("BUY")}
-                    className="rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-bold text-slate-950"
-                  >
-                    Prepare Buy Signal
-                  </button>
-                  <button
-                    onClick={() => quickFill("SELL")}
-                    className="rounded-2xl bg-rose-400 px-4 py-3 text-sm font-bold text-slate-950"
-                  >
-                    Prepare Sell Signal
-                  </button>
-                  <button className="rounded-2xl border border-blue-300/25 bg-blue-300/10 px-4 py-3 text-sm font-semibold text-blue-100">
-                    Publish Senior Signal
-                  </button>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-[#0f1c31] p-4">
-                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                    Publish Draft
-                  </p>
-                  <p className="mt-2 text-sm text-slate-300">
-                    Pair: {draft.pair || "-"} · Side: {draft.side} · Entry: {draft.entry || "-"}
-                  </p>
-                </div>
-              </div>
-            </Panel>
-          </div>
-
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-4">
             <Panel tint="yellow" title="Selected Signal">
               {selectedSignal ? (
@@ -323,6 +249,56 @@ export default function Home() {
               ) : (
                 <EmptyInline text="No signal selected. Click a signal from the Trading Zone." />
               )}
+            </Panel>
+
+            <Panel tint="green" title="Upcoming Active and Pending Signals">
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-[#0f1c31] p-4">
+                  <p className="mb-3 text-xs uppercase tracking-[0.22em] text-emerald-200/75">
+                    Active
+                  </p>
+                  <div className="space-y-2">
+                    {active.length ? (
+                      active.slice(0, 6).map((signal, index) => (
+                        <SignalRow
+                          key={`active-${signal.id || signal.market || index}`}
+                          signal={signal}
+                          selected={selectedSignalId === signal.id}
+                          onClick={() => {
+                            if (signal.market) setSelectedPair(signal.market);
+                            if (signal.id) setSelectedSignalId(signal.id);
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <EmptyInline text="No active signals." />
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-[#0f1c31] p-4">
+                  <p className="mb-3 text-xs uppercase tracking-[0.22em] text-yellow-200/75">
+                    Pending
+                  </p>
+                  <div className="space-y-2">
+                    {pending.length ? (
+                      pending.slice(0, 6).map((signal, index) => (
+                        <SignalRow
+                          key={`pending-${signal.id || signal.market || index}`}
+                          signal={signal}
+                          selected={selectedSignalId === signal.id}
+                          onClick={() => {
+                            if (signal.market) setSelectedPair(signal.market);
+                            if (signal.id) setSelectedSignalId(signal.id);
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <EmptyInline text="No pending signals." />
+                    )}
+                  </div>
+                </div>
+              </div>
             </Panel>
 
             <Panel tint="green" title="Live Trading Chart">
@@ -410,12 +386,6 @@ export default function Home() {
           </div>
 
           <div className="space-y-4">
-            <Panel tint="red" title="Senior Publish Room">
-              <div className="space-y-4">
-                <ManualPublishCard draft={draft} setDraft={setDraft} />
-              </div>
-            </Panel>
-
             <Panel tint="purple" title="Desk 1 and Desk 2">
               <div className="space-y-4">
                 <DeskCard signal={desk1Signal} />
@@ -427,7 +397,7 @@ export default function Home() {
               <div className="space-y-3">
                 <InfoRow label="Telegram" value="@easypips_ai" />
                 <InfoRow label="Support" value="support@easypips.ai" />
-                <InfoRow label="Trading Zone" value="Live AI and senior trading flow" />
+                <InfoRow label="Trading Zone" value="Live AI and market flow" />
                 <InfoRow label="Website" value="easypips-web.vercel.app" />
               </div>
             </Panel>
@@ -438,99 +408,46 @@ export default function Home() {
   );
 }
 
-function ManualPublishCard({
-  draft,
-  setDraft,
+function SignalRow({
+  signal,
+  selected,
+  onClick,
 }: {
-  draft: ManualSignalDraft;
-  setDraft: React.Dispatch<React.SetStateAction<ManualSignalDraft>>;
+  signal: SignalLike;
+  selected: boolean;
+  onClick: () => void;
 }) {
+  const side = getTradeSide(signal);
+
   return (
-    <div className="rounded-[24px] border border-rose-300/20 bg-[#0f1c31] p-4">
+    <button
+      onClick={onClick}
+      className={`w-full rounded-2xl border px-4 py-3 text-left ${
+        selected
+          ? "border-emerald-300/35 bg-emerald-300/10"
+          : "border-white/10 bg-[#091425]"
+      }`}
+    >
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-rose-200/75">
-            Manual Publish
+          <p className="text-sm font-bold text-white">{signal.market || "-"}</p>
+          <p className="text-xs text-slate-400">
+            {signal.display_decision || signal.decision || "WAIT"}
           </p>
-          <h3 className="mt-2 text-xl font-bold text-white">
-            Senior Trader Entry
-          </h3>
         </div>
-        <span className="rounded-full border border-rose-300/20 bg-rose-300/10 px-3 py-1.5 text-xs font-bold uppercase text-rose-100">
-          Senior Only
+        <span
+          className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${
+            side === "LONG"
+              ? "bg-green-400/15 text-green-300"
+              : side === "SHORT"
+              ? "bg-red-400/15 text-red-300"
+              : "bg-slate-500/15 text-slate-300"
+          }`}
+        >
+          {side}
         </span>
       </div>
-
-      <div className="mt-4 grid gap-3">
-        <select
-          value={draft.trader}
-          onChange={(e) =>
-            setDraft((prev) => ({
-              ...prev,
-              trader: e.target.value as "Doctor Rano" | "Doctor Fahdi",
-            }))
-          }
-          className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-        >
-          <option>Doctor Rano</option>
-          <option>Doctor Fahdi</option>
-        </select>
-
-        <input
-          value={draft.pair}
-          onChange={(e) => setDraft((prev) => ({ ...prev, pair: e.target.value }))}
-          placeholder="Pair"
-          className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-        />
-
-        <select
-          value={draft.side}
-          onChange={(e) =>
-            setDraft((prev) => ({
-              ...prev,
-              side: e.target.value as "BUY" | "SELL",
-            }))
-          }
-          className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-        >
-          <option>BUY</option>
-          <option>SELL</option>
-        </select>
-
-        <div className="grid gap-3 md:grid-cols-3">
-          <input
-            value={draft.entry}
-            onChange={(e) => setDraft((prev) => ({ ...prev, entry: e.target.value }))}
-            placeholder="Entry"
-            className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-          />
-          <input
-            value={draft.sl}
-            onChange={(e) => setDraft((prev) => ({ ...prev, sl: e.target.value }))}
-            placeholder="SL"
-            className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-          />
-          <input
-            value={draft.tp}
-            onChange={(e) => setDraft((prev) => ({ ...prev, tp: e.target.value }))}
-            placeholder="TP"
-            className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-          />
-        </div>
-
-        <textarea
-          value={draft.note}
-          onChange={(e) => setDraft((prev) => ({ ...prev, note: e.target.value }))}
-          placeholder="Trader note"
-          rows={4}
-          className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-3 text-sm outline-none"
-        />
-
-        <button className="rounded-2xl bg-rose-300 px-4 py-3 font-bold text-slate-950">
-          Publish To Trading Zone
-        </button>
-      </div>
-    </div>
+    </button>
   );
 }
 
@@ -572,22 +489,18 @@ function Panel({
   children,
 }: {
   title: string;
-  tint: "yellow" | "blue" | "green" | "purple" | "lightblue" | "red";
+  tint: "yellow" | "green" | "purple" | "lightblue";
   children: React.ReactNode;
 }) {
   const classes = {
     yellow:
       "border-yellow-400/25 bg-[linear-gradient(180deg,rgba(250,204,21,0.10),rgba(12,23,41,0.96))]",
-    blue:
-      "border-blue-400/25 bg-[linear-gradient(180deg,rgba(59,130,246,0.10),rgba(12,23,41,0.96))]",
     green:
       "border-emerald-400/25 bg-[linear-gradient(180deg,rgba(16,185,129,0.10),rgba(12,23,41,0.96))]",
     purple:
       "border-fuchsia-400/20 bg-[linear-gradient(180deg,rgba(168,85,247,0.10),rgba(12,23,41,0.96))]",
     lightblue:
       "border-sky-300/25 bg-[linear-gradient(180deg,rgba(56,189,248,0.10),rgba(12,23,41,0.96))]",
-    red:
-      "border-rose-400/25 bg-[linear-gradient(180deg,rgba(244,63,94,0.10),rgba(12,23,41,0.96))]",
   }[tint];
 
   return (
@@ -854,7 +767,7 @@ function Badge({
 
 function EmptyInline({ text }: { text: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-4 text-sm text-slate-400">
+    <div className="rounded-2xl border border-white/10 bg-[#091425] px-4 py-4 text-sm text-slate-400">
       {text}
     </div>
   );
