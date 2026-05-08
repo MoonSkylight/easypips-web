@@ -469,22 +469,6 @@ function ClosedRow({ signal }: { signal: Signal }) {
   );
 }
 
-type ManualDeskSignal = {
-  id: string;
-  desk: "DESK_1" | "DESK_2";
-  trader_name: string;
-  pair: string;
-  side: "BUY" | "SELL";
-  entry: number;
-  stop_loss: number;
-  take_profit: number;
-  timeframe: string;
-  note: string;
-  status: "PUBLISHED";
-  created_at: string;
-  published_at: string;
-};
-
 function DeskCard({
   title,
   trader,
