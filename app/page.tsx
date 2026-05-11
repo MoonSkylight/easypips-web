@@ -17,13 +17,23 @@ type Signal = {
   analyst?: string | null;
   note?: string | null;
   status: string;
+  result?: string | null;
+  hit_tp1?: boolean;
+  hit_tp2?: boolean;
+  hit_tp3?: boolean;
+  hit_sl?: boolean;
   created_at: string;
+  closed_at?: string | null;
 };
 
 type SignalResponse = {
   aiSignals: Signal[];
   desk1Signals: Signal[];
   desk2Signals: Signal[];
+};
+
+type ClosedResponse = {
+  closedSignals: Signal[];
 };
 
 type Stats = {
@@ -33,14 +43,22 @@ type Stats = {
   aiSignals: number;
   desk1Signals: number;
   desk2Signals: number;
+  runningSignals: number;
+  closedSignals: number;
+  tp1Hits: number;
+  tp2Hits: number;
+  tp3Hits: number;
+  slHits: number;
+  winRate: number;
 };
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
 
 export default function EasyPipsProSignals() {
-  const [activeTab, setActiveTab] = useState<"ai" | "desk1" | "desk2">("ai");
+  const [activeTab, setActiveTab] = useState<"ai" | "desk1" | "desk2" | "closed">("ai");
   const [stats, setStats] = useState<Stats | null>(null);
+  const [closedSignals, setClosedSignals] = useState<Signal[]>([]);
   const [data, setData] = useState<SignalResponse>({
     aiSignals: [],
     desk1Signals: [],
@@ -53,7 +71,7 @@ export default function EasyPipsProSignals() {
         cache: "no-store",
       });
 
-      const json = await res.json();
+      const json: SignalResponse = await res.json();
 
       setData({
         aiSignals: json.aiSignals || [],
@@ -81,14 +99,30 @@ export default function EasyPipsProSignals() {
     }
   }
 
-  useEffect(() => {
-    loadSignals();
-    loadStats();
+  async function loadClosedSignals() {
+    try {
+      const res = await fetch(`${API_BASE}/closed-signals`, {
+        cache: "no-store",
+      });
 
-    const timer = setInterval(() => {
-      loadSignals();
-      loadStats();
-    }, 10000);
+      const json: ClosedResponse = await res.json();
+
+      setClosedSignals(json.closedSignals || []);
+    } catch (error) {
+      console.error("Failed to load closed signals", error);
+    }
+  }
+
+  async function loadAll() {
+    await loadSignals();
+    await loadStats();
+    await loadClosedSignals();
+  }
+
+  useEffect(() => {
+    loadAll();
+
+    const timer = setInterval(loadAll, 15000);
 
     return () => clearInterval(timer);
   }, []);
@@ -98,7 +132,9 @@ export default function EasyPipsProSignals() {
       ? data.aiSignals
       : activeTab === "desk1"
       ? data.desk1Signals
-      : data.desk2Signals;
+      : activeTab === "desk2"
+      ? data.desk2Signals
+      : closedSignals;
 
   return (
     <main className="min-h-screen bg-[#05070d] text-white">
@@ -115,17 +151,17 @@ export default function EasyPipsProSignals() {
               </div>
 
               <h1 className="text-3xl font-bold md:text-5xl">
-                Paid Trading Signals
+                Trading Signal Dashboard
               </h1>
 
               <p className="mt-3 text-slate-400">
-                AI Engine + Human Desk Signals
+                AI Engine + Human Desk Signals + Accuracy Tracking
               </p>
             </div>
 
             <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 px-5 py-4 text-right">
-              <p className="text-xs text-yellow-300">Subscriber</p>
-              <p className="text-2xl font-bold text-yellow-200">PRO LIVE</p>
+              <p className="text-xs text-yellow-300">System Status</p>
+              <p className="text-2xl font-bold text-yellow-200">LIVE</p>
             </div>
           </div>
         </div>
@@ -134,14 +170,20 @@ export default function EasyPipsProSignals() {
           <div className="mb-6 grid gap-3 md:grid-cols-6">
             <StatCard label="Today" value={stats.todaySignals} />
             <StatCard label="Last 7 Days" value={stats.last7DaysSignals} />
-            <StatCard label="Total" value={stats.totalSignals} />
+            <StatCard label="Running" value={stats.runningSignals} />
+            <StatCard label="Closed" value={stats.closedSignals} />
+            <StatCard label="TP1 Hits" value={stats.tp1Hits} />
+            <StatCard label="Win Rate" value={`${stats.winRate}%`} />
+            <StatCard label="TP2 Hits" value={stats.tp2Hits} />
+            <StatCard label="TP3 Hits" value={stats.tp3Hits} />
+            <StatCard label="SL Hits" value={stats.slHits} />
             <StatCard label="AI" value={stats.aiSignals} />
             <StatCard label="Desk 1" value={stats.desk1Signals} />
             <StatCard label="Desk 2" value={stats.desk2Signals} />
           </div>
         )}
 
-        <div className="mb-6 grid grid-cols-3 gap-3 rounded-2xl border border-white/10 bg-white/5 p-2">
+        <div className="mb-6 grid grid-cols-4 gap-3 rounded-2xl border border-white/10 bg-white/5 p-2">
           <TabButton
             label="AI Engine"
             active={activeTab === "ai"}
@@ -157,6 +199,11 @@ export default function EasyPipsProSignals() {
             active={activeTab === "desk2"}
             onClick={() => setActiveTab("desk2")}
           />
+          <TabButton
+            label="History"
+            active={activeTab === "closed"}
+            onClick={() => setActiveTab("closed")}
+          />
         </div>
 
         <div className="mb-5 flex justify-between">
@@ -165,11 +212,13 @@ export default function EasyPipsProSignals() {
               ? "AI Engine Signals"
               : activeTab === "desk1"
               ? "Desk 1 Signals"
-              : "Desk 2 Signals"}
+              : activeTab === "desk2"
+              ? "Desk 2 Signals"
+              : "Closed Signal History"}
           </h2>
 
           <span className="rounded-full bg-white/10 px-3 py-1">
-            {signals.length} Active
+            {signals.length} {activeTab === "closed" ? "Closed" : "Active"}
           </span>
         </div>
 
@@ -189,7 +238,13 @@ export default function EasyPipsProSignals() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: number | string;
+}) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
       <p className="text-xs uppercase tracking-widest text-slate-500">
@@ -212,8 +267,10 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-xl px-4 py-3 font-bold ${
-        active ? "bg-emerald-400 text-black" : "text-gray-400"
+      className={`rounded-xl px-3 py-3 text-sm font-bold transition ${
+        active
+          ? "bg-emerald-400 text-black"
+          : "text-gray-400 hover:bg-white/10 hover:text-white"
       }`}
     >
       {label}
@@ -233,6 +290,7 @@ function formatPrice(value: string | number) {
 
 function SignalCard({ signal }: { signal: Signal }) {
   const isBuy = signal.direction === "BUY";
+  const result = signal.result || "RUNNING";
 
   return (
     <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
@@ -245,13 +303,27 @@ function SignalCard({ signal }: { signal: Signal }) {
           <h3 className="text-2xl font-bold">{signal.symbol}</h3>
         </div>
 
-        <span
-          className={`rounded-full px-3 py-1 font-bold ${
-            isBuy ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {signal.direction}
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span
+            className={`rounded-full px-3 py-1 font-bold ${
+              isBuy ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {signal.direction}
+          </span>
+
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-bold ${
+              result === "SL"
+                ? "bg-red-500/20 text-red-300"
+                : result === "RUNNING"
+                ? "bg-yellow-500/20 text-yellow-300"
+                : "bg-emerald-500/20 text-emerald-300"
+            }`}
+          >
+            {result}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -263,11 +335,42 @@ function SignalCard({ signal }: { signal: Signal }) {
         <ValueBox label="Status" value={signal.status} />
       </div>
 
+      <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs">
+        <ResultPill label="TP1" active={!!signal.hit_tp1} />
+        <ResultPill label="TP2" active={!!signal.hit_tp2} />
+        <ResultPill label="TP3" active={!!signal.hit_tp3} />
+        <ResultPill label="SL" active={!!signal.hit_sl} danger />
+      </div>
+
       <div className="mt-4 flex justify-between text-sm text-gray-400">
         <span>{signal.analyst || "AI"}</span>
         <span>{signal.confidence ? `${signal.confidence}%` : "Human"}</span>
       </div>
     </div>
+  );
+}
+
+function ResultPill({
+  label,
+  active,
+  danger,
+}: {
+  label: string;
+  active: boolean;
+  danger?: boolean;
+}) {
+  return (
+    <span
+      className={`rounded-full px-2 py-1 ${
+        active
+          ? danger
+            ? "bg-red-500 text-white"
+            : "bg-emerald-400 text-black"
+          : "bg-black/30 text-slate-500"
+      }`}
+    >
+      {label}
+    </span>
   );
 }
 
