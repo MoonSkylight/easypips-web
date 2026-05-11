@@ -30,12 +30,12 @@ SYMBOLS = {
     "BTC/USD": "BTC-USD",
 }
 
+ACTIVE_AI_SIGNALS = []
 DESK_1_SIGNALS = []
 DESK_2_SIGNALS = []
 
-CACHED_AI_SIGNALS = []
-LAST_AI_UPDATE = None
-CACHE_MINUTES = 0
+MAX_AI_SIGNALS = 6
+SIGNAL_VALID_HOURS = 24
 
 
 class ManualSignal(BaseModel):
@@ -59,15 +59,6 @@ def format_price(symbol: str, price: float) -> str:
 
 
 def pip_size(symbol: str) -> float:
-    """
-    Normal forex:
-    1 pip = 0.0001
-    100 pips = 0.0100
-
-    JPY pairs:
-    1 pip = 0.01
-    100 pips = 1.00
-    """
     if "JPY" in symbol:
         return 0.01
     if "XAU" in symbol:
@@ -78,11 +69,6 @@ def pip_size(symbol: str) -> float:
 
 
 def target_distance(symbol: str) -> float:
-    """
-    100 pip distance.
-    EUR/USD example:
-    0.0001 * 100 = 0.0100
-    """
     return pip_size(symbol) * 100
 
 
@@ -108,9 +94,7 @@ def get_live_price(yahoo_symbol: str):
 
 
 def decide_direction(current_price: float, previous_price: float) -> str:
-    if current_price >= previous_price:
-        return "BUY"
-    return "SELL"
+    return "BUY" if current_price >= previous_price else "SELL"
 
 
 def build_ai_signal(symbol: str, price: float, previous_price: float):
@@ -144,33 +128,49 @@ def build_ai_signal(symbol: str, price: float, previous_price: float):
     }
 
 
-def generate_ai_signals():
-    signals = []
+def remove_expired_ai_signals():
+    global ACTIVE_AI_SIGNALS
+
+    now = datetime.utcnow()
+    fresh_signals = []
+
+    for signal in ACTIVE_AI_SIGNALS:
+        created_at = datetime.fromisoformat(signal["created_at"])
+        if now - created_at < timedelta(hours=SIGNAL_VALID_HOURS):
+            fresh_signals.append(signal)
+
+    ACTIVE_AI_SIGNALS = fresh_signals
+
+
+def ai_signal_exists(symbol: str):
+    for signal in ACTIVE_AI_SIGNALS:
+        if signal["symbol"] == symbol and signal["status"] == "ACTIVE":
+            return True
+    return False
+
+
+def generate_missing_ai_signals():
+    remove_expired_ai_signals()
+
+    if len(ACTIVE_AI_SIGNALS) >= MAX_AI_SIGNALS:
+        return ACTIVE_AI_SIGNALS
 
     for symbol, yahoo_symbol in SYMBOLS.items():
+        if len(ACTIVE_AI_SIGNALS) >= MAX_AI_SIGNALS:
+            break
+
+        if ai_signal_exists(symbol):
+            continue
+
         price, previous_price = get_live_price(yahoo_symbol)
 
         if price is None or previous_price is None:
             continue
 
-        signals.append(build_ai_signal(symbol, price, previous_price))
+        signal = build_ai_signal(symbol, price, previous_price)
+        ACTIVE_AI_SIGNALS.append(signal)
 
-    return signals
-
-
-def get_ai_signals():
-    global CACHED_AI_SIGNALS, LAST_AI_UPDATE
-
-    now = datetime.utcnow()
-
-    if LAST_AI_UPDATE and CACHED_AI_SIGNALS:
-        if now - LAST_AI_UPDATE < timedelta(minutes=CACHE_MINUTES):
-            return CACHED_AI_SIGNALS
-
-    CACHED_AI_SIGNALS = generate_ai_signals()
-    LAST_AI_UPDATE = now
-
-    return CACHED_AI_SIGNALS
+    return ACTIVE_AI_SIGNALS
 
 
 def format_signal(signal, source="AI Engine", desk=None):
@@ -198,9 +198,10 @@ def root():
     return {
         "service": "EasyPips Pro Signals API",
         "status": "running",
-        "mode": "live forex prices",
+        "mode": "firm published signals",
         "normal_forex_100_pips": "0.0100",
         "jpy_100_pips": "1.00",
+        "signal_valid_hours": SIGNAL_VALID_HOURS,
     }
 
 
@@ -222,7 +223,7 @@ def live_prices():
 
 @app.get("/pro-signals")
 def pro_signals():
-    return {"aiSignals": get_ai_signals()}
+    return {"aiSignals": generate_missing_ai_signals()}
 
 
 @app.get("/human-signals")
@@ -242,7 +243,7 @@ def human_signals():
 @app.get("/all-paid-signals")
 def all_paid_signals():
     return {
-        "aiSignals": get_ai_signals(),
+        "aiSignals": generate_missing_ai_signals(),
         "desk1Signals": [
             format_signal(signal, "Human Desk", "Desk 1")
             for signal in DESK_1_SIGNALS
@@ -286,7 +287,9 @@ def create_desk2_signal(signal: ManualSignal):
 
 @app.delete("/signals/{desk}/{signal_id}")
 def delete_signal(desk: str, signal_id: str):
-    if desk == "desk1":
+    if desk == "ai":
+        target = ACTIVE_AI_SIGNALS
+    elif desk == "desk1":
         target = DESK_1_SIGNALS
     elif desk == "desk2":
         target = DESK_2_SIGNALS
@@ -299,3 +302,9 @@ def delete_signal(desk: str, signal_id: str):
             return {"success": True}
 
     return {"success": False, "message": "Signal not found"}
+
+
+@app.post("/admin/reset-ai-signals")
+def reset_ai_signals():
+    ACTIVE_AI_SIGNALS.clear()
+    return {"success": True, "message": "AI signals reset"}
