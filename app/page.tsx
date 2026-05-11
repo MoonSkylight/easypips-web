@@ -37,28 +37,37 @@ type ClosedResponse = {
 };
 
 type Stats = {
-  todaySignals: number;
-  last7DaysSignals: number;
-  totalSignals: number;
-  aiSignals: number;
-  desk1Signals: number;
-  desk2Signals: number;
-  runningSignals: number;
-  closedSignals: number;
-  tp1Hits: number;
-  tp2Hits: number;
-  tp3Hits: number;
-  slHits: number;
-  winRate: number;
+  todaySignals?: number;
+  last7DaysSignals?: number;
+  totalSignals?: number;
+  aiSignals?: number;
+  desk1Signals?: number;
+  desk2Signals?: number;
+  runningSignals?: number;
+  closedSignals?: number;
+  tp1Hits?: number;
+  tp2Hits?: number;
+  tp3Hits?: number;
+  slHits?: number;
+  winRate?: number;
+
+  today?: number;
+  week?: number;
+  tp?: number;
+  sl?: number;
 };
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
 
 export default function EasyPipsProSignals() {
-  const [activeTab, setActiveTab] = useState<"ai" | "desk1" | "desk2" | "closed">("ai");
+  const [activeTab, setActiveTab] = useState<
+    "ai" | "desk1" | "desk2" | "closed"
+  >("ai");
+
   const [stats, setStats] = useState<Stats | null>(null);
   const [closedSignals, setClosedSignals] = useState<Signal[]>([]);
+
   const [data, setData] = useState<SignalResponse>({
     aiSignals: [],
     desk1Signals: [],
@@ -140,7 +149,8 @@ export default function EasyPipsProSignals() {
     <main className="min-h-screen bg-[#05070d] text-white">
       <section className="mx-auto max-w-7xl px-5 py-8">
         <div className="mb-4 rounded-xl border border-yellow-400/30 bg-yellow-400/10 p-3 text-center text-sm text-yellow-300">
-          ⚠ Demo Version – Signals are for testing purposes only. Not financial advice.
+          ⚠ Demo Version – Signals are for testing purposes only. Not financial
+          advice.
         </div>
 
         <div className="mb-8 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-black to-slate-950 p-6 shadow-2xl">
@@ -168,18 +178,22 @@ export default function EasyPipsProSignals() {
 
         {stats && (
           <div className="mb-6 grid gap-3 md:grid-cols-6">
-            <StatCard label="Today" value={stats.todaySignals} />
-            <StatCard label="Last 7 Days" value={stats.last7DaysSignals} />
-            <StatCard label="Running" value={stats.runningSignals} />
-            <StatCard label="Closed" value={stats.closedSignals} />
-            <StatCard label="TP1 Hits" value={stats.tp1Hits} />
-            <StatCard label="Win Rate" value={`${stats.winRate}%`} />
-            <StatCard label="TP2 Hits" value={stats.tp2Hits} />
-            <StatCard label="TP3 Hits" value={stats.tp3Hits} />
-            <StatCard label="SL Hits" value={stats.slHits} />
-            <StatCard label="AI" value={stats.aiSignals} />
-            <StatCard label="Desk 1" value={stats.desk1Signals} />
-            <StatCard label="Desk 2" value={stats.desk2Signals} />
+            <StatCard label="Today" value={stats.todaySignals ?? stats.today ?? 0} />
+            <StatCard
+              label="Last 7 Days"
+              value={stats.last7DaysSignals ?? stats.week ?? 0}
+            />
+            <StatCard label="Total" value={stats.totalSignals ?? 0} />
+            <StatCard label="Running" value={stats.runningSignals ?? 0} />
+            <StatCard label="Closed" value={stats.closedSignals ?? 0} />
+            <StatCard label="TP1 Hits" value={stats.tp1Hits ?? stats.tp ?? 0} />
+            <StatCard label="TP2 Hits" value={stats.tp2Hits ?? 0} />
+            <StatCard label="TP3 Hits" value={stats.tp3Hits ?? 0} />
+            <StatCard label="SL Hits" value={stats.slHits ?? stats.sl ?? 0} />
+            <StatCard label="Win Rate" value={`${stats.winRate ?? 0}%`} />
+            <StatCard label="AI" value={stats.aiSignals ?? 0} />
+            <StatCard label="Desk 1" value={stats.desk1Signals ?? 0} />
+            <StatCard label="Desk 2" value={stats.desk2Signals ?? 0} />
           </div>
         )}
 
@@ -189,16 +203,19 @@ export default function EasyPipsProSignals() {
             active={activeTab === "ai"}
             onClick={() => setActiveTab("ai")}
           />
+
           <TabButton
             label="Desk 1"
             active={activeTab === "desk1"}
             onClick={() => setActiveTab("desk1")}
           />
+
           <TabButton
             label="Desk 2"
             active={activeTab === "desk2"}
             onClick={() => setActiveTab("desk2")}
           />
+
           <TabButton
             label="History"
             active={activeTab === "closed"}
@@ -300,6 +317,7 @@ function SignalCard({ signal }: { signal: Signal }) {
             {signal.source}
             {signal.desk ? ` / ${signal.desk}` : ""}
           </p>
+
           <h3 className="text-2xl font-bold">{signal.symbol}</h3>
         </div>
 
