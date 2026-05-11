@@ -4,3 +4,4 @@ pydantic
 yfinance
 pandas
 numpy
+supabase
