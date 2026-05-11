@@ -221,24 +221,19 @@ export default function Home() {
                     <Badge>{selectedSignal.display_decision || "NO SIGNAL"}</Badge>
                   </div>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-[0.9fr_1.4fr_0.9fr]">
                     <Stat
                       label="Live Price"
-                      value={formatPriceByMarket(selectedSignal.market, selectedSignal.latest_price)}
+                      value={formatPriceByMarket(
+                        selectedSignal.market,
+                        pairPrices[selectedSignal.market || ""] ?? selectedSignal.latest_price
+                      )}
                     />
-                    <Stat
-                      label="Entry"
-                      value={formatPriceByMarket(selectedSignal.market, selectedSignal.entry ?? selectedSignal.trigger_price)}
-                    />
-                    <Stat
-                      label="SL"
-                      value={formatPriceByMarket(selectedSignal.market, selectedSignal.stop_loss ?? selectedSignal.stoploss)}
-                      tone="red"
-                    />
-                    <Stat
-                      label="TP1"
-                      value={formatPriceByMarket(selectedSignal.market, selectedSignal.tp1)}
-                      tone="green"
+                    <TradeLevelsBox
+                      market={selectedSignal.market}
+                      entry={selectedSignal.entry ?? selectedSignal.trigger_price}
+                      stopLoss={selectedSignal.stop_loss ?? selectedSignal.stoploss}
+                      takeProfit={selectedSignal.tp1}
                     />
                     <Stat
                       label="Confidence"
@@ -341,34 +336,20 @@ export default function Home() {
                 />
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-[0.9fr_1.4fr_0.9fr]">
                 <Stat label="Market" value={selectedMarket} />
+                <TradeLevelsBox
+                  market={selectedSignal?.market}
+                  entry={selectedSignal?.entry ?? selectedSignal?.trigger_price}
+                  stopLoss={selectedSignal?.stop_loss ?? selectedSignal?.stoploss}
+                  takeProfit={selectedSignal?.tp1}
+                />
                 <Stat
                   label="Pair Price"
                   value={formatPriceByMarket(
                     selectedMarket,
                     pairPrices[selectedMarket] ?? selectedSignal?.latest_price
                   )}
-                />
-                <Stat
-                  label="Entry"
-                  value={formatPriceByMarket(
-                    selectedSignal?.market,
-                    selectedSignal?.entry ?? selectedSignal?.trigger_price
-                  )}
-                />
-                <Stat
-                  label="SL"
-                  value={formatPriceByMarket(
-                    selectedSignal?.market,
-                    selectedSignal?.stop_loss ?? selectedSignal?.stoploss
-                  )}
-                  tone="red"
-                />
-                <Stat
-                  label="TP1"
-                  value={formatPriceByMarket(selectedSignal?.market, selectedSignal?.tp1)}
-                  tone="green"
                 />
               </div>
             </Panel>
@@ -406,12 +387,24 @@ export default function Home() {
                             </div>
                             <div className="text-right">
                               <p className="text-sm font-semibold text-white">
-                                {formatPriceByMarket(signal.market, signal.latest_price)}
+                                {formatPriceByMarket(
+                                  signal.market,
+                                  pairPrices[signal.market || ""] ?? signal.latest_price
+                                )}
                               </p>
                               <p className="text-xs text-slate-500">
                                 {signal.timeframe || "5m"}
                               </p>
                             </div>
+                          </div>
+
+                          <div className="mt-3">
+                            <TradeLevelsBox
+                              market={signal.market}
+                              entry={signal.entry ?? signal.trigger_price}
+                              stopLoss={signal.stop_loss ?? signal.stoploss}
+                              takeProfit={signal.tp1}
+                            />
                           </div>
                         </button>
                       ))
@@ -609,6 +602,55 @@ function Stat({
   );
 }
 
+function TradeLevelsBox({
+  market,
+  entry,
+  stopLoss,
+  takeProfit,
+}: {
+  market?: string;
+  entry?: number | null;
+  stopLoss?: number | null;
+  takeProfit?: number | null;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-4">
+      <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
+        Trade Levels
+      </p>
+
+      <div className="mt-3 grid grid-cols-3 gap-3">
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+            Entry
+          </p>
+          <p className="mt-1 text-sm font-bold text-white">
+            {formatPriceByMarket(market, entry)}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-red-400/15 bg-red-400/[0.05] px-3 py-3">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-red-300/80">
+            SL
+          </p>
+          <p className="mt-1 text-sm font-bold text-red-300">
+            {formatPriceByMarket(market, stopLoss)}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-green-400/15 bg-green-400/[0.05] px-3 py-3">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-green-300/80">
+            TP
+          </p>
+          <p className="mt-1 text-sm font-bold text-green-300">
+            {formatPriceByMarket(market, takeProfit)}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MiniInfo({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
@@ -763,11 +805,16 @@ function DeskCard({
       <p className="mt-2 text-sm text-slate-300">
         {signal.pair} · {signal.side} · {signal.timeframe}
       </p>
-      <div className="mt-4 grid gap-3">
-        <Stat label="Entry" value={String(signal.entry)} />
-        <Stat label="SL" value={String(signal.stop_loss)} tone="red" />
-        <Stat label="TP" value={String(signal.take_profit)} tone="green" />
+
+      <div className="mt-4">
+        <TradeLevelsBox
+          market={signal.pair}
+          entry={signal.entry}
+          stopLoss={signal.stop_loss}
+          takeProfit={signal.take_profit}
+        />
       </div>
+
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
         {signal.note || note}
       </div>
