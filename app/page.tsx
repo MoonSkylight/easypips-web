@@ -222,17 +222,24 @@ export default function Home() {
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                    <Stat label="Live Price" value={fmt(selectedSignal.latest_price)} />
+                    <Stat
+                      label="Live Price"
+                      value={formatPriceByMarket(selectedSignal.market, selectedSignal.latest_price)}
+                    />
                     <Stat
                       label="Entry"
-                      value={fmt(selectedSignal.entry ?? selectedSignal.trigger_price)}
+                      value={formatPriceByMarket(selectedSignal.market, selectedSignal.entry ?? selectedSignal.trigger_price)}
                     />
                     <Stat
                       label="SL"
-                      value={fmt(selectedSignal.stop_loss ?? selectedSignal.stoploss)}
+                      value={formatPriceByMarket(selectedSignal.market, selectedSignal.stop_loss ?? selectedSignal.stoploss)}
                       tone="red"
                     />
-                    <Stat label="TP1" value={fmt(selectedSignal.tp1)} tone="green" />
+                    <Stat
+                      label="TP1"
+                      value={formatPriceByMarket(selectedSignal.market, selectedSignal.tp1)}
+                      tone="green"
+                    />
                     <Stat
                       label="Confidence"
                       value={
@@ -338,20 +345,29 @@ export default function Home() {
                 <Stat label="Market" value={selectedMarket} />
                 <Stat
                   label="Pair Price"
-                  value={fmt(pairPrices[selectedMarket] ?? selectedSignal?.latest_price)}
+                  value={formatPriceByMarket(
+                    selectedMarket,
+                    pairPrices[selectedMarket] ?? selectedSignal?.latest_price
+                  )}
                 />
                 <Stat
                   label="Entry"
-                  value={fmt(selectedSignal?.entry ?? selectedSignal?.trigger_price)}
+                  value={formatPriceByMarket(
+                    selectedSignal?.market,
+                    selectedSignal?.entry ?? selectedSignal?.trigger_price
+                  )}
                 />
                 <Stat
                   label="SL"
-                  value={fmt(selectedSignal?.stop_loss ?? selectedSignal?.stoploss)}
+                  value={formatPriceByMarket(
+                    selectedSignal?.market,
+                    selectedSignal?.stop_loss ?? selectedSignal?.stoploss
+                  )}
                   tone="red"
                 />
                 <Stat
                   label="TP1"
-                  value={fmt(selectedSignal?.tp1)}
+                  value={formatPriceByMarket(selectedSignal?.market, selectedSignal?.tp1)}
                   tone="green"
                 />
               </div>
@@ -390,7 +406,7 @@ export default function Home() {
                             </div>
                             <div className="text-right">
                               <p className="text-sm font-semibold text-white">
-                                {fmt(signal.latest_price)}
+                                {formatPriceByMarket(signal.market, signal.latest_price)}
                               </p>
                               <p className="text-xs text-slate-500">
                                 {signal.timeframe || "5m"}
@@ -466,7 +482,7 @@ export default function Home() {
                     >
                       <p className="text-sm font-semibold text-white">{m}</p>
                       <p className="mt-1 text-sm text-slate-300">
-                        {fmt(marketPrice ?? marketSignal?.latest_price)}
+                        {formatPriceByMarket(m, marketPrice ?? marketSignal?.latest_price)}
                       </p>
                       <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-slate-500">
                         {marketSignal?.display_decision || marketSignal?.decision || "WAIT"}
@@ -514,9 +530,22 @@ function getSideTone(signal?: Signal | null) {
 function fmt(value: unknown) {
   if (value === null || value === undefined || value === "") return "-";
   if (typeof value === "number") {
-    return Number.isInteger(value) ? value.toString() : value.toFixed(5);
+    return Number.isInteger(value) ? value.toString() : value.toFixed(2);
   }
   return String(value);
+}
+
+function formatPriceByMarket(market: string | undefined, value: unknown) {
+  if (value === null || value === undefined || value === "") return "-";
+  const num = Number(value);
+  if (Number.isNaN(num)) return String(value);
+
+  if (!market) return num.toFixed(5);
+  if (["SP500", "NASDAQ"].includes(market)) return num.toFixed(2);
+  if (["OIL", "XAUUSD"].includes(market)) return num.toFixed(2);
+  if (["USDJPY", "EURJPY", "GBPJPY", "AUDJPY"].includes(market)) return num.toFixed(3);
+
+  return num.toFixed(5);
 }
 
 function Panel({
@@ -687,7 +716,7 @@ function ClosedRow({ signal }: { signal: Signal }) {
         </div>
         <div className="text-right">
           <p className="text-sm font-semibold text-white">
-            {fmt(signal.closed_price ?? signal.latest_price)}
+            {formatPriceByMarket(signal.market, signal.closed_price ?? signal.latest_price)}
           </p>
           <p className="text-xs text-slate-500">
             {signal.closed_at
@@ -735,9 +764,9 @@ function DeskCard({
         {signal.pair} · {signal.side} · {signal.timeframe}
       </p>
       <div className="mt-4 grid gap-3">
-        <Stat label="Entry" value={fmt(signal.entry)} />
-        <Stat label="SL" value={fmt(signal.stop_loss)} tone="red" />
-        <Stat label="TP" value={fmt(signal.take_profit)} tone="green" />
+        <Stat label="Entry" value={String(signal.entry)} />
+        <Stat label="SL" value={String(signal.stop_loss)} tone="red" />
+        <Stat label="TP" value={String(signal.take_profit)} tone="green" />
       </div>
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
         {signal.note || note}
