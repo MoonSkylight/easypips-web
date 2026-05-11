@@ -44,13 +44,13 @@ ACTIVE_SIGNALS = {}
 PENDING_ORDERS = {}
 CLOSED_SIGNALS = []
 
-ACTIVE_VALID_MINUTES = 30
-PENDING_VALID_MINUTES = 45
+ACTIVE_VALID_MINUTES = 180
+PENDING_VALID_MINUTES = 90
 
 MIN_ACTIVE_CONFIDENCE = 80
 MIN_PENDING_CONFIDENCE = 70
-MAX_ACTIVE_SIGNALS = 2
-MAX_PENDING_ORDERS = 3
+MAX_ACTIVE_SIGNALS = 8
+MAX_PENDING_ORDERS = 10
 
 
 def now_utc():
@@ -214,7 +214,15 @@ def quality_rank(item):
     if market in ["XAUUSD", "EURUSD", "GBPUSD", "GBPJPY", "NASDAQ", "SP500"]:
         priority += 5
 
-    return confidence + priority
+    tp_hits = 0
+    if item.get("tp1_hit"):
+        tp_hits += 1
+    if item.get("tp2_hit"):
+        tp_hits += 1
+    if item.get("tp3_hit"):
+        tp_hits += 1
+
+    return confidence + priority + (tp_hits * 2)
 
 
 def close_signal(signal, result, price=None):
@@ -235,12 +243,13 @@ def cleanup_books():
 
     active_clean = []
     for signal in ACTIVE_SIGNALS.values():
-        if now > parse_time(signal.get("valid_until")):
-            close_signal(signal, "EXPIRED", signal.get("latest_price"))
+        if signal.get("status") in ["STOPPED", "CLOSED"]:
             continue
 
-        if signal.get("confidence", 0) < MIN_ACTIVE_CONFIDENCE:
-            close_signal(signal, "REMOVED_LOW_CONFIDENCE", signal.get("latest_price"))
+        if now > parse_time(signal.get("valid_until")):
+            signal["status"] = "EXPIRED"
+            signal["result"] = signal.get("result") or "EXPIRED"
+            active_clean.append(signal)
             continue
 
         active_clean.append(signal)
@@ -251,11 +260,7 @@ def cleanup_books():
         current = best_active.get(market)
 
         if current is None or quality_rank(signal) > quality_rank(current):
-            if current:
-                close_signal(current, "REPLACED_BY_BETTER_SIGNAL", current.get("latest_price"))
             best_active[market] = signal
-        else:
-            close_signal(signal, "REMOVED_DUPLICATE", signal.get("latest_price"))
 
     active_sorted = sorted(best_active.values(), key=quality_rank, reverse=True)[:MAX_ACTIVE_SIGNALS]
     ACTIVE_SIGNALS = {s["id"]: s for s in active_sorted}
@@ -300,6 +305,9 @@ def decorate_scan_signal(signal_data, latest):
     signal_data["trigger_price"] = safe_float(signal_data.get("trigger_price"))
     signal_data["closed_price"] = safe_float(signal_data.get("closed_price"))
     signal_data["strategy_votes"] = serialize_strategy_votes(signal_data.get("strategy_votes", {}))
+    signal_data["tp1_hit"] = bool(signal_data.get("tp1_hit", False))
+    signal_data["tp2_hit"] = bool(signal_data.get("tp2_hit", False))
+    signal_data["tp3_hit"] = bool(signal_data.get("tp3_hit", False))
 
     if not signal_data.get("display_decision"):
         decision = signal_data.get("decision", "WAIT")
@@ -343,6 +351,9 @@ def decorate_active(signal_data, data, interval):
     signal_data["tp1"] = safe_float(signal_data.get("tp1"))
     signal_data["tp2"] = safe_float(signal_data.get("tp2"))
     signal_data["tp3"] = safe_float(signal_data.get("tp3"))
+    signal_data["tp1_hit"] = False
+    signal_data["tp2_hit"] = False
+    signal_data["tp3_hit"] = False
 
     return signal_data
 
@@ -361,27 +372,33 @@ def create_pending(signal_data, data, interval):
     a = atr(data)
     published_at = now_utc()
     valid_until = published_at + timedelta(minutes=PENDING_VALID_MINUTES)
-    confidence = min(88, score + 22)
+    confidence = min(90, score + 24)
 
     if confidence < MIN_PENDING_CONFIDENCE:
         return None
 
     if bias == "BUY":
-        trigger = price + a * 0.35
-        sl = price - a * 1.10
-        tp1 = trigger + a * 1.20
-        tp2 = trigger + a * 2.00
-        tp3 = trigger + a * 3.00
+        trigger = price + a * 0.20
+        sl = price - a * 0.55
+        tp1 = trigger + a * 1.80
+        tp2 = trigger + a * 3.00
+        tp3 = trigger + a * 4.50
         display = "PENDING BUY"
         order_type = "BUY STOP"
     else:
-        trigger = price - a * 0.35
-        sl = price + a * 1.10
-        tp1 = trigger - a * 1.20
-        tp2 = trigger - a * 2.00
-        tp3 = trigger - a * 3.00
+        trigger = price - a * 0.20
+        sl = price + a * 0.55
+        tp1 = trigger - a * 1.80
+        tp2 = trigger - a * 3.00
+        tp3 = trigger - a * 4.50
         display = "PENDING SELL"
         order_type = "SELL STOP"
+
+    rr_to_tp1 = None
+    risk_size = abs(trigger - sl)
+    reward_size = abs(tp1 - trigger)
+    if risk_size > 0:
+        rr_to_tp1 = reward_size / risk_size
 
     return {
         "id": signal_id(signal_data["market"], interval, bias, published_at.isoformat()),
@@ -392,6 +409,7 @@ def create_pending(signal_data, data, interval):
         "order_type": order_type,
         "bias": bias,
         "trigger_price": safe_float(trigger),
+        "entry": safe_float(trigger),
         "latest_price": safe_float(price),
         "stop_loss": safe_float(sl),
         "stoploss": safe_float(sl),
@@ -399,13 +417,18 @@ def create_pending(signal_data, data, interval):
         "tp2": safe_float(tp2),
         "tp3": safe_float(tp3),
         "confidence": confidence,
+        "risk": "TIGHT",
+        "rr_to_tp1": safe_float(rr_to_tp1),
         "published_at": published_at.isoformat(),
         "valid_until": valid_until.isoformat(),
         "valid_for_minutes": PENDING_VALID_MINUTES,
         "reasons": reasons if reasons else ["possible setup forming"],
         "result": "WAITING_TRIGGER",
-        "invalidation": "Pending order invalid after expiry or opposite signal.",
+        "invalidation": "Pending order invalid after expiry or stop loss hit.",
         "strategy_votes": votes,
+        "tp1_hit": False,
+        "tp2_hit": False,
+        "tp3_hit": False,
     }
 
 
@@ -418,7 +441,8 @@ def upsert_active_signal(active):
     for key in same_market:
         old = ACTIVE_SIGNALS[key]
         if quality_rank(active) > quality_rank(old):
-            close_signal(old, "REPLACED_BY_BETTER_SIGNAL", old.get("latest_price"))
+            old["status"] = "REPLACED"
+            old["result"] = "REPLACED_BY_BETTER_SIGNAL"
             del ACTIVE_SIGNALS[key]
         else:
             return
@@ -457,29 +481,54 @@ def update_signal_results(price_map):
         signal["latest_price"] = safe_float(price)
 
         if now > parse_time(signal.get("valid_until")):
-            close_signal(signal, "EXPIRED", price)
-            del ACTIVE_SIGNALS[key]
+            signal["status"] = "EXPIRED"
+            signal["result"] = signal.get("result") or "EXPIRED"
+            continue
+
+        if signal.get("status") in ["STOPPED", "CLOSED"]:
             continue
 
         decision = signal["decision"]
         sl = signal["stop_loss"]
-        tp1 = signal["tp1"]
+        tp1 = signal.get("tp1")
+        tp2 = signal.get("tp2")
+        tp3 = signal.get("tp3")
 
         if decision == "BUY":
-            if price <= sl:
-                close_signal(signal, "STOP_LOSS_HIT", price)
+            if sl is not None and price <= sl:
+                signal["status"] = "STOPPED"
+                signal["result"] = "STOP_LOSS_HIT"
+                close_signal(dict(signal), "STOP_LOSS_HIT", price)
                 del ACTIVE_SIGNALS[key]
-            elif price >= tp1:
-                close_signal(signal, "TP1_HIT", price)
-                del ACTIVE_SIGNALS[key]
+                continue
+            if tp1 is not None and price >= tp1:
+                signal["tp1_hit"] = True
+                signal["result"] = "TP1_REACHED"
+            if tp2 is not None and price >= tp2:
+                signal["tp2_hit"] = True
+                signal["result"] = "TP2_REACHED"
+            if tp3 is not None and price >= tp3:
+                signal["tp3_hit"] = True
+                signal["result"] = "TP3_REACHED"
+                signal["status"] = "RUNNER"
 
         if decision == "SELL":
-            if price >= sl:
-                close_signal(signal, "STOP_LOSS_HIT", price)
+            if sl is not None and price >= sl:
+                signal["status"] = "STOPPED"
+                signal["result"] = "STOP_LOSS_HIT"
+                close_signal(dict(signal), "STOP_LOSS_HIT", price)
                 del ACTIVE_SIGNALS[key]
-            elif price <= tp1:
-                close_signal(signal, "TP1_HIT", price)
-                del ACTIVE_SIGNALS[key]
+                continue
+            if tp1 is not None and price <= tp1:
+                signal["tp1_hit"] = True
+                signal["result"] = "TP1_REACHED"
+            if tp2 is not None and price <= tp2:
+                signal["tp2_hit"] = True
+                signal["result"] = "TP2_REACHED"
+            if tp3 is not None and price <= tp3:
+                signal["tp3_hit"] = True
+                signal["result"] = "TP3_REACHED"
+                signal["status"] = "RUNNER"
 
     for key in list(PENDING_ORDERS.keys()):
         order = PENDING_ORDERS[key]
@@ -511,8 +560,8 @@ def update_signal_results(price_map):
                 "tp2": order["tp2"],
                 "tp3": order["tp3"],
                 "confidence": order["confidence"],
-                "risk": "LOW",
-                "rr_to_tp1": None,
+                "risk": "TIGHT",
+                "rr_to_tp1": order.get("rr_to_tp1"),
                 "reasons": order["reasons"],
                 "strategy_votes": order.get("strategy_votes", {}),
                 "invalidation": "Invalid if price hits stop loss.",
@@ -523,11 +572,14 @@ def update_signal_results(price_map):
                 "latest_price": safe_float(price),
                 "result": "OPEN",
                 "order_type": "TRIGGERED BUY",
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
             }
             upsert_active_signal(active)
             del PENDING_ORDERS[key]
 
-        if order["bias"] == "SELL" and price <= order["trigger_price"]:
+        elif order["bias"] == "SELL" and price <= order["trigger_price"]:
             active = {
                 "id": order["id"],
                 "market": order["market"],
@@ -542,8 +594,8 @@ def update_signal_results(price_map):
                 "tp2": order["tp2"],
                 "tp3": order["tp3"],
                 "confidence": order["confidence"],
-                "risk": "LOW",
-                "rr_to_tp1": None,
+                "risk": "TIGHT",
+                "rr_to_tp1": order.get("rr_to_tp1"),
                 "reasons": order["reasons"],
                 "strategy_votes": order.get("strategy_votes", {}),
                 "invalidation": "Invalid if price hits stop loss.",
@@ -554,6 +606,9 @@ def update_signal_results(price_map):
                 "latest_price": safe_float(price),
                 "result": "OPEN",
                 "order_type": "TRIGGERED SELL",
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
             }
             upsert_active_signal(active)
             del PENDING_ORDERS[key]
@@ -617,6 +672,9 @@ def pro_signals(interval: str = "5m"):
                     "latest_price": None,
                     "reasons": ["No market data returned."],
                     "strategy_votes": {},
+                    "tp1_hit": False,
+                    "tp2_hit": False,
+                    "tp3_hit": False,
                 }
                 continue
 
@@ -647,6 +705,9 @@ def pro_signals(interval: str = "5m"):
                 "latest_price": None,
                 "reasons": [str(e)],
                 "strategy_votes": {},
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
             }
 
     update_signal_results(price_map)
