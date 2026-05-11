@@ -63,6 +63,9 @@ type Signal = {
   closed_at?: string;
   status?: string;
   source?: string;
+  tp1_hit?: boolean;
+  tp2_hit?: boolean;
+  tp3_hit?: boolean;
 };
 
 type ManualDeskSignal = {
@@ -117,6 +120,14 @@ export default function Home() {
       });
       const json = await res.json();
       setData(json);
+
+      if (!selectedSignalId) {
+        const preferred =
+          json?.top_trade?.market ||
+          json?.top_pending?.market ||
+          selectedMarket;
+        setSelectedMarket(preferred);
+      }
     } catch {
       setData(null);
     } finally {
@@ -144,7 +155,7 @@ export default function Home() {
   const topPending = data?.top_pending || null;
 
   const selectedSignal = useMemo(() => {
-    const all = [...active, ...pending];
+    const all = [...active, ...pending, ...closed];
     if (selectedSignalId) {
       const found = all.find((s) => s.id === selectedSignalId);
       if (found) return found;
@@ -160,6 +171,7 @@ export default function Home() {
   }, [
     active,
     pending,
+    closed,
     selectedSignalId,
     selectedMarket,
     latestScan,
@@ -196,12 +208,13 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2 2xl:max-w-[48%] 2xl:justify-end">
+            <div className="flex flex-wrap gap-2 2xl:max-w-[52%] 2xl:justify-end">
               <Chip>{loading ? "Loading..." : "Live"}</Chip>
               <Chip>{data?.summary?.mode || "BALANCED_PERFORMANCE"}</Chip>
               <Chip>Active {data?.summary?.active_count ?? 0}</Chip>
               <Chip>Pending {data?.summary?.pending_count ?? 0}</Chip>
               <Chip>Closed {data?.summary?.closed_count ?? 0}</Chip>
+              <Chip>{now.toLocaleTimeString()}</Chip>
             </div>
           </div>
         </header>
@@ -217,8 +230,19 @@ export default function Home() {
                       {getSide(selectedSignal)}
                     </Badge>
                     <Badge>{selectedSignal.timeframe || "5m"}</Badge>
-                    <Badge>{selectedSignal.status || "LIVE VIEW"}</Badge>
+                    <Badge tone={statusTone(selectedSignal.status)}>
+                      {selectedSignal.status || "LIVE VIEW"}
+                    </Badge>
                     <Badge>{selectedSignal.display_decision || "NO SIGNAL"}</Badge>
+                    {selectedSignal.result ? (
+                      <Badge tone={resultTone(selectedSignal.result)}>
+                        {pretty(selectedSignal.result)}
+                      </Badge>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-4">
+                    <ProgressBadges signal={selectedSignal} />
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-[0.9fr_1.4fr_0.9fr]">
@@ -226,13 +250,16 @@ export default function Home() {
                       label="Live Price"
                       value={formatPriceByMarket(
                         selectedSignal.market,
-                        pairPrices[selectedSignal.market || ""] ?? selectedSignal.latest_price
+                        pairPrices[selectedSignal.market || ""] ??
+                          selectedSignal.latest_price
                       )}
                     />
                     <TradeLevelsBox
                       market={selectedSignal.market}
                       entry={selectedSignal.entry ?? selectedSignal.trigger_price}
-                      stopLoss={selectedSignal.stop_loss ?? selectedSignal.stoploss}
+                      stopLoss={
+                        selectedSignal.stop_loss ?? selectedSignal.stoploss
+                      }
                       takeProfit={selectedSignal.tp1}
                     />
                     <Stat
@@ -273,10 +300,16 @@ export default function Home() {
                           label="Valid Until"
                           value={
                             selectedSignal.valid_until
-                              ? new Date(selectedSignal.valid_until).toLocaleString()
+                              ? new Date(
+                                  selectedSignal.valid_until
+                                ).toLocaleString()
                               : "-"
                           }
                         />
+                      </div>
+
+                      <div className="mt-4">
+                        <TargetRail signal={selectedSignal} />
                       </div>
                     </div>
 
@@ -341,7 +374,9 @@ export default function Home() {
                 <TradeLevelsBox
                   market={selectedSignal?.market}
                   entry={selectedSignal?.entry ?? selectedSignal?.trigger_price}
-                  stopLoss={selectedSignal?.stop_loss ?? selectedSignal?.stoploss}
+                  stopLoss={
+                    selectedSignal?.stop_loss ?? selectedSignal?.stoploss
+                  }
                   takeProfit={selectedSignal?.tp1}
                 />
                 <Stat
@@ -358,56 +393,63 @@ export default function Home() {
               <Panel title="Trading Zone" tint="purple">
                 <div className="space-y-3">
                   {[...active, ...pending].length ? (
-                    [...active, ...pending]
-                      .slice(0, 12)
-                      .map((signal, index) => (
-                        <button
-                          key={signal.id || `${signal.market}-${index}`}
-                          onClick={() => {
-                            if (signal.market) setSelectedMarket(signal.market);
-                            if (signal.id) setSelectedSignalId(signal.id);
-                          }}
-                          className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
-                            selectedSignalId === signal.id
-                              ? "border-fuchsia-300/35 bg-fuchsia-300/10"
-                              : "border-white/10 bg-[#0f1c31] hover:border-fuchsia-300/20"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-bold text-white">
-                                {signal.market || "-"}
-                              </p>
-                              <p className="text-xs text-slate-400">
-                                {signal.display_decision ||
-                                  signal.signal_quality ||
-                                  signal.decision ||
-                                  "WAIT"}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm font-semibold text-white">
-                                {formatPriceByMarket(
-                                  signal.market,
-                                  pairPrices[signal.market || ""] ?? signal.latest_price
-                                )}
-                              </p>
-                              <p className="text-xs text-slate-500">
-                                {signal.timeframe || "5m"}
-                              </p>
-                            </div>
+                    [...active, ...pending].slice(0, 12).map((signal, index) => (
+                      <button
+                        key={signal.id || `${signal.market}-${index}`}
+                        onClick={() => {
+                          if (signal.market) setSelectedMarket(signal.market);
+                          if (signal.id) setSelectedSignalId(signal.id);
+                        }}
+                        className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                          selectedSignalId === signal.id
+                            ? "border-fuchsia-300/35 bg-fuchsia-300/10"
+                            : "border-white/10 bg-[#0f1c31] hover:border-fuchsia-300/20"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold text-white">
+                              {signal.market || "-"}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              {signal.display_decision ||
+                                signal.signal_quality ||
+                                signal.decision ||
+                                "WAIT"}
+                            </p>
                           </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-white">
+                              {formatPriceByMarket(
+                                signal.market,
+                                pairPrices[signal.market || ""] ??
+                                  signal.latest_price
+                              )}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {signal.timeframe || "5m"}
+                            </p>
+                          </div>
+                        </div>
 
-                          <div className="mt-3">
-                            <TradeLevelsBox
-                              market={signal.market}
-                              entry={signal.entry ?? signal.trigger_price}
-                              stopLoss={signal.stop_loss ?? signal.stoploss}
-                              takeProfit={signal.tp1}
-                            />
-                          </div>
-                        </button>
-                      ))
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <TinyStatus signal={signal} />
+                        </div>
+
+                        <div className="mt-3">
+                          <TradeLevelsBox
+                            market={signal.market}
+                            entry={signal.entry ?? signal.trigger_price}
+                            stopLoss={signal.stop_loss ?? signal.stoploss}
+                            takeProfit={signal.tp1}
+                          />
+                        </div>
+
+                        <div className="mt-3">
+                          <TargetRail signal={signal} compact />
+                        </div>
+                      </button>
+                    ))
                   ) : (
                     <Empty text="No active or pending signals right now." />
                   )}
@@ -420,7 +462,14 @@ export default function Home() {
                     closed
                       .slice(0, 10)
                       .map((signal, i) => (
-                        <ClosedRow key={signal.id || i} signal={signal} />
+                        <ClosedRow
+                          key={signal.id || i}
+                          signal={signal}
+                          onClick={() => {
+                            if (signal.market) setSelectedMarket(signal.market);
+                            if (signal.id) setSelectedSignalId(signal.id);
+                          }}
+                        />
                       ))
                   ) : (
                     <Empty text="No closed signals yet." />
@@ -457,7 +506,10 @@ export default function Home() {
             <Panel title="Markets" tint="green">
               <div className="grid grid-cols-2 gap-2">
                 {Object.keys(TRADINGVIEW_SYMBOLS).map((m) => {
-                  const marketSignal = latestScan[m];
+                  const marketSignal =
+                    active.find((s) => s.market === m) ||
+                    pending.find((s) => s.market === m) ||
+                    latestScan[m];
                   const marketPrice = pairPrices[m];
 
                   return (
@@ -475,10 +527,15 @@ export default function Home() {
                     >
                       <p className="text-sm font-semibold text-white">{m}</p>
                       <p className="mt-1 text-sm text-slate-300">
-                        {formatPriceByMarket(m, marketPrice ?? marketSignal?.latest_price)}
+                        {formatPriceByMarket(
+                          m,
+                          marketPrice ?? marketSignal?.latest_price
+                        )}
                       </p>
                       <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-slate-500">
-                        {marketSignal?.display_decision || marketSignal?.decision || "WAIT"}
+                        {marketSignal?.display_decision ||
+                          marketSignal?.decision ||
+                          "WAIT"}
                       </p>
                     </button>
                   );
@@ -528,6 +585,29 @@ function fmt(value: unknown) {
   return String(value);
 }
 
+function pretty(value?: string | null) {
+  if (!value) return "-";
+  return value.replaceAll("_", " ");
+}
+
+function statusTone(status?: string | null): "muted" | "green" | "red" | "yellow" | "blue" {
+  const raw = (status || "").toUpperCase();
+  if (raw.includes("ACTIVE") || raw.includes("RUNNER")) return "green";
+  if (raw.includes("STOP")) return "red";
+  if (raw.includes("PENDING") || raw.includes("EXPIRED")) return "yellow";
+  if (raw.includes("CLOSED")) return "blue";
+  return "muted";
+}
+
+function resultTone(result?: string | null): "muted" | "green" | "red" | "yellow" | "blue" {
+  const raw = (result || "").toUpperCase();
+  if (raw.includes("TP")) return "green";
+  if (raw.includes("STOP")) return "red";
+  if (raw.includes("EXPIRED")) return "yellow";
+  if (raw.includes("CLOSED")) return "blue";
+  return "muted";
+}
+
 function formatPriceByMarket(market: string | undefined, value: unknown) {
   if (value === null || value === undefined || value === "") return "-";
   const num = Number(value);
@@ -536,7 +616,9 @@ function formatPriceByMarket(market: string | undefined, value: unknown) {
   if (!market) return num.toFixed(5);
   if (["SP500", "NASDAQ"].includes(market)) return num.toFixed(2);
   if (["OIL", "XAUUSD"].includes(market)) return num.toFixed(2);
-  if (["USDJPY", "EURJPY", "GBPJPY", "AUDJPY"].includes(market)) return num.toFixed(3);
+  if (["USDJPY", "EURJPY", "GBPJPY", "AUDJPY"].includes(market)) {
+    return num.toFixed(3);
+  }
 
   return num.toFixed(5);
 }
@@ -640,7 +722,7 @@ function TradeLevelsBox({
 
         <div className="rounded-xl border border-green-400/15 bg-green-400/[0.05] px-3 py-3">
           <p className="text-[10px] uppercase tracking-[0.18em] text-green-300/80">
-            TP
+            TP1
           </p>
           <p className="mt-1 text-sm font-bold text-green-300">
             {formatPriceByMarket(market, takeProfit)}
@@ -686,9 +768,7 @@ function StrategyRow({
           <p className={`text-xs font-bold uppercase tracking-[0.14em] ${tone}`}>
             {vote.direction || "WAIT"}
           </p>
-          <p className="text-xs text-slate-500">
-            Score {vote.score ?? 0}
-          </p>
+          <p className="text-xs text-slate-500">Score {vote.score ?? 0}</p>
         </div>
       </div>
       <p className="mt-2 text-xs leading-5 text-slate-400">
@@ -698,23 +778,132 @@ function StrategyRow({
   );
 }
 
+function ProgressBadges({ signal }: { signal?: Signal | null }) {
+  if (!signal) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Badge tone={statusTone(signal.status)}>
+        {signal.status || "UNKNOWN"}
+      </Badge>
+      {signal.tp1_hit ? <Badge tone="green">TP1 HIT</Badge> : null}
+      {signal.tp2_hit ? <Badge tone="green">TP2 HIT</Badge> : null}
+      {signal.tp3_hit ? <Badge tone="green">TP3 HIT</Badge> : null}
+      {signal.result ? (
+        <Badge tone={resultTone(signal.result)}>{pretty(signal.result)}</Badge>
+      ) : null}
+    </div>
+  );
+}
+
+function TargetRail({
+  signal,
+  compact = false,
+}: {
+  signal?: Signal | null;
+  compact?: boolean;
+}) {
+  const steps = [
+    { label: "Open", active: true },
+    { label: "TP1", active: !!signal?.tp1_hit },
+    { label: "TP2", active: !!signal?.tp2_hit },
+    { label: "TP3", active: !!signal?.tp3_hit },
+  ];
+
+  return (
+    <div
+      className={`rounded-2xl border border-white/10 bg-[#0f1c31] ${
+        compact ? "px-3 py-3" : "px-4 py-4"
+      }`}
+    >
+      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+        Progress
+      </p>
+
+      <div className="mt-3 grid grid-cols-4 gap-2">
+        {steps.map((step) => (
+          <div
+            key={step.label}
+            className={`rounded-xl border px-2 py-2 text-center text-[11px] font-bold uppercase tracking-[0.12em] ${
+              step.active
+                ? "border-green-400/25 bg-green-400/10 text-green-300"
+                : "border-white/10 bg-white/[0.03] text-slate-500"
+            }`}
+          >
+            {step.label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TinyStatus({ signal }: { signal: Signal }) {
+  return (
+    <>
+      <TinyBadge tone={statusTone(signal.status)}>
+        {signal.status || "LIVE"}
+      </TinyBadge>
+      {signal.tp1_hit ? <TinyBadge tone="green">TP1</TinyBadge> : null}
+      {signal.tp2_hit ? <TinyBadge tone="green">TP2</TinyBadge> : null}
+      {signal.tp3_hit ? <TinyBadge tone="green">TP3</TinyBadge> : null}
+      {signal.result ? (
+        <TinyBadge tone={resultTone(signal.result)}>
+          {pretty(signal.result)}
+        </TinyBadge>
+      ) : null}
+    </>
+  );
+}
+
 function Badge({
   children,
   tone = "muted",
 }: {
   children: React.ReactNode;
-  tone?: "muted" | "green" | "red";
+  tone?: "muted" | "green" | "red" | "yellow" | "blue";
 }) {
   const cls =
     tone === "green"
       ? "bg-green-400/15 text-green-300"
       : tone === "red"
       ? "bg-red-400/15 text-red-300"
+      : tone === "yellow"
+      ? "bg-yellow-400/15 text-yellow-300"
+      : tone === "blue"
+      ? "bg-sky-400/15 text-sky-300"
       : "bg-slate-500/15 text-slate-300";
 
   return (
     <span
       className={`rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] ${cls}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+function TinyBadge({
+  children,
+  tone = "muted",
+}: {
+  children: React.ReactNode;
+  tone?: "muted" | "green" | "red" | "yellow" | "blue";
+}) {
+  const cls =
+    tone === "green"
+      ? "bg-green-400/15 text-green-300"
+      : tone === "red"
+      ? "bg-red-400/15 text-red-300"
+      : tone === "yellow"
+      ? "bg-yellow-400/15 text-yellow-300"
+      : tone === "blue"
+      ? "bg-sky-400/15 text-sky-300"
+      : "bg-slate-500/15 text-slate-300";
+
+  return (
+    <span
+      className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${cls}`}
     >
       {children}
     </span>
@@ -748,9 +937,18 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ClosedRow({ signal }: { signal: Signal }) {
+function ClosedRow({
+  signal,
+  onClick,
+}: {
+  signal: Signal;
+  onClick: () => void;
+}) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3">
+    <button
+      onClick={onClick}
+      className="w-full rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3 text-left transition hover:border-sky-300/20"
+    >
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="font-bold text-white">{signal.market || "-"}</p>
@@ -758,7 +956,10 @@ function ClosedRow({ signal }: { signal: Signal }) {
         </div>
         <div className="text-right">
           <p className="text-sm font-semibold text-white">
-            {formatPriceByMarket(signal.market, signal.closed_price ?? signal.latest_price)}
+            {formatPriceByMarket(
+              signal.market,
+              signal.closed_price ?? signal.latest_price
+            )}
           </p>
           <p className="text-xs text-slate-500">
             {signal.closed_at
@@ -767,7 +968,18 @@ function ClosedRow({ signal }: { signal: Signal }) {
           </p>
         </div>
       </div>
-    </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <TinyBadge tone={resultTone(signal.result)}>
+          {pretty(signal.result)}
+        </TinyBadge>
+        {signal.status ? (
+          <TinyBadge tone={statusTone(signal.status)}>
+            {signal.status}
+          </TinyBadge>
+        ) : null}
+      </div>
+    </button>
   );
 }
 
