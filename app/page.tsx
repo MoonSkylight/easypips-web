@@ -24,6 +24,12 @@ const TRADINGVIEW_SYMBOLS: Record<string, string> = {
   EURAUD: "FX:EURAUD",
 };
 
+type StrategyVote = {
+  direction?: string;
+  score?: number;
+  reasons?: string[];
+};
+
 type Signal = {
   id?: string;
   market?: string;
@@ -32,6 +38,7 @@ type Signal = {
   signal_quality?: string;
   entry?: number | null;
   stop_loss?: number | null;
+  stoploss?: number | null;
   tp1?: number | null;
   tp2?: number | null;
   tp3?: number | null;
@@ -41,7 +48,7 @@ type Signal = {
   spread_warning?: string;
   news_warning?: string;
   reasons?: string[];
-  strategy_votes?: Record<string, [string, number]>;
+  strategy_votes?: Record<string, StrategyVote>;
   invalidation?: string;
   latest_price?: number | null;
   display_decision?: string;
@@ -75,6 +82,7 @@ type ManualDeskSignal = {
 };
 
 type DashboardData = {
+  pair_prices?: Record<string, number | null>;
   latest_scan?: Record<string, Signal>;
   top_trade?: Signal | null;
   top_pending?: Signal | null;
@@ -130,6 +138,7 @@ export default function Home() {
   const pending = data?.pending || [];
   const closed = data?.closed || [];
   const latestScan = data?.latest_scan || {};
+  const pairPrices = data?.pair_prices || {};
   const deskSignals = data?.desk_signals || [];
   const topTrade = data?.top_trade || null;
   const topPending = data?.top_pending || null;
@@ -163,18 +172,20 @@ export default function Home() {
 
   const tradingViewUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${encodeURIComponent(
     chartSymbol
-  )}&interval=${intervalValue}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0b1220&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1&locale=en`;
+  )}&interval=${intervalValue}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0a1120&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1&locale=en`;
+
+  const strategyVotes = Object.entries(selectedSignal?.strategy_votes || {});
 
   return (
-    <main className="min-h-screen bg-[#050b14] text-white">
-      <div className="mx-auto w-full max-w-[1920px] px-4 py-4 md:px-6 xl:px-8 2xl:px-10">
+    <main className="min-h-screen bg-[#040915] text-white">
+      <div className="mx-auto w-full max-w-none px-3 py-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10">
         <header className="mb-5 rounded-[30px] border border-white/10 bg-[#071426]/95 px-5 py-5 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
             <div className="min-w-0">
               <p className="text-[11px] uppercase tracking-[0.36em] text-slate-400">
                 EasyPips
               </p>
-              <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
+              <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl 2xl:text-4xl">
                 Live Signals Dashboard
               </h1>
               <p className="mt-2 text-sm text-slate-400">
@@ -185,7 +196,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2 xl:max-w-[48%] xl:justify-end">
+            <div className="flex flex-wrap gap-2 2xl:max-w-[48%] 2xl:justify-end">
               <Chip>{loading ? "Loading..." : "Live"}</Chip>
               <Chip>{data?.summary?.mode || "BALANCED_PERFORMANCE"}</Chip>
               <Chip>Active {data?.summary?.active_count ?? 0}</Chip>
@@ -195,8 +206,8 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="grid gap-5 xl:grid-cols-12">
-          <div className="space-y-5 xl:col-span-8 2xl:col-span-9">
+        <section className="grid gap-5 xl:grid-cols-12 2xl:gap-6">
+          <div className="space-y-5 xl:col-span-9">
             <Panel title="Selected Signal" tint="yellow">
               {selectedSignal ? (
                 <>
@@ -206,31 +217,22 @@ export default function Home() {
                       {getSide(selectedSignal)}
                     </Badge>
                     <Badge>{selectedSignal.timeframe || "5m"}</Badge>
-                    <Badge>
-                      {selectedSignal.status ||
-                        selectedSignal.signal_quality ||
-                        "VIEW"}
-                    </Badge>
+                    <Badge>{selectedSignal.status || "LIVE VIEW"}</Badge>
+                    <Badge>{selectedSignal.display_decision || "NO SIGNAL"}</Badge>
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                    <Stat label="Price" value={fmt(selectedSignal.latest_price)} />
+                    <Stat label="Live Price" value={fmt(selectedSignal.latest_price)} />
                     <Stat
                       label="Entry"
-                      value={fmt(
-                        selectedSignal.entry ?? selectedSignal.trigger_price
-                      )}
+                      value={fmt(selectedSignal.entry ?? selectedSignal.trigger_price)}
                     />
                     <Stat
                       label="SL"
-                      value={fmt(selectedSignal.stop_loss)}
+                      value={fmt(selectedSignal.stop_loss ?? selectedSignal.stoploss)}
                       tone="red"
                     />
-                    <Stat
-                      label="TP1"
-                      value={fmt(selectedSignal.tp1)}
-                      tone="green"
-                    />
+                    <Stat label="TP1" value={fmt(selectedSignal.tp1)} tone="green" />
                     <Stat
                       label="Confidence"
                       value={
@@ -241,15 +243,56 @@ export default function Home() {
                     />
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-white/10 bg-[#0b1a30] px-4 py-4">
-                    <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                      Reasoning
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
-                      {selectedSignal.reasons?.length
-                        ? selectedSignal.reasons.join(" • ")
-                        : "No explanation available for this signal."}
-                    </p>
+                  <div className="mt-4 grid gap-4 2xl:grid-cols-[1.15fr_0.85fr]">
+                    <div className="rounded-2xl border border-white/10 bg-[#0b1a30] px-4 py-4">
+                      <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                        Signal Reasoning
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">
+                        {selectedSignal.reasons?.length
+                          ? selectedSignal.reasons.join(" • ")
+                          : "No explanation available for this signal."}
+                      </p>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <MiniInfo
+                          label="Risk"
+                          value={selectedSignal.risk || "-"}
+                        />
+                        <MiniInfo
+                          label="R:R to TP1"
+                          value={fmt(selectedSignal.rr_to_tp1)}
+                        />
+                        <MiniInfo
+                          label="Order Type"
+                          value={selectedSignal.order_type || "-"}
+                        />
+                        <MiniInfo
+                          label="Valid Until"
+                          value={
+                            selectedSignal.valid_until
+                              ? new Date(selectedSignal.valid_until).toLocaleString()
+                              : "-"
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-[#0b1a30] px-4 py-4">
+                      <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                        Strategy Votes
+                      </p>
+
+                      <div className="mt-3 space-y-3">
+                        {strategyVotes.length ? (
+                          strategyVotes.map(([name, vote]) => (
+                            <StrategyRow key={name} name={name} vote={vote} />
+                          ))
+                        ) : (
+                          <Empty text="No strategy votes available." />
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -282,27 +325,28 @@ export default function Home() {
                 <Chip>{selectedMarket}</Chip>
               </div>
 
-              <div className="overflow-hidden rounded-[26px] border border-white/10 bg-[#08111f]">
+              <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#08111f]">
                 <iframe
                   key={`${selectedMarket}-${intervalValue}`}
                   src={tradingViewUrl}
-                  className="h-[520px] w-full xl:h-[620px] 2xl:h-[700px]"
+                  className="h-[560px] w-full xl:h-[720px] 2xl:h-[820px]"
                   allowFullScreen
                 />
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <Stat label="Market" value={selectedMarket} />
-                <Stat label="Price" value={fmt(selectedSignal?.latest_price)} />
+                <Stat
+                  label="Pair Price"
+                  value={fmt(pairPrices[selectedMarket] ?? selectedSignal?.latest_price)}
+                />
                 <Stat
                   label="Entry"
-                  value={fmt(
-                    selectedSignal?.entry ?? selectedSignal?.trigger_price
-                  )}
+                  value={fmt(selectedSignal?.entry ?? selectedSignal?.trigger_price)}
                 />
                 <Stat
                   label="SL"
-                  value={fmt(selectedSignal?.stop_loss)}
+                  value={fmt(selectedSignal?.stop_loss ?? selectedSignal?.stoploss)}
                   tone="red"
                 />
                 <Stat
@@ -313,12 +357,12 @@ export default function Home() {
               </div>
             </Panel>
 
-            <div className="grid gap-5 xl:grid-cols-2">
+            <div className="grid gap-5 2xl:grid-cols-2">
               <Panel title="Trading Zone" tint="purple">
                 <div className="space-y-3">
                   {[...active, ...pending].length ? (
                     [...active, ...pending]
-                      .slice(0, 10)
+                      .slice(0, 12)
                       .map((signal, index) => (
                         <button
                           key={signal.id || `${signal.market}-${index}`}
@@ -365,7 +409,7 @@ export default function Home() {
                 <div className="space-y-2">
                   {closed.length ? (
                     closed
-                      .slice(0, 8)
+                      .slice(0, 10)
                       .map((signal, i) => (
                         <ClosedRow key={signal.id || i} signal={signal} />
                       ))
@@ -377,7 +421,7 @@ export default function Home() {
             </div>
           </div>
 
-          <aside className="space-y-5 xl:col-span-4 2xl:col-span-3">
+          <aside className="space-y-5 xl:col-span-3 xl:sticky xl:top-3 xl:self-start">
             <Panel title="Desk 1 / Desk 2" tint="purple">
               <div className="space-y-4">
                 <DeskCard
@@ -403,19 +447,33 @@ export default function Home() {
 
             <Panel title="Markets" tint="green">
               <div className="grid grid-cols-2 gap-2">
-                {Object.keys(TRADINGVIEW_SYMBOLS).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setSelectedMarket(m)}
-                    className={`rounded-2xl border px-3 py-3 text-left text-sm font-semibold transition ${
-                      selectedMarket === m
-                        ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-200"
-                        : "border-white/10 bg-[#0f1c31] text-white hover:border-white/20"
-                    }`}
-                  >
-                    {m}
-                  </button>
-                ))}
+                {Object.keys(TRADINGVIEW_SYMBOLS).map((m) => {
+                  const marketSignal = latestScan[m];
+                  const marketPrice = pairPrices[m];
+
+                  return (
+                    <button
+                      key={m}
+                      onClick={() => {
+                        setSelectedMarket(m);
+                        setSelectedSignalId(marketSignal?.id || null);
+                      }}
+                      className={`rounded-2xl border px-3 py-3 text-left transition ${
+                        selectedMarket === m
+                          ? "border-emerald-300/30 bg-emerald-300/10"
+                          : "border-white/10 bg-[#0f1c31] hover:border-white/20"
+                      }`}
+                    >
+                      <p className="text-sm font-semibold text-white">{m}</p>
+                      <p className="mt-1 text-sm text-slate-300">
+                        {fmt(marketPrice ?? marketSignal?.latest_price)}
+                      </p>
+                      <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-slate-500">
+                        {marketSignal?.display_decision || marketSignal?.decision || "WAIT"}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             </Panel>
 
@@ -483,7 +541,7 @@ function Panel({
 
   return (
     <section
-      className={`rounded-[30px] border p-4 md:p-5 shadow-[0_18px_50px_rgba(0,0,0,0.28)] ${classes}`}
+      className={`rounded-[30px] border p-4 md:p-5 2xl:p-6 shadow-[0_18px_50px_rgba(0,0,0,0.28)] ${classes}`}
     >
       <p className="text-[11px] uppercase tracking-[0.28em] text-slate-400">
         {title}
@@ -503,12 +561,12 @@ function Stat({
   tone?: "red" | "green";
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3.5">
+    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3.5 2xl:px-5 2xl:py-4">
       <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
         {label}
       </p>
       <p
-        className={`mt-2 text-sm font-bold ${
+        className={`mt-2 text-sm font-bold 2xl:text-[15px] ${
           tone === "green"
             ? "text-green-400"
             : tone === "red"
@@ -517,6 +575,53 @@ function Stat({
         }`}
       >
         {value}
+      </p>
+    </div>
+  );
+}
+
+function MiniInfo({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-semibold text-white">{value}</p>
+    </div>
+  );
+}
+
+function StrategyRow({
+  name,
+  vote,
+}: {
+  name: string;
+  vote: StrategyVote;
+}) {
+  const tone =
+    vote.direction === "BUY"
+      ? "text-green-300"
+      : vote.direction === "SELL"
+      ? "text-red-300"
+      : "text-slate-300";
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-white">
+          {name.replaceAll("_", " ")}
+        </p>
+        <div className="text-right">
+          <p className={`text-xs font-bold uppercase tracking-[0.14em] ${tone}`}>
+            {vote.direction || "WAIT"}
+          </p>
+          <p className="text-xs text-slate-500">
+            Score {vote.score ?? 0}
+          </p>
+        </div>
+      </div>
+      <p className="mt-2 text-xs leading-5 text-slate-400">
+        {vote.reasons?.length ? vote.reasons.join(" • ") : "No reason supplied."}
       </p>
     </div>
   );
@@ -629,7 +734,7 @@ function DeskCard({
       <p className="mt-2 text-sm text-slate-300">
         {signal.pair} · {signal.side} · {signal.timeframe}
       </p>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-4 grid gap-3">
         <Stat label="Entry" value={fmt(signal.entry)} />
         <Stat label="SL" value={fmt(signal.stop_loss)} tone="red" />
         <Stat label="TP" value={fmt(signal.take_profit)} tone="green" />
