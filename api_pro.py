@@ -244,6 +244,36 @@ def daily_report_message(stats: dict):
 """
 
 
+def weekly_report_message(stats: dict):
+    return f"""
+📊 *EASY PIPS WEEKLY PERFORMANCE*
+
+━━━━━━━━━━━━━━━
+
+📈 *Total Signals:* {stats.get("totalSignals", 0)}
+📁 *Closed Trades:* {stats.get("closedTrades", 0)}
+📊 *Running Trades:* {stats.get("runningTrades", 0)}
+
+━━━━━━━━━━━━━━━
+
+🏆 *Wins TP3:* {stats.get("wins", 0)}
+❌ *Losses SL:* {stats.get("losses", 0)}
+
+━━━━━━━━━━━━━━━
+
+✅ *TP1 Hits:* {stats.get("tp1Hits", 0)}
+🚀 *TP2 Hits:* {stats.get("tp2Hits", 0)}
+🔥 *TP3 Hits:* {stats.get("tp3Hits", 0)}
+🛑 *SL Hits:* {stats.get("slHits", 0)}
+
+━━━━━━━━━━━━━━━
+
+🏆 *Win Rate:* {stats.get("winRate", 0)}%
+
+⚠️ Demo version. Not financial advice.
+"""
+
+
 def create_admin_token():
     expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
     payload = {"sub": "admin", "role": "admin", "exp": expire}
@@ -706,6 +736,72 @@ def build_signal_stats():
     }
 
 
+def build_weekly_performance():
+    if not db_enabled():
+        return {"error": "Database not connected"}
+
+    update_all_running_results()
+
+    now = datetime.now(timezone.utc)
+    week_start = now - timedelta(days=7)
+
+    signals = get_all_signals()
+
+    total = 0
+    running = 0
+    wins = 0
+    losses = 0
+    tp1 = 0
+    tp2 = 0
+    tp3 = 0
+    sl = 0
+
+    for signal in signals:
+        created_at = parse_datetime(signal["created_at"])
+
+        if created_at < week_start:
+            continue
+
+        total += 1
+
+        if signal.get("status") == "ACTIVE":
+            running += 1
+
+        if signal.get("hit_tp1"):
+            tp1 += 1
+
+        if signal.get("hit_tp2"):
+            tp2 += 1
+
+        if signal.get("hit_tp3"):
+            tp3 += 1
+
+        if signal.get("hit_sl") or signal.get("result") == "SL":
+            sl += 1
+
+        if signal.get("status") == "CLOSED" and signal.get("result") == "TP3":
+            wins += 1
+
+        if signal.get("status") == "CLOSED" and signal.get("result") == "SL":
+            losses += 1
+
+    closed = wins + losses
+    win_rate = round((wins / closed) * 100, 2) if closed > 0 else 0
+
+    return {
+        "totalSignals": total,
+        "runningTrades": running,
+        "closedTrades": closed,
+        "wins": wins,
+        "losses": losses,
+        "tp1Hits": tp1,
+        "tp2Hits": tp2,
+        "tp3Hits": tp3,
+        "slHits": sl,
+        "winRate": win_rate,
+    }
+
+
 def check_system_health():
     global LAST_HEALTH_ALERT_TIME
 
@@ -841,6 +937,27 @@ def daily_report():
     return {
         "status": "ok",
         "message": "Daily report sent",
+        "stats": stats,
+    }
+
+
+@app.get("/weekly-performance")
+def weekly_performance():
+    return build_weekly_performance()
+
+
+@app.get("/weekly-report")
+def weekly_report():
+    stats = build_weekly_performance()
+
+    if stats.get("error"):
+        return stats
+
+    send_telegram(weekly_report_message(stats))
+
+    return {
+        "status": "ok",
+        "message": "Weekly report sent",
         "stats": stats,
     }
 
