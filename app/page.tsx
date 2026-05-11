@@ -8,11 +8,11 @@ type Signal = {
   desk?: string;
   symbol: string;
   direction: "BUY" | "SELL";
-  entry: number;
-  sl: number;
-  tp1: number;
-  tp2: number;
-  tp3: number;
+  entry: string;
+  sl: string;
+  tp1: string;
+  tp2: string;
+  tp3: string;
   confidence?: number;
   analyst?: string;
   note?: string;
@@ -42,7 +42,9 @@ export default function EasyPipsProSignals() {
       const res = await fetch(`${API_BASE}/all-paid-signals`, {
         cache: "no-store",
       });
+
       const json = await res.json();
+
       setData({
         aiSignals: json.aiSignals || [],
         desk1Signals: json.desk1Signals || [],
@@ -75,11 +77,14 @@ export default function EasyPipsProSignals() {
               <div className="mb-2 inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
                 EASY PIPS PRO
               </div>
+
               <h1 className="text-3xl font-bold tracking-tight md:text-5xl">
                 Paid Trading Signals
               </h1>
+
               <p className="mt-3 max-w-2xl text-sm text-slate-400 md:text-base">
-                AI Engine signals plus human-provided Desk 1 and Desk 2 trade setups.
+                AI Engine signals plus human-provided Desk 1 and Desk 2 trade
+                setups.
               </p>
             </div>
 
@@ -98,11 +103,13 @@ export default function EasyPipsProSignals() {
             active={activeTab === "ai"}
             onClick={() => setActiveTab("ai")}
           />
+
           <TabButton
             label="Desk 1"
             active={activeTab === "desk1"}
             onClick={() => setActiveTab("desk1")}
           />
+
           <TabButton
             label="Desk 2"
             active={activeTab === "desk2"}
@@ -118,6 +125,7 @@ export default function EasyPipsProSignals() {
               ? "Human Signals - Desk 1"
               : "Human Signals - Desk 2"}
           </h2>
+
           <span className="rounded-full bg-white/10 px-3 py-1 text-sm text-slate-300">
             {signals.length} Active
           </span>
@@ -185,14 +193,13 @@ function SignalCard({ signal }: { signal: Signal }) {
               {signal.source}
               {signal.desk ? ` / ${signal.desk}` : ""}
             </p>
+
             <h3 className="mt-1 text-3xl font-black">{signal.symbol}</h3>
           </div>
 
           <span
             className={`rounded-full px-4 py-2 text-sm font-black ${
-              isBuy
-                ? "bg-emerald-400 text-black"
-                : "bg-red-500 text-white"
+              isBuy ? "bg-emerald-400 text-black" : "bg-red-500 text-white"
             }`}
           >
             {signal.direction}
@@ -210,6 +217,7 @@ function SignalCard({ signal }: { signal: Signal }) {
 
         <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-400">
           <span>{signal.analyst || "AI Engine"}</span>
+
           {signal.confidence ? (
             <span className="text-emerald-300">
               Confidence {signal.confidence}%
@@ -223,7 +231,13 @@ function SignalCard({ signal }: { signal: Signal }) {
   );
 }
 
-function ValueBox({ label, value }: { label: string; value: string | number }) {
+function ValueBox({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
   return (
     <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
       <p className="text-xs text-slate-500">{label}</p>
