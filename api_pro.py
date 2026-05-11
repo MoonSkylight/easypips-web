@@ -409,13 +409,6 @@ def live_prices():
     return prices
 
 
-@app.post("/update-results")
-def update_results(authorization: str = Header(default="")):
-    verify_admin_token(authorization)
-    updated = update_all_running_results()
-    return {"success": True, "checkedSignals": len(updated)}
-
-
 @app.get("/signal-stats")
 def signal_stats():
     if not db_enabled():
@@ -495,6 +488,13 @@ def signal_stats():
         "slHits": sl_count,
         "winRate": win_rate,
     }
+
+
+@app.post("/update-results")
+def update_results(authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+    updated = update_all_running_results()
+    return {"success": True, "checkedSignals": len(updated)}
 
 
 @app.get("/pro-signals")
