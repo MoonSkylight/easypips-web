@@ -380,6 +380,16 @@ def health():
     }
 
 
+@app.get("/cron-check")
+def cron_check():
+    updated = update_all_running_results()
+    return {
+        "status": "ok",
+        "checkedSignals": len(updated),
+        "message": "TP/SL check completed",
+    }
+
+
 @app.post("/admin/login")
 def admin_login(data: AdminLogin):
     if data.username == ADMIN_USERNAME and data.password == ADMIN_PASSWORD:
