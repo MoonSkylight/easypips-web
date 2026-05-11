@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Union
 from jose import jwt, JWTError
 import os
+import requests
 import yfinance as yf
 from supabase import create_client, Client
 
@@ -26,6 +27,9 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 JWT_SECRET = os.environ.get("JWT_SECRET", "change-this-secret")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 24
+
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 supabase: Client | None = None
 
@@ -70,13 +74,81 @@ def db_enabled():
     return supabase is not None
 
 
+def send_telegram(message: str):
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+
+    try:
+        requests.post(
+            url,
+            json={
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": message,
+                "parse_mode": "Markdown",
+                "disable_web_page_preview": True,
+            },
+            timeout=10,
+        )
+    except Exception as e:
+        print("Telegram error:", e)
+
+
+def new_signal_message(signal: dict):
+    desk = signal.get("desk") or "AI Engine"
+
+    return f"""
+📊 *EASY PIPS SIGNAL*
+
+Source: *{desk}*
+Pair: *{signal.get("symbol")}*
+Direction: *{signal.get("direction")}*
+
+🎯 Entry: `{signal.get("entry")}`
+🛑 SL: `{signal.get("sl")}`
+
+✅ TP1: `{signal.get("tp1")}`
+✅ TP2: `{signal.get("tp2")}`
+✅ TP3: `{signal.get("tp3")}`
+
+Status: *{signal.get("status")}*
+Result: *{signal.get("result", "RUNNING")}*
+
+⚠️ Demo version. Not financial advice.
+"""
+
+
+def result_message(signal: dict, result: str):
+    emoji = "✅"
+
+    if result == "TP2":
+        emoji = "🚀"
+    elif result == "TP3":
+        emoji = "🔥"
+    elif result == "SL":
+        emoji = "❌"
+
+    return f"""
+{emoji} *EASY PIPS UPDATE*
+
+Pair: *{signal.get("symbol")}*
+Direction: *{signal.get("direction")}*
+Result: *{result}*
+
+Entry: `{signal.get("entry")}`
+SL: `{signal.get("sl")}`
+TP1: `{signal.get("tp1")}`
+TP2: `{signal.get("tp2")}`
+TP3: `{signal.get("tp3")}`
+
+Status: *{signal.get("status", "ACTIVE")}*
+"""
+
+
 def create_admin_token():
     expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
-    payload = {
-        "sub": "admin",
-        "role": "admin",
-        "exp": expire,
-    }
+    payload = {"sub": "admin", "role": "admin", "exp": expire}
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
@@ -215,7 +287,9 @@ def insert_signal(signal: dict):
     response = supabase.table("signals").insert(signal).execute()
 
     if response.data:
-        return response.data[0]
+        saved = response.data[0]
+        send_telegram(new_signal_message(saved))
+        return saved
 
     return signal
 
@@ -351,6 +425,15 @@ def update_all_running_results():
             supabase.table("signals").update(updates).eq("id", signal["id"]).execute()
             signal.update(updates)
 
+            if updates.get("hit_tp3"):
+                send_telegram(result_message(signal, "TP3"))
+            elif updates.get("hit_tp2"):
+                send_telegram(result_message(signal, "TP2"))
+            elif updates.get("hit_tp1"):
+                send_telegram(result_message(signal, "TP1"))
+            elif updates.get("hit_sl"):
+                send_telegram(result_message(signal, "SL"))
+
         updated_signals.append(signal)
 
     return updated_signals
@@ -368,7 +451,7 @@ def root():
         "service": "EasyPips Pro Signals API",
         "status": "running",
         "database": "connected" if db_enabled() else "not connected",
-        "result_tracking": "enabled",
+        "telegram": "enabled" if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID else "disabled",
     }
 
 
@@ -378,6 +461,12 @@ def health():
         "status": "ok",
         "database": "connected" if db_enabled() else "not connected",
     }
+
+
+@app.get("/telegram-test")
+def telegram_test():
+    send_telegram("🚀 *EasyPips Telegram connected successfully!*")
+    return {"status": "ok", "message": "Telegram test sent"}
 
 
 @app.get("/cron-check")
