@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union
 import uuid
-import random
 import yfinance as yf
 
 app = FastAPI(title="EasyPips Pro Signals API")
@@ -22,10 +21,10 @@ Price = Union[str, float, int]
 SYMBOLS = {
     "EUR/USD": "EURUSD=X",
     "GBP/USD": "GBPUSD=X",
-    "USD/JPY": "JPY=X",
-    "USD/CHF": "CHF=X",
     "AUD/USD": "AUDUSD=X",
     "NZD/USD": "NZDUSD=X",
+    "USD/JPY": "JPY=X",
+    "USD/CHF": "CHF=X",
     "USD/CAD": "CAD=X",
     "XAU/USD": "GC=F",
     "BTC/USD": "BTC-USD",
@@ -33,6 +32,10 @@ SYMBOLS = {
 
 DESK_1_SIGNALS = []
 DESK_2_SIGNALS = []
+
+CACHED_AI_SIGNALS = []
+LAST_AI_UPDATE = None
+CACHE_MINUTES = 5
 
 
 class ManualSignal(BaseModel):
@@ -55,40 +58,69 @@ def format_price(symbol: str, price: float) -> str:
     return f"{price:.5f}"
 
 
+def pip_size(symbol: str) -> float:
+    if "JPY" in symbol:
+        return 0.01
+    if "XAU" in symbol:
+        return 0.10
+    if "BTC" in symbol:
+        return 10.0
+    return 0.0001
+
+
+def target_distance(symbol: str) -> float:
+    """
+    Forex:
+    100 pips = 0.0100
+    JPY pairs:
+    100 pips = 1.00
+    Gold:
+    100 pips = 10.00
+    BTC:
+    100 pips = 1000.00
+    """
+    return pip_size(symbol) * 100
+
+
 def get_live_price(yahoo_symbol: str):
     try:
         ticker = yf.Ticker(yahoo_symbol)
-        data = ticker.history(period="1d", interval="5m")
+        data = ticker.history(period="2d", interval="15m")
+
         if data.empty:
-            return None
+            return None, None
 
-        return float(data["Close"].iloc[-1])
+        close = float(data["Close"].iloc[-1])
+        previous = float(data["Close"].iloc[-5]) if len(data) >= 5 else float(data["Close"].iloc[0])
+
+        return close, previous
+
     except Exception:
-        return None
+        return None, None
 
 
-def build_ai_signal(symbol: str, price: float):
-    direction = random.choice(["BUY", "SELL"])
+def decide_direction(current_price: float, previous_price: float) -> str:
+    if current_price >= previous_price:
+        return "BUY"
+    return "SELL"
 
-    if "JPY" in symbol:
-        step = 0.15
-    elif "XAU" in symbol:
-        step = 7.0
-    elif "BTC" in symbol:
-        step = 800.0
-    else:
-        step = 0.0015
+
+def build_ai_signal(symbol: str, price: float, previous_price: float):
+    direction = decide_direction(price, previous_price)
+    distance = target_distance(symbol)
 
     if direction == "BUY":
-        sl = price - step
-        tp1 = price + step
-        tp2 = price + step * 2
-        tp3 = price + step * 3
+        sl = price - distance
+        tp1 = price + distance
+        tp2 = price + distance * 2
+        tp3 = price + distance * 3
     else:
-        sl = price + step
-        tp1 = price - step
-        tp2 = price - step * 2
-        tp3 = price - step * 3
+        sl = price + distance
+        tp1 = price - distance
+        tp2 = price - distance * 2
+        tp3 = price - distance * 3
+
+    confidence = 88 if direction == "BUY" else 86
 
     return {
         "id": str(uuid.uuid4()),
@@ -100,22 +132,40 @@ def build_ai_signal(symbol: str, price: float):
         "tp1": format_price(symbol, tp1),
         "tp2": format_price(symbol, tp2),
         "tp3": format_price(symbol, tp3),
-        "confidence": random.randint(82, 94),
+        "confidence": confidence,
         "status": "ACTIVE",
         "created_at": datetime.utcnow().isoformat(),
     }
 
 
-def get_ai_signals():
+def generate_ai_signals():
     signals = []
 
     for symbol, yahoo_symbol in SYMBOLS.items():
-        price = get_live_price(yahoo_symbol)
+        price, previous_price = get_live_price(yahoo_symbol)
 
-        if price is not None:
-            signals.append(build_ai_signal(symbol, price))
+        if price is None or previous_price is None:
+            continue
 
-    return signals[:6]
+        signal = build_ai_signal(symbol, price, previous_price)
+        signals.append(signal)
+
+    return signals
+
+
+def get_ai_signals():
+    global CACHED_AI_SIGNALS, LAST_AI_UPDATE
+
+    now = datetime.utcnow()
+
+    if LAST_AI_UPDATE and CACHED_AI_SIGNALS:
+        if now - LAST_AI_UPDATE < timedelta(minutes=CACHE_MINUTES):
+            return CACHED_AI_SIGNALS
+
+    CACHED_AI_SIGNALS = generate_ai_signals()
+    LAST_AI_UPDATE = now
+
+    return CACHED_AI_SIGNALS
 
 
 def format_signal(signal, source="AI Engine", desk=None):
@@ -143,7 +193,8 @@ def root():
     return {
         "service": "EasyPips Pro Signals API",
         "status": "running",
-        "mode": "live forex data via Yahoo Finance",
+        "mode": "live forex prices",
+        "target_distance": "100 pips",
     }
 
 
@@ -157,7 +208,7 @@ def live_prices():
     prices = {}
 
     for symbol, yahoo_symbol in SYMBOLS.items():
-        price = get_live_price(yahoo_symbol)
+        price, _ = get_live_price(yahoo_symbol)
         prices[symbol] = format_price(symbol, price) if price else None
 
     return prices
@@ -165,9 +216,7 @@ def live_prices():
 
 @app.get("/pro-signals")
 def pro_signals():
-    return {
-        "aiSignals": get_ai_signals()
-    }
+    return {"aiSignals": get_ai_signals()}
 
 
 @app.get("/human-signals")
