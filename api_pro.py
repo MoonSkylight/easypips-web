@@ -6,6 +6,8 @@ from typing import Optional, Union
 from jose import jwt, JWTError
 import os
 import requests
+import tempfile
+import matplotlib.pyplot as plt
 import yfinance as yf
 from supabase import create_client, Client
 
@@ -78,11 +80,9 @@ def send_telegram(message: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         return
 
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-
     try:
         requests.post(
-            url,
+            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
             json={
                 "chat_id": TELEGRAM_CHAT_ID,
                 "text": message,
@@ -93,6 +93,58 @@ def send_telegram(message: str):
         )
     except Exception as e:
         print("Telegram error:", e)
+
+
+def create_chart(symbol: str, yahoo_symbol: str):
+    try:
+        if not yahoo_symbol:
+            return None
+
+        ticker = yf.Ticker(yahoo_symbol)
+        data = ticker.history(period="1d", interval="15m")
+
+        if data.empty:
+            return None
+
+        file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+
+        plt.figure(figsize=(9, 4.5))
+        plt.plot(data.index, data["Close"], linewidth=2)
+        plt.title(f"{symbol} Live Chart")
+        plt.xlabel("Time")
+        plt.ylabel("Price")
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(file.name, dpi=150)
+        plt.close()
+
+        return file.name
+
+    except Exception as e:
+        print("Chart error:", e)
+        return None
+
+
+def send_telegram_image(message: str, image_path: str):
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID or not image_path:
+        send_telegram(message)
+        return
+
+    try:
+        with open(image_path, "rb") as photo:
+            requests.post(
+                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto",
+                data={
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "caption": message,
+                    "parse_mode": "Markdown",
+                },
+                files={"photo": photo},
+                timeout=20,
+            )
+    except Exception as e:
+        print("Telegram image error:", e)
+        send_telegram(message)
 
 
 def new_signal_message(signal: dict):
@@ -293,6 +345,17 @@ def get_active_signals(source=None, desk=None):
     return response.data or []
 
 
+def send_new_signal_with_chart(saved: dict):
+    symbol = saved.get("symbol")
+    yahoo_symbol = SYMBOLS.get(symbol)
+    chart = create_chart(symbol, yahoo_symbol)
+
+    if chart:
+        send_telegram_image(new_signal_message(saved), chart)
+    else:
+        send_telegram(new_signal_message(saved))
+
+
 def insert_signal(signal: dict):
     if not db_enabled():
         return signal
@@ -301,7 +364,7 @@ def insert_signal(signal: dict):
 
     if response.data:
         saved = response.data[0]
-        send_telegram(new_signal_message(saved))
+        send_new_signal_with_chart(saved)
         return saved
 
     return signal
@@ -465,6 +528,7 @@ def root():
         "status": "running",
         "database": "connected" if db_enabled() else "not connected",
         "telegram": "enabled" if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID else "disabled",
+        "charts": "enabled",
     }
 
 
@@ -480,6 +544,26 @@ def health():
 def telegram_test():
     send_telegram("🚀 *EasyPips Telegram connected successfully!*")
     return {"status": "ok", "message": "Telegram test sent"}
+
+
+@app.get("/chart-test")
+def chart_test():
+    test_signal = {
+        "source": "AI Engine",
+        "desk": None,
+        "symbol": "EUR/USD",
+        "direction": "BUY",
+        "entry": "1.10000",
+        "sl": "1.09000",
+        "tp1": "1.11000",
+        "tp2": "1.12000",
+        "tp3": "1.13000",
+        "status": "ACTIVE",
+        "result": "RUNNING",
+    }
+
+    send_new_signal_with_chart(test_signal)
+    return {"status": "ok", "message": "Chart test sent"}
 
 
 @app.get("/cron-check")

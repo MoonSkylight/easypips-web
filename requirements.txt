@@ -7,3 +7,4 @@ numpy
 supabase
 python-jose
 requests
+matplotlib
