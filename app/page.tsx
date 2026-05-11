@@ -1,389 +1,233 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-
-const TIMEFRAMES = [
-  { label: "5m", value: "5m" },
-  { label: "15m", value: "15m" },
-  { label: "1h", value: "1h" },
-];
-
-type StrategyVote = {
-  direction?: string;
-  score?: number;
-  reasons?: string[];
-};
+import { useEffect, useState } from "react";
 
 type Signal = {
-  id?: string;
-  market?: string;
-  timeframe?: string;
-  decision?: string;
-  signal_quality?: string;
-  entry?: number | null;
-  stop_loss?: number | null;
-  stoploss?: number | null;
-  tp1?: number | null;
-  tp2?: number | null;
-  tp3?: number | null;
+  id: string;
+  source: string;
+  desk?: string;
+  symbol: string;
+  direction: "BUY" | "SELL";
+  entry: number;
+  sl: number;
+  tp1: number;
+  tp2: number;
+  tp3: number;
   confidence?: number;
-  risk?: string;
-  rr_to_tp1?: number | null;
-  spread_warning?: string;
-  news_warning?: string;
-  reasons?: string[];
-  strategy_votes?: Record<string, StrategyVote>;
-  invalidation?: string;
-  latest_price?: number | null;
-  display_decision?: string;
-  result?: string;
-  order_type?: string;
-  bias?: string;
-  trigger_price?: number | null;
-  published_at?: string;
-  valid_until?: string;
-  valid_for_minutes?: number;
-  closed_price?: number | null;
-  closed_at?: string;
-  status?: string;
-  source?: string;
-  tp1_hit?: boolean;
-  tp2_hit?: boolean;
-  tp3_hit?: boolean;
+  analyst?: string;
+  note?: string;
+  status: string;
+  created_at: string;
 };
 
-type DashboardData = {
-  pair_prices?: Record<string, number | null>;
-  latest_scan?: Record<string, Signal>;
-  top_trade?: Signal | null;
-  top_pending?: Signal | null;
-  active?: Signal[];
-  pending?: Signal[];
-  closed?: Signal[];
-  summary?: {
-    active_count?: number;
-    pending_count?: number;
-    closed_count?: number;
-    updated_at?: string;
-    min_active_confidence?: number;
-    min_pending_confidence?: number;
-    mode?: string;
-  };
+type SignalResponse = {
+  aiSignals: Signal[];
+  desk1Signals: Signal[];
+  desk2Signals: Signal[];
 };
 
-export default function Home() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [intervalValue, setIntervalValue] = useState("5m");
-  const [loading, setLoading] = useState(true);
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
 
-  async function loadData(nextInterval?: string) {
-    const interval = nextInterval || intervalValue;
-    setLoading(true);
+export default function EasyPipsProSignals() {
+  const [activeTab, setActiveTab] = useState<"ai" | "desk1" | "desk2">("ai");
+  const [data, setData] = useState<SignalResponse>({
+    aiSignals: [],
+    desk1Signals: [],
+    desk2Signals: [],
+  });
+
+  async function loadSignals() {
     try {
-      const res = await fetch(`${API_URL}/pro-signals?interval=${interval}`, {
+      const res = await fetch(`${API_BASE}/all-paid-signals`, {
         cache: "no-store",
       });
       const json = await res.json();
-      setData(json);
-    } catch {
-      setData(null);
-    } finally {
-      setLoading(false);
+      setData({
+        aiSignals: json.aiSignals || [],
+        desk1Signals: json.desk1Signals || [],
+        desk2Signals: json.desk2Signals || [],
+      });
+    } catch (error) {
+      console.error("Failed to load signals", error);
     }
   }
 
   useEffect(() => {
-    loadData(intervalValue);
-    const timer = setInterval(() => loadData(intervalValue), 12000);
+    loadSignals();
+    const timer = setInterval(loadSignals, 10000);
     return () => clearInterval(timer);
-  }, [intervalValue]);
+  }, []);
 
-  const activeSignals = useMemo(() => {
-    const source = data?.active || [];
-    return source
-      .filter((signal) => {
-        const status = (signal.status || "").toUpperCase();
-        const result = (signal.result || "").toUpperCase();
-        return (
-          status === "ACTIVE" ||
-          status === "RUNNER" ||
-          result === "OPEN" ||
-          result.includes("TP")
-        );
-      })
-      .sort((a, b) => (b.confidence || 0) - (a.confidence || 0));
-  }, [data]);
+  const signals =
+    activeTab === "ai"
+      ? data.aiSignals
+      : activeTab === "desk1"
+      ? data.desk1Signals
+      : data.desk2Signals;
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <div className="mx-auto max-w-[1600px] px-3 py-4 sm:px-4 lg:px-5">
-        <header className="mb-5">
-          <h1 className="text-[22px] font-extrabold tracking-tight">
-            EasyPips AI Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-slate-400">
-            Free signal preview. Unlock full trade plan for $3.
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Last updated:{" "}
-            {data?.summary?.updated_at
-              ? new Date(data.summary.updated_at).toLocaleTimeString()
-              : "—"}
-          </p>
+    <main className="min-h-screen bg-[#05070d] text-white">
+      <section className="mx-auto max-w-7xl px-5 py-8">
+        <div className="mb-8 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-black to-slate-950 p-6 shadow-2xl">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="mb-2 inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
+                EASY PIPS PRO
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight md:text-5xl">
+                Paid Trading Signals
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm text-slate-400 md:text-base">
+                AI Engine signals plus human-provided Desk 1 and Desk 2 trade setups.
+              </p>
+            </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            {TIMEFRAMES.map((item) => (
-              <button
-                key={item.value}
-                onClick={() => setIntervalValue(item.value)}
-                className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
-                  intervalValue === item.value
-                    ? "bg-[#0f2340] text-white"
-                    : "bg-white/10 text-slate-200 hover:bg-white/15"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-
-            <button
-              onClick={() => loadData(intervalValue)}
-              className="rounded-xl bg-[#2f80ff] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#1f6ae0]"
-            >
-              {loading ? "Refreshing..." : "Refresh"}
-            </button>
+            <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 px-5 py-4 text-right">
+              <p className="text-xs uppercase tracking-widest text-yellow-300">
+                Subscriber Access
+              </p>
+              <p className="text-2xl font-bold text-yellow-200">PRO LIVE</p>
+            </div>
           </div>
-        </header>
+        </div>
 
-        <section>
-          {activeSignals.length ? (
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {activeSignals.map((signal, index) => (
-                <SignalCard key={signal.id || `${signal.market}-${index}`} signal={signal} />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-[18px] border border-[#0d2a57] bg-[#020816] p-6 text-sm text-slate-400">
-              No confirmed active signals right now. Pending orders are still running in the
-              background and will appear here automatically once triggered active.
-            </div>
-          )}
-        </section>
-      </div>
+        <div className="mb-6 grid grid-cols-3 gap-3 rounded-2xl border border-white/10 bg-white/5 p-2">
+          <TabButton
+            label="AI Engine"
+            active={activeTab === "ai"}
+            onClick={() => setActiveTab("ai")}
+          />
+          <TabButton
+            label="Desk 1"
+            active={activeTab === "desk1"}
+            onClick={() => setActiveTab("desk1")}
+          />
+          <TabButton
+            label="Desk 2"
+            active={activeTab === "desk2"}
+            onClick={() => setActiveTab("desk2")}
+          />
+        </div>
+
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-xl font-bold">
+            {activeTab === "ai"
+              ? "AI Engine Signals"
+              : activeTab === "desk1"
+              ? "Human Signals - Desk 1"
+              : "Human Signals - Desk 2"}
+          </h2>
+          <span className="rounded-full bg-white/10 px-3 py-1 text-sm text-slate-300">
+            {signals.length} Active
+          </span>
+        </div>
+
+        {signals.length === 0 ? (
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center">
+            <p className="text-lg font-semibold text-slate-200">
+              No active signals right now
+            </p>
+            <p className="mt-2 text-sm text-slate-500">
+              New confirmed signals will appear here automatically.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {signals.map((signal) => (
+              <SignalCard key={signal.id} signal={signal} />
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }
 
+function TabButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-xl px-4 py-3 text-sm font-bold transition ${
+        active
+          ? "bg-emerald-400 text-black shadow-lg shadow-emerald-400/20"
+          : "bg-transparent text-slate-400 hover:bg-white/10 hover:text-white"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 function SignalCard({ signal }: { signal: Signal }) {
-  const isBuy = getSide(signal) === "BUY";
-  const isSell = getSide(signal) === "SELL";
-  const confidence = Math.max(0, Math.min(signal.confidence || 0, 100));
-  const votes = Object.entries(signal.strategy_votes || {});
-  const hiddenPremium = confidence < 80;
+  const isBuy = signal.direction === "BUY";
 
   return (
-    <article className="rounded-[18px] border border-[#0d2a57] bg-[#020816] p-4 shadow-[0_0_0_1px_rgba(10,30,60,0.15)]">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-[30px] font-extrabold leading-none tracking-tight">
-            {signal.market || "-"}
-          </h2>
-          <p className="mt-2 text-xs text-slate-400">
-            Timeframe: {signal.timeframe || "5m"}
-          </p>
-        </div>
-
-        <span
-          className={`rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.08em] ${
-            isBuy
-              ? "bg-[#14d25d] text-black"
-              : isSell
-              ? "bg-[#ff3b3b] text-white"
-              : "bg-[#ffd21f] text-black"
-          }`}
-        >
-          {getBadgeText(signal)}
-        </span>
-      </div>
-
-      <div className="mt-4">
-        <div className="flex items-center justify-between text-sm font-bold">
-          <span>Confidence: {confidence}%</span>
-          {signal.tp1_hit || signal.tp2_hit || signal.tp3_hit ? (
-            <span className="text-emerald-300">
-              {signal.tp3_hit
-                ? "TP3 Hit"
-                : signal.tp2_hit
-                ? "TP2 Hit"
-                : "TP1 Hit"}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#172845]">
-          <div
-            className={`h-full rounded-full ${
-              isBuy
-                ? "bg-white"
-                : isSell
-                ? "bg-white"
-                : "bg-[#d7dde8]"
-            }`}
-            style={{ width: `${confidence}%` }}
-          />
-        </div>
-      </div>
-
-      {hiddenPremium ? (
-        <div className="mt-4 rounded-[14px] border border-[#5b4304] bg-[linear-gradient(180deg,rgba(77,60,18,0.65),rgba(36,29,13,0.85))] p-4">
-          <p className="text-sm font-extrabold text-[#ffd21f]">
-            Premium Signal Locked
-          </p>
-          <p className="mt-2 text-xs leading-5 text-[#ddd3ae]">
-            Unlock entry, stop loss, TP1, TP2, TP3 and full AI reason.
-          </p>
-
-          <div className="mt-4 grid grid-cols-2 gap-3 opacity-35 blur-[2px]">
-            <BlurRow />
-            <BlurRow />
-            <BlurRow />
-            <BlurRow />
-          </div>
-
-          <button className="mt-4 w-full rounded-xl bg-[#ffcc16] px-4 py-3 text-sm font-extrabold text-black">
-            Unlock for $3
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-            <InfoItem label="Entry" value={formatPrice(signal.market, signal.entry ?? signal.trigger_price)} />
-            <InfoItem label="SL" value={formatPrice(signal.market, signal.stop_loss ?? signal.stoploss)} />
-            <InfoItem label="TP1" value={formatPrice(signal.market, signal.tp1)} />
-            <InfoItem label="TP2" value={formatPrice(signal.market, signal.tp2)} />
-            <InfoItem label="TP3" value={formatPrice(signal.market, signal.tp3)} />
-            <InfoItem label="Risk" value={signal.risk || "LOW"} />
-          </div>
-
-          <div className="mt-4">
-            <p className="text-xs font-bold text-white">Reason:</p>
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              {signal.reasons?.length
-                ? signal.reasons.join(" • ")
-                : "Confirmed signal is active and currently being tracked."}
+    <article className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-xl">
+      <div
+        className={`p-5 ${
+          isBuy
+            ? "bg-gradient-to-r from-emerald-500/20 to-transparent"
+            : "bg-gradient-to-r from-red-500/20 to-transparent"
+        }`}
+      >
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-slate-400">
+              {signal.source}
+              {signal.desk ? ` / ${signal.desk}` : ""}
             </p>
+            <h3 className="mt-1 text-3xl font-black">{signal.symbol}</h3>
           </div>
 
-          {votes.length ? (
-            <div className="mt-4">
-              <p className="text-xs font-bold text-white">Strategy Votes:</p>
+          <span
+            className={`rounded-full px-4 py-2 text-sm font-black ${
+              isBuy
+                ? "bg-emerald-400 text-black"
+                : "bg-red-500 text-white"
+            }`}
+          >
+            {signal.direction}
+          </span>
+        </div>
 
-              <div className="mt-2 space-y-2">
-                {votes.slice(0, 4).map(([name, vote]) => (
-                  <VoteBox key={name} name={name} vote={vote} />
-                ))}
-              </div>
-            </div>
-          ) : null}
+        <div className="grid grid-cols-2 gap-3">
+          <ValueBox label="Entry" value={signal.entry} />
+          <ValueBox label="Stop Loss" value={signal.sl} />
+          <ValueBox label="TP1" value={signal.tp1} />
+          <ValueBox label="TP2" value={signal.tp2} />
+          <ValueBox label="TP3" value={signal.tp3} />
+          <ValueBox label="Status" value={signal.status} />
+        </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <MiniTag>{signal.status || "ACTIVE"}</MiniTag>
-            {signal.result ? <MiniTag>{cleanText(signal.result)}</MiniTag> : null}
-            {signal.tp1_hit ? <MiniTag>TP1 HIT</MiniTag> : null}
-            {signal.tp2_hit ? <MiniTag>TP2 HIT</MiniTag> : null}
-            {signal.tp3_hit ? <MiniTag>TP3 HIT</MiniTag> : null}
-          </div>
-        </>
-      )}
+        <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-400">
+          <span>{signal.analyst || "AI Engine"}</span>
+          {signal.confidence ? (
+            <span className="text-emerald-300">
+              Confidence {signal.confidence}%
+            </span>
+          ) : (
+            <span>Human Verified</span>
+          )}
+        </div>
+      </div>
     </article>
   );
 }
 
-function VoteBox({
-  name,
-  vote,
-}: {
-  name: string;
-  vote: StrategyVote;
-}) {
-  const direction = (vote.direction || "WAIT").toUpperCase();
-  const score = vote.score ?? 0;
-
+function ValueBox({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-[12px] bg-[#0b1730] px-3 py-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-bold text-white">{name.replaceAll("_", " ")}</p>
-        <p className="text-[11px] font-bold text-slate-300">
-          {direction} / {score}
-        </p>
-      </div>
-      <p className="mt-1 text-[11px] leading-5 text-slate-400">
-        {vote.reasons?.length ? vote.reasons.join(" • ") : "No reason supplied."}
-      </p>
+    <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className="mt-1 text-lg font-bold text-white">{value}</p>
     </div>
   );
-}
-
-function InfoItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs text-slate-400">{label}: {value}</p>
-    </div>
-  );
-}
-
-function BlurRow() {
-  return (
-    <div className="space-y-1">
-      <div className="h-3 w-20 rounded bg-[#c3b38a]" />
-      <div className="h-3 w-16 rounded bg-[#c3b38a]" />
-    </div>
-  );
-}
-
-function MiniTag({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded-full bg-[#11203a] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-slate-200">
-      {children}
-    </span>
-  );
-}
-
-function getSide(signal?: Signal | null) {
-  const raw = `${signal?.decision || ""} ${signal?.display_decision || ""} ${
-    signal?.bias || ""
-  }`.toUpperCase();
-  if (raw.includes("BUY")) return "BUY";
-  if (raw.includes("SELL")) return "SELL";
-  return "WAIT";
-}
-
-function getBadgeText(signal?: Signal | null) {
-  const side = getSide(signal);
-  if (side === "BUY") return "BUY";
-  if (side === "SELL") return "SELL";
-  return "WAIT";
-}
-
-function cleanText(value?: string | null) {
-  if (!value) return "-";
-  return value.replaceAll("_", " ");
-}
-
-function formatPrice(market: string | undefined, value: unknown) {
-  if (value === null || value === undefined || value === "") return "-";
-  const num = Number(value);
-  if (Number.isNaN(num)) return String(value);
-
-  if (!market) return num.toFixed(5);
-  if (["SP500", "NASDAQ"].includes(market)) return num.toFixed(2);
-  if (["OIL", "XAUUSD"].includes(market)) return num.toFixed(2);
-  if (["USDJPY", "EURJPY", "GBPJPY", "AUDJPY"].includes(market)) {
-    return num.toFixed(3);
-  }
-
-  return num.toFixed(5);
 }
