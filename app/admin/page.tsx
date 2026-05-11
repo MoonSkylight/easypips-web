@@ -6,7 +6,7 @@ const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
 
 export default function AdminPage() {
-  const [desk, setDesk] = useState("desk1");
+  const [desk, setDesk] = useState<"desk1" | "desk2">("desk1");
   const [message, setMessage] = useState("");
 
   const [form, setForm] = useState({
@@ -27,23 +27,31 @@ export default function AdminPage() {
 
   async function submitSignal(e: React.FormEvent) {
     e.preventDefault();
-    setMessage("Sending signal...");
+    setMessage("Publishing signal...");
 
     const endpoint =
       desk === "desk1"
         ? `${API_BASE}/desk1/signals`
         : `${API_BASE}/desk2/signals`;
 
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    if (res.ok) {
-      setMessage(`Signal added to ${desk === "desk1" ? "Desk 1" : "Desk 2"} ✅`);
+      if (!res.ok) {
+        setMessage("Failed to publish signal ❌");
+        return;
+      }
+
+      setMessage(
+        `Signal published to ${desk === "desk1" ? "Desk 1" : "Desk 2"} ✅`
+      );
+
       setForm({
         symbol: "EUR/USD",
         direction: "BUY",
@@ -55,8 +63,9 @@ export default function AdminPage() {
         analyst: "EasyPips Analyst",
         note: "",
       });
-    } else {
-      setMessage("Failed to add signal ❌");
+    } catch (error) {
+      console.error(error);
+      setMessage("Backend connection failed ❌");
     }
   }
 
@@ -67,7 +76,9 @@ export default function AdminPage() {
           <p className="mb-2 inline-flex rounded-full bg-emerald-400 px-3 py-1 text-xs font-bold text-black">
             EASY PIPS ADMIN
           </p>
-          <h1 className="text-3xl font-black">Add Human Signal</h1>
+
+          <h1 className="text-3xl font-black">Publish Human Signal</h1>
+
           <p className="mt-2 text-slate-400">
             Add manual signals to Desk 1 or Desk 2.
           </p>
@@ -75,10 +86,10 @@ export default function AdminPage() {
 
         <form onSubmit={submitSignal} className="grid gap-4">
           <label className="grid gap-2">
-            <span className="text-sm text-slate-400">Desk</span>
+            <span className="text-sm text-slate-400">Select Desk</span>
             <select
               value={desk}
-              onChange={(e) => setDesk(e.target.value)}
+              onChange={(e) => setDesk(e.target.value as "desk1" | "desk2")}
               className="rounded-xl border border-white/10 bg-black p-3"
             >
               <option value="desk1">Desk 1</option>
@@ -110,11 +121,40 @@ export default function AdminPage() {
           </label>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <PriceInput label="Entry" name="entry" value={form.entry} updateField={updateField} />
-            <PriceInput label="Stop Loss" name="sl" value={form.sl} updateField={updateField} />
-            <PriceInput label="TP1" name="tp1" value={form.tp1} updateField={updateField} />
-            <PriceInput label="TP2" name="tp2" value={form.tp2} updateField={updateField} />
-            <PriceInput label="TP3" name="tp3" value={form.tp3} updateField={updateField} />
+            <PriceInput
+              label="Entry"
+              name="entry"
+              value={form.entry}
+              updateField={updateField}
+            />
+
+            <PriceInput
+              label="Stop Loss"
+              name="sl"
+              value={form.sl}
+              updateField={updateField}
+            />
+
+            <PriceInput
+              label="TP1"
+              name="tp1"
+              value={form.tp1}
+              updateField={updateField}
+            />
+
+            <PriceInput
+              label="TP2"
+              name="tp2"
+              value={form.tp2}
+              updateField={updateField}
+            />
+
+            <PriceInput
+              label="TP3"
+              name="tp3"
+              value={form.tp3}
+              updateField={updateField}
+            />
           </div>
 
           <label className="grid gap-2">
@@ -122,6 +162,7 @@ export default function AdminPage() {
             <input
               value={form.analyst}
               onChange={(e) => updateField("analyst", e.target.value)}
+              placeholder="Desk 1 Analyst"
               className="rounded-xl border border-white/10 bg-black p-3"
             />
           </label>
@@ -131,6 +172,7 @@ export default function AdminPage() {
             <textarea
               value={form.note}
               onChange={(e) => updateField("note", e.target.value)}
+              placeholder="Optional trade note"
               className="min-h-24 rounded-xl border border-white/10 bg-black p-3"
             />
           </label>
