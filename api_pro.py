@@ -99,22 +99,26 @@ def new_signal_message(signal: dict):
     desk = signal.get("desk") or "AI Engine"
 
     return f"""
-📊 *EASY PIPS SIGNAL*
+🚀 *EASY PIPS VIP SIGNAL*
 
-Source: *{desk}*
-Pair: *{signal.get("symbol")}*
-Direction: *{signal.get("direction")}*
+━━━━━━━━━━━━━━━
 
-🎯 Entry: `{signal.get("entry")}`
-🛑 SL: `{signal.get("sl")}`
+📊 *Pair:* {signal.get("symbol")}
+📈 *Direction:* {signal.get("direction")}
+🧠 *Source:* {desk}
 
-✅ TP1: `{signal.get("tp1")}`
-✅ TP2: `{signal.get("tp2")}`
-✅ TP3: `{signal.get("tp3")}`
+━━━━━━━━━━━━━━━
 
-Status: *{signal.get("status")}*
-Result: *{signal.get("result", "RUNNING")}*
+🎯 *ENTRY:* `{signal.get("entry")}`
+🛑 *STOP LOSS:* `{signal.get("sl")}`
 
+💰 *TP1:* `{signal.get("tp1")}`
+💰 *TP2:* `{signal.get("tp2")}`
+💰 *TP3:* `{signal.get("tp3")}`
+
+━━━━━━━━━━━━━━━
+
+📌 Status: *ACTIVE*
 ⚠️ Demo version. Not financial advice.
 """
 
@@ -129,20 +133,29 @@ def result_message(signal: dict, result: str):
     elif result == "SL":
         emoji = "❌"
 
-    return f"""
-{emoji} *EASY PIPS UPDATE*
+    status = "CLOSED" if result in ["TP3", "SL"] else "ACTIVE"
 
-Pair: *{signal.get("symbol")}*
-Direction: *{signal.get("direction")}*
-Result: *{result}*
+    return f"""
+{emoji} *EASY PIPS SIGNAL UPDATE*
+
+━━━━━━━━━━━━━━━
+
+📊 *Pair:* {signal.get("symbol")}
+📈 *Direction:* {signal.get("direction")}
+🎯 *Result:* {result}
+
+━━━━━━━━━━━━━━━
 
 Entry: `{signal.get("entry")}`
 SL: `{signal.get("sl")}`
+
 TP1: `{signal.get("tp1")}`
 TP2: `{signal.get("tp2")}`
 TP3: `{signal.get("tp3")}`
 
-Status: *{signal.get("status", "ACTIVE")}*
+━━━━━━━━━━━━━━━
+
+📌 Status: *{status}*
 """
 
 
