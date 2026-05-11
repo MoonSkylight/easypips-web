@@ -148,7 +148,15 @@ export default function Home() {
       topPending ||
       null
     );
-  }, [active, pending, selectedSignalId, selectedMarket, latestScan, topTrade, topPending]);
+  }, [
+    active,
+    pending,
+    selectedSignalId,
+    selectedMarket,
+    latestScan,
+    topTrade,
+    topPending,
+  ]);
 
   const chartSymbol = SYMBOLS[selectedMarket] || "XAUUSD=X";
   const tradingViewUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${encodeURIComponent(
@@ -164,7 +172,9 @@ export default function Home() {
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
                 EasyPips
               </p>
-              <h1 className="mt-1 text-2xl font-bold">Live Signals Dashboard</h1>
+              <h1 className="mt-1 text-2xl font-bold">
+                Live Signals Dashboard
+              </h1>
               <p className="mt-2 text-sm text-slate-400">
                 Updated at{" "}
                 {data?.summary?.updated_at
@@ -560,9 +570,7 @@ function ClosedRow({ signal }: { signal: Signal }) {
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="font-bold text-white">{signal.market || "-"}</p>
-          <p className="text-xs text-slate-400">
-            {signal.result || "CLOSED"}
-          </p>
+          <p className="text-xs text-slate-400">{signal.result || "CLOSED"}</p>
         </div>
         <div className="text-right">
           <p className="text-sm font-semibold text-white">
