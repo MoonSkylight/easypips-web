@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Union
 from jose import jwt, JWTError
 import os
@@ -189,6 +189,14 @@ def get_active_signals(source=None, desk=None):
     return response.data or []
 
 
+def get_all_signals():
+    if not db_enabled():
+        return []
+
+    response = supabase.table("signals").select("*").order("created_at", desc=True).execute()
+    return response.data or []
+
+
 def ai_signal_exists(symbol: str):
     active_ai = get_active_signals(source="AI Engine")
     return any(signal.get("symbol") == symbol for signal in active_ai)
@@ -232,6 +240,12 @@ def generate_missing_ai_signals():
     return get_active_signals(source="AI Engine")[:MAX_AI_SIGNALS]
 
 
+def parse_datetime(value: str):
+    if value.endswith("Z"):
+        value = value.replace("Z", "+00:00")
+    return datetime.fromisoformat(value)
+
+
 @app.get("/")
 def root():
     return {
@@ -248,6 +262,51 @@ def health():
     return {
         "status": "ok",
         "database": "connected" if db_enabled() else "not connected",
+    }
+
+
+@app.get("/signal-stats")
+def signal_stats():
+    if not db_enabled():
+        return {"error": "Database not connected"}
+
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = now - timedelta(days=7)
+
+    signals = get_all_signals()
+
+    today_count = 0
+    week_count = 0
+    ai_count = 0
+    desk1_count = 0
+    desk2_count = 0
+
+    for signal in signals:
+        created_at = parse_datetime(signal["created_at"])
+
+        if created_at >= today_start:
+            today_count += 1
+
+        if created_at >= week_start:
+            week_count += 1
+
+        if signal.get("source") == "AI Engine":
+            ai_count += 1
+
+        if signal.get("desk") == "Desk 1":
+            desk1_count += 1
+
+        if signal.get("desk") == "Desk 2":
+            desk2_count += 1
+
+    return {
+        "todaySignals": today_count,
+        "last7DaysSignals": week_count,
+        "totalSignals": len(signals),
+        "aiSignals": ai_count,
+        "desk1Signals": desk1_count,
+        "desk2Signals": desk2_count,
     }
 
 
