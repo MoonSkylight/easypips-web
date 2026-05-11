@@ -5,23 +5,23 @@ import { useEffect, useMemo, useState } from "react";
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
-const SYMBOLS: Record<string, string> = {
-  XAUUSD: "XAUUSD=X",
-  OIL: "CL=F",
-  SP500: "^GSPC",
-  NASDAQ: "^IXIC",
-  EURUSD: "EURUSD=X",
-  GBPUSD: "GBPUSD=X",
-  USDJPY: "JPY=X",
-  USDCHF: "CHF=X",
-  USDCAD: "CAD=X",
-  AUDUSD: "AUDUSD=X",
-  NZDUSD: "NZDUSD=X",
-  EURJPY: "EURJPY=X",
-  GBPJPY: "GBPJPY=X",
-  EURGBP: "EURGBP=X",
-  AUDJPY: "AUDJPY=X",
-  EURAUD: "EURAUD=X",
+const TRADINGVIEW_SYMBOLS: Record<string, string> = {
+  XAUUSD: "OANDA:XAUUSD",
+  OIL: "TVC:USOIL",
+  SP500: "SP:SPX",
+  NASDAQ: "NASDAQ:IXIC",
+  EURUSD: "FX:EURUSD",
+  GBPUSD: "FX:GBPUSD",
+  USDJPY: "FX:USDJPY",
+  USDCHF: "FX:USDCHF",
+  USDCAD: "FX:USDCAD",
+  AUDUSD: "FX:AUDUSD",
+  NZDUSD: "FX:NZDUSD",
+  EURJPY: "FX:EURJPY",
+  GBPJPY: "FX:GBPJPY",
+  EURGBP: "FX:EURGBP",
+  AUDJPY: "FX:AUDJPY",
+  EURAUD: "FX:EURAUD",
 };
 
 type Signal = {
@@ -158,7 +158,9 @@ export default function Home() {
     topPending,
   ]);
 
-  const chartSymbol = SYMBOLS[selectedMarket] || "XAUUSD=X";
+  const chartSymbol =
+    TRADINGVIEW_SYMBOLS[selectedMarket] || "OANDA:XAUUSD";
+
   const tradingViewUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${encodeURIComponent(
     chartSymbol
   )}&interval=${intervalValue}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0f172a&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1&locale=en`;
@@ -281,6 +283,7 @@ export default function Home() {
                   </button>
                 ))}
                 <Chip>{selectedMarket}</Chip>
+                <Chip>{chartSymbol}</Chip>
               </div>
 
               <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#091425]">
@@ -400,7 +403,7 @@ export default function Home() {
 
             <Panel title="Markets" tint="green">
               <div className="grid grid-cols-2 gap-2">
-                {Object.keys(SYMBOLS).map((m) => (
+                {Object.keys(TRADINGVIEW_SYMBOLS).map((m) => (
                   <button
                     key={m}
                     onClick={() => setSelectedMarket(m)}
@@ -452,8 +455,9 @@ function getSideTone(signal?: Signal | null) {
 
 function fmt(value: unknown) {
   if (value === null || value === undefined || value === "") return "-";
-  if (typeof value === "number")
+  if (typeof value === "number") {
     return Number.isInteger(value) ? value.toString() : value.toFixed(5);
+  }
   return String(value);
 }
 
@@ -531,7 +535,9 @@ function Badge({
       : "bg-slate-500/15 text-slate-300";
 
   return (
-    <span className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase ${cls}`}>
+    <span
+      className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase ${cls}`}
+    >
       {children}
     </span>
   );
