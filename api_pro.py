@@ -1,10 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union
+from jose import jwt, JWTError
 import os
-import uuid
 import yfinance as yf
 from supabase import create_client, Client
 
@@ -21,14 +21,16 @@ app.add_middleware(
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+JWT_SECRET = os.environ.get("JWT_SECRET", "change-this-secret-key")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_HOURS = 24
+
 supabase: Client | None = None
 
-try:
-    if SUPABASE_URL and SUPABASE_KEY:
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-except Exception as e:
-    print("Supabase connection error:", e)
-    supabase = None
+if SUPABASE_URL and SUPABASE_KEY:
+    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 Price = Union[str, float, int]
 
@@ -59,8 +61,38 @@ class ManualSignal(BaseModel):
     note: Optional[str] = ""
 
 
+class AdminLogin(BaseModel):
+    username: str
+    password: str
+
+
 def db_enabled():
     return supabase is not None
+
+
+def create_admin_token():
+    expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
+    payload = {
+        "sub": "admin",
+        "role": "admin",
+        "exp": expire,
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def verify_admin_token(authorization: str):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing admin token")
+
+    token = authorization.replace("Bearer ", "")
+
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        if payload.get("role") != "admin":
+            raise HTTPException(status_code=403, detail="Not admin")
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
 def format_price(symbol: str, price: float) -> str:
@@ -101,7 +133,6 @@ def get_live_price(yahoo_symbol: str):
         )
 
         return current_price, previous_price
-
     except Exception:
         return None, None
 
@@ -160,12 +191,7 @@ def get_active_signals(source=None, desk=None):
 
 def ai_signal_exists(symbol: str):
     active_ai = get_active_signals(source="AI Engine")
-
-    for signal in active_ai:
-        if signal.get("symbol") == symbol:
-            return True
-
-    return False
+    return any(signal.get("symbol") == symbol for signal in active_ai)
 
 
 def insert_signal(signal: dict):
@@ -212,6 +238,8 @@ def root():
         "service": "EasyPips Pro Signals API",
         "status": "running",
         "database": "connected" if db_enabled() else "not connected",
+        "admin_auth": "jwt_enabled",
+        "payment": "disabled_for_now",
     }
 
 
@@ -223,15 +251,22 @@ def health():
     }
 
 
-@app.get("/debug")
-def debug():
-    return {
-        "SUPABASE_URL_exists": bool(SUPABASE_URL),
-        "SUPABASE_URL_preview": SUPABASE_URL[:30] + "..." if SUPABASE_URL else None,
-        "SUPABASE_KEY_exists": bool(SUPABASE_KEY),
-        "SUPABASE_KEY_length": len(SUPABASE_KEY) if SUPABASE_KEY else 0,
-        "db_enabled": db_enabled(),
-    }
+@app.post("/admin/login")
+def admin_login(data: AdminLogin):
+    if data.username == ADMIN_USERNAME and data.password == ADMIN_PASSWORD:
+        return {
+            "success": True,
+            "access_token": create_admin_token(),
+            "token_type": "bearer",
+        }
+
+    raise HTTPException(status_code=401, detail="Invalid admin credentials")
+
+
+@app.get("/admin/me")
+def admin_me(authorization: str = Header(default="")):
+    payload = verify_admin_token(authorization)
+    return {"success": True, "admin": payload.get("sub")}
 
 
 @app.get("/live-prices")
@@ -268,7 +303,12 @@ def all_paid_signals():
 
 
 @app.post("/desk1/signals")
-def create_desk1_signal(signal: ManualSignal):
+def create_desk1_signal(
+    signal: ManualSignal,
+    authorization: str = Header(default=""),
+):
+    verify_admin_token(authorization)
+
     new_signal = {
         "source": "Human Desk",
         "desk": "Desk 1",
@@ -290,7 +330,12 @@ def create_desk1_signal(signal: ManualSignal):
 
 
 @app.post("/desk2/signals")
-def create_desk2_signal(signal: ManualSignal):
+def create_desk2_signal(
+    signal: ManualSignal,
+    authorization: str = Header(default=""),
+):
+    verify_admin_token(authorization)
+
     new_signal = {
         "source": "Human Desk",
         "desk": "Desk 2",
@@ -312,7 +357,12 @@ def create_desk2_signal(signal: ManualSignal):
 
 
 @app.delete("/signals/{signal_id}")
-def delete_signal(signal_id: str):
+def delete_signal(
+    signal_id: str,
+    authorization: str = Header(default=""),
+):
+    verify_admin_token(authorization)
+
     if not db_enabled():
         return {"success": False, "message": "Database not connected"}
 
@@ -322,7 +372,9 @@ def delete_signal(signal_id: str):
 
 
 @app.post("/admin/reset-ai-signals")
-def reset_ai_signals():
+def reset_ai_signals(authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
     if not db_enabled():
         return {"success": False, "message": "Database not connected"}
 

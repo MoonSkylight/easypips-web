@@ -2,49 +2,89 @@
 
 import { useState } from "react";
 
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
+
 export default function AdminLogin() {
+  const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const ADMIN_PASSWORD = "admin123"; // 🔒 change later
-
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setMessage("Logging in...");
 
-    if (password === ADMIN_PASSWORD) {
-      localStorage.setItem("admin-auth", "true");
+    try {
+      const res = await fetch(`${API_BASE}/admin/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.access_token) {
+        setMessage("Wrong username or password");
+        return;
+      }
+
+      localStorage.setItem("admin-token", data.access_token);
       window.location.href = "/admin";
-    } else {
-      setError("Wrong password");
+    } catch (error) {
+      console.error(error);
+      setMessage("Backend connection failed");
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#05070d] flex items-center justify-center text-white">
+    <main className="flex min-h-screen items-center justify-center bg-[#05070d] px-5 text-white">
       <form
         onSubmit={handleLogin}
-        className="bg-slate-900 p-8 rounded-3xl border border-white/10 w-full max-w-md"
+        className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-950 p-8 shadow-2xl"
       >
-        <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
+        <p className="mb-3 inline-flex rounded-full bg-emerald-400 px-3 py-1 text-xs font-black text-black">
+          EASY PIPS ADMIN
+        </p>
 
-        <input
-          type="password"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 rounded-xl bg-black border border-white/10 mb-4"
-        />
+        <h1 className="text-3xl font-black">Admin Login</h1>
 
-        <button
-          type="submit"
-          className="w-full bg-emerald-400 text-black font-bold p-3 rounded-xl"
-        >
-          Login
-        </button>
+        <p className="mt-2 text-sm text-slate-400">
+          Enter admin credentials to access Desk 1 and Desk 2 publishing.
+        </p>
 
-        {error && (
-          <p className="text-red-400 mt-3 text-sm">{error}</p>
-        )}
+        <div className="mt-6 grid gap-4">
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+            className="rounded-xl border border-white/10 bg-black p-3"
+            required
+          />
+
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="rounded-xl border border-white/10 bg-black p-3"
+            required
+          />
+
+          <button
+            type="submit"
+            className="rounded-xl bg-emerald-400 p-3 font-black text-black hover:bg-emerald-300"
+          >
+            Login
+          </button>
+
+          {message && (
+            <p className="rounded-xl bg-white/10 p-3 text-center text-sm">
+              {message}
+            </p>
+          )}
+        </div>
       </form>
     </main>
   );
