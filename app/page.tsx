@@ -163,18 +163,18 @@ export default function Home() {
 
   const tradingViewUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${encodeURIComponent(
     chartSymbol
-  )}&interval=${intervalValue}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0f172a&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1&locale=en`;
+  )}&interval=${intervalValue}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0b1220&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1&locale=en`;
 
   return (
-    <main className="min-h-screen bg-[#07111f] text-white">
-      <div className="mx-auto max-w-[1700px] px-4 py-4">
-        <header className="mb-4 rounded-[28px] border border-white/10 bg-[#0b1627] px-5 py-4 shadow-2xl">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+    <main className="min-h-screen bg-[#050b14] text-white">
+      <div className="mx-auto w-full max-w-[1920px] px-4 py-4 md:px-6 xl:px-8 2xl:px-10">
+        <header className="mb-5 rounded-[30px] border border-white/10 bg-[#071426]/95 px-5 py-5 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+            <div className="min-w-0">
+              <p className="text-[11px] uppercase tracking-[0.36em] text-slate-400">
                 EasyPips
               </p>
-              <h1 className="mt-1 text-2xl font-bold">
+              <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
                 Live Signals Dashboard
               </h1>
               <p className="mt-2 text-sm text-slate-400">
@@ -185,7 +185,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2 text-xs">
+            <div className="flex flex-wrap gap-2 xl:max-w-[48%] xl:justify-end">
               <Chip>{loading ? "Loading..." : "Live"}</Chip>
               <Chip>{data?.summary?.mode || "BALANCED_PERFORMANCE"}</Chip>
               <Chip>Active {data?.summary?.active_count ?? 0}</Chip>
@@ -195,8 +195,8 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-          <div className="space-y-4">
+        <section className="grid gap-5 xl:grid-cols-12">
+          <div className="space-y-5 xl:col-span-8 2xl:col-span-9">
             <Panel title="Selected Signal" tint="yellow">
               {selectedSignal ? (
                 <>
@@ -213,11 +213,8 @@ export default function Home() {
                     </Badge>
                   </div>
 
-                  <div className="mt-4 grid gap-3 md:grid-cols-5">
-                    <Stat
-                      label="Price"
-                      value={fmt(selectedSignal.latest_price)}
-                    />
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                    <Stat label="Price" value={fmt(selectedSignal.latest_price)} />
                     <Stat
                       label="Entry"
                       value={fmt(
@@ -244,7 +241,7 @@ export default function Home() {
                     />
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-4">
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-[#0b1a30] px-4 py-4">
                     <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
                       Reasoning
                     </p>
@@ -273,29 +270,28 @@ export default function Home() {
                   <button
                     key={value}
                     onClick={() => setIntervalValue(value)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                       intervalValue === value
                         ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-200"
-                        : "border-white/10 bg-white/5 text-slate-300"
+                        : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20"
                     }`}
                   >
                     {label}
                   </button>
                 ))}
                 <Chip>{selectedMarket}</Chip>
-                <Chip>{chartSymbol}</Chip>
               </div>
 
-              <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#091425]">
+              <div className="overflow-hidden rounded-[26px] border border-white/10 bg-[#08111f]">
                 <iframe
                   key={`${selectedMarket}-${intervalValue}`}
                   src={tradingViewUrl}
-                  className="h-[560px] w-full"
+                  className="h-[520px] w-full xl:h-[620px] 2xl:h-[700px]"
                   allowFullScreen
                 />
               </div>
 
-              <div className="mt-4 grid gap-3 md:grid-cols-5">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <Stat label="Market" value={selectedMarket} />
                 <Stat label="Price" value={fmt(selectedSignal?.latest_price)} />
                 <Stat
@@ -317,67 +313,71 @@ export default function Home() {
               </div>
             </Panel>
 
-            <Panel title="Trading Zone" tint="purple">
-              <div className="space-y-3">
-                {[...active, ...pending].length ? (
-                  [...active, ...pending].slice(0, 12).map((signal, index) => (
-                    <button
-                      key={signal.id || `${signal.market}-${index}`}
-                      onClick={() => {
-                        if (signal.market) setSelectedMarket(signal.market);
-                        if (signal.id) setSelectedSignalId(signal.id);
-                      }}
-                      className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
-                        selectedSignalId === signal.id
-                          ? "border-fuchsia-300/35 bg-fuchsia-300/10"
-                          : "border-white/10 bg-[#0f1c31] hover:border-fuchsia-300/20"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-bold text-white">
-                            {signal.market || "-"}
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            {signal.display_decision ||
-                              signal.signal_quality ||
-                              signal.decision ||
-                              "WAIT"}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-white">
-                            {fmt(signal.latest_price)}
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            {signal.timeframe || "5m"}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  ))
-                ) : (
-                  <Empty text="No active or pending signals right now." />
-                )}
-              </div>
-            </Panel>
+            <div className="grid gap-5 xl:grid-cols-2">
+              <Panel title="Trading Zone" tint="purple">
+                <div className="space-y-3">
+                  {[...active, ...pending].length ? (
+                    [...active, ...pending]
+                      .slice(0, 10)
+                      .map((signal, index) => (
+                        <button
+                          key={signal.id || `${signal.market}-${index}`}
+                          onClick={() => {
+                            if (signal.market) setSelectedMarket(signal.market);
+                            if (signal.id) setSelectedSignalId(signal.id);
+                          }}
+                          className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                            selectedSignalId === signal.id
+                              ? "border-fuchsia-300/35 bg-fuchsia-300/10"
+                              : "border-white/10 bg-[#0f1c31] hover:border-fuchsia-300/20"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-bold text-white">
+                                {signal.market || "-"}
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                {signal.display_decision ||
+                                  signal.signal_quality ||
+                                  signal.decision ||
+                                  "WAIT"}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-semibold text-white">
+                                {fmt(signal.latest_price)}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {signal.timeframe || "5m"}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      ))
+                  ) : (
+                    <Empty text="No active or pending signals right now." />
+                  )}
+                </div>
+              </Panel>
 
-            <Panel title="Closed Signals" tint="lightblue">
-              <div className="space-y-2">
-                {closed.length ? (
-                  closed
-                    .slice(0, 10)
-                    .map((signal, i) => (
-                      <ClosedRow key={signal.id || i} signal={signal} />
-                    ))
-                ) : (
-                  <Empty text="No closed signals yet." />
-                )}
-              </div>
-            </Panel>
+              <Panel title="Closed Signals" tint="lightblue">
+                <div className="space-y-2">
+                  {closed.length ? (
+                    closed
+                      .slice(0, 8)
+                      .map((signal, i) => (
+                        <ClosedRow key={signal.id || i} signal={signal} />
+                      ))
+                  ) : (
+                    <Empty text="No closed signals yet." />
+                  )}
+                </div>
+              </Panel>
+            </div>
           </div>
 
-          <div className="space-y-4">
+          <aside className="space-y-5 xl:col-span-4 2xl:col-span-3">
             <Panel title="Desk 1 / Desk 2" tint="purple">
               <div className="space-y-4">
                 <DeskCard
@@ -407,7 +407,7 @@ export default function Home() {
                   <button
                     key={m}
                     onClick={() => setSelectedMarket(m)}
-                    className={`rounded-2xl border px-3 py-3 text-left text-sm font-semibold ${
+                    className={`rounded-2xl border px-3 py-3 text-left text-sm font-semibold transition ${
                       selectedMarket === m
                         ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-200"
                         : "border-white/10 bg-[#0f1c31] text-white hover:border-white/20"
@@ -430,7 +430,7 @@ export default function Home() {
                 <InfoRow label="Backend" value={API_URL} />
               </div>
             </Panel>
-          </div>
+          </aside>
         </section>
       </div>
     </main>
@@ -472,18 +472,20 @@ function Panel({
 }) {
   const classes = {
     yellow:
-      "border-yellow-400/20 bg-[linear-gradient(180deg,rgba(250,204,21,0.10),rgba(12,23,41,0.96))]",
+      "border-yellow-400/20 bg-[linear-gradient(180deg,rgba(250,204,21,0.08),rgba(10,20,36,0.98))]",
     green:
-      "border-emerald-400/20 bg-[linear-gradient(180deg,rgba(16,185,129,0.10),rgba(12,23,41,0.96))]",
+      "border-emerald-400/20 bg-[linear-gradient(180deg,rgba(16,185,129,0.08),rgba(10,20,36,0.98))]",
     purple:
-      "border-fuchsia-400/20 bg-[linear-gradient(180deg,rgba(168,85,247,0.10),rgba(12,23,41,0.96))]",
+      "border-fuchsia-400/20 bg-[linear-gradient(180deg,rgba(168,85,247,0.08),rgba(10,20,36,0.98))]",
     lightblue:
-      "border-sky-300/20 bg-[linear-gradient(180deg,rgba(56,189,248,0.10),rgba(12,23,41,0.96))]",
+      "border-sky-300/20 bg-[linear-gradient(180deg,rgba(56,189,248,0.08),rgba(10,20,36,0.98))]",
   }[tint];
 
   return (
-    <section className={`rounded-[28px] border p-4 shadow-2xl ${classes}`}>
-      <p className="text-xs uppercase tracking-[0.26em] text-slate-400">
+    <section
+      className={`rounded-[30px] border p-4 md:p-5 shadow-[0_18px_50px_rgba(0,0,0,0.28)] ${classes}`}
+    >
+      <p className="text-[11px] uppercase tracking-[0.28em] text-slate-400">
         {title}
       </p>
       <div className="mt-4">{children}</div>
@@ -501,8 +503,8 @@ function Stat({
   tone?: "red" | "green";
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3">
-      <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+    <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3.5">
+      <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
         {label}
       </p>
       <p
@@ -536,7 +538,7 @@ function Badge({
 
   return (
     <span
-      className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase ${cls}`}
+      className={`rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] ${cls}`}
     >
       {children}
     </span>
@@ -545,7 +547,7 @@ function Badge({
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs">
+    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-slate-200">
       {children}
     </span>
   );
@@ -562,7 +564,7 @@ function Empty({ text }: { text: string }) {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-[#0f1c31] px-4 py-3">
-      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
         {label}
       </p>
       <p className="mt-1 text-sm font-semibold text-white">{value}</p>
@@ -607,7 +609,7 @@ function DeskCard({
   if (!signal) {
     return (
       <div className="rounded-[24px] border border-white/10 bg-[#0f1c31] p-4">
-        <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+        <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
           {title}
         </p>
         <h3 className="mt-2 text-xl font-bold text-white">{trader}</h3>
@@ -618,7 +620,7 @@ function DeskCard({
 
   return (
     <div className="rounded-[24px] border border-fuchsia-300/20 bg-[#0f1c31] p-4">
-      <p className="text-xs uppercase tracking-[0.22em] text-fuchsia-200/75">
+      <p className="text-[11px] uppercase tracking-[0.22em] text-fuchsia-200/75">
         {title}
       </p>
       <h3 className="mt-2 text-xl font-bold text-white">
