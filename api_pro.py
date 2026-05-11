@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, Union
+import os
 import uuid
 import yfinance as yf
+from supabase import create_client, Client
 
 app = FastAPI(title="EasyPips Pro Signals API")
 
@@ -15,6 +17,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+
+supabase: Client | None = None
+
+try:
+    if SUPABASE_URL and SUPABASE_KEY:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+except Exception as e:
+    print("Supabase connection error:", e)
+    supabase = None
 
 Price = Union[str, float, int]
 
@@ -30,12 +44,7 @@ SYMBOLS = {
     "BTC/USD": "BTC-USD",
 }
 
-ACTIVE_AI_SIGNALS = []
-DESK_1_SIGNALS = []
-DESK_2_SIGNALS = []
-
 MAX_AI_SIGNALS = 6
-SIGNAL_VALID_HOURS = 24
 
 
 class ManualSignal(BaseModel):
@@ -48,6 +57,10 @@ class ManualSignal(BaseModel):
     tp3: Price
     analyst: Optional[str] = "EasyPips Analyst"
     note: Optional[str] = ""
+
+
+def db_enabled():
+    return supabase is not None
 
 
 def format_price(symbol: str, price: float) -> str:
@@ -113,8 +126,8 @@ def build_ai_signal(symbol: str, price: float, previous_price: float):
         tp3 = price - distance * 3
 
     return {
-        "id": str(uuid.uuid4()),
         "source": "AI Engine",
+        "desk": None,
         "symbol": symbol,
         "direction": direction,
         "entry": format_price(symbol, price),
@@ -123,40 +136,60 @@ def build_ai_signal(symbol: str, price: float, previous_price: float):
         "tp2": format_price(symbol, tp2),
         "tp3": format_price(symbol, tp3),
         "confidence": 88 if direction == "BUY" else 86,
+        "analyst": "AI Engine",
+        "note": "Live market generated signal",
         "status": "ACTIVE",
-        "created_at": datetime.utcnow().isoformat(),
     }
 
 
-def remove_expired_ai_signals():
-    global ACTIVE_AI_SIGNALS
+def get_active_signals(source=None, desk=None):
+    if not db_enabled():
+        return []
 
-    now = datetime.utcnow()
-    fresh_signals = []
+    query = supabase.table("signals").select("*").eq("status", "ACTIVE")
 
-    for signal in ACTIVE_AI_SIGNALS:
-        created_at = datetime.fromisoformat(signal["created_at"])
-        if now - created_at < timedelta(hours=SIGNAL_VALID_HOURS):
-            fresh_signals.append(signal)
+    if source:
+        query = query.eq("source", source)
 
-    ACTIVE_AI_SIGNALS = fresh_signals
+    if desk:
+        query = query.eq("desk", desk)
+
+    response = query.order("created_at", desc=True).execute()
+    return response.data or []
 
 
 def ai_signal_exists(symbol: str):
-    for signal in ACTIVE_AI_SIGNALS:
-        if signal["symbol"] == symbol and signal["status"] == "ACTIVE":
+    active_ai = get_active_signals(source="AI Engine")
+
+    for signal in active_ai:
+        if signal.get("symbol") == symbol:
             return True
+
     return False
 
 
-def generate_missing_ai_signals():
-    remove_expired_ai_signals()
+def insert_signal(signal: dict):
+    if not db_enabled():
+        return signal
 
-    if len(ACTIVE_AI_SIGNALS) >= MAX_AI_SIGNALS:
-        return ACTIVE_AI_SIGNALS
+    response = supabase.table("signals").insert(signal).execute()
+
+    if response.data:
+        return response.data[0]
+
+    return signal
+
+
+def generate_missing_ai_signals():
+    active_ai = get_active_signals(source="AI Engine")
+
+    if len(active_ai) >= MAX_AI_SIGNALS:
+        return active_ai[:MAX_AI_SIGNALS]
 
     for symbol, yahoo_symbol in SYMBOLS.items():
-        if len(ACTIVE_AI_SIGNALS) >= MAX_AI_SIGNALS:
+        active_ai = get_active_signals(source="AI Engine")
+
+        if len(active_ai) >= MAX_AI_SIGNALS:
             break
 
         if ai_signal_exists(symbol):
@@ -168,29 +201,9 @@ def generate_missing_ai_signals():
             continue
 
         signal = build_ai_signal(symbol, price, previous_price)
-        ACTIVE_AI_SIGNALS.append(signal)
+        insert_signal(signal)
 
-    return ACTIVE_AI_SIGNALS
-
-
-def format_signal(signal, source="AI Engine", desk=None):
-    return {
-        "id": signal.get("id", str(uuid.uuid4())),
-        "source": source,
-        "desk": desk,
-        "symbol": signal.get("symbol"),
-        "direction": signal.get("direction", "BUY").upper(),
-        "entry": str(signal.get("entry")),
-        "sl": str(signal.get("sl")),
-        "tp1": str(signal.get("tp1")),
-        "tp2": str(signal.get("tp2")),
-        "tp3": str(signal.get("tp3")),
-        "confidence": signal.get("confidence"),
-        "analyst": signal.get("analyst"),
-        "note": signal.get("note", ""),
-        "status": signal.get("status", "ACTIVE"),
-        "created_at": signal.get("created_at", datetime.utcnow().isoformat()),
-    }
+    return get_active_signals(source="AI Engine")[:MAX_AI_SIGNALS]
 
 
 @app.get("/")
@@ -198,16 +211,27 @@ def root():
     return {
         "service": "EasyPips Pro Signals API",
         "status": "running",
-        "mode": "firm published signals",
-        "normal_forex_100_pips": "0.0100",
-        "jpy_100_pips": "1.00",
-        "signal_valid_hours": SIGNAL_VALID_HOURS,
+        "database": "connected" if db_enabled() else "not connected",
     }
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "database": "connected" if db_enabled() else "not connected",
+    }
+
+
+@app.get("/debug")
+def debug():
+    return {
+        "SUPABASE_URL_exists": bool(SUPABASE_URL),
+        "SUPABASE_URL_preview": SUPABASE_URL[:30] + "..." if SUPABASE_URL else None,
+        "SUPABASE_KEY_exists": bool(SUPABASE_KEY),
+        "SUPABASE_KEY_length": len(SUPABASE_KEY) if SUPABASE_KEY else 0,
+        "db_enabled": db_enabled(),
+    }
 
 
 @app.get("/live-prices")
@@ -229,14 +253,8 @@ def pro_signals():
 @app.get("/human-signals")
 def human_signals():
     return {
-        "desk1Signals": [
-            format_signal(signal, "Human Desk", "Desk 1")
-            for signal in DESK_1_SIGNALS
-        ],
-        "desk2Signals": [
-            format_signal(signal, "Human Desk", "Desk 2")
-            for signal in DESK_2_SIGNALS
-        ],
+        "desk1Signals": get_active_signals(source="Human Desk", desk="Desk 1"),
+        "desk2Signals": get_active_signals(source="Human Desk", desk="Desk 2"),
     }
 
 
@@ -244,67 +262,70 @@ def human_signals():
 def all_paid_signals():
     return {
         "aiSignals": generate_missing_ai_signals(),
-        "desk1Signals": [
-            format_signal(signal, "Human Desk", "Desk 1")
-            for signal in DESK_1_SIGNALS
-        ],
-        "desk2Signals": [
-            format_signal(signal, "Human Desk", "Desk 2")
-            for signal in DESK_2_SIGNALS
-        ],
+        "desk1Signals": get_active_signals(source="Human Desk", desk="Desk 1"),
+        "desk2Signals": get_active_signals(source="Human Desk", desk="Desk 2"),
     }
 
 
 @app.post("/desk1/signals")
 def create_desk1_signal(signal: ManualSignal):
-    new_signal = signal.dict()
-    new_signal["id"] = str(uuid.uuid4())
-    new_signal["status"] = "ACTIVE"
-    new_signal["created_at"] = datetime.utcnow().isoformat()
-
-    DESK_1_SIGNALS.insert(0, new_signal)
-
-    return {
-        "success": True,
-        "signal": format_signal(new_signal, "Human Desk", "Desk 1"),
+    new_signal = {
+        "source": "Human Desk",
+        "desk": "Desk 1",
+        "symbol": signal.symbol,
+        "direction": signal.direction.upper(),
+        "entry": str(signal.entry),
+        "sl": str(signal.sl),
+        "tp1": str(signal.tp1),
+        "tp2": str(signal.tp2),
+        "tp3": str(signal.tp3),
+        "confidence": None,
+        "analyst": signal.analyst,
+        "note": signal.note,
+        "status": "ACTIVE",
     }
+
+    saved = insert_signal(new_signal)
+    return {"success": True, "signal": saved}
 
 
 @app.post("/desk2/signals")
 def create_desk2_signal(signal: ManualSignal):
-    new_signal = signal.dict()
-    new_signal["id"] = str(uuid.uuid4())
-    new_signal["status"] = "ACTIVE"
-    new_signal["created_at"] = datetime.utcnow().isoformat()
-
-    DESK_2_SIGNALS.insert(0, new_signal)
-
-    return {
-        "success": True,
-        "signal": format_signal(new_signal, "Human Desk", "Desk 2"),
+    new_signal = {
+        "source": "Human Desk",
+        "desk": "Desk 2",
+        "symbol": signal.symbol,
+        "direction": signal.direction.upper(),
+        "entry": str(signal.entry),
+        "sl": str(signal.sl),
+        "tp1": str(signal.tp1),
+        "tp2": str(signal.tp2),
+        "tp3": str(signal.tp3),
+        "confidence": None,
+        "analyst": signal.analyst,
+        "note": signal.note,
+        "status": "ACTIVE",
     }
 
+    saved = insert_signal(new_signal)
+    return {"success": True, "signal": saved}
 
-@app.delete("/signals/{desk}/{signal_id}")
-def delete_signal(desk: str, signal_id: str):
-    if desk == "ai":
-        target = ACTIVE_AI_SIGNALS
-    elif desk == "desk1":
-        target = DESK_1_SIGNALS
-    elif desk == "desk2":
-        target = DESK_2_SIGNALS
-    else:
-        return {"success": False, "message": "Invalid desk"}
 
-    for signal in target:
-        if signal["id"] == signal_id:
-            target.remove(signal)
-            return {"success": True}
+@app.delete("/signals/{signal_id}")
+def delete_signal(signal_id: str):
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
 
-    return {"success": False, "message": "Signal not found"}
+    supabase.table("signals").update({"status": "DELETED"}).eq("id", signal_id).execute()
+
+    return {"success": True}
 
 
 @app.post("/admin/reset-ai-signals")
 def reset_ai_signals():
-    ACTIVE_AI_SIGNALS.clear()
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
+
     return {"success": True, "message": "AI signals reset"}
