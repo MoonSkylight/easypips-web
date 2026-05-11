@@ -35,7 +35,7 @@ DESK_2_SIGNALS = []
 
 CACHED_AI_SIGNALS = []
 LAST_AI_UPDATE = None
-CACHE_MINUTES = 5
+CACHE_MINUTES = 0
 
 
 class ManualSignal(BaseModel):
@@ -59,6 +59,15 @@ def format_price(symbol: str, price: float) -> str:
 
 
 def pip_size(symbol: str) -> float:
+    """
+    Normal forex:
+    1 pip = 0.0001
+    100 pips = 0.0100
+
+    JPY pairs:
+    1 pip = 0.01
+    100 pips = 1.00
+    """
     if "JPY" in symbol:
         return 0.01
     if "XAU" in symbol:
@@ -70,14 +79,9 @@ def pip_size(symbol: str) -> float:
 
 def target_distance(symbol: str) -> float:
     """
-    Forex:
-    100 pips = 0.0100
-    JPY pairs:
-    100 pips = 1.00
-    Gold:
-    100 pips = 10.00
-    BTC:
-    100 pips = 1000.00
+    100 pip distance.
+    EUR/USD example:
+    0.0001 * 100 = 0.0100
     """
     return pip_size(symbol) * 100
 
@@ -90,10 +94,14 @@ def get_live_price(yahoo_symbol: str):
         if data.empty:
             return None, None
 
-        close = float(data["Close"].iloc[-1])
-        previous = float(data["Close"].iloc[-5]) if len(data) >= 5 else float(data["Close"].iloc[0])
+        current_price = float(data["Close"].iloc[-1])
+        previous_price = (
+            float(data["Close"].iloc[-5])
+            if len(data) >= 5
+            else float(data["Close"].iloc[0])
+        )
 
-        return close, previous
+        return current_price, previous_price
 
     except Exception:
         return None, None
@@ -120,8 +128,6 @@ def build_ai_signal(symbol: str, price: float, previous_price: float):
         tp2 = price - distance * 2
         tp3 = price - distance * 3
 
-    confidence = 88 if direction == "BUY" else 86
-
     return {
         "id": str(uuid.uuid4()),
         "source": "AI Engine",
@@ -132,7 +138,7 @@ def build_ai_signal(symbol: str, price: float, previous_price: float):
         "tp1": format_price(symbol, tp1),
         "tp2": format_price(symbol, tp2),
         "tp3": format_price(symbol, tp3),
-        "confidence": confidence,
+        "confidence": 88 if direction == "BUY" else 86,
         "status": "ACTIVE",
         "created_at": datetime.utcnow().isoformat(),
     }
@@ -147,8 +153,7 @@ def generate_ai_signals():
         if price is None or previous_price is None:
             continue
 
-        signal = build_ai_signal(symbol, price, previous_price)
-        signals.append(signal)
+        signals.append(build_ai_signal(symbol, price, previous_price))
 
     return signals
 
@@ -194,7 +199,8 @@ def root():
         "service": "EasyPips Pro Signals API",
         "status": "running",
         "mode": "live forex prices",
-        "target_distance": "100 pips",
+        "normal_forex_100_pips": "0.0100",
+        "jpy_100_pips": "1.00",
     }
 
 
