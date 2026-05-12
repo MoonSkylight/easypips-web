@@ -5,10 +5,12 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Union
 from jose import jwt, JWTError
 import os
+import math
 import requests
 import tempfile
 import matplotlib.pyplot as plt
 import yfinance as yf
+import pandas as pd
 from supabase import create_client, Client
 
 app = FastAPI(title="EasyPips Pro Signals API")
@@ -23,21 +25,17 @@ app.add_middleware(
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 JWT_SECRET = os.environ.get("JWT_SECRET", "change-this-secret")
-JWT_ALGORITHM = "HS256"
-JWT_EXPIRE_HOURS = 24
-
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-HEALTH_ALERT_MINUTES = int(os.environ.get("HEALTH_ALERT_MINUTES", "360"))
-LAST_HEALTH_ALERT_TIME = None
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_HOURS = 24
+MAX_AI_SIGNALS_PER_STRATEGY = 6
 
 supabase: Client | None = None
-
 if SUPABASE_URL and SUPABASE_KEY:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -54,8 +52,6 @@ SYMBOLS = {
     "XAU/USD": "GC=F",
     "BTC/USD": "BTC-USD",
 }
-
-MAX_AI_SIGNALS = 6
 
 
 class ManualSignal(BaseModel):
@@ -103,9 +99,7 @@ def create_chart(symbol: str, yahoo_symbol: str):
         if not yahoo_symbol:
             return None
 
-        ticker = yf.Ticker(yahoo_symbol)
-        data = ticker.history(period="1d", interval="15m")
-
+        data = yf.Ticker(yahoo_symbol).history(period="1d", interval="15m")
         if data.empty:
             return None
 
@@ -122,7 +116,6 @@ def create_chart(symbol: str, yahoo_symbol: str):
         plt.close()
 
         return file.name
-
     except Exception as e:
         print("Chart error:", e)
         return None
@@ -151,7 +144,8 @@ def send_telegram_image(message: str, image_path: str):
 
 
 def new_signal_message(signal: dict):
-    desk = signal.get("desk") or "AI Strategy Engine"
+    strategy = signal.get("strategy", "Strategy A")
+    pattern = signal.get("pattern") or "standard_setup"
 
     return f"""
 🚀 *EASY PIPS VIP SIGNAL*
@@ -160,7 +154,8 @@ def new_signal_message(signal: dict):
 
 📊 *Pair:* {signal.get("symbol")}
 📈 *Direction:* {signal.get("direction")}
-🧠 *Source:* {desk}
+🧠 *Strategy:* {strategy}
+📌 *Pattern:* {pattern}
 
 ━━━━━━━━━━━━━━━
 
@@ -173,7 +168,6 @@ def new_signal_message(signal: dict):
 
 ━━━━━━━━━━━━━━━
 
-📌 Status: *ACTIVE*
 📊 Confidence: *{signal.get("confidence", "N/A")}%*
 ⚠️ Demo version. Not financial advice.
 """
@@ -181,15 +175,12 @@ def new_signal_message(signal: dict):
 
 def result_message(signal: dict, result: str):
     emoji = "✅"
-
     if result == "TP2":
         emoji = "🚀"
     elif result == "TP3":
         emoji = "🔥"
     elif result == "SL":
         emoji = "❌"
-
-    status = "CLOSED" if result in ["TP3", "SL"] else "ACTIVE"
 
     return f"""
 {emoji} *EASY PIPS SIGNAL UPDATE*
@@ -198,6 +189,7 @@ def result_message(signal: dict, result: str):
 
 📊 *Pair:* {signal.get("symbol")}
 📈 *Direction:* {signal.get("direction")}
+🧠 *Strategy:* {signal.get("strategy", "Strategy A")}
 🎯 *Result:* {result}
 
 ━━━━━━━━━━━━━━━
@@ -211,66 +203,7 @@ TP3: `{signal.get("tp3")}`
 
 ━━━━━━━━━━━━━━━
 
-📌 Status: *{status}*
-"""
-
-
-def daily_report_message(stats: dict):
-    return f"""
-📊 *EASY PIPS DAILY REPORT*
-
-━━━━━━━━━━━━━━━
-
-📌 *Signals Today:* {stats.get("todaySignals", 0)}
-📆 *Last 7 Days:* {stats.get("last7DaysSignals", 0)}
-📈 *Total Signals:* {stats.get("totalSignals", 0)}
-
-━━━━━━━━━━━━━━━
-
-✅ *TP1 Hits:* {stats.get("tp1Hits", 0)}
-🚀 *TP2 Hits:* {stats.get("tp2Hits", 0)}
-🔥 *TP3 Hits:* {stats.get("tp3Hits", 0)}
-❌ *SL Hits:* {stats.get("slHits", 0)}
-
-━━━━━━━━━━━━━━━
-
-📊 *Running:* {stats.get("runningSignals", 0)}
-📁 *Closed:* {stats.get("closedSignals", 0)}
-🏆 *Win Rate:* {stats.get("winRate", 0)}%
-
-━━━━━━━━━━━━━━━
-
-⚠️ Demo version. Not financial advice.
-"""
-
-
-def weekly_report_message(stats: dict):
-    return f"""
-📊 *EASY PIPS WEEKLY PERFORMANCE*
-
-━━━━━━━━━━━━━━━
-
-📈 *Total Signals:* {stats.get("totalSignals", 0)}
-📁 *Closed Trades:* {stats.get("closedTrades", 0)}
-📊 *Running Trades:* {stats.get("runningTrades", 0)}
-
-━━━━━━━━━━━━━━━
-
-🏆 *Wins TP3:* {stats.get("wins", 0)}
-❌ *Losses SL:* {stats.get("losses", 0)}
-
-━━━━━━━━━━━━━━━
-
-✅ *TP1 Hits:* {stats.get("tp1Hits", 0)}
-🚀 *TP2 Hits:* {stats.get("tp2Hits", 0)}
-🔥 *TP3 Hits:* {stats.get("tp3Hits", 0)}
-🛑 *SL Hits:* {stats.get("slHits", 0)}
-
-━━━━━━━━━━━━━━━
-
-🏆 *Win Rate:* {stats.get("winRate", 0)}%
-
-⚠️ Demo version. Not financial advice.
+📌 Status: *{signal.get("status", "ACTIVE")}*
 """
 
 
@@ -319,19 +252,12 @@ def target_distance(symbol: str) -> float:
 
 def get_live_price(yahoo_symbol: str):
     try:
-        ticker = yf.Ticker(yahoo_symbol)
-        data = ticker.history(period="2d", interval="15m")
-
+        data = yf.Ticker(yahoo_symbol).history(period="2d", interval="15m")
         if data.empty:
             return None, None
 
         current_price = float(data["Close"].iloc[-1])
-        previous_price = (
-            float(data["Close"].iloc[-5])
-            if len(data) >= 5
-            else float(data["Close"].iloc[0])
-        )
-
+        previous_price = float(data["Close"].iloc[-5]) if len(data) >= 5 else float(data["Close"].iloc[0])
         return current_price, previous_price
     except Exception:
         return None, None
@@ -341,89 +267,314 @@ def calculate_rsi(series, period=14):
     delta = series.diff()
     gain = delta.clip(lower=0)
     loss = -delta.clip(upper=0)
-
     avg_gain = gain.rolling(period).mean()
     avg_loss = loss.rolling(period).mean()
-
     rs = avg_gain / avg_loss
-    rsi = 100 - (100 / (1 + rs))
-
-    return rsi
+    return 100 - (100 / (1 + rs))
 
 
-def analyze_market(symbol: str, yahoo_symbol: str):
+def calculate_atr(data, period=14):
+    high_low = data["High"] - data["Low"]
+    high_close = (data["High"] - data["Close"].shift()).abs()
+    low_close = (data["Low"] - data["Close"].shift()).abs()
+    tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+    return tr.rolling(period).mean()
+
+
+def analyze_strategy_a(symbol: str, yahoo_symbol: str):
     try:
-        ticker = yf.Ticker(yahoo_symbol)
-        data = ticker.history(period="5d", interval="15m")
-
+        data = yf.Ticker(yahoo_symbol).history(period="5d", interval="15m")
         if data.empty or len(data) < 80:
             return None
 
         close = data["Close"]
-
         ema20 = close.ewm(span=20, adjust=False).mean()
         ema50 = close.ewm(span=50, adjust=False).mean()
         rsi = calculate_rsi(close)
 
-        current_price = float(close.iloc[-1])
-        previous_price = float(close.iloc[-5])
-
-        current_ema20 = float(ema20.iloc[-1])
-        current_ema50 = float(ema50.iloc[-1])
+        price = float(close.iloc[-1])
+        previous = float(close.iloc[-5])
+        e20 = float(ema20.iloc[-1])
+        e50 = float(ema50.iloc[-1])
         current_rsi = float(rsi.iloc[-1])
+        momentum = price - previous
 
-        momentum = current_price - previous_price
-
-        if (
-            current_price > current_ema50
-            and current_ema20 > current_ema50
-            and 52 <= current_rsi <= 70
-            and momentum > 0
-        ):
+        if price > e50 and e20 > e50 and 52 <= current_rsi <= 70 and momentum > 0:
             return {
+                "strategy": "Strategy A",
+                "pattern": "ema_rsi_momentum_buy",
                 "direction": "BUY",
-                "price": current_price,
+                "price": price,
                 "confidence": min(95, int(80 + (current_rsi - 50))),
-                "rsi": round(current_rsi, 2),
+                "note": f"EMA20 above EMA50, RSI {round(current_rsi, 2)}, bullish momentum.",
             }
 
-        if (
-            current_price < current_ema50
-            and current_ema20 < current_ema50
-            and 30 <= current_rsi <= 48
-            and momentum < 0
-        ):
+        if price < e50 and e20 < e50 and 30 <= current_rsi <= 48 and momentum < 0:
             return {
+                "strategy": "Strategy A",
+                "pattern": "ema_rsi_momentum_sell",
                 "direction": "SELL",
-                "price": current_price,
+                "price": price,
                 "confidence": min(95, int(80 + (50 - current_rsi))),
-                "rsi": round(current_rsi, 2),
+                "note": f"EMA20 below EMA50, RSI {round(current_rsi, 2)}, bearish momentum.",
             }
 
         return None
-
     except Exception as e:
-        print("Strategy error:", e)
+        print("Strategy A error:", e)
         return None
 
 
-def build_ai_signal(symbol: str, price: float, direction: str, confidence: int, rsi=None):
-    distance = target_distance(symbol)
+def detect_swings(data, lookback=3):
+    swings = []
+
+    for i in range(lookback, len(data) - lookback):
+        window = data.iloc[i - lookback : i + lookback + 1]
+        candle = data.iloc[i]
+
+        if candle["High"] == window["High"].max():
+            swings.append({"index": i, "type": "high", "price": float(candle["High"])})
+
+        if candle["Low"] == window["Low"].min():
+            swings.append({"index": i, "type": "low", "price": float(candle["Low"])})
+
+    return sorted(swings, key=lambda x: x["index"])
+
+
+def latest_swing_range(swings):
+    latest_low = None
+    latest_high = None
+
+    for swing in reversed(swings):
+        if swing["type"] == "low" and latest_low is None:
+            latest_low = swing
+        elif swing["type"] == "high" and latest_high is None:
+            latest_high = swing
+
+        if latest_low and latest_high:
+            return latest_low, latest_high
+
+    return None, None
+
+
+def fib_levels(low: float, high: float, direction: str):
+    move = high - low
+    if move <= 0:
+        return {}
+
+    retracements = {
+        "0.236": 0.236,
+        "0.382": 0.382,
+        "0.500": 0.500,
+        "0.618": 0.618,
+        "0.786": 0.786,
+    }
+
+    extensions = {
+        "1.000": 1.000,
+        "1.272": 1.272,
+        "1.618": 1.618,
+    }
+
+    levels = {}
 
     if direction == "BUY":
-        sl = price - distance
-        tp1 = price + distance
-        tp2 = price + distance * 2
-        tp3 = price + distance * 3
+        for name, value in retracements.items():
+            levels[name] = high - move * value
+        for name, value in extensions.items():
+            levels[f"ext_{name}"] = low + move * value
+
+    if direction == "SELL":
+        for name, value in retracements.items():
+            levels[name] = low + move * value
+        for name, value in extensions.items():
+            levels[f"ext_{name}"] = high - move * value
+
+    return levels
+
+
+def nearest_fib_match(price: float, levels: dict, atr: float):
+    tolerance = max(atr * 0.35, price * 0.0003)
+    best_name = None
+    best_price = None
+    best_distance = math.inf
+
+    for name, level_price in levels.items():
+        if name.startswith("ext_"):
+            continue
+
+        distance = abs(price - level_price)
+        if distance <= tolerance and distance < best_distance:
+            best_name = name
+            best_price = level_price
+            best_distance = distance
+
+    return best_name, best_price, best_distance, tolerance
+
+
+def bullish_confirmation(data):
+    last = data.iloc[-1]
+    prev = data.iloc[-2]
+    bullish_close = last["Close"] > last["Open"]
+    bullish_engulf = last["Close"] > prev["Open"] and last["Open"] < prev["Close"]
+    close_above_mid = last["Close"] > (last["High"] + last["Low"]) / 2
+    return bool(bullish_close and (bullish_engulf or close_above_mid))
+
+
+def bearish_confirmation(data):
+    last = data.iloc[-1]
+    prev = data.iloc[-2]
+    bearish_close = last["Close"] < last["Open"]
+    bearish_engulf = last["Close"] < prev["Open"] and last["Open"] > prev["Close"]
+    close_below_mid = last["Close"] < (last["High"] + last["Low"]) / 2
+    return bool(bearish_close and (bearish_engulf or close_below_mid))
+
+
+def risk_reward(entry: float, stop: float, target: float, direction: str):
+    if direction == "BUY":
+        risk = entry - stop
+        reward = target - entry
     else:
-        sl = price + distance
-        tp1 = price - distance
-        tp2 = price - distance * 2
-        tp3 = price - distance * 3
+        risk = stop - entry
+        reward = entry - target
+
+    if risk <= 0:
+        return 0.0
+
+    return reward / risk
+
+
+def analyze_strategy_b(symbol: str, yahoo_symbol: str):
+    try:
+        data = yf.Ticker(yahoo_symbol).history(period="15d", interval="15m")
+        if data.empty or len(data) < 250:
+            return None
+
+        data = data.dropna().copy()
+        data["ema50"] = data["Close"].ewm(span=50, adjust=False).mean()
+        data["ema200"] = data["Close"].ewm(span=200, adjust=False).mean()
+        data["atr"] = calculate_atr(data)
+
+        latest = data.iloc[-1]
+        price = float(latest["Close"])
+        atr = float(latest["atr"])
+
+        if not atr or math.isnan(atr):
+            return None
+
+        trend = "sideways"
+        if price > float(latest["ema50"]) > float(latest["ema200"]):
+            trend = "bullish"
+        elif price < float(latest["ema50"]) < float(latest["ema200"]):
+            trend = "bearish"
+
+        swings = detect_swings(data)
+        swing_low, swing_high = latest_swing_range(swings)
+
+        if not swing_low or not swing_high:
+            return None
+
+        low = float(swing_low["price"])
+        high = float(swing_high["price"])
+
+        if trend == "bullish" and swing_low["index"] < swing_high["index"]:
+            levels = fib_levels(low, high, "BUY")
+            fib_name, fib_price, distance, tolerance = nearest_fib_match(price, levels, atr)
+
+            if fib_name and bullish_confirmation(data):
+                stop = min(low, price - atr * 1.2)
+                tp1 = levels.get("ext_1.000", high)
+                tp2 = levels.get("ext_1.272", high + (high - low) * 0.272)
+                tp3 = levels.get("ext_1.618", high + (high - low) * 0.618)
+                rr = risk_reward(price, stop, tp1, "BUY")
+
+                if rr >= 1.2:
+                    confidence = 82
+                    if fib_name in ["0.500", "0.618"]:
+                        confidence += 10
+                    confidence += min(8, int(rr * 2))
+
+                    return {
+                        "strategy": "Strategy B",
+                        "pattern": "bullish_fib_pullback",
+                        "direction": "BUY",
+                        "price": price,
+                        "sl": stop,
+                        "tp1": tp1,
+                        "tp2": tp2,
+                        "tp3": tp3,
+                        "confidence": min(98, confidence),
+                        "note": f"Bullish Fibonacci pullback confirmed at Fib {fib_name}. RR {round(rr, 2)}.",
+                    }
+
+        if trend == "bearish" and swing_high["index"] < swing_low["index"]:
+            levels = fib_levels(low, high, "SELL")
+            fib_name, fib_price, distance, tolerance = nearest_fib_match(price, levels, atr)
+
+            if fib_name and bearish_confirmation(data):
+                stop = max(high, price + atr * 1.2)
+                tp1 = levels.get("ext_1.000", low)
+                tp2 = levels.get("ext_1.272", low - (high - low) * 0.272)
+                tp3 = levels.get("ext_1.618", low - (high - low) * 0.618)
+                rr = risk_reward(price, stop, tp1, "SELL")
+
+                if rr >= 1.2:
+                    confidence = 82
+                    if fib_name in ["0.500", "0.618"]:
+                        confidence += 10
+                    confidence += min(8, int(rr * 2))
+
+                    return {
+                        "strategy": "Strategy B",
+                        "pattern": "bearish_fib_pullback",
+                        "direction": "SELL",
+                        "price": price,
+                        "sl": stop,
+                        "tp1": tp1,
+                        "tp2": tp2,
+                        "tp3": tp3,
+                        "confidence": min(98, confidence),
+                        "note": f"Bearish Fibonacci pullback confirmed at Fib {fib_name}. RR {round(rr, 2)}.",
+                    }
+
+        return None
+    except Exception as e:
+        print("Strategy B error:", e)
+        return None
+
+
+def build_ai_signal(symbol: str, analysis: dict):
+    price = analysis["price"]
+    direction = analysis["direction"]
+    strategy = analysis["strategy"]
+    pattern = analysis.get("pattern")
+    confidence = analysis.get("confidence", 80)
+
+    if strategy == "Strategy B" and all(k in analysis for k in ["sl", "tp1", "tp2", "tp3"]):
+        sl = analysis["sl"]
+        tp1 = analysis["tp1"]
+        tp2 = analysis["tp2"]
+        tp3 = analysis["tp3"]
+    else:
+        distance = target_distance(symbol)
+
+        if direction == "BUY":
+            sl = price - distance
+            tp1 = price + distance
+            tp2 = price + distance * 2
+            tp3 = price + distance * 3
+        else:
+            sl = price + distance
+            tp1 = price - distance
+            tp2 = price - distance * 2
+            tp3 = price - distance * 3
 
     return {
         "source": "AI Engine",
         "desk": None,
+        "strategy": strategy,
+        "pattern": pattern,
+        "timeframe": "15m",
         "symbol": symbol,
         "direction": direction,
         "entry": format_price(symbol, price),
@@ -433,7 +584,7 @@ def build_ai_signal(symbol: str, price: float, direction: str, confidence: int, 
         "tp3": format_price(symbol, tp3),
         "confidence": confidence,
         "analyst": "AI Strategy Engine",
-        "note": f"EMA20 + EMA50 + RSI + momentum confirmed signal. RSI: {rsi}",
+        "note": analysis.get("note", ""),
         "status": "ACTIVE",
         "result": "RUNNING",
         "hit_tp1": False,
@@ -453,11 +604,10 @@ def get_all_signals():
         .order("created_at", desc=True)
         .execute()
     )
-
     return response.data or []
 
 
-def get_active_signals(source=None, desk=None):
+def get_active_signals(source=None, desk=None, strategy=None):
     if not db_enabled():
         return []
 
@@ -469,14 +619,20 @@ def get_active_signals(source=None, desk=None):
     if desk:
         query = query.eq("desk", desk)
 
+    if strategy:
+        query = query.eq("strategy", strategy)
+
     response = query.order("created_at", desc=True).execute()
     return response.data or []
 
 
+def active_strategy_signal_exists(symbol: str, strategy: str):
+    active = get_active_signals(source="AI Engine", strategy=strategy)
+    return any(s.get("symbol") == symbol for s in active)
+
+
 def send_new_signal_with_chart(saved: dict):
-    symbol = saved.get("symbol")
-    yahoo_symbol = SYMBOLS.get(symbol)
-    chart = create_chart(symbol, yahoo_symbol)
+    chart = create_chart(saved.get("symbol"), SYMBOLS.get(saved.get("symbol")))
 
     if chart:
         send_telegram_image(new_signal_message(saved), chart)
@@ -498,42 +654,46 @@ def insert_signal(signal: dict):
     return signal
 
 
-def ai_signal_exists(symbol: str):
-    active_ai = get_active_signals(source="AI Engine")
-    return any(signal.get("symbol") == symbol for signal in active_ai)
-
-
-def generate_missing_ai_signals():
-    active_ai = get_active_signals(source="AI Engine")
-
-    if len(active_ai) >= MAX_AI_SIGNALS:
-        return active_ai[:MAX_AI_SIGNALS]
+def generate_strategy_a_signals():
+    created = 0
 
     for symbol, yahoo_symbol in SYMBOLS.items():
-        active_ai = get_active_signals(source="AI Engine")
-
-        if len(active_ai) >= MAX_AI_SIGNALS:
-            break
-
-        if ai_signal_exists(symbol):
+        if active_strategy_signal_exists(symbol, "Strategy A"):
             continue
 
-        analysis = analyze_market(symbol, yahoo_symbol)
+        active_a = get_active_signals(source="AI Engine", strategy="Strategy A")
+        if len(active_a) >= MAX_AI_SIGNALS_PER_STRATEGY:
+            break
 
+        analysis = analyze_strategy_a(symbol, yahoo_symbol)
         if not analysis:
             continue
 
-        signal = build_ai_signal(
-            symbol=symbol,
-            price=analysis["price"],
-            direction=analysis["direction"],
-            confidence=analysis["confidence"],
-            rsi=analysis["rsi"],
-        )
+        insert_signal(build_ai_signal(symbol, analysis))
+        created += 1
 
-        insert_signal(signal)
+    return created
 
-    return get_active_signals(source="AI Engine")[:MAX_AI_SIGNALS]
+
+def generate_strategy_b_signals():
+    created = 0
+
+    for symbol, yahoo_symbol in SYMBOLS.items():
+        if active_strategy_signal_exists(symbol, "Strategy B"):
+            continue
+
+        active_b = get_active_signals(source="AI Engine", strategy="Strategy B")
+        if len(active_b) >= MAX_AI_SIGNALS_PER_STRATEGY:
+            break
+
+        analysis = analyze_strategy_b(symbol, yahoo_symbol)
+        if not analysis:
+            continue
+
+        insert_signal(build_ai_signal(symbol, analysis))
+        created += 1
+
+    return created
 
 
 def safe_float(value):
@@ -585,48 +745,43 @@ def update_all_running_results():
 
         updates = {}
 
-        hit_tp1 = bool(signal.get("hit_tp1"))
-        hit_tp2 = bool(signal.get("hit_tp2"))
-        hit_tp3 = bool(signal.get("hit_tp3"))
-        hit_sl = bool(signal.get("hit_sl"))
-
         if direction == "BUY":
-            if price >= tp1 and not hit_tp1:
+            if price >= tp1 and not signal.get("hit_tp1"):
                 updates["hit_tp1"] = True
                 updates["result"] = "TP1"
 
-            if price >= tp2 and not hit_tp2:
+            if price >= tp2 and not signal.get("hit_tp2"):
                 updates["hit_tp2"] = True
                 updates["result"] = "TP2"
 
-            if price >= tp3 and not hit_tp3:
+            if price >= tp3 and not signal.get("hit_tp3"):
                 updates["hit_tp3"] = True
                 updates["result"] = "TP3"
                 updates["status"] = "CLOSED"
                 updates["closed_at"] = datetime.now(timezone.utc).isoformat()
 
-            if price <= sl and not hit_sl:
+            if price <= sl and not signal.get("hit_sl"):
                 updates["hit_sl"] = True
                 updates["result"] = "SL"
                 updates["status"] = "CLOSED"
                 updates["closed_at"] = datetime.now(timezone.utc).isoformat()
 
         elif direction == "SELL":
-            if price <= tp1 and not hit_tp1:
+            if price <= tp1 and not signal.get("hit_tp1"):
                 updates["hit_tp1"] = True
                 updates["result"] = "TP1"
 
-            if price <= tp2 and not hit_tp2:
+            if price <= tp2 and not signal.get("hit_tp2"):
                 updates["hit_tp2"] = True
                 updates["result"] = "TP2"
 
-            if price <= tp3 and not hit_tp3:
+            if price <= tp3 and not signal.get("hit_tp3"):
                 updates["hit_tp3"] = True
                 updates["result"] = "TP3"
                 updates["status"] = "CLOSED"
                 updates["closed_at"] = datetime.now(timezone.utc).isoformat()
 
-            if price >= sl and not hit_sl:
+            if price >= sl and not signal.get("hit_sl"):
                 updates["hit_sl"] = True
                 updates["result"] = "SL"
                 updates["status"] = "CLOSED"
@@ -651,100 +806,18 @@ def update_all_running_results():
 
 
 def parse_datetime(value: str):
+    if not value:
+        return datetime.now(timezone.utc)
+
     if value.endswith("Z"):
         value = value.replace("Z", "+00:00")
+
     return datetime.fromisoformat(value)
 
 
-def build_signal_stats():
-    if not db_enabled():
-        return {"error": "Database not connected"}
-
-    update_all_running_results()
-
+def performance_for_strategy(strategy_name: str, days: int = 7):
     now = datetime.now(timezone.utc)
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    week_start = now - timedelta(days=7)
-
-    signals = get_all_signals()
-
-    today_count = 0
-    week_count = 0
-    ai_count = 0
-    desk1_count = 0
-    desk2_count = 0
-    running_count = 0
-    closed_count = 0
-    tp1_count = 0
-    tp2_count = 0
-    tp3_count = 0
-    sl_count = 0
-
-    for signal in signals:
-        created_at = parse_datetime(signal["created_at"])
-
-        if created_at >= today_start:
-            today_count += 1
-
-        if created_at >= week_start:
-            week_count += 1
-
-        if signal.get("source") == "AI Engine":
-            ai_count += 1
-
-        if signal.get("desk") == "Desk 1":
-            desk1_count += 1
-
-        if signal.get("desk") == "Desk 2":
-            desk2_count += 1
-
-        if signal.get("status") == "ACTIVE":
-            running_count += 1
-
-        if signal.get("status") == "CLOSED":
-            closed_count += 1
-
-        if signal.get("hit_tp1"):
-            tp1_count += 1
-
-        if signal.get("hit_tp2"):
-            tp2_count += 1
-
-        if signal.get("hit_tp3"):
-            tp3_count += 1
-
-        if signal.get("hit_sl"):
-            sl_count += 1
-
-    finished = tp1_count + sl_count
-    win_rate = round((tp1_count / finished) * 100, 2) if finished > 0 else 0
-
-    return {
-        "todaySignals": today_count,
-        "last7DaysSignals": week_count,
-        "totalSignals": len(signals),
-        "aiSignals": ai_count,
-        "desk1Signals": desk1_count,
-        "desk2Signals": desk2_count,
-        "runningSignals": running_count,
-        "closedSignals": closed_count,
-        "tp1Hits": tp1_count,
-        "tp2Hits": tp2_count,
-        "tp3Hits": tp3_count,
-        "slHits": sl_count,
-        "winRate": win_rate,
-    }
-
-
-def build_weekly_performance():
-    if not db_enabled():
-        return {"error": "Database not connected"}
-
-    update_all_running_results()
-
-    now = datetime.now(timezone.utc)
-    week_start = now - timedelta(days=7)
-
+    start = now - timedelta(days=days)
     signals = get_all_signals()
 
     total = 0
@@ -757,9 +830,11 @@ def build_weekly_performance():
     sl = 0
 
     for signal in signals:
-        created_at = parse_datetime(signal["created_at"])
+        if signal.get("strategy", "Strategy A") != strategy_name:
+            continue
 
-        if created_at < week_start:
+        created_at = parse_datetime(signal.get("created_at"))
+        if created_at < start:
             continue
 
         total += 1
@@ -802,47 +877,20 @@ def build_weekly_performance():
     }
 
 
-def check_system_health():
-    global LAST_HEALTH_ALERT_TIME
+def build_signal_stats():
+    update_all_running_results()
 
-    if not db_enabled():
-        send_telegram("🚨 *SYSTEM ALERT*\n\nDatabase is not connected.")
-        return
+    all_signals = get_all_signals()
+    active = [s for s in all_signals if s.get("status") == "ACTIVE"]
+    closed = [s for s in all_signals if s.get("status") == "CLOSED"]
 
-    signals = get_all_signals()
-
-    if not signals:
-        send_telegram("⚠️ *SYSTEM WARNING*\n\nNo signals found in database.")
-        return
-
-    last_signal_time = signals[0].get("created_at")
-
-    if not last_signal_time:
-        return
-
-    last_dt = parse_datetime(last_signal_time)
-    now = datetime.now(timezone.utc)
-    minutes_diff = (now - last_dt).total_seconds() / 60
-
-    if minutes_diff < HEALTH_ALERT_MINUTES:
-        return
-
-    if LAST_HEALTH_ALERT_TIME:
-        minutes_since_last_alert = (now - LAST_HEALTH_ALERT_TIME).total_seconds() / 60
-        if minutes_since_last_alert < HEALTH_ALERT_MINUTES:
-            return
-
-    LAST_HEALTH_ALERT_TIME = now
-
-    send_telegram(f"""
-⚠️ *EASY PIPS SYSTEM ALERT*
-
-No new signal has been created for *{int(minutes_diff)} minutes*.
-
-This may be normal if the strategy filter is strict, but please check system status.
-
-Endpoint: `/system-status`
-""")
+    return {
+        "totalSignals": len(all_signals),
+        "runningSignals": len(active),
+        "closedSignals": len(closed),
+        "strategyA": performance_for_strategy("Strategy A", 7),
+        "strategyB": performance_for_strategy("Strategy B", 7),
+    }
 
 
 @app.get("/")
@@ -852,7 +900,7 @@ def root():
         "status": "running",
         "database": "connected" if db_enabled() else "not connected",
         "telegram": "enabled" if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID else "disabled",
-        "strategy": "EMA20 + EMA50 + RSI + Momentum",
+        "strategies": ["Strategy A - EMA RSI Momentum", "Strategy B - Fibonacci Pattern"],
     }
 
 
@@ -866,112 +914,34 @@ def health():
 
 @app.get("/system-status")
 def system_status():
-    if not db_enabled():
-        return {
-            "status": "error",
-            "database": "not connected",
-            "telegram": "connected" if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID else "not connected",
-            "serverTimeUTC": datetime.now(timezone.utc).isoformat(),
-        }
-
     signals = get_all_signals()
-    active = [s for s in signals if s.get("status") == "ACTIVE"]
-    closed = [s for s in signals if s.get("status") == "CLOSED"]
-    ai = [s for s in signals if s.get("source") == "AI Engine"]
-    desk1 = [s for s in signals if s.get("desk") == "Desk 1"]
-    desk2 = [s for s in signals if s.get("desk") == "Desk 2"]
 
     return {
         "status": "running",
-        "database": "connected",
+        "database": "connected" if db_enabled() else "not connected",
         "telegram": "connected" if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID else "not connected",
-        "strategy": "EMA20 + EMA50 + RSI + Momentum",
         "totalSignals": len(signals),
-        "activeSignals": len(active),
-        "closedSignals": len(closed),
-        "aiSignals": len(ai),
-        "desk1Signals": len(desk1),
-        "desk2Signals": len(desk2),
+        "activeSignals": len([s for s in signals if s.get("status") == "ACTIVE"]),
+        "closedSignals": len([s for s in signals if s.get("status") == "CLOSED"]),
+        "strategyAActive": len(get_active_signals(source="AI Engine", strategy="Strategy A")),
+        "strategyBActive": len(get_active_signals(source="AI Engine", strategy="Strategy B")),
         "lastSignalTime": signals[0].get("created_at") if signals else None,
-        "healthAlertMinutes": HEALTH_ALERT_MINUTES,
         "serverTimeUTC": datetime.now(timezone.utc).isoformat(),
-    }
-
-
-@app.get("/telegram-test")
-def telegram_test():
-    send_telegram("🚀 *EasyPips Telegram connected successfully!*")
-    return {"status": "ok", "message": "Telegram test sent"}
-
-
-@app.get("/chart-test")
-def chart_test():
-    test_signal = {
-        "source": "AI Engine",
-        "desk": None,
-        "symbol": "EUR/USD",
-        "direction": "BUY",
-        "entry": "1.10000",
-        "sl": "1.09000",
-        "tp1": "1.11000",
-        "tp2": "1.12000",
-        "tp3": "1.13000",
-        "status": "ACTIVE",
-        "result": "RUNNING",
-        "confidence": 88,
-    }
-
-    send_new_signal_with_chart(test_signal)
-    return {"status": "ok", "message": "Chart test sent"}
-
-
-@app.get("/daily-report")
-def daily_report():
-    stats = build_signal_stats()
-
-    if stats.get("error"):
-        return stats
-
-    send_telegram(daily_report_message(stats))
-
-    return {
-        "status": "ok",
-        "message": "Daily report sent",
-        "stats": stats,
-    }
-
-
-@app.get("/weekly-performance")
-def weekly_performance():
-    return build_weekly_performance()
-
-
-@app.get("/weekly-report")
-def weekly_report():
-    stats = build_weekly_performance()
-
-    if stats.get("error"):
-        return stats
-
-    send_telegram(weekly_report_message(stats))
-
-    return {
-        "status": "ok",
-        "message": "Weekly report sent",
-        "stats": stats,
     }
 
 
 @app.get("/cron-check")
 def cron_check():
-    generate_missing_ai_signals()
-    updated = update_all_running_results()
-    check_system_health()
+    a_created = generate_strategy_a_signals()
+    b_created = generate_strategy_b_signals()
+    checked = update_all_running_results()
 
     return {
         "status": "ok",
-        "checkedSignals": len(updated),
-        "message": "AI strategy checked, TP/SL checked, health checked",
+        "strategyA_newSignals": a_created,
+        "strategyB_newSignals": b_created,
+        "checkedSignals": len(checked),
+        "message": "Both strategies checked and TP/SL updated",
     }
 
 
@@ -993,6 +963,34 @@ def admin_me(authorization: str = Header(default="")):
     return {"success": True, "admin": payload.get("sub")}
 
 
+@app.get("/telegram-test")
+def telegram_test():
+    send_telegram("🚀 *EasyPips Telegram connected successfully!*")
+    return {"status": "ok", "message": "Telegram test sent"}
+
+
+@app.get("/chart-test")
+def chart_test():
+    test_signal = {
+        "source": "AI Engine",
+        "strategy": "Strategy B",
+        "pattern": "bullish_fib_pullback",
+        "symbol": "EUR/USD",
+        "direction": "BUY",
+        "entry": "1.10000",
+        "sl": "1.09000",
+        "tp1": "1.11000",
+        "tp2": "1.12000",
+        "tp3": "1.13000",
+        "status": "ACTIVE",
+        "result": "RUNNING",
+        "confidence": 88,
+    }
+
+    send_new_signal_with_chart(test_signal)
+    return {"status": "ok", "message": "Chart test sent"}
+
+
 @app.get("/live-prices")
 def live_prices():
     prices = {}
@@ -1009,33 +1007,48 @@ def signal_stats():
     return build_signal_stats()
 
 
-@app.post("/update-results")
-def update_results(authorization: str = Header(default="")):
-    verify_admin_token(authorization)
-    updated = update_all_running_results()
-    return {"success": True, "checkedSignals": len(updated)}
-
-
-@app.get("/pro-signals")
-def pro_signals():
-    return {"aiSignals": generate_missing_ai_signals()}
-
-
-@app.get("/human-signals")
-def human_signals():
+@app.get("/weekly-performance")
+def weekly_performance():
+    update_all_running_results()
     return {
-        "desk1Signals": get_active_signals(source="Human Desk", desk="Desk 1"),
-        "desk2Signals": get_active_signals(source="Human Desk", desk="Desk 2"),
+        "Strategy A": performance_for_strategy("Strategy A", 7),
+        "Strategy B": performance_for_strategy("Strategy B", 7),
+    }
+
+
+@app.get("/strategy-performance")
+def strategy_performance():
+    update_all_running_results()
+    return {
+        "Strategy A": performance_for_strategy("Strategy A", 7),
+        "Strategy B": performance_for_strategy("Strategy B", 7),
+    }
+
+
+@app.get("/strategy-a-signals")
+def strategy_a_signals():
+    return {
+        "strategy": "Strategy A",
+        "signals": get_active_signals(source="AI Engine", strategy="Strategy A"),
+    }
+
+
+@app.get("/strategy-b-signals")
+def strategy_b_signals():
+    return {
+        "strategy": "Strategy B",
+        "signals": get_active_signals(source="AI Engine", strategy="Strategy B"),
     }
 
 
 @app.get("/all-paid-signals")
 def all_paid_signals():
-    generate_missing_ai_signals()
     update_all_running_results()
 
     return {
         "aiSignals": get_active_signals(source="AI Engine"),
+        "strategyASignals": get_active_signals(source="AI Engine", strategy="Strategy A"),
+        "strategyBSignals": get_active_signals(source="AI Engine", strategy="Strategy B"),
         "desk1Signals": get_active_signals(source="Human Desk", desk="Desk 1"),
         "desk2Signals": get_active_signals(source="Human Desk", desk="Desk 2"),
     }
@@ -1059,16 +1072,23 @@ def closed_signals():
     return {"closedSignals": response.data or []}
 
 
+@app.post("/update-results")
+def update_results(authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+    updated = update_all_running_results()
+    return {"success": True, "checkedSignals": len(updated)}
+
+
 @app.post("/desk1/signals")
-def create_desk1_signal(
-    signal: ManualSignal,
-    authorization: str = Header(default=""),
-):
+def create_desk1_signal(signal: ManualSignal, authorization: str = Header(default="")):
     verify_admin_token(authorization)
 
     new_signal = {
         "source": "Human Desk",
         "desk": "Desk 1",
+        "strategy": "Manual Desk",
+        "pattern": "manual_signal",
+        "timeframe": "manual",
         "symbol": signal.symbol,
         "direction": signal.direction.upper(),
         "entry": str(signal.entry),
@@ -1092,15 +1112,15 @@ def create_desk1_signal(
 
 
 @app.post("/desk2/signals")
-def create_desk2_signal(
-    signal: ManualSignal,
-    authorization: str = Header(default=""),
-):
+def create_desk2_signal(signal: ManualSignal, authorization: str = Header(default="")):
     verify_admin_token(authorization)
 
     new_signal = {
         "source": "Human Desk",
         "desk": "Desk 2",
+        "strategy": "Manual Desk",
+        "pattern": "manual_signal",
+        "timeframe": "manual",
         "symbol": signal.symbol,
         "direction": signal.direction.upper(),
         "entry": str(signal.entry),
@@ -1124,10 +1144,7 @@ def create_desk2_signal(
 
 
 @app.delete("/signals/{signal_id}")
-def delete_signal(
-    signal_id: str,
-    authorization: str = Header(default=""),
-):
+def delete_signal(signal_id: str, authorization: str = Header(default="")):
     verify_admin_token(authorization)
 
     if not db_enabled():
