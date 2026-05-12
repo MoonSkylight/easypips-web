@@ -850,7 +850,46 @@ def safe_float(value):
         return None
 
 
+
+def get_price_range_since_signal(yahoo_symbol: str, created_at: str):
+    """
+    Checks candle High/Low after the signal was created.
+    This is more accurate than checking only the latest live price,
+    because TP/SL may have been touched between cron checks.
+    """
+    try:
+        data = yf.Ticker(yahoo_symbol).history(period="7d", interval="15m")
+
+        if data.empty:
+            return None, None
+
+        if created_at:
+            signal_time = parse_datetime(created_at)
+
+            # yfinance index is usually timezone-aware. Align safely.
+            if data.index.tz is None:
+                signal_time = signal_time.replace(tzinfo=None)
+
+            data = data[data.index >= signal_time]
+
+        if data.empty:
+            return None, None
+
+        highest = float(data["High"].max())
+        lowest = float(data["Low"].min())
+
+        return highest, lowest
+
+    except Exception as e:
+        print("Range check error:", e)
+        return None, None
+
+
 def update_all_running_results():
+    """
+    Updates TP/SL results using candle High/Low since signal creation.
+    This prevents missed TP/SL hits when price touches target between cron checks.
+    """
     if not db_enabled():
         return []
 
@@ -873,9 +912,12 @@ def update_all_running_results():
             updated_signals.append(signal)
             continue
 
-        price, _ = get_live_price(yahoo_symbol)
+        highest, lowest = get_price_range_since_signal(
+            yahoo_symbol,
+            signal.get("created_at")
+        )
 
-        if price is None:
+        if highest is None or lowest is None:
             updated_signals.append(signal)
             continue
 
@@ -893,42 +935,42 @@ def update_all_running_results():
         updates = {}
 
         if direction == "BUY":
-            if price >= tp1 and not signal.get("hit_tp1"):
+            if highest >= tp1 and not signal.get("hit_tp1"):
                 updates["hit_tp1"] = True
                 updates["result"] = "TP1"
 
-            if price >= tp2 and not signal.get("hit_tp2"):
+            if highest >= tp2 and not signal.get("hit_tp2"):
                 updates["hit_tp2"] = True
                 updates["result"] = "TP2"
 
-            if price >= tp3 and not signal.get("hit_tp3"):
+            if highest >= tp3 and not signal.get("hit_tp3"):
                 updates["hit_tp3"] = True
                 updates["result"] = "TP3"
                 updates["status"] = "CLOSED"
                 updates["closed_at"] = datetime.now(timezone.utc).isoformat()
 
-            if price <= sl and not signal.get("hit_sl"):
+            if lowest <= sl and not signal.get("hit_sl"):
                 updates["hit_sl"] = True
                 updates["result"] = "SL"
                 updates["status"] = "CLOSED"
                 updates["closed_at"] = datetime.now(timezone.utc).isoformat()
 
         elif direction == "SELL":
-            if price <= tp1 and not signal.get("hit_tp1"):
+            if lowest <= tp1 and not signal.get("hit_tp1"):
                 updates["hit_tp1"] = True
                 updates["result"] = "TP1"
 
-            if price <= tp2 and not signal.get("hit_tp2"):
+            if lowest <= tp2 and not signal.get("hit_tp2"):
                 updates["hit_tp2"] = True
                 updates["result"] = "TP2"
 
-            if price <= tp3 and not signal.get("hit_tp3"):
+            if lowest <= tp3 and not signal.get("hit_tp3"):
                 updates["hit_tp3"] = True
                 updates["result"] = "TP3"
                 updates["status"] = "CLOSED"
                 updates["closed_at"] = datetime.now(timezone.utc).isoformat()
 
-            if price >= sl and not signal.get("hit_sl"):
+            if highest >= sl and not signal.get("hit_sl"):
                 updates["hit_sl"] = True
                 updates["result"] = "SL"
                 updates["status"] = "CLOSED"
@@ -950,7 +992,6 @@ def update_all_running_results():
         updated_signals.append(signal)
 
     return updated_signals
-
 
 def parse_datetime(value: str):
     if not value:
