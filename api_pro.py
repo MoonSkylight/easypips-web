@@ -1011,12 +1011,8 @@ def performance_for_strategy(strategy_name: str, days: int = 7):
     total = 0
     active = 0
     rejected = 0
-    wins = 0
-    losses = 0
-    tp1 = 0
-    tp2 = 0
-    tp3 = 0
-    sl = 0
+    tp_hits = 0
+    sl_hits = 0
 
     for signal in signals:
         if signal.get("strategy", "Strategy A") != strategy_name:
@@ -1035,41 +1031,27 @@ def performance_for_strategy(strategy_name: str, days: int = 7):
         if signal.get("status") == "REJECTED":
             rejected += 1
 
-        if signal.get("hit_tp1"):
-            tp1 += 1
-
-        if signal.get("hit_tp2"):
-            tp2 += 1
-
-        if signal.get("hit_tp3"):
-            tp3 += 1
-
-        if signal.get("hit_sl") or signal.get("result") == "SL":
-            sl += 1
-
+        # Public performance:
+        # TP = final target hit (TP3)
+        # SL = stop loss hit
         if signal.get("status") == "CLOSED" and signal.get("result") == "TP3":
-            wins += 1
+            tp_hits += 1
 
         if signal.get("status") == "CLOSED" and signal.get("result") == "SL":
-            losses += 1
+            sl_hits += 1
 
-    closed = wins + losses
-    win_rate = round((wins / closed) * 100, 2) if closed > 0 else 0
+    closed = tp_hits + sl_hits
+    win_rate = round((tp_hits / closed) * 100, 2) if closed > 0 else 0
 
     return {
         "totalSignalsLogged": total,
         "activeTrades": active,
         "rejectedSignals": rejected,
         "closedTrades": closed,
-        "wins": wins,
-        "losses": losses,
-        "tp1Hits": tp1,
-        "tp2Hits": tp2,
-        "tp3Hits": tp3,
-        "slHits": sl,
+        "tpHits": tp_hits,
+        "slHits": sl_hits,
         "winRate": win_rate,
     }
-
 
 def build_signal_stats():
     update_all_running_results()
