@@ -885,10 +885,44 @@ def get_price_range_since_signal(yahoo_symbol: str, created_at: str):
         return None, None
 
 
+
+def get_candles_since_signal(yahoo_symbol: str, created_at: str):
+    """
+    Returns 15m candles after the signal was created.
+    Used to check TP/SL in real candle order, so SL cannot wrongly override TP.
+    """
+    try:
+        data = yf.Ticker(yahoo_symbol).history(period="7d", interval="15m")
+
+        if data.empty:
+            return None
+
+        if created_at:
+            signal_time = parse_datetime(created_at)
+            data = data.copy()
+            data.index = pd.to_datetime(data.index, utc=True)
+            signal_time = pd.to_datetime(signal_time, utc=True)
+            data = data[data.index >= signal_time]
+
+        if data.empty:
+            return None
+
+        return data
+
+    except Exception as e:
+        print("Candle order check error:", e)
+        return None
+
+
 def update_all_running_results():
     """
-    Updates TP/SL results using candle High/Low since signal creation.
-    This prevents missed TP/SL hits when price touches target between cron checks.
+    Updates running trades by checking candle-by-candle order after signal creation.
+
+    Correct rule:
+    - If TP3 is hit first, trade closes as TP3.
+    - If SL is hit first, trade closes as SL.
+    - TP1/TP2 are tracked as partial hits.
+    - SL cannot override after TP3.
     """
     if not db_enabled():
         return []
@@ -912,12 +946,12 @@ def update_all_running_results():
             updated_signals.append(signal)
             continue
 
-        highest, lowest = get_price_range_since_signal(
+        candles = get_candles_since_signal(
             yahoo_symbol,
             signal.get("created_at")
         )
 
-        if highest is None or lowest is None:
+        if candles is None or candles.empty:
             updated_signals.append(signal)
             continue
 
@@ -934,60 +968,92 @@ def update_all_running_results():
 
         updates = {}
 
-        if direction == "BUY":
-            if highest >= tp1 and not signal.get("hit_tp1"):
-                updates["hit_tp1"] = True
-                updates["result"] = "TP1"
+        hit_tp1 = bool(signal.get("hit_tp1"))
+        hit_tp2 = bool(signal.get("hit_tp2"))
+        hit_tp3 = bool(signal.get("hit_tp3"))
 
-            if highest >= tp2 and not signal.get("hit_tp2"):
-                updates["hit_tp2"] = True
-                updates["result"] = "TP2"
+        final_result = None
 
-            if highest >= tp3 and not signal.get("hit_tp3"):
-                updates["hit_tp3"] = True
-                updates["result"] = "TP3"
-                updates["status"] = "CLOSED"
-                updates["closed_at"] = datetime.now(timezone.utc).isoformat()
+        for _, row in candles.iterrows():
+            high = float(row["High"])
+            low = float(row["Low"])
 
-            if lowest <= sl and not signal.get("hit_sl"):
-                updates["hit_sl"] = True
-                updates["result"] = "SL"
-                updates["status"] = "CLOSED"
-                updates["closed_at"] = datetime.now(timezone.utc).isoformat()
+            if direction == "BUY":
+                if not hit_tp1 and high >= tp1:
+                    hit_tp1 = True
+                    updates["hit_tp1"] = True
+                    updates["result"] = "TP1"
 
-        elif direction == "SELL":
-            if lowest <= tp1 and not signal.get("hit_tp1"):
-                updates["hit_tp1"] = True
-                updates["result"] = "TP1"
+                if not hit_tp2 and high >= tp2:
+                    hit_tp2 = True
+                    updates["hit_tp1"] = True
+                    updates["hit_tp2"] = True
+                    updates["result"] = "TP2"
 
-            if lowest <= tp2 and not signal.get("hit_tp2"):
-                updates["hit_tp2"] = True
-                updates["result"] = "TP2"
+                if not hit_tp3 and high >= tp3:
+                    hit_tp3 = True
+                    updates["hit_tp1"] = True
+                    updates["hit_tp2"] = True
+                    updates["hit_tp3"] = True
+                    updates["hit_sl"] = False
+                    updates["result"] = "TP3"
+                    updates["status"] = "CLOSED"
+                    updates["closed_at"] = datetime.now(timezone.utc).isoformat()
+                    final_result = "TP3"
+                    break
 
-            if lowest <= tp3 and not signal.get("hit_tp3"):
-                updates["hit_tp3"] = True
-                updates["result"] = "TP3"
-                updates["status"] = "CLOSED"
-                updates["closed_at"] = datetime.now(timezone.utc).isoformat()
+                if not hit_tp3 and low <= sl:
+                    updates["hit_sl"] = True
+                    updates["result"] = "SL"
+                    updates["status"] = "CLOSED"
+                    updates["closed_at"] = datetime.now(timezone.utc).isoformat()
+                    final_result = "SL"
+                    break
 
-            if highest >= sl and not signal.get("hit_sl"):
-                updates["hit_sl"] = True
-                updates["result"] = "SL"
-                updates["status"] = "CLOSED"
-                updates["closed_at"] = datetime.now(timezone.utc).isoformat()
+            elif direction == "SELL":
+                if not hit_tp1 and low <= tp1:
+                    hit_tp1 = True
+                    updates["hit_tp1"] = True
+                    updates["result"] = "TP1"
+
+                if not hit_tp2 and low <= tp2:
+                    hit_tp2 = True
+                    updates["hit_tp1"] = True
+                    updates["hit_tp2"] = True
+                    updates["result"] = "TP2"
+
+                if not hit_tp3 and low <= tp3:
+                    hit_tp3 = True
+                    updates["hit_tp1"] = True
+                    updates["hit_tp2"] = True
+                    updates["hit_tp3"] = True
+                    updates["hit_sl"] = False
+                    updates["result"] = "TP3"
+                    updates["status"] = "CLOSED"
+                    updates["closed_at"] = datetime.now(timezone.utc).isoformat()
+                    final_result = "TP3"
+                    break
+
+                if not hit_tp3 and high >= sl:
+                    updates["hit_sl"] = True
+                    updates["result"] = "SL"
+                    updates["status"] = "CLOSED"
+                    updates["closed_at"] = datetime.now(timezone.utc).isoformat()
+                    final_result = "SL"
+                    break
 
         if updates:
             supabase.table("signals").update(updates).eq("id", signal["id"]).execute()
             signal.update(updates)
 
-            if updates.get("hit_tp3"):
+            if final_result == "TP3":
                 send_telegram(result_message(signal, "TP3"))
+            elif final_result == "SL":
+                send_telegram(result_message(signal, "SL"))
             elif updates.get("hit_tp2"):
                 send_telegram(result_message(signal, "TP2"))
             elif updates.get("hit_tp1"):
                 send_telegram(result_message(signal, "TP1"))
-            elif updates.get("hit_sl"):
-                send_telegram(result_message(signal, "SL"))
 
         updated_signals.append(signal)
 
@@ -1011,8 +1077,12 @@ def performance_for_strategy(strategy_name: str, days: int = 7):
     total = 0
     active = 0
     rejected = 0
-    tp_hits = 0
-    sl_hits = 0
+    wins = 0
+    losses = 0
+    tp1 = 0
+    tp2 = 0
+    tp3 = 0
+    sl = 0
 
     for signal in signals:
         if signal.get("strategy", "Strategy A") != strategy_name:
@@ -1031,27 +1101,41 @@ def performance_for_strategy(strategy_name: str, days: int = 7):
         if signal.get("status") == "REJECTED":
             rejected += 1
 
-        # Public performance:
-        # TP = final target hit (TP3)
-        # SL = stop loss hit
+        if signal.get("hit_tp1"):
+            tp1 += 1
+
+        if signal.get("hit_tp2"):
+            tp2 += 1
+
+        if signal.get("hit_tp3"):
+            tp3 += 1
+
+        if signal.get("hit_sl") or signal.get("result") == "SL":
+            sl += 1
+
         if signal.get("status") == "CLOSED" and signal.get("result") == "TP3":
-            tp_hits += 1
+            wins += 1
 
         if signal.get("status") == "CLOSED" and signal.get("result") == "SL":
-            sl_hits += 1
+            losses += 1
 
-    closed = tp_hits + sl_hits
-    win_rate = round((tp_hits / closed) * 100, 2) if closed > 0 else 0
+    closed = wins + losses
+    win_rate = round((wins / closed) * 100, 2) if closed > 0 else 0
 
     return {
         "totalSignalsLogged": total,
         "activeTrades": active,
         "rejectedSignals": rejected,
         "closedTrades": closed,
-        "tpHits": tp_hits,
-        "slHits": sl_hits,
+        "wins": wins,
+        "losses": losses,
+        "tp1Hits": tp1,
+        "tp2Hits": tp2,
+        "tp3Hits": tp3,
+        "slHits": sl,
         "winRate": win_rate,
     }
+
 
 def build_signal_stats():
     update_all_running_results()
