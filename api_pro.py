@@ -2,10 +2,11 @@ from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Any
 from jose import jwt, JWTError
 import os
 import math
+import hashlib
 import requests
 import tempfile
 import matplotlib.pyplot as plt
@@ -94,6 +95,33 @@ class AdminAccountUpdate(BaseModel):
     status: Optional[str] = None
 
 
+
+class ClientRegisterRequest(BaseModel):
+    email: str
+    password: str
+    name: Optional[str] = ""
+    account_id: Optional[str] = None
+
+
+class ClientLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class TradeHistoryRequest(BaseModel):
+    account_id: str
+    signal_id: Optional[str] = None
+    symbol: str
+    direction: str
+    entry: float
+    sl: Optional[float] = None
+    tp: Optional[float] = None
+    result: Optional[str] = "OPEN"
+    profit_loss: Optional[float] = 0
+    balance_after: Optional[float] = None
+    closed_at: Optional[str] = None
+
+
 def db_enabled():
     return supabase is not None
 
@@ -116,6 +144,112 @@ def log_action(account_id: str, action: str, details: dict):
         }).execute()
     except Exception as e:
         print("Audit log error:", e)
+
+
+
+def hash_password(password: str) -> str:
+    secret = JWT_SECRET or "default-client-secret"
+    return hashlib.sha256(f"{password}:{secret}".encode("utf-8")).hexdigest()
+
+
+def create_client_token(client_user: dict):
+    expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
+    payload = {
+        "sub": client_user.get("email"),
+        "role": "client",
+        "client_id": client_user.get("id"),
+        "account_id": client_user.get("account_id"),
+        "exp": expire,
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def verify_client_token(authorization: str):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing client token")
+
+    token = authorization.replace("Bearer ", "")
+
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        if payload.get("role") != "client":
+            raise HTTPException(status_code=403, detail="Not client")
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired client token")
+
+
+def get_client_user_by_id(client_id: str):
+    if not db_enabled():
+        return None
+
+    rows = (
+        supabase.table("client_users")
+        .select("*")
+        .eq("id", client_id)
+        .execute()
+        .data
+        or []
+    )
+
+    return rows[0] if rows else None
+
+
+def calculate_equity_summary(trades: list):
+    closed = [t for t in trades if t.get("result") in ["TP", "TP3", "SL", "WIN", "LOSS", "CLOSED"] or t.get("closed_at")]
+    total_profit = round(sum(float(t.get("profit_loss") or 0) for t in closed), 2)
+
+    wins = [t for t in closed if float(t.get("profit_loss") or 0) > 0 or str(t.get("result", "")).upper() in ["TP", "TP3", "WIN"]]
+    losses = [t for t in closed if float(t.get("profit_loss") or 0) < 0 or str(t.get("result", "")).upper() in ["SL", "LOSS"]]
+
+    win_rate = round((len(wins) / len(closed)) * 100, 2) if closed else 0
+
+    curve = []
+    peak = None
+    max_drawdown = 0.0
+
+    for t in sorted(closed, key=lambda x: x.get("closed_at") or x.get("created_at") or ""):
+        balance = t.get("balance_after")
+        if balance is None:
+            continue
+        balance = float(balance)
+        curve.append({
+            "time": t.get("closed_at") or t.get("created_at"),
+            "balance": balance,
+            "profit_loss": float(t.get("profit_loss") or 0),
+            "symbol": t.get("symbol"),
+            "result": t.get("result"),
+        })
+
+        if peak is None or balance > peak:
+            peak = balance
+
+        if peak and peak > 0:
+            drawdown = ((peak - balance) / peak) * 100
+            max_drawdown = max(max_drawdown, drawdown)
+
+    starting_balance = curve[0]["balance"] - curve[0]["profit_loss"] if curve else 0
+    current_balance = curve[-1]["balance"] if curve else 0
+    growth = round(((current_balance - starting_balance) / starting_balance) * 100, 2) if starting_balance else 0
+
+    best_trade = max(closed, key=lambda x: float(x.get("profit_loss") or 0), default=None)
+    worst_trade = min(closed, key=lambda x: float(x.get("profit_loss") or 0), default=None)
+
+    return {
+        "totalTrades": len(trades),
+        "closedTrades": len(closed),
+        "wins": len(wins),
+        "losses": len(losses),
+        "winRate": win_rate,
+        "totalProfitLoss": total_profit,
+        "startingBalance": round(starting_balance, 2),
+        "currentBalance": round(current_balance, 2),
+        "growthPercent": growth,
+        "maxDrawdownPercent": round(max_drawdown, 2),
+        "bestTrade": best_trade,
+        "worstTrade": worst_trade,
+        "curve": curve,
+    }
 
 
 def send_telegram(message: str):
@@ -2064,6 +2198,234 @@ def account_audit_logs(account_id: str, authorization: str = Header(default=""))
     )
 
     return {"logs": response.data or []}
+
+
+@app.post("/client/register")
+def client_register(data: ClientRegisterRequest):
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    existing = (
+        supabase.table("client_users")
+        .select("*")
+        .eq("email", data.email.lower())
+        .execute()
+        .data
+        or []
+    )
+
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    payload = {
+        "email": data.email.lower(),
+        "password": hash_password(data.password),
+        "name": data.name,
+        "account_id": data.account_id,
+    }
+
+    response = supabase.table("client_users").insert(payload).execute()
+
+    user = response.data[0] if response.data else payload
+    token = create_client_token(user)
+
+    log_action(str(data.account_id or ""), "CLIENT_REGISTERED", {
+        "email": data.email.lower(),
+        "name": data.name,
+        "account_id": data.account_id,
+    })
+
+    return {
+        "success": True,
+        "access_token": token,
+        "token_type": "bearer",
+        "client": {
+            "id": user.get("id"),
+            "email": user.get("email"),
+            "name": user.get("name"),
+            "account_id": user.get("account_id"),
+        },
+    }
+
+
+@app.post("/client/login")
+def client_login(data: ClientLoginRequest):
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    rows = (
+        supabase.table("client_users")
+        .select("*")
+        .eq("email", data.email.lower())
+        .execute()
+        .data
+        or []
+    )
+
+    if not rows:
+        raise HTTPException(status_code=401, detail="Invalid client credentials")
+
+    user = rows[0]
+
+    if user.get("password") != hash_password(data.password):
+        raise HTTPException(status_code=401, detail="Invalid client credentials")
+
+    token = create_client_token(user)
+
+    return {
+        "success": True,
+        "access_token": token,
+        "token_type": "bearer",
+        "client": {
+            "id": user.get("id"),
+            "email": user.get("email"),
+            "name": user.get("name"),
+            "account_id": user.get("account_id"),
+        },
+    }
+
+
+@app.get("/client/me")
+def client_me(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+
+    user = get_client_user_by_id(payload.get("client_id"))
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Client not found")
+
+    return {
+        "success": True,
+        "client": {
+            "id": user.get("id"),
+            "email": user.get("email"),
+            "name": user.get("name"),
+            "account_id": user.get("account_id"),
+        },
+    }
+
+
+@app.get("/client/dashboard")
+def client_dashboard(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    account_id = payload.get("account_id")
+
+    if not account_id:
+        return {
+            "success": True,
+            "account": None,
+            "trades": [],
+            "equity": calculate_equity_summary([]),
+        }
+
+    account_rows = (
+        supabase.table("client_accounts")
+        .select("*")
+        .eq("id", account_id)
+        .execute()
+        .data
+        or []
+    )
+
+    account = account_rows[0] if account_rows else None
+
+    trades = (
+        supabase.table("trade_history")
+        .select("*")
+        .eq("account_id", account_id)
+        .order("created_at", desc=True)
+        .execute()
+        .data
+        or []
+    )
+
+    return {
+        "success": True,
+        "account": account,
+        "trades": trades,
+        "equity": calculate_equity_summary(trades),
+    }
+
+
+@app.get("/client/equity-curve")
+def client_equity_curve(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    account_id = payload.get("account_id")
+
+    if not account_id:
+        return {"success": True, "equity": calculate_equity_summary([])}
+
+    trades = (
+        supabase.table("trade_history")
+        .select("*")
+        .eq("account_id", account_id)
+        .order("created_at", desc=False)
+        .execute()
+        .data
+        or []
+    )
+
+    return {
+        "success": True,
+        "equity": calculate_equity_summary(trades),
+    }
+
+
+@app.post("/admin/trade-history")
+def admin_add_trade_history(
+    data: TradeHistoryRequest,
+    authorization: str = Header(default=""),
+):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    payload = {
+        "account_id": data.account_id,
+        "signal_id": data.signal_id,
+        "symbol": data.symbol,
+        "direction": data.direction.upper(),
+        "entry": data.entry,
+        "sl": data.sl,
+        "tp": data.tp,
+        "result": data.result,
+        "profit_loss": data.profit_loss,
+        "balance_after": data.balance_after,
+        "closed_at": data.closed_at,
+    }
+
+    response = supabase.table("trade_history").insert(payload).execute()
+
+    log_action(data.account_id, "TRADE_HISTORY_ADDED", payload)
+
+    return {
+        "success": True,
+        "trade": response.data[0] if response.data else payload,
+    }
+
+
+@app.get("/admin/trade-history/{account_id}")
+def admin_get_trade_history(account_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"trades": [], "equity": calculate_equity_summary([])}
+
+    trades = (
+        supabase.table("trade_history")
+        .select("*")
+        .eq("account_id", account_id)
+        .order("created_at", desc=True)
+        .execute()
+        .data
+        or []
+    )
+
+    return {
+        "trades": trades,
+        "equity": calculate_equity_summary(trades),
+    }
 
 @app.post("/admin/reset-ai-signals")
 def reset_ai_signals(authorization: str = Header(default="")):
