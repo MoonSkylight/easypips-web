@@ -84,6 +84,7 @@ class ClientAccountRequest(BaseModel):
     account_login: Optional[str] = ""
     risk_mode: Optional[str] = "manual"
     max_lot: Optional[float] = 0.01
+    consent: Optional[bool] = False
 
 
 
@@ -95,6 +96,26 @@ class AdminAccountUpdate(BaseModel):
 
 def db_enabled():
     return supabase is not None
+
+
+
+def log_action(account_id: str, action: str, details: dict):
+    """
+    Saves admin/client safety actions to audit_logs.
+    This is important before real MT4/MT5 auto-execution.
+    """
+    if not db_enabled():
+        return
+
+    try:
+        supabase.table("audit_logs").insert({
+            "account_id": account_id,
+            "action": action,
+            "details": details,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }).execute()
+    except Exception as e:
+        print("Audit log error:", e)
 
 
 def send_telegram(message: str):
@@ -1637,9 +1658,21 @@ def request_account_connection(account: ClientAccountRequest):
         "risk_mode": account.risk_mode,
         "max_lot": account.max_lot,
         "auto_trade_enabled": False,
+        "consent": bool(account.consent),
+        "kill_switch": False,
     }
 
     response = supabase.table("client_accounts").insert(payload).execute()
+
+    if response.data:
+        log_action(response.data[0]["id"], "ACCOUNT_REQUESTED", {
+            "name": account.name,
+            "platform": account.platform.upper(),
+            "broker": account.broker,
+            "risk_mode": account.risk_mode,
+            "max_lot": account.max_lot,
+            "consent": bool(account.consent),
+        })
 
     send_telegram(f"""
 🧾 *NEW ACCOUNT CONNECTION REQUEST*
@@ -1772,6 +1805,11 @@ Auto Trade: {account.get("auto_trade_enabled")}
 Max Lot: {account.get("max_lot")}
 """)
 
+    log_action(account_id, "ACCOUNT_APPROVED", {
+        "name": account.get("name") if account else None,
+        "platform": account.get("platform") if account else None,
+    })
+
     return {
         "success": True,
         "message": "Account approved",
@@ -1804,6 +1842,11 @@ Platform: {account.get("platform")}
 Broker: {account.get("broker")}
 Login: {account.get("account_login")}
 """)
+
+    log_action(account_id, "ACCOUNT_REJECTED", {
+        "name": account.get("name") if account else None,
+        "platform": account.get("platform") if account else None,
+    })
 
     return {
         "success": True,
@@ -1844,6 +1887,8 @@ def update_client_account_risk(
         .execute()
     )
 
+    log_action(account_id, "RISK_UPDATED", updates)
+
     return {
         "success": True,
         "message": "Account risk settings updated",
@@ -1879,6 +1924,20 @@ def admin_toggle_auto_trade(account_id: str, authorization: str = Header(default
             "account": account,
         }
 
+    if not bool(account.get("consent")):
+        return {
+            "success": False,
+            "message": "Client consent required before enabling auto trading",
+            "account": account,
+        }
+
+    if bool(account.get("kill_switch")):
+        return {
+            "success": False,
+            "message": "Kill switch is ON. Disable kill switch before enabling auto trading",
+            "account": account,
+        }
+
     new_value = not bool(account.get("auto_trade_enabled"))
 
     response = (
@@ -1899,11 +1958,112 @@ Login: {account.get("account_login")}
 Auto Trade: {"ON" if new_value else "OFF"}
 """)
 
+    log_action(account_id, "AUTO_TRADE_TOGGLED", {
+        "auto_trade_enabled": new_value,
+    })
+
     return {
         "success": True,
         "auto_trade_enabled": new_value,
         "account": updated,
     }
+
+
+@app.post("/admin/client-accounts/{account_id}/toggle-kill-switch")
+def toggle_kill_switch(account_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    current = (
+        supabase.table("client_accounts")
+        .select("*")
+        .eq("id", account_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not current:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    account = current[0]
+    new_value = not bool(account.get("kill_switch"))
+
+    updates = {"kill_switch": new_value}
+
+    # Safety rule:
+    # If kill switch is turned ON, auto trading must turn OFF immediately.
+    if new_value:
+        updates["auto_trade_enabled"] = False
+
+    response = (
+        supabase.table("client_accounts")
+        .update(updates)
+        .eq("id", account_id)
+        .execute()
+    )
+
+    updated = response.data[0] if response.data else None
+
+    log_action(account_id, "KILL_SWITCH_TOGGLED", {
+        "kill_switch": new_value,
+        "auto_trade_enabled": updated.get("auto_trade_enabled") if updated else None,
+    })
+
+    send_telegram(f"""
+🛑 *KILL SWITCH UPDATED*
+
+Name: {account.get("name")}
+Platform: {account.get("platform")}
+Login: {account.get("account_login")}
+Kill Switch: {"ON" if new_value else "OFF"}
+Auto Trade: {"OFF" if new_value else account.get("auto_trade_enabled")}
+""")
+
+    return {
+        "success": True,
+        "kill_switch": new_value,
+        "account": updated,
+    }
+
+
+@app.get("/admin/audit-logs")
+def admin_audit_logs(authorization: str = Header(default=""), limit: int = 100):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"logs": []}
+
+    response = (
+        supabase.table("audit_logs")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+
+    return {"logs": response.data or []}
+
+
+@app.get("/admin/client-accounts/{account_id}/audit-logs")
+def account_audit_logs(account_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"logs": []}
+
+    response = (
+        supabase.table("audit_logs")
+        .select("*")
+        .eq("account_id", account_id)
+        .order("created_at", desc=True)
+        .limit(100)
+        .execute()
+    )
+
+    return {"logs": response.data or []}
 
 @app.post("/admin/reset-ai-signals")
 def reset_ai_signals(authorization: str = Header(default="")):
