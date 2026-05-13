@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 
 const API =
   process.env.NEXT_PUBLIC_API_URL || "https://easypips-api.onrender.com";
@@ -40,41 +39,72 @@ type Perf = {
   winRate?: number;
 };
 
+type NewsEvent = {
+  time: string;
+  currency: string;
+  event: string;
+  impact: string;
+};
+
+type Account = {
+  id?: string;
+  name?: string;
+  platform?: string;
+  broker?: string;
+  account_login?: string;
+  status?: string;
+  risk_mode?: string;
+  max_lot?: number;
+  auto_trade_enabled?: boolean;
+  kill_switch?: boolean;
+  consent?: boolean;
+};
+
 const filters = ["All", "Strategy A", "Strategy B", "Desk 1", "Desk 2"];
 
-export default function SignalsDashboardPage() {
-  const router = useRouter();
-
+export default function MainDashboardPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [signals, setSignals] = useState<Signal[]>([]);
   const [closedSignals, setClosedSignals] = useState<Signal[]>([]);
   const [performance, setPerformance] = useState<any>({});
   const [deskPerformance, setDeskPerformance] = useState<any>({});
   const [status, setStatus] = useState<any>({});
+  const [newsEvents, setNewsEvents] = useState<NewsEvent[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [filter, setFilter] = useState("All");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
   async function loadDashboard() {
     const token = localStorage.getItem("easypips_client_token");
-    const loggedIn = Boolean(token);
-    setIsLoggedIn(loggedIn);
+    setIsLoggedIn(Boolean(token));
 
     try {
-      const [signalsRes, perfRes, statusRes, closedRes, deskPerfRes] =
-        await Promise.all([
-          fetch(`${API}/all-paid-signals`, { cache: "no-store" }),
-          fetch(`${API}/strategy-performance`, { cache: "no-store" }),
-          fetch(`${API}/system-status`, { cache: "no-store" }),
-          fetch(`${API}/closed-signals`, { cache: "no-store" }),
-          fetch(`${API}/desk-performance`, { cache: "no-store" }),
-        ]);
+      const [
+        signalsRes,
+        perfRes,
+        statusRes,
+        closedRes,
+        deskPerfRes,
+        newsRes,
+        accountsRes,
+      ] = await Promise.all([
+        fetch(`${API}/all-paid-signals`, { cache: "no-store" }),
+        fetch(`${API}/strategy-performance`, { cache: "no-store" }),
+        fetch(`${API}/system-status`, { cache: "no-store" }),
+        fetch(`${API}/closed-signals`, { cache: "no-store" }),
+        fetch(`${API}/desk-performance`, { cache: "no-store" }),
+        fetch(`${API}/news-calendar`, { cache: "no-store" }),
+        fetch(`${API}/client-accounts`, { cache: "no-store" }),
+      ]);
 
       const signalsData = await signalsRes.json();
       const perfData = await perfRes.json();
       const statusData = await statusRes.json();
       const closedData = await closedRes.json();
       const deskPerfData = await deskPerfRes.json();
+      const newsData = await newsRes.json();
+      const accountsData = await accountsRes.json();
 
       const activeSignals: Signal[] = [
         ...(signalsData.strategyASignals || []),
@@ -88,10 +118,12 @@ export default function SignalsDashboardPage() {
       setStatus(statusData || {});
       setClosedSignals(closedData.closedSignals || []);
       setDeskPerformance(deskPerfData || {});
+      setNewsEvents(newsData.events || []);
+      setAccounts(accountsData.accounts || []);
       setMessage("");
     } catch (error) {
       console.error(error);
-      setMessage("Could not load signal dashboard.");
+      setMessage("Could not load dashboard data.");
     } finally {
       setLoading(false);
     }
@@ -104,16 +136,15 @@ export default function SignalsDashboardPage() {
   }, []);
 
   const visibleSignals = useMemo(() => {
-    const source =
+    const filtered =
       filter === "All"
         ? signals
         : signals.filter(
             (s) => s.strategy === filter || s.desk === filter || s.source === filter
           );
 
-    if (isLoggedIn) return source;
-
-    return source.slice(0, 1);
+    if (isLoggedIn) return filtered;
+    return filtered.slice(0, 1);
   }, [signals, filter, isLoggedIn]);
 
   const strategyA: Perf = performance?.["Strategy A"] || {};
@@ -149,7 +180,7 @@ export default function SignalsDashboardPage() {
             <div>
               <h1 className="text-xl font-black">EasyPips Dashboard</h1>
               <p className="text-xs text-slate-400">
-                Live paid signals and performance
+                Signals, performance, news, MT4/MT5, and Desk support
               </p>
             </div>
           </div>
@@ -186,7 +217,7 @@ export default function SignalsDashboardPage() {
                   href="/client/signup"
                   className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black"
                 >
-                  Sign Up
+                  Sign Up Free
                 </a>
                 <a
                   href="/client/login"
@@ -196,22 +227,33 @@ export default function SignalsDashboardPage() {
                 </a>
               </>
             )}
+
+            <a
+              href="https://t.me/easypips_signals_bot"
+              target="_blank"
+              className="rounded-2xl bg-emerald-400 px-5 py-3 font-black text-black"
+            >
+              Telegram
+            </a>
           </div>
         </div>
       </header>
 
       <section className="mx-auto max-w-7xl space-y-6 p-6">
-        <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr] xl:items-center">
+        <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
           <div>
             <p className="text-sm font-black uppercase tracking-widest text-yellow-300">
               {isLoggedIn ? "Paid signal access unlocked" : "Free live preview"}
             </p>
+
             <h2 className="mt-3 text-5xl font-black leading-tight">
               Live Forex Signals and Performance Tracking
             </h2>
+
             <p className="mt-5 max-w-2xl text-slate-300">
-              View Strategy A, Fibonacci Strategy B, Desk 1 and Desk 2 signals.
-              Sign in to unlock all active paid signals and full signal history.
+              View Strategy A, Fibonacci Strategy B, Desk 1 and Desk 2 signals,
+              economic news, signal history, MT4/MT5 access, Telegram alerts,
+              and full performance tracking.
             </p>
 
             {!isLoggedIn && (
@@ -220,16 +262,15 @@ export default function SignalsDashboardPage() {
                   You are viewing one free signal preview.
                 </p>
                 <p className="mt-2 text-sm text-slate-300">
-                  Create a client account or sign in to see all paid signals,
-                  full history, and client-only support.
+                  Sign up free to unlock all paid signals, signal history,
+                  market news, Desk 1 / Desk 2 support, and client performance.
                 </p>
               </div>
             )}
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-xl">
-            <h3 className="text-xl font-black">System Status</h3>
-            <div className="mt-5 grid grid-cols-2 gap-3">
+          <Panel title="System Status">
+            <div className="grid grid-cols-2 gap-3">
               <Mini label="Backend" value={status?.status || "running"} green />
               <Mini label="Database" value={status?.database || "connected"} green />
               <Mini label="Telegram" value={status?.telegram || "connected"} green />
@@ -242,7 +283,7 @@ export default function SignalsDashboardPage() {
                 }
               />
             </div>
-          </div>
+          </Panel>
         </div>
 
         {message && (
@@ -260,131 +301,279 @@ export default function SignalsDashboardPage() {
           <TopStat title="Win Rate" value={`${winRate}%`} color="gold" />
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-          <Panel title={isLoggedIn ? "All Paid Signals" : "Live Signal Preview"}>
-            <div className="mb-5 flex flex-wrap gap-2">
-              {filters.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setFilter(item)}
-                  className={`rounded-xl px-4 py-2 text-sm font-black ${
-                    filter === item
-                      ? "bg-yellow-400 text-black"
-                      : "bg-white/5 text-slate-300 hover:bg-white/10"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-
-            {loading ? (
-              <p className="text-slate-400">Loading signals...</p>
-            ) : visibleSignals.length === 0 ? (
-              <div className="rounded-2xl bg-black/30 p-6 text-slate-400">
-                No active signals right now.
-              </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {visibleSignals.map((signal, index) => (
-                  <SignalCard key={signal.id || index} signal={signal} locked={!isLoggedIn && index > 0} />
+        <section className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
+          <div className="space-y-6">
+            <Panel title={isLoggedIn ? "All Paid Signals" : "Live Signal Preview"}>
+              <div className="mb-5 flex flex-wrap gap-2">
+                {filters.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => setFilter(item)}
+                    className={`rounded-xl px-4 py-2 text-sm font-black ${
+                      filter === item
+                        ? "bg-yellow-400 text-black"
+                        : "bg-white/5 text-slate-300 hover:bg-white/10"
+                    }`}
+                  >
+                    {item}
+                  </button>
                 ))}
               </div>
-            )}
 
-            {!isLoggedIn && (
-              <div className="mt-5 rounded-3xl border border-yellow-400/20 bg-black/30 p-5 text-center">
-                <p className="text-lg font-black text-yellow-300">
-                  Unlock all paid signals
-                </p>
-                <p className="mt-2 text-sm text-slate-400">
-                  Sign up to access all active signals, history, and client-only
-                  desk support.
-                </p>
-                <div className="mt-4 flex justify-center gap-3">
-                  <a
-                    href="/client/signup"
-                    className="rounded-xl bg-yellow-400 px-5 py-3 font-black text-black"
-                  >
-                    Sign Up
-                  </a>
-                  <a
-                    href="/client/login"
-                    className="rounded-xl border border-white/10 px-5 py-3 font-black text-white hover:bg-white/10"
-                  >
-                    Sign In
-                  </a>
+              {loading ? (
+                <p className="text-slate-400">Loading signals...</p>
+              ) : visibleSignals.length === 0 ? (
+                <div className="rounded-2xl bg-black/30 p-6 text-slate-400">
+                  No active signals right now.
                 </div>
-              </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {visibleSignals.map((signal, index) => (
+                    <SignalCard key={signal.id || index} signal={signal} />
+                  ))}
+                </div>
+              )}
+
+              {!isLoggedIn && (
+                <div className="mt-5 rounded-3xl border border-yellow-400/20 bg-black/30 p-5 text-center">
+                  <p className="text-lg font-black text-yellow-300">
+                    Unlock all paid signals
+                  </p>
+                  <p className="mt-2 text-sm text-slate-400">
+                    Sign up to access all active signals, history, news, and
+                    Desk support.
+                  </p>
+                  <div className="mt-4 flex justify-center gap-3">
+                    <a
+                      href="/client/signup"
+                      className="rounded-xl bg-yellow-400 px-5 py-3 font-black text-black"
+                    >
+                      Sign Up Free
+                    </a>
+                    <a
+                      href="/client/login"
+                      className="rounded-xl border border-white/10 px-5 py-3 font-black text-white hover:bg-white/10"
+                    >
+                      Sign In
+                    </a>
+                  </div>
+                </div>
+              )}
+            </Panel>
+
+            {isLoggedIn && (
+              <Panel title="Signal History">
+                {closedSignals.length === 0 ? (
+                  <p className="rounded-2xl bg-black/30 p-5 text-slate-400">
+                    No closed signals yet.
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[860px] text-sm">
+                      <thead>
+                        <tr className="border-b border-white/10 text-left text-slate-400">
+                          <th className="p-3">Symbol</th>
+                          <th className="p-3">Direction</th>
+                          <th className="p-3">Source</th>
+                          <th className="p-3">Entry</th>
+                          <th className="p-3">SL</th>
+                          <th className="p-3">TP</th>
+                          <th className="p-3">Result</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {closedSignals.slice(0, 20).map((signal, index) => (
+                          <tr key={signal.id || index} className="border-b border-white/5">
+                            <td className="p-3 font-black">{signal.symbol}</td>
+                            <td className="p-3">{signal.direction}</td>
+                            <td className="p-3">
+                              {signal.strategy || signal.desk || signal.source || "-"}
+                            </td>
+                            <td className="p-3 font-mono">{signal.entry || "-"}</td>
+                            <td className="p-3 font-mono text-red-400">{signal.sl || "-"}</td>
+                            <td className="p-3 font-mono text-emerald-400">
+                              {signal.tp3 || signal.tp2 || signal.tp1 || signal.tp || "-"}
+                            </td>
+                            <td className="p-3">
+                              <span
+                                className={`rounded-lg px-3 py-1 text-xs font-black ${
+                                  String(signal.result).includes("SL")
+                                    ? "bg-red-400/10 text-red-300"
+                                    : "bg-emerald-400/10 text-emerald-300"
+                                }`}
+                              >
+                                {signal.result || signal.status || "-"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </Panel>
             )}
-          </Panel>
+          </div>
 
-          <Panel title="Strategy Performance">
-            <div className="space-y-4">
-              <PerfBox title="Strategy A" subtitle="EMA + RSI + Momentum" data={strategyA} />
-              <PerfBox title="Strategy B" subtitle="Fibonacci Pattern" data={strategyB} />
-              <PerfBox title="Desk 1" subtitle="Manual trading desk" data={desk1} />
-              <PerfBox title="Desk 2" subtitle="Manual trading desk" data={desk2} />
-            </div>
-          </Panel>
-        </section>
+          <aside className="space-y-6">
+            <Panel title="Economic News Calendar">
+              <div className="mb-4 flex flex-wrap gap-2 text-xs font-black">
+                <span className="rounded-full bg-blue-400/10 px-3 py-1 text-blue-300">
+                  Live Feed
+                </span>
+                <span className="rounded-full bg-red-400/10 px-3 py-1 text-red-300">
+                  High Impact
+                </span>
+                <span className="rounded-full bg-yellow-400/10 px-3 py-1 text-yellow-300">
+                  Medium
+                </span>
+              </div>
 
-        {isLoggedIn && (
-          <Panel title="Signal History">
-            {closedSignals.length === 0 ? (
-              <p className="rounded-2xl bg-black/30 p-5 text-slate-400">
-                No closed signals yet.
+              <div className="space-y-3">
+                {newsEvents.length === 0 ? (
+                  <p className="rounded-2xl bg-black/30 p-4 text-sm text-slate-400">
+                    No news events loaded.
+                  </p>
+                ) : (
+                  newsEvents.map((item, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-[50px_45px_1fr_65px] items-center gap-2 rounded-2xl bg-black/30 p-3 text-sm"
+                    >
+                      <span className="text-slate-400">{item.time}</span>
+                      <span className="font-bold">{item.currency}</span>
+                      <span className="text-slate-300">{item.event}</span>
+                      <span
+                        className={`rounded-lg px-2 py-1 text-center text-xs font-black ${
+                          item.impact === "High"
+                            ? "bg-red-400/10 text-red-300"
+                            : "bg-yellow-400/10 text-yellow-300"
+                        }`}
+                      >
+                        {item.impact}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Panel>
+
+            <Panel title="Strategy Performance">
+              <div className="space-y-4">
+                <PerfBox title="Strategy A" subtitle="EMA + RSI + Momentum" data={strategyA} />
+                <PerfBox title="Strategy B" subtitle="Fibonacci Pattern" data={strategyB} />
+                <PerfBox title="Desk 1" subtitle="Manual trading desk" data={desk1} />
+                <PerfBox title="Desk 2" subtitle="Manual trading desk" data={desk2} />
+              </div>
+            </Panel>
+
+            <Panel title="MT4 / MT5 Connection">
+              <p className="text-sm leading-6 text-slate-300">
+                Connect your MT4 or MT5 account, request approval, set max lot,
+                and prepare for future auto-copy execution.
               </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[860px] text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10 text-left text-slate-400">
-                      <th className="p-3">Symbol</th>
-                      <th className="p-3">Direction</th>
-                      <th className="p-3">Source</th>
-                      <th className="p-3">Entry</th>
-                      <th className="p-3">SL</th>
-                      <th className="p-3">TP</th>
-                      <th className="p-3">Result</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {closedSignals.slice(0, 20).map((signal, index) => (
-                      <tr key={signal.id || index} className="border-b border-white/5">
-                        <td className="p-3 font-black">{signal.symbol}</td>
-                        <td className="p-3">{signal.direction}</td>
-                        <td className="p-3">{signal.strategy || signal.desk || signal.source || "-"}</td>
-                        <td className="p-3 font-mono">{signal.entry || "-"}</td>
-                        <td className="p-3 font-mono text-red-400">{signal.sl || "-"}</td>
-                        <td className="p-3 font-mono text-emerald-400">
-                          {signal.tp3 || signal.tp2 || signal.tp1 || signal.tp || "-"}
-                        </td>
-                        <td className="p-3">
-                          <span
-                            className={`rounded-lg px-3 py-1 text-xs font-black ${
-                              String(signal.result).includes("SL")
-                                ? "bg-red-400/10 text-red-300"
-                                : "bg-emerald-400/10 text-emerald-300"
-                            }`}
-                          >
-                            {signal.result || signal.status || "-"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+              {accounts.length === 0 ? (
+                <div className="mt-4 rounded-2xl bg-black/30 p-4 text-sm text-slate-400">
+                  No client accounts connected yet.
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {accounts.slice(0, 2).map((account) => (
+                    <div key={account.id} className="rounded-2xl bg-black/30 p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-black">{account.platform || "MT"} Account</p>
+                          <p className="text-xs text-slate-400">
+                            {account.name || "Client"} · {account.broker || "Broker"}
+                          </p>
+                        </div>
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-black ${
+                            account.auto_trade_enabled
+                              ? "bg-emerald-400/10 text-emerald-300"
+                              : "bg-red-400/10 text-red-300"
+                          }`}
+                        >
+                          {account.auto_trade_enabled ? "AUTO ON" : "AUTO OFF"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <a
+                href="/account"
+                className="mt-4 block rounded-2xl bg-yellow-400 px-5 py-4 text-center font-black text-black"
+              >
+                Manage MT4 / MT5 Account
+              </a>
+            </Panel>
+
+            <Panel title="Client Area">
+              <div className="grid gap-3">
+                <a
+                  href="/account"
+                  className="rounded-2xl bg-yellow-400 px-5 py-4 text-center font-black text-black"
+                >
+                  My Dashboard
+                </a>
+                <a
+                  href="/admin/requests"
+                  className="rounded-2xl border border-white/10 px-5 py-4 text-center font-black text-white hover:bg-white/10"
+                >
+                  Desk Requests
+                </a>
+                <a
+                  href="https://t.me/easypips_signals_bot"
+                  target="_blank"
+                  className="rounded-2xl bg-emerald-400 px-5 py-4 text-center font-black text-black"
+                >
+                  Telegram Alerts
+                </a>
               </div>
-            )}
-          </Panel>
-        )}
+            </Panel>
+
+            <Panel title="Telegram Signals">
+              <p className="text-sm leading-6 text-slate-300">
+                Get instant alerts, TP/SL updates, and important system
+                notifications directly on Telegram.
+              </p>
+
+              <a
+                href="https://t.me/easypips_signals_bot"
+                target="_blank"
+                className="mt-4 block rounded-2xl bg-emerald-400 px-5 py-4 text-center font-black text-black"
+              >
+                Open Telegram
+              </a>
+            </Panel>
+
+            <Panel title="Risk Management">
+              <div className="space-y-3 text-sm text-slate-300">
+                <InfoLine title="Use Small Lots" text="Start with low risk such as 0.01 while testing." />
+                <InfoLine title="Kill Switch" text="Auto trading can be disabled instantly for safety." />
+                <InfoLine title="Consent Required" text="Clients must approve automated trading risk before auto-copy." />
+              </div>
+            </Panel>
+
+            <Panel title="Risk Disclaimer">
+              <p className="text-xs leading-5 text-slate-400">
+                EasyPips signals are provided for educational purposes only.
+                Trading forex, gold, indices, and crypto involves substantial
+                risk. You may lose part or all of your capital. Always use
+                proper risk management and trade responsibly.
+              </p>
+            </Panel>
+          </aside>
+        </section>
       </section>
     </main>
   );
 }
 
-function SignalCard({ signal }: { signal: Signal; locked?: boolean }) {
+function SignalCard({ signal }: { signal: Signal }) {
   const direction = String(signal.direction || "").toUpperCase();
   const isBuy = direction === "BUY" || direction === "BUY LIMIT" || direction === "BUY STOP";
   const source = signal.strategy || signal.desk || signal.source || "Signal";
@@ -545,6 +734,15 @@ function PerfBox({
         <Mini label="TP" value={tp} green />
         <Mini label="SL" value={sl} />
       </div>
+    </div>
+  );
+}
+
+function InfoLine({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-2xl bg-black/30 p-4">
+      <p className="font-black text-yellow-300">{title}</p>
+      <p className="mt-1 text-slate-400">{text}</p>
     </div>
   );
 }
