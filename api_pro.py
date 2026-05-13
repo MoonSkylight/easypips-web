@@ -86,6 +86,13 @@ class ClientAccountRequest(BaseModel):
     max_lot: Optional[float] = 0.01
 
 
+
+class AdminAccountUpdate(BaseModel):
+    risk_mode: Optional[str] = None
+    max_lot: Optional[float] = None
+    status: Optional[str] = None
+
+
 def db_enabled():
     return supabase is not None
 
@@ -1717,6 +1724,185 @@ def desk_performance():
     return {
         "Desk 1": calc("Desk 1"),
         "Desk 2": calc("Desk 2"),
+    }
+
+
+@app.get("/admin/client-accounts")
+def admin_client_accounts(authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"accounts": []}
+
+    response = (
+        supabase.table("client_accounts")
+        .select("*")
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    return {"accounts": response.data or []}
+
+
+@app.post("/admin/client-accounts/{account_id}/approve")
+def approve_client_account(account_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    response = (
+        supabase.table("client_accounts")
+        .update({"status": "approved"})
+        .eq("id", account_id)
+        .execute()
+    )
+
+    account = response.data[0] if response.data else None
+
+    if account:
+        send_telegram(f"""
+✅ *ACCOUNT APPROVED*
+
+Name: {account.get("name")}
+Platform: {account.get("platform")}
+Broker: {account.get("broker")}
+Login: {account.get("account_login")}
+Auto Trade: {account.get("auto_trade_enabled")}
+Max Lot: {account.get("max_lot")}
+""")
+
+    return {
+        "success": True,
+        "message": "Account approved",
+        "account": account,
+    }
+
+
+@app.post("/admin/client-accounts/{account_id}/reject")
+def reject_client_account(account_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    response = (
+        supabase.table("client_accounts")
+        .update({"status": "rejected", "auto_trade_enabled": False})
+        .eq("id", account_id)
+        .execute()
+    )
+
+    account = response.data[0] if response.data else None
+
+    if account:
+        send_telegram(f"""
+❌ *ACCOUNT REJECTED*
+
+Name: {account.get("name")}
+Platform: {account.get("platform")}
+Broker: {account.get("broker")}
+Login: {account.get("account_login")}
+""")
+
+    return {
+        "success": True,
+        "message": "Account rejected",
+        "account": account,
+    }
+
+
+@app.patch("/admin/client-accounts/{account_id}/update-risk")
+def update_client_account_risk(
+    account_id: str,
+    data: AdminAccountUpdate,
+    authorization: str = Header(default=""),
+):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    updates = {}
+
+    if data.risk_mode is not None:
+        updates["risk_mode"] = data.risk_mode
+
+    if data.max_lot is not None:
+        updates["max_lot"] = data.max_lot
+
+    if data.status is not None:
+        updates["status"] = data.status
+
+    if not updates:
+        return {"success": False, "message": "No updates provided"}
+
+    response = (
+        supabase.table("client_accounts")
+        .update(updates)
+        .eq("id", account_id)
+        .execute()
+    )
+
+    return {
+        "success": True,
+        "message": "Account risk settings updated",
+        "account": response.data[0] if response.data else None,
+    }
+
+
+@app.post("/admin/client-accounts/{account_id}/toggle-auto-trade")
+def admin_toggle_auto_trade(account_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    current = (
+        supabase.table("client_accounts")
+        .select("*")
+        .eq("id", account_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not current:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    account = current[0]
+
+    if account.get("status") != "approved":
+        return {
+            "success": False,
+            "message": "Account must be approved before enabling auto trading",
+            "account": account,
+        }
+
+    new_value = not bool(account.get("auto_trade_enabled"))
+
+    response = (
+        supabase.table("client_accounts")
+        .update({"auto_trade_enabled": new_value})
+        .eq("id", account_id)
+        .execute()
+    )
+
+    updated = response.data[0] if response.data else None
+
+    send_telegram(f"""
+⚙️ *AUTO TRADE UPDATED*
+
+Name: {account.get("name")}
+Platform: {account.get("platform")}
+Login: {account.get("account_login")}
+Auto Trade: {"ON" if new_value else "OFF"}
+""")
+
+    return {
+        "success": True,
+        "auto_trade_enabled": new_value,
+        "account": updated,
     }
 
 @app.post("/admin/reset-ai-signals")
