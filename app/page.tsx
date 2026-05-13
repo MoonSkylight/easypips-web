@@ -7,6 +7,10 @@ const API =
 
 type Signal = {
   id?: string | number;
+  source?: string;
+  desk?: string;
+  strategy?: string;
+  pattern?: string;
   symbol: string;
   direction: string;
   entry: string;
@@ -14,16 +18,14 @@ type Signal = {
   tp1?: string;
   tp2?: string;
   tp3?: string;
-  strategy?: string;
-  pattern?: string;
-  score?: number;
   confidence?: number;
+  score?: number;
   status?: string;
   result?: string;
   created_at?: string;
 };
 
-type StrategyPerformance = {
+type Perf = {
   totalSignalsLogged?: number;
   activeTrades?: number;
   rejectedSignals?: number;
@@ -38,40 +40,57 @@ type StrategyPerformance = {
   winRate?: number;
 };
 
+const sourceFilters = [
+  "All",
+  "Strategy A",
+  "Strategy B",
+  "Desk 1",
+  "Desk 2",
+];
+
+const news = [
+  { time: "12:30", currency: "USD", event: "Non-Farm Payrolls", impact: "High" },
+  { time: "14:00", currency: "USD", event: "ISM Manufacturing PMI", impact: "High" },
+  { time: "15:30", currency: "USD", event: "Fed Chair Speech", impact: "High" },
+  { time: "16:00", currency: "USD", event: "Crude Oil Inventories", impact: "Medium" },
+  { time: "18:00", currency: "GBP", event: "BoE Speech", impact: "Medium" },
+];
+
 export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [closed, setClosed] = useState<Signal[]>([]);
-  const [performance, setPerformance] = useState<any>(null);
-  const [status, setStatus] = useState<any>(null);
+  const [performance, setPerformance] = useState<any>({});
+  const [status, setStatus] = useState<any>({});
+  const [filter, setFilter] = useState("All");
   const [loading, setLoading] = useState(true);
 
   async function loadData() {
     try {
-      const [signalRes, perfRes, statusRes, closedRes] = await Promise.all([
+      const [signalsRes, perfRes, statusRes, closedRes] = await Promise.all([
         fetch(`${API}/all-paid-signals`, { cache: "no-store" }),
         fetch(`${API}/strategy-performance`, { cache: "no-store" }),
         fetch(`${API}/system-status`, { cache: "no-store" }),
         fetch(`${API}/closed-signals`, { cache: "no-store" }),
       ]);
 
-      const signalData = await signalRes.json();
+      const signalsData = await signalsRes.json();
       const perfData = await perfRes.json();
       const statusData = await statusRes.json();
       const closedData = await closedRes.json();
 
-      const activeSignals = [
-        ...(signalData.strategyASignals || []),
-        ...(signalData.strategyBSignals || []),
-        ...(signalData.desk1Signals || []),
-        ...(signalData.desk2Signals || []),
+      const allSignals: Signal[] = [
+        ...(signalsData.strategyASignals || []),
+        ...(signalsData.strategyBSignals || []),
+        ...(signalsData.desk1Signals || []),
+        ...(signalsData.desk2Signals || []),
       ];
 
-      setSignals(activeSignals);
-      setPerformance(perfData);
-      setStatus(statusData);
+      setSignals(allSignals);
+      setPerformance(perfData || {});
+      setStatus(statusData || {});
       setClosed(closedData.closedSignals || []);
-    } catch (e) {
-      console.error("Dashboard loading error:", e);
+    } catch (error) {
+      console.error("Dashboard load error:", error);
     } finally {
       setLoading(false);
     }
@@ -83,8 +102,10 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  const strategyA: StrategyPerformance = performance?.["Strategy A"] || {};
-  const strategyB: StrategyPerformance = performance?.["Strategy B"] || {};
+  const strategyA: Perf = performance?.["Strategy A"] || {};
+  const strategyB: Perf = performance?.["Strategy B"] || {};
+  const desk1Signals = signals.filter((s) => s.desk === "Desk 1");
+  const desk2Signals = signals.filter((s) => s.desk === "Desk 2");
 
   const tpA = strategyA.tpHits || strategyA.wins || strategyA.tp3Hits || 0;
   const tpB = strategyB.tpHits || strategyB.wins || strategyB.tp3Hits || 0;
@@ -99,35 +120,37 @@ export default function HomePage() {
     return total ? Math.round((totalTP / total) * 100) : 0;
   }, [totalTP, totalSL]);
 
-  return (
-    <main className="min-h-screen bg-[#060A12] text-white">
-      <div className="flex">
-        <aside className="hidden min-h-screen w-72 border-r border-white/10 bg-[#080D17] p-6 lg:block">
-          <div className="mb-10 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400 text-xl font-black text-black">
-              EP
-            </div>
-            <div>
-              <h1 className="text-xl font-black">EasyPips</h1>
-              <p className="text-xs text-slate-400">AI Forex Signal Engine</p>
-            </div>
-          </div>
+  const filteredSignals = useMemo(() => {
+    if (filter === "All") return signals;
+    if (filter === "Desk 1") return signals.filter((s) => s.desk === "Desk 1");
+    if (filter === "Desk 2") return signals.filter((s) => s.desk === "Desk 2");
+    return signals.filter((s) => s.strategy === filter);
+  }, [signals, filter]);
 
-          <nav className="space-y-2">
+  return (
+    <main className="min-h-screen bg-[#05070D] text-white">
+      <div className="flex">
+        <aside className="hidden min-h-screen w-72 border-r border-white/10 bg-[#080C14] p-5 xl:block">
+          <Logo />
+
+          <nav className="mt-8 space-y-2">
             {[
               "Dashboard",
               "Live Signals",
               "Performance",
               "Strategies",
+              "News Calendar",
+              "Account (MT4/MT5)",
               "History",
-              "Telegram Alerts",
+              "Reports",
+              "Settings",
             ].map((item, index) => (
               <a
                 key={item}
                 href="#"
-                className={`block rounded-2xl px-4 py-3 text-sm font-semibold ${
+                className={`flex items-center rounded-2xl px-4 py-3 text-sm font-bold ${
                   index === 0
-                    ? "bg-emerald-400/15 text-emerald-300"
+                    ? "bg-yellow-400/10 text-yellow-300 ring-1 ring-yellow-400/30"
                     : "text-slate-400 hover:bg-white/5 hover:text-white"
                 }`}
               >
@@ -136,164 +159,214 @@ export default function HomePage() {
             ))}
           </nav>
 
-          <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-            <h3 className="font-bold">Join Telegram</h3>
-            <p className="mt-2 text-sm text-slate-400">
-              Get instant signal alerts and TP/SL updates.
-            </p>
+          <div className="mt-8 rounded-3xl border border-yellow-400/30 bg-yellow-400/5 p-5">
+            <p className="text-lg font-black text-yellow-300">Premium AI Signals</p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-300">
+              <li>✓ AI powered strategies</li>
+              <li>✓ Desk 1 and Desk 2</li>
+              <li>✓ News calendar</li>
+              <li>✓ MT4 / MT5 ready</li>
+            </ul>
             <a
               href="https://t.me/easypips_signals_bot"
               target="_blank"
-              className="mt-4 block rounded-2xl bg-emerald-400 px-4 py-3 text-center text-sm font-black text-black"
+              className="mt-5 block rounded-2xl border border-yellow-400/50 px-4 py-3 text-center font-black text-yellow-300 hover:bg-yellow-400 hover:text-black"
             >
               Join Telegram
             </a>
           </div>
+
+          <div className="mt-5 rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+            <p className="text-sm text-slate-400">Market Status</p>
+            <p className="mt-2 font-black text-emerald-400">OPEN</p>
+            <div className="mt-5 h-12 rounded-xl bg-gradient-to-r from-emerald-500/20 to-emerald-400/5" />
+            <p className="mt-5 text-sm text-slate-400">System Status</p>
+            <p className="mt-2 font-black text-emerald-400">RUNNING</p>
+          </div>
         </aside>
 
         <section className="flex-1">
-          <header className="border-b border-white/10 bg-[#080D17]/80 px-6 py-5 backdrop-blur">
-            <div className="mx-auto flex max-w-7xl items-center justify-between">
-              <div>
-                <p className="text-sm text-emerald-300">● Live AI System Running</p>
-                <h2 className="mt-1 text-2xl font-black">Trading Dashboard</h2>
+          <header className="sticky top-0 z-20 border-b border-white/10 bg-[#05070D]/90 px-5 py-4 backdrop-blur">
+            <div className="flex items-center justify-between">
+              <div className="xl:hidden">
+                <Logo compact />
               </div>
 
-              <div className="text-right text-sm text-slate-400">
-                <p>Server Time UTC</p>
-                <p className="text-white">
-                  {status?.serverTimeUTC
-                    ? new Date(status.serverTimeUTC).toLocaleString()
-                    : "Loading..."}
-                </p>
+              <div className="hidden items-center gap-6 text-sm font-bold text-slate-300 xl:flex">
+                <a className="text-yellow-300" href="#">Dashboard</a>
+                <a href="#">Live Signals</a>
+                <a href="#">Performance</a>
+                <a href="#">Strategies</a>
+                <a href="#">News Calendar</a>
+                <a href="#">Account</a>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="hidden text-right text-sm sm:block">
+                  <p className="text-slate-400">Server Time UTC</p>
+                  <p className="font-bold">
+                    {status?.serverTimeUTC
+                      ? new Date(status.serverTimeUTC).toLocaleString()
+                      : "Loading..."}
+                  </p>
+                </div>
+
+                <a
+                  href="https://t.me/easypips_signals_bot"
+                  target="_blank"
+                  className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20"
+                >
+                  Join Telegram
+                </a>
               </div>
             </div>
           </header>
 
-          <div className="mx-auto max-w-7xl space-y-6 px-6 py-6">
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-              <TopCard title="Total Signals" value={status?.totalSignals || 0} />
-              <TopCard title="Active Trades" value={status?.activeSignals || 0} green />
-              <TopCard title="Closed Trades" value={status?.closedSignals || 0} purple />
-              <TopCard title="Win Rate" value={`${winRate}%`} gold />
-              <TopCard title="TP Hits" value={totalTP} green />
-              <TopCard title="SL Hits" value={totalSL} red />
-            </div>
+          <div className="space-y-6 p-5">
+            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-8">
+              <TopStat title="Total Signals" value={status?.totalSignals || 0} color="blue" />
+              <TopStat title="Active Signals" value={status?.activeSignals || 0} color="green" />
+              <TopStat title="Closed Trades" value={status?.closedSignals || 0} color="purple" />
+              <TopStat title="Win Rate" value={`${winRate}%`} color="gold" />
+              <TopStat title="TP Hits" value={totalTP} color="green" />
+              <TopStat title="SL Hits" value={totalSL} color="red" />
+              <TopStat title="Desk 1" value={desk1Signals.length} color="green" />
+              <TopStat title="Desk 2" value={desk2Signals.length} color="orange" />
+            </section>
 
-            <div className="grid gap-6 xl:grid-cols-3">
-              <Panel className="xl:col-span-2" title="Performance Overview">
-                <div className="flex h-72 items-end gap-3 rounded-2xl bg-black/30 p-6">
-                  {[35, 42, 49, 47, 55, 62, 65, 72, 75, 81, 78, 86].map(
-                    (h, i) => (
-                      <div key={i} className="flex flex-1 flex-col items-center gap-2">
-                        <div
-                          className="w-full rounded-t-xl bg-gradient-to-t from-emerald-500 to-blue-400"
-                          style={{ height: `${h}%` }}
-                        />
-                        <span className="text-[10px] text-slate-500">{i + 1}</span>
-                      </div>
-                    )
-                  )}
+            <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+              <Panel title={`Live Signals (${filteredSignals.length})`}>
+                <div className="mb-5 flex flex-wrap gap-2">
+                  {sourceFilters.map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => setFilter(item)}
+                      className={`rounded-xl px-4 py-2 text-sm font-bold ${
+                        filter === item
+                          ? "bg-yellow-400 text-black"
+                          : "bg-white/5 text-slate-300 hover:bg-white/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
                 </div>
+
+                {loading ? (
+                  <p className="text-slate-400">Loading signals...</p>
+                ) : filteredSignals.length === 0 ? (
+                  <p className="rounded-2xl bg-black/30 p-6 text-slate-400">
+                    No active signals for this filter.
+                  </p>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {filteredSignals.map((signal, index) => (
+                      <SignalBox key={signal.id || index} signal={signal} />
+                    ))}
+                  </div>
+                )}
               </Panel>
 
-              <Panel title="Signals Distribution">
-                <div className="flex h-72 flex-col items-center justify-center">
-                  <div className="flex h-44 w-44 items-center justify-center rounded-full border-[22px] border-emerald-400 border-r-blue-500">
+              <Panel title="Economic News Calendar">
+                <div className="mb-4 flex gap-2 text-xs font-bold">
+                  <span className="rounded-full bg-blue-400/10 px-3 py-1 text-blue-300">
+                    All News
+                  </span>
+                  <span className="rounded-full bg-red-400/10 px-3 py-1 text-red-300">
+                    High Impact
+                  </span>
+                  <span className="rounded-full bg-yellow-400/10 px-3 py-1 text-yellow-300">
+                    Medium
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {news.map((item, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-[55px_55px_1fr_70px] items-center gap-2 rounded-2xl bg-black/30 p-3 text-sm"
+                    >
+                      <span className="text-slate-400">{item.time}</span>
+                      <span className="font-bold">{item.currency}</span>
+                      <span className="text-slate-300">{item.event}</span>
+                      <span
+                        className={`rounded-lg px-2 py-1 text-center text-xs font-black ${
+                          item.impact === "High"
+                            ? "bg-red-400/10 text-red-300"
+                            : "bg-yellow-400/10 text-yellow-300"
+                        }`}
+                      >
+                        {item.impact}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="mt-5 text-center text-sm font-bold text-yellow-300">
+                  Full live calendar can be connected next
+                </p>
+              </Panel>
+            </section>
+
+            <section className="grid gap-6 xl:grid-cols-4">
+              <StrategyCard
+                title="Strategy A"
+                subtitle="EMA + RSI + Momentum"
+                color="yellow"
+                data={strategyA}
+              />
+              <StrategyCard
+                title="Strategy B"
+                subtitle="Fibonacci Pattern"
+                color="purple"
+                data={strategyB}
+              />
+              <DeskCard title="Desk 1" count={desk1Signals.length} color="green" />
+              <DeskCard title="Desk 2" count={desk2Signals.length} color="orange" />
+            </section>
+
+            <section className="grid gap-6 xl:grid-cols-[1fr_1fr_1fr]">
+              <Panel title="Performance Overview">
+                <div className="flex h-52 items-center justify-center">
+                  <div className="flex h-40 w-40 items-center justify-center rounded-full border-[18px] border-emerald-400 border-r-yellow-400">
                     <div className="text-center">
-                      <p className="text-4xl font-black">{status?.totalSignals || 0}</p>
-                      <p className="text-xs text-slate-400">Total</p>
+                      <p className="text-3xl font-black">{winRate}%</p>
+                      <p className="text-xs text-slate-400">Win Rate</p>
                     </div>
                   </div>
-                  <div className="mt-6 grid w-full grid-cols-2 gap-3 text-sm">
-                    <Legend label="Strategy A" value={status?.strategyAActive || 0} />
-                    <Legend label="Strategy B" value={status?.strategyBActive || 0} blue />
-                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <Row label="Total Signals" value={status?.totalSignals || 0} />
+                  <Row label="Total Closed" value={status?.closedSignals || 0} />
+                  <Row label="TP Hits" value={totalTP} green />
+                  <Row label="SL Hits" value={totalSL} red />
                 </div>
               </Panel>
-            </div>
 
-            <div className="grid gap-6 xl:grid-cols-3">
-              <StrategyCard
-                name="Strategy A"
-                subtitle="EMA + RSI + Momentum"
-                data={strategyA}
-                color="emerald"
-              />
-              <StrategyCard
-                name="Strategy B"
-                subtitle="Fibonacci Pattern Strategy"
-                data={strategyB}
-                color="blue"
-              />
-              <Panel title="System Status">
-                <div className="space-y-3">
-                  <StatusRow label="API Status" ok />
-                  <StatusRow label="Database" ok={status?.database === "connected"} />
-                  <StatusRow label="Telegram" ok={status?.telegram === "connected"} />
-                  <StatusRow label="AI Engine" ok />
-                  <StatusRow label="Data Feed" ok />
-                </div>
-              </Panel>
-            </div>
-
-            <Panel title="Live Signals">
-              {loading ? (
-                <p className="p-4 text-slate-400">Loading live signals...</p>
-              ) : signals.length === 0 ? (
-                <p className="p-4 text-slate-400">
-                  No active signals right now. AI is waiting for clean setups.
-                </p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[900px] text-sm">
-                    <thead>
-                      <tr className="border-b border-white/10 text-left text-slate-400">
-                        <th className="p-3">Pair</th>
-                        <th className="p-3">Direction</th>
-                        <th className="p-3">Strategy</th>
-                        <th className="p-3">Entry</th>
-                        <th className="p-3">SL</th>
-                        <th className="p-3">TP</th>
-                        <th className="p-3">Score</th>
-                        <th className="p-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {signals.map((s, i) => (
-                        <SignalRow key={s.id || i} signal={s} />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Panel>
-
-            <div className="grid gap-6 xl:grid-cols-2">
               <Panel title="Recent Closed Trades">
                 {closed.length === 0 ? (
                   <p className="text-slate-400">No closed trades yet.</p>
                 ) : (
                   <div className="space-y-3">
-                    {closed.slice(0, 6).map((s, i) => (
+                    {closed.slice(0, 5).map((signal, index) => (
                       <div
-                        key={s.id || i}
+                        key={signal.id || index}
                         className="flex items-center justify-between rounded-2xl bg-black/30 p-4"
                       >
                         <div>
-                          <p className="font-bold">{s.symbol}</p>
+                          <p className="font-black">{signal.symbol}</p>
                           <p className="text-xs text-slate-400">
-                            {s.direction} / {s.strategy}
+                            {signal.direction} · {signal.strategy || signal.desk}
                           </p>
                         </div>
                         <span
-                          className={`rounded-full px-3 py-1 text-xs font-black ${
-                            s.result === "SL"
+                          className={`rounded-xl px-3 py-1 text-xs font-black ${
+                            signal.result === "SL"
                               ? "bg-red-400/10 text-red-300"
                               : "bg-emerald-400/10 text-emerald-300"
                           }`}
                         >
-                          {s.result}
+                          {signal.result}
                         </span>
                       </div>
                     ))}
@@ -301,27 +374,49 @@ export default function HomePage() {
                 )}
               </Panel>
 
-              <Panel title="Risk Warning">
-                <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-5">
-                  <h3 className="text-lg font-black text-yellow-300">
-                    Educational Signals Only
-                  </h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-300">
-                    EasyPips signals are for educational and demo purposes only.
-                    Forex trading involves risk. Always use proper risk
-                    management and never trade money you cannot afford to lose.
+              <Panel title="Your Trading Accounts">
+                <AccountBox type="MT4" status="Demo Ready" />
+                <AccountBox type="MT5" status="Live Ready" />
+
+                <button className="mt-5 w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black">
+                  Connect MT4 / MT5 Account
+                </button>
+
+                <p className="mt-4 text-xs leading-5 text-slate-400">
+                  Auto-copy trading will require client consent, lot-size rules,
+                  risk limits, and a kill switch.
+                </p>
+              </Panel>
+            </section>
+
+            <section className="rounded-3xl border border-yellow-400/20 bg-gradient-to-r from-yellow-400/10 to-emerald-400/10 p-6">
+              <div className="grid gap-5 xl:grid-cols-[1fr_2fr_1fr] xl:items-center">
+                <div>
+                  <h2 className="text-2xl font-black">Copy Our Signals Automatically</h2>
+                  <p className="mt-2 text-slate-300">
+                    Clients will be able to connect MT4 / MT5 and receive signals automatically.
                   </p>
                 </div>
 
-                <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-5">
-                  <h3 className="font-black text-emerald-300">Telegram Alerts</h3>
-                  <p className="mt-2 text-sm text-slate-300">
-                    Approved signals and TP/SL results are published to Telegram
-                    automatically.
-                  </p>
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                  {["Real-time Execution", "Risk Management", "Auto Lot Control", "Secure Access"].map(
+                    (item) => (
+                      <div key={item} className="rounded-2xl bg-black/30 p-4 text-center text-sm font-bold">
+                        {item}
+                      </div>
+                    )
+                  )}
                 </div>
-              </Panel>
-            </div>
+
+                <a
+                  href="https://t.me/easypips_signals_bot"
+                  target="_blank"
+                  className="rounded-2xl bg-yellow-400 px-6 py-4 text-center font-black text-black"
+                >
+                  Join Telegram
+                </a>
+              </div>
+            </section>
           </div>
         </section>
       </div>
@@ -329,35 +424,47 @@ export default function HomePage() {
   );
 }
 
-function TopCard({
+function Logo({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400 text-xl font-black text-black">
+        EP
+      </div>
+      {!compact && (
+        <div>
+          <h1 className="text-2xl font-black">
+            EasyPips <span className="text-yellow-300">AI</span>
+          </h1>
+          <p className="text-xs text-slate-400">Smart Forex Signals</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TopStat({
   title,
   value,
-  green,
-  red,
-  purple,
-  gold,
+  color,
 }: {
   title: string;
   value: any;
-  green?: boolean;
-  red?: boolean;
-  purple?: boolean;
-  gold?: boolean;
+  color: "blue" | "green" | "purple" | "gold" | "red" | "orange";
 }) {
-  const color = green
-    ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/10"
-    : red
-    ? "text-red-400 border-red-400/20 bg-red-400/10"
-    : purple
-    ? "text-purple-400 border-purple-400/20 bg-purple-400/10"
-    : gold
-    ? "text-yellow-400 border-yellow-400/20 bg-yellow-400/10"
-    : "text-blue-400 border-blue-400/20 bg-blue-400/10";
+  const map: any = {
+    blue: "border-blue-400/20 text-blue-300",
+    green: "border-emerald-400/20 text-emerald-300",
+    purple: "border-purple-400/20 text-purple-300",
+    gold: "border-yellow-400/20 text-yellow-300",
+    red: "border-red-400/20 text-red-300",
+    orange: "border-orange-400/20 text-orange-300",
+  };
 
   return (
-    <div className={`rounded-3xl border p-5 ${color}`}>
-      <p className="text-xs font-semibold uppercase opacity-80">{title}</p>
-      <p className="mt-3 text-3xl font-black text-white">{value}</p>
+    <div className={`rounded-3xl border bg-white/[0.04] p-5 ${map[color]}`}>
+      <p className="text-xs font-black uppercase">{title}</p>
+      <p className="mt-4 text-3xl font-black text-white">{value}</p>
+      <div className="mt-4 h-8 rounded-xl bg-gradient-to-r from-current/30 to-transparent opacity-70" />
     </div>
   );
 }
@@ -365,64 +472,133 @@ function TopCard({
 function Panel({
   title,
   children,
-  className = "",
 }: {
   title: string;
   children: React.ReactNode;
-  className?: string;
 }) {
   return (
-    <div className={`rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-xl ${className}`}>
-      <h2 className="mb-5 text-xl font-black">{title}</h2>
+    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-xl">
+      <h2 className="mb-5 text-lg font-black">{title}</h2>
       {children}
     </div>
   );
 }
 
+function SignalBox({ signal }: { signal: Signal }) {
+  const isBuy = signal.direction?.toUpperCase() === "BUY";
+  const source = signal.desk || signal.strategy || signal.source || "Signal";
+  const badge = getBadge(source);
+
+  return (
+    <div className="rounded-3xl border border-white/10 bg-[#0A101C] p-5 transition hover:-translate-y-1 hover:border-yellow-400/40">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs text-slate-400">{signal.pattern || "AI Engine"}</p>
+          <h3 className="mt-1 text-2xl font-black">{signal.symbol}</h3>
+        </div>
+
+        <span
+          className={`rounded-xl px-3 py-1 text-xs font-black ${
+            isBuy ? "bg-emerald-400/15 text-emerald-300" : "bg-red-400/15 text-red-300"
+          }`}
+        >
+          {signal.direction}
+        </span>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between">
+        <span className={`rounded-lg px-3 py-1 text-xs font-black ${badge}`}>
+          {source}
+        </span>
+        <span className="text-xs text-emerald-400">{signal.status || "ACTIVE"}</span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+        <Box label="Entry" value={signal.entry} />
+        <Box label="SL" value={signal.sl} red />
+        <Box label="TP1" value={signal.tp1} green />
+        <Box label="TP2" value={signal.tp2} green />
+        <Box label="TP3" value={signal.tp3} green />
+        <Box label="Score" value={signal.score || signal.confidence || "N/A"} />
+      </div>
+    </div>
+  );
+}
+
+function Box({
+  label,
+  value,
+  green,
+  red,
+}: {
+  label: string;
+  value?: any;
+  green?: boolean;
+  red?: boolean;
+}) {
+  return (
+    <div className="rounded-2xl bg-black/35 p-3">
+      <p className="text-xs text-slate-500">{label}</p>
+      <p
+        className={`mt-1 font-mono text-lg font-black ${
+          green ? "text-emerald-400" : red ? "text-red-400" : "text-white"
+        }`}
+      >
+        {value || "-"}
+      </p>
+    </div>
+  );
+}
+
 function StrategyCard({
-  name,
+  title,
   subtitle,
   data,
   color,
 }: {
-  name: string;
+  title: string;
   subtitle: string;
-  data: StrategyPerformance;
-  color: "emerald" | "blue";
+  data: Perf;
+  color: "yellow" | "purple";
 }) {
   const tp = data.tpHits || data.wins || data.tp3Hits || 0;
   const sl = data.slHits || data.losses || 0;
-  const winRate = data.winRate || 0;
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-xl">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3
-            className={`text-2xl font-black ${
-              color === "emerald" ? "text-emerald-400" : "text-blue-400"
-            }`}
-          >
-            {name}
-          </h3>
-          <p className="mt-1 text-sm text-slate-400">{subtitle}</p>
-        </div>
-        <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-300">
-          LIVE
-        </span>
-      </div>
-
-      <div className="mt-6 grid grid-cols-3 gap-3">
+    <Panel title={title}>
+      <p className="text-sm text-slate-400">{subtitle}</p>
+      <div className="mt-5 grid grid-cols-3 gap-3">
         <Mini label="Active" value={data.activeTrades || 0} />
-        <Mini label="Closed" value={data.closedTrades || 0} />
-        <Mini label="Win Rate" value={`${winRate}%`} />
+        <Mini label="TP" value={tp} green />
+        <Mini label="SL" value={sl} red />
       </div>
+      <div className="mt-5 rounded-2xl bg-black/30 p-4">
+        <p className={color === "yellow" ? "text-yellow-300" : "text-purple-300"}>
+          Win Rate
+        </p>
+        <p className="mt-2 text-3xl font-black">{data.winRate || 0}%</p>
+      </div>
+    </Panel>
+  );
+}
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <Mini label="TP Hits" value={tp} green />
-        <Mini label="SL Hits" value={sl} red />
-      </div>
-    </div>
+function DeskCard({
+  title,
+  count,
+  color,
+}: {
+  title: string;
+  count: number;
+  color: "green" | "orange";
+}) {
+  return (
+    <Panel title={title}>
+      <p className="text-sm text-slate-400">Manual trading desk</p>
+      <p className={`mt-5 text-4xl font-black ${color === "green" ? "text-emerald-400" : "text-orange-400"}`}>
+        {count}
+      </p>
+      <p className="mt-2 text-sm text-slate-400">Active signals</p>
+    </Panel>
   );
 }
 
@@ -438,82 +614,53 @@ function Mini({
   red?: boolean;
 }) {
   return (
-    <div className="rounded-2xl bg-black/30 p-4">
+    <div className="rounded-2xl bg-black/30 p-3">
       <p className="text-xs text-slate-400">{label}</p>
-      <p
-        className={`mt-2 text-xl font-black ${
-          green ? "text-emerald-400" : red ? "text-red-400" : "text-white"
-        }`}
-      >
+      <p className={`mt-1 text-xl font-black ${green ? "text-emerald-400" : red ? "text-red-400" : "text-white"}`}>
         {value}
       </p>
     </div>
   );
 }
 
-function SignalRow({ signal }: { signal: Signal }) {
-  const buy = signal.direction?.toUpperCase() === "BUY";
-
+function Row({
+  label,
+  value,
+  green,
+  red,
+}: {
+  label: string;
+  value: any;
+  green?: boolean;
+  red?: boolean;
+}) {
   return (
-    <tr className="border-b border-white/5">
-      <td className="p-3 font-bold">{signal.symbol}</td>
-      <td className="p-3">
-        <span
-          className={`rounded-lg px-3 py-1 text-xs font-black ${
-            buy ? "bg-emerald-400/10 text-emerald-300" : "bg-red-400/10 text-red-300"
-          }`}
-        >
-          {signal.direction}
-        </span>
-      </td>
-      <td className="p-3 text-slate-300">{signal.strategy}</td>
-      <td className="p-3 font-mono">{signal.entry}</td>
-      <td className="p-3 font-mono text-red-400">{signal.sl}</td>
-      <td className="p-3 font-mono text-emerald-400">
-        {signal.tp3 || signal.tp2 || signal.tp1}
-      </td>
-      <td className="p-3">
-        <span className="rounded-full border border-emerald-400/40 px-3 py-1 text-emerald-300">
-          {signal.score || signal.confidence || "N/A"}
-        </span>
-      </td>
-      <td className="p-3">
-        <span className="rounded-lg bg-yellow-400/10 px-3 py-1 text-xs font-black text-yellow-300">
-          {signal.status}
-        </span>
-      </td>
-    </tr>
-  );
-}
-
-function StatusRow({ label, ok }: { label: string; ok: boolean }) {
-  return (
-    <div className="flex items-center justify-between rounded-2xl bg-black/30 p-4">
-      <span className="text-slate-300">{label}</span>
-      <span
-        className={`rounded-full px-3 py-1 text-xs font-black ${
-          ok ? "bg-emerald-400/10 text-emerald-300" : "bg-red-400/10 text-red-300"
-        }`}
-      >
-        {ok ? "ONLINE" : "OFFLINE"}
+    <div className="flex justify-between border-b border-white/10 py-2">
+      <span className="text-slate-400">{label}</span>
+      <span className={green ? "text-emerald-400" : red ? "text-red-400" : "text-white"}>
+        {value}
       </span>
     </div>
   );
 }
 
-function Legend({
-  label,
-  value,
-  blue,
-}: {
-  label: string;
-  value: number;
-  blue?: boolean;
-}) {
+function AccountBox({ type, status }: { type: string; status: string }) {
   return (
-    <div className="flex items-center justify-between rounded-xl bg-black/30 px-3 py-2">
-      <span className="text-slate-400">{label}</span>
-      <span className={blue ? "text-blue-400" : "text-emerald-400"}>{value}</span>
+    <div className="mb-3 flex items-center justify-between rounded-2xl bg-black/30 p-4">
+      <div>
+        <p className="font-black">{type} Account</p>
+        <p className="text-xs text-slate-400">{status}</p>
+        <p className="text-xs text-emerald-400">Ready to connect</p>
+      </div>
+      <p className="text-3xl font-black">{type}</p>
     </div>
   );
+}
+
+function getBadge(source: string) {
+  if (source === "Strategy A") return "bg-blue-400/10 text-blue-300 border border-blue-400/30";
+  if (source === "Strategy B") return "bg-purple-400/10 text-purple-300 border border-purple-400/30";
+  if (source === "Desk 1") return "bg-emerald-400/10 text-emerald-300 border border-emerald-400/30";
+  if (source === "Desk 2") return "bg-orange-400/10 text-orange-300 border border-orange-400/30";
+  return "bg-slate-400/10 text-slate-300 border border-slate-400/30";
 }
