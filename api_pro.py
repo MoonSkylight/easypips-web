@@ -252,23 +252,68 @@ def calculate_equity_summary(trades: list):
     }
 
 
-def send_telegram(message: str):
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        return
 
+def send_telegram(message: str):
+    """
+    Robust Telegram sender.
+    Sends plain text to avoid Markdown parse errors.
+    Prints all failures to Render logs.
+    """
     try:
-        requests.post(
-            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={
-                "chat_id": TELEGRAM_CHAT_ID,
-                "text": message,
-                "parse_mode": "Markdown",
-                "disable_web_page_preview": True,
-            },
-            timeout=10,
-        )
+        bot_token = TELEGRAM_BOT_TOKEN or os.getenv("TELEGRAM_BOT_TOKEN")
+        chat_id = TELEGRAM_CHAT_ID or os.getenv("TELEGRAM_CHAT_ID")
+
+        if not bot_token or not chat_id:
+            print("Telegram skipped: missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
+            return False
+
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+
+        payload = {
+            "chat_id": chat_id,
+            "text": str(message),
+            "disable_web_page_preview": True,
+        }
+
+        response = requests.post(url, json=payload, timeout=15)
+
+        if response.status_code != 200:
+            print("Telegram send failed:", response.status_code, response.text)
+            return False
+
+        print("Telegram sent successfully")
+        return True
+
     except Exception as e:
-        print("Telegram error:", e)
+        print("Telegram exception:", str(e))
+        return False
+
+
+def format_signal_message(signal: dict):
+    symbol = signal.get("symbol") or signal.get("pair") or "-"
+    direction = signal.get("direction") or signal.get("type") or "-"
+    entry = signal.get("entry") or signal.get("entry_price") or "-"
+    sl = signal.get("sl") or signal.get("stop_loss") or "-"
+    tp = (
+        signal.get("tp3")
+        or signal.get("tp2")
+        or signal.get("tp1")
+        or signal.get("tp")
+        or signal.get("take_profit")
+        or "-"
+    )
+    strategy = signal.get("strategy") or signal.get("desk") or signal.get("source") or "EasyPips"
+
+    return f"""EASY PIPS NEW SIGNAL
+
+Source: {strategy}
+Symbol: {symbol}
+Direction: {direction}
+Entry: {entry}
+SL: {sl}
+TP: {tp}
+
+Educational only. Trading involves risk."""
 
 
 def create_chart(symbol: str, yahoo_symbol: str):
@@ -2425,6 +2470,37 @@ def admin_get_trade_history(account_id: str, authorization: str = Header(default
     return {
         "trades": trades,
         "equity": calculate_equity_summary(trades),
+    }
+
+
+@app.get("/debug-telegram")
+def debug_telegram():
+    ok = send_telegram("EasyPips Telegram test message. Telegram connection is working.")
+    return {
+        "success": ok,
+        "message": "Telegram test attempted. Check Telegram and Render logs.",
+    }
+
+
+@app.post("/admin/broadcast-signal-test")
+def admin_broadcast_signal_test(authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    message = """EASY PIPS TEST SIGNAL
+
+Symbol: BTC/USD
+Direction: BUY
+Entry: Test
+SL: Test
+TP: Test
+
+Manual broadcast test from admin endpoint."""
+
+    ok = send_telegram(message)
+
+    return {
+        "success": ok,
+        "message": "Manual Telegram signal broadcast attempted.",
     }
 
 @app.post("/admin/reset-ai-signals")
