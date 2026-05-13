@@ -27,6 +27,7 @@ type Signal = {
 
 type Perf = {
   totalSignalsLogged?: number;
+  totalSignals?: number;
   activeTrades?: number;
   rejectedSignals?: number;
   closedTrades?: number;
@@ -40,6 +41,25 @@ type Perf = {
   winRate?: number;
 };
 
+type NewsEvent = {
+  time: string;
+  currency: string;
+  event: string;
+  impact: string;
+};
+
+type ClientAccount = {
+  id?: string;
+  name?: string;
+  platform?: string;
+  broker?: string;
+  account_login?: string;
+  status?: string;
+  risk_mode?: string;
+  max_lot?: number;
+  auto_trade_enabled?: boolean;
+};
+
 const sourceFilters = [
   "All",
   "Strategy A",
@@ -48,35 +68,44 @@ const sourceFilters = [
   "Desk 2",
 ];
 
-const news = [
-  { time: "12:30", currency: "USD", event: "Non-Farm Payrolls", impact: "High" },
-  { time: "14:00", currency: "USD", event: "ISM Manufacturing PMI", impact: "High" },
-  { time: "15:30", currency: "USD", event: "Fed Chair Speech", impact: "High" },
-  { time: "16:00", currency: "USD", event: "Crude Oil Inventories", impact: "Medium" },
-  { time: "18:00", currency: "GBP", event: "BoE Speech", impact: "Medium" },
-];
-
 export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [closed, setClosed] = useState<Signal[]>([]);
   const [performance, setPerformance] = useState<any>({});
+  const [deskPerformance, setDeskPerformance] = useState<any>({});
   const [status, setStatus] = useState<any>({});
+  const [newsEvents, setNewsEvents] = useState<NewsEvent[]>([]);
+  const [accounts, setAccounts] = useState<ClientAccount[]>([]);
   const [filter, setFilter] = useState("All");
   const [loading, setLoading] = useState(true);
 
   async function loadData() {
     try {
-      const [signalsRes, perfRes, statusRes, closedRes] = await Promise.all([
+      const [
+        signalsRes,
+        perfRes,
+        statusRes,
+        closedRes,
+        newsRes,
+        accountsRes,
+        deskPerfRes,
+      ] = await Promise.all([
         fetch(`${API}/all-paid-signals`, { cache: "no-store" }),
         fetch(`${API}/strategy-performance`, { cache: "no-store" }),
         fetch(`${API}/system-status`, { cache: "no-store" }),
         fetch(`${API}/closed-signals`, { cache: "no-store" }),
+        fetch(`${API}/news-calendar`, { cache: "no-store" }),
+        fetch(`${API}/client-accounts`, { cache: "no-store" }),
+        fetch(`${API}/desk-performance`, { cache: "no-store" }),
       ]);
 
       const signalsData = await signalsRes.json();
       const perfData = await perfRes.json();
       const statusData = await statusRes.json();
       const closedData = await closedRes.json();
+      const newsData = await newsRes.json();
+      const accountsData = await accountsRes.json();
+      const deskPerfData = await deskPerfRes.json();
 
       const allSignals: Signal[] = [
         ...(signalsData.strategyASignals || []),
@@ -89,6 +118,9 @@ export default function HomePage() {
       setPerformance(perfData || {});
       setStatus(statusData || {});
       setClosed(closedData.closedSignals || []);
+      setNewsEvents(newsData.events || []);
+      setAccounts(accountsData.accounts || []);
+      setDeskPerformance(deskPerfData || {});
     } catch (error) {
       console.error("Dashboard load error:", error);
     } finally {
@@ -104,16 +136,24 @@ export default function HomePage() {
 
   const strategyA: Perf = performance?.["Strategy A"] || {};
   const strategyB: Perf = performance?.["Strategy B"] || {};
+  const desk1Perf: Perf = deskPerformance?.["Desk 1"] || {};
+  const desk2Perf: Perf = deskPerformance?.["Desk 2"] || {};
+
   const desk1Signals = signals.filter((s) => s.desk === "Desk 1");
   const desk2Signals = signals.filter((s) => s.desk === "Desk 2");
 
   const tpA = strategyA.tpHits || strategyA.wins || strategyA.tp3Hits || 0;
   const tpB = strategyB.tpHits || strategyB.wins || strategyB.tp3Hits || 0;
+  const tpD1 = desk1Perf.tpHits || 0;
+  const tpD2 = desk2Perf.tpHits || 0;
+
   const slA = strategyA.slHits || strategyA.losses || 0;
   const slB = strategyB.slHits || strategyB.losses || 0;
+  const slD1 = desk1Perf.slHits || 0;
+  const slD2 = desk2Perf.slHits || 0;
 
-  const totalTP = tpA + tpB;
-  const totalSL = slA + slB;
+  const totalTP = tpA + tpB + tpD1 + tpD2;
+  const totalSL = slA + slB + slD1 + slD2;
 
   const winRate = useMemo(() => {
     const total = totalTP + totalSL;
@@ -230,8 +270,8 @@ export default function HomePage() {
               <TopStat title="Win Rate" value={`${winRate}%`} color="gold" />
               <TopStat title="TP Hits" value={totalTP} color="green" />
               <TopStat title="SL Hits" value={totalSL} color="red" />
-              <TopStat title="Desk 1" value={desk1Signals.length} color="green" />
-              <TopStat title="Desk 2" value={desk2Signals.length} color="orange" />
+              <TopStat title="Desk 1" value={desk1Perf.activeTrades || desk1Signals.length} color="green" />
+              <TopStat title="Desk 2" value={desk2Perf.activeTrades || desk2Signals.length} color="orange" />
             </section>
 
             <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
@@ -270,7 +310,7 @@ export default function HomePage() {
               <Panel title="Economic News Calendar">
                 <div className="mb-4 flex gap-2 text-xs font-bold">
                   <span className="rounded-full bg-blue-400/10 px-3 py-1 text-blue-300">
-                    All News
+                    Live Feed
                   </span>
                   <span className="rounded-full bg-red-400/10 px-3 py-1 text-red-300">
                     High Impact
@@ -281,29 +321,35 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-3">
-                  {news.map((item, index) => (
-                    <div
-                      key={index}
-                      className="grid grid-cols-[55px_55px_1fr_70px] items-center gap-2 rounded-2xl bg-black/30 p-3 text-sm"
-                    >
-                      <span className="text-slate-400">{item.time}</span>
-                      <span className="font-bold">{item.currency}</span>
-                      <span className="text-slate-300">{item.event}</span>
-                      <span
-                        className={`rounded-lg px-2 py-1 text-center text-xs font-black ${
-                          item.impact === "High"
-                            ? "bg-red-400/10 text-red-300"
-                            : "bg-yellow-400/10 text-yellow-300"
-                        }`}
+                  {newsEvents.length === 0 ? (
+                    <p className="rounded-2xl bg-black/30 p-4 text-sm text-slate-400">
+                      No news events loaded.
+                    </p>
+                  ) : (
+                    newsEvents.map((item, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-[55px_55px_1fr_70px] items-center gap-2 rounded-2xl bg-black/30 p-3 text-sm"
                       >
-                        {item.impact}
-                      </span>
-                    </div>
-                  ))}
+                        <span className="text-slate-400">{item.time}</span>
+                        <span className="font-bold">{item.currency}</span>
+                        <span className="text-slate-300">{item.event}</span>
+                        <span
+                          className={`rounded-lg px-2 py-1 text-center text-xs font-black ${
+                            item.impact === "High"
+                              ? "bg-red-400/10 text-red-300"
+                              : "bg-yellow-400/10 text-yellow-300"
+                          }`}
+                        >
+                          {item.impact}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <p className="mt-5 text-center text-sm font-bold text-yellow-300">
-                  Full live calendar can be connected next
+                  Connected to /news-calendar
                 </p>
               </Panel>
             </section>
@@ -321,8 +367,8 @@ export default function HomePage() {
                 color="purple"
                 data={strategyB}
               />
-              <DeskCard title="Desk 1" count={desk1Signals.length} color="green" />
-              <DeskCard title="Desk 2" count={desk2Signals.length} color="orange" />
+              <DeskCard title="Desk 1" data={desk1Perf} color="green" />
+              <DeskCard title="Desk 2" data={desk2Perf} color="orange" />
             </section>
 
             <section className="grid gap-6 xl:grid-cols-[1fr_1fr_1fr]">
@@ -375,16 +421,26 @@ export default function HomePage() {
               </Panel>
 
               <Panel title="Your Trading Accounts">
-                <AccountBox type="MT4" status="Demo Ready" />
-                <AccountBox type="MT5" status="Live Ready" />
+                {accounts.length === 0 ? (
+                  <div className="rounded-2xl bg-black/30 p-4">
+                    <p className="font-black">No accounts connected yet</p>
+                    <p className="mt-2 text-sm text-slate-400">
+                      Client MT4 / MT5 connection requests will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  accounts.map((account) => (
+                    <AccountBox key={account.id || account.account_login} account={account} />
+                  ))
+                )}
 
                 <button className="mt-5 w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black">
                   Connect MT4 / MT5 Account
                 </button>
 
                 <p className="mt-4 text-xs leading-5 text-slate-400">
-                  Auto-copy trading will require client consent, lot-size rules,
-                  risk limits, and a kill switch.
+                  Connected to /client-accounts. Auto-copy trading requires
+                  client consent, lot-size rules, risk limits, and a kill switch.
                 </p>
               </Panel>
             </section>
@@ -584,20 +640,25 @@ function StrategyCard({
 
 function DeskCard({
   title,
-  count,
+  data,
   color,
 }: {
   title: string;
-  count: number;
+  data: Perf;
   color: "green" | "orange";
 }) {
   return (
     <Panel title={title}>
       <p className="text-sm text-slate-400">Manual trading desk</p>
       <p className={`mt-5 text-4xl font-black ${color === "green" ? "text-emerald-400" : "text-orange-400"}`}>
-        {count}
+        {data.activeTrades || 0}
       </p>
       <p className="mt-2 text-sm text-slate-400">Active signals</p>
+      <div className="mt-5 grid grid-cols-3 gap-3">
+        <Mini label="TP" value={data.tpHits || 0} green />
+        <Mini label="SL" value={data.slHits || 0} red />
+        <Mini label="Win" value={`${data.winRate || 0}%`} />
+      </div>
     </Panel>
   );
 }
@@ -644,15 +705,20 @@ function Row({
   );
 }
 
-function AccountBox({ type, status }: { type: string; status: string }) {
+function AccountBox({ account }: { account: ClientAccount }) {
   return (
     <div className="mb-3 flex items-center justify-between rounded-2xl bg-black/30 p-4">
       <div>
-        <p className="font-black">{type} Account</p>
-        <p className="text-xs text-slate-400">{status}</p>
-        <p className="text-xs text-emerald-400">Ready to connect</p>
+        <p className="font-black">{account.platform || "MT"} Account</p>
+        <p className="text-xs text-slate-400">
+          {account.name || "Client"} · {account.broker || "Broker not set"}
+        </p>
+        <p className="text-xs text-emerald-400">
+          Status: {account.status || "pending"} · Auto:{" "}
+          {account.auto_trade_enabled ? "ON" : "OFF"}
+        </p>
       </div>
-      <p className="text-3xl font-black">{type}</p>
+      <p className="text-3xl font-black">{account.platform || "MT"}</p>
     </div>
   );
 }
