@@ -78,6 +78,15 @@ export default function HomePage() {
   const [accounts, setAccounts] = useState<ClientAccount[]>([]);
   const [filter, setFilter] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [accountForm, setAccountForm] = useState({
+    name: "",
+    platform: "MT5",
+    broker: "",
+    account_login: "",
+    risk_mode: "manual",
+    max_lot: "0.01",
+  });
+  const [accountMessage, setAccountMessage] = useState("");
 
   async function loadData() {
     try {
@@ -125,6 +134,47 @@ export default function HomePage() {
       console.error("Dashboard load error:", error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function submitAccountConnection() {
+    if (!accountForm.name.trim()) {
+      setAccountMessage("Please enter your name.");
+      return;
+    }
+
+    setAccountMessage("Submitting...");
+
+    try {
+      const res = await fetch(`${API}/client-accounts/connect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...accountForm,
+          max_lot: Number(accountForm.max_lot),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setAccountMessage("Connection request sent successfully.");
+        setAccountForm({
+          name: "",
+          platform: "MT5",
+          broker: "",
+          account_login: "",
+          risk_mode: "manual",
+          max_lot: "0.01",
+        });
+        loadData();
+      } else {
+        setAccountMessage("Failed to submit request.");
+      }
+    } catch (error) {
+      setAccountMessage("Error submitting request.");
     }
   }
 
@@ -434,9 +484,85 @@ export default function HomePage() {
                   ))
                 )}
 
-                <button className="mt-5 w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black">
-                  Connect MT4 / MT5 Account
-                </button>
+                <div className="mt-5 space-y-3 rounded-2xl bg-black/30 p-4">
+                  <input
+                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+                    placeholder="Your name"
+                    value={accountForm.name}
+                    onChange={(e) =>
+                      setAccountForm({ ...accountForm, name: e.target.value })
+                    }
+                  />
+
+                  <select
+                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none"
+                    value={accountForm.platform}
+                    onChange={(e) =>
+                      setAccountForm({ ...accountForm, platform: e.target.value })
+                    }
+                  >
+                    <option className="bg-[#05070D]" value="MT4">MT4</option>
+                    <option className="bg-[#05070D]" value="MT5">MT5</option>
+                  </select>
+
+                  <input
+                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+                    placeholder="Broker name"
+                    value={accountForm.broker}
+                    onChange={(e) =>
+                      setAccountForm({ ...accountForm, broker: e.target.value })
+                    }
+                  />
+
+                  <input
+                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+                    placeholder="Account login"
+                    value={accountForm.account_login}
+                    onChange={(e) =>
+                      setAccountForm({
+                        ...accountForm,
+                        account_login: e.target.value,
+                      })
+                    }
+                  />
+
+                  <select
+                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none"
+                    value={accountForm.risk_mode}
+                    onChange={(e) =>
+                      setAccountForm({ ...accountForm, risk_mode: e.target.value })
+                    }
+                  >
+                    <option className="bg-[#05070D]" value="manual">
+                      Manual approval
+                    </option>
+                    <option className="bg-[#05070D]" value="copy">
+                      Copy signals
+                    </option>
+                  </select>
+
+                  <input
+                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+                    placeholder="Max lot e.g. 0.01"
+                    value={accountForm.max_lot}
+                    onChange={(e) =>
+                      setAccountForm({ ...accountForm, max_lot: e.target.value })
+                    }
+                  />
+
+                  <button
+                    onClick={submitAccountConnection}
+                    className="w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black"
+                  >
+                    Request MT4 / MT5 Connection
+                  </button>
+
+                  {accountMessage && (
+                    <p className="text-center text-sm text-yellow-300">
+                      {accountMessage}
+                    </p>
+                  )}
+                </div>
 
                 <p className="mt-4 text-xs leading-5 text-slate-400">
                   Connected to /client-accounts. Auto-copy trading requires
