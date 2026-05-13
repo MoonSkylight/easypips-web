@@ -85,6 +85,7 @@ export default function HomePage() {
     account_login: "",
     risk_mode: "manual",
     max_lot: "0.01",
+    consent: false,
   });
   const [accountMessage, setAccountMessage] = useState("");
 
@@ -168,6 +169,7 @@ export default function HomePage() {
           account_login: "",
           risk_mode: "manual",
           max_lot: "0.01",
+          consent: false,
         });
         loadData();
       } else {
@@ -549,6 +551,25 @@ export default function HomePage() {
                       setAccountForm({ ...accountForm, max_lot: e.target.value })
                     }
                   />
+
+                  <label className="flex items-start gap-3 rounded-xl bg-white/5 p-3 text-sm text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={accountForm.consent}
+                      onChange={(e) =>
+                        setAccountForm({
+                          ...accountForm,
+                          consent: e.target.checked,
+                        })
+                      }
+                      className="mt-1"
+                    />
+                    <span>
+                      I understand that automated trading involves risk, and I
+                      give consent for EasyPips to prepare this account for
+                      copy-trading after admin approval.
+                    </span>
+                  </label>
 
                   <button
                     onClick={submitAccountConnection}

@@ -5,29 +5,57 @@ import { useState } from "react";
 const API =
   process.env.NEXT_PUBLIC_API_URL || "https://easypips-api.onrender.com";
 
+type Account = {
+  id: string;
+  name?: string;
+  platform?: string;
+  broker?: string;
+  account_login?: string;
+  status?: string;
+  risk_mode?: string;
+  max_lot?: number;
+  auto_trade_enabled?: boolean;
+  kill_switch?: boolean;
+  consent?: boolean;
+};
+
+type AuditLog = {
+  id: string;
+  account_id?: string;
+  action?: string;
+  details?: any;
+  created_at?: string;
+};
+
 export default function AdminAccountsPage() {
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [message, setMessage] = useState("");
 
   async function login() {
     setMessage("Logging in...");
+
     try {
       const res = await fetch(`${API}/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
+
       const data = await res.json();
+
       if (!data.access_token) {
         setMessage(data.detail || "Login failed");
         return;
       }
+
       setToken(data.access_token);
       setMessage("Login success");
       loadAccounts(data.access_token);
+      loadAuditLogs(data.access_token);
     } catch {
       setMessage("Login error");
     }
@@ -38,6 +66,7 @@ export default function AdminAccountsPage() {
       const res = await fetch(`${API}/admin/client-accounts`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
+
       const data = await res.json();
       setAccounts(data.accounts || []);
     } catch {
@@ -45,20 +74,41 @@ export default function AdminAccountsPage() {
     }
   }
 
+  async function loadAuditLogs(authToken = token) {
+    try {
+      const res = await fetch(`${API}/admin/audit-logs`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      const data = await res.json();
+      setAuditLogs(data.logs || []);
+    } catch {
+      setMessage("Could not load audit logs");
+    }
+  }
+
   async function action(
     id: string,
-    type: "approve" | "reject" | "toggle-auto-trade"
+    type:
+      | "approve"
+      | "reject"
+      | "toggle-auto-trade"
+      | "toggle-kill-switch"
   ) {
     setMessage("Updating...");
+
     try {
       const res = await fetch(`${API}/admin/client-accounts/${id}/${type}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
+
       const data = await res.json();
+
       if (data.success) {
         setMessage("Updated successfully");
         loadAccounts();
+        loadAuditLogs();
       } else {
         setMessage(data.message || "Update failed");
       }
@@ -69,6 +119,7 @@ export default function AdminAccountsPage() {
 
   async function updateRisk(accountId: string, riskMode: string, maxLot: string) {
     setMessage("Updating risk settings...");
+
     try {
       const res = await fetch(
         `${API}/admin/client-accounts/${accountId}/update-risk`,
@@ -84,10 +135,13 @@ export default function AdminAccountsPage() {
           }),
         }
       );
+
       const data = await res.json();
+
       if (data.success) {
         setMessage("Risk settings updated");
         loadAccounts();
+        loadAuditLogs();
       } else {
         setMessage(data.message || "Risk update failed");
       }
@@ -98,12 +152,12 @@ export default function AdminAccountsPage() {
 
   return (
     <main className="min-h-screen bg-[#05070D] p-6 text-white">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="text-3xl font-black">Admin Client Accounts</h1>
             <p className="mt-2 text-slate-400">
-              Approve MT4/MT5 accounts, manage risk, and control auto-trading.
+              Approve MT4/MT5 accounts, manage risk, kill switch, consent, and audit logs.
             </p>
           </div>
 
@@ -112,6 +166,7 @@ export default function AdminAccountsPage() {
               onClick={() => {
                 setToken("");
                 setAccounts([]);
+                setAuditLogs([]);
                 setPassword("");
                 setMessage("Logged out");
               }}
@@ -160,16 +215,24 @@ export default function AdminAccountsPage() {
               <div>
                 <p className="font-black text-emerald-400">Logged in</p>
                 <p className="text-sm text-slate-400">
-                  Manage client trading account permissions.
+                  Auto-trading can only be enabled if account is approved, consent is true, and kill switch is off.
                 </p>
               </div>
 
-              <button
-                onClick={() => loadAccounts()}
-                className="rounded-xl bg-yellow-400 px-4 py-3 text-sm font-black text-black"
-              >
-                Refresh Accounts
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => loadAccounts()}
+                  className="rounded-xl bg-yellow-400 px-4 py-3 text-sm font-black text-black"
+                >
+                  Refresh Accounts
+                </button>
+                <button
+                  onClick={() => loadAuditLogs()}
+                  className="rounded-xl bg-blue-400 px-4 py-3 text-sm font-black text-black"
+                >
+                  Refresh Audit Logs
+                </button>
+              </div>
             </div>
 
             {message && (
@@ -214,6 +277,14 @@ export default function AdminAccountsPage() {
                           label={account.auto_trade_enabled ? "AUTO ON" : "AUTO OFF"}
                           color={account.auto_trade_enabled ? "green" : "red"}
                         />
+                        <Badge
+                          label={account.kill_switch ? "KILL ON" : "KILL OFF"}
+                          color={account.kill_switch ? "red" : "green"}
+                        />
+                        <Badge
+                          label={account.consent ? "CONSENT YES" : "CONSENT NO"}
+                          color={account.consent ? "green" : "red"}
+                        />
                       </div>
                     </div>
 
@@ -228,6 +299,14 @@ export default function AdminAccountsPage() {
                       <Info
                         label="Auto Trade"
                         value={account.auto_trade_enabled ? "ON" : "OFF"}
+                      />
+                      <Info
+                        label="Kill Switch"
+                        value={account.kill_switch ? "ON" : "OFF"}
+                      />
+                      <Info
+                        label="Client Consent"
+                        value={account.consent ? "YES" : "NO"}
                       />
                     </div>
 
@@ -254,16 +333,61 @@ export default function AdminAccountsPage() {
                       >
                         Toggle Auto Trade
                       </button>
+
+                      <button
+                        onClick={() => action(account.id, "toggle-kill-switch")}
+                        className="rounded-xl bg-red-600 px-4 py-3 font-black text-white"
+                      >
+                        Toggle Kill Switch
+                      </button>
                     </div>
 
                     <p className="mt-4 text-xs leading-5 text-slate-500">
-                      Auto-trading should only be enabled after client consent,
-                      risk settings, max lot size, and account verification are complete.
+                      Safety: if kill switch is ON, auto-trade is forced OFF. Auto-trade requires approved status and client consent.
                     </p>
                   </div>
                 ))
               )}
             </div>
+
+            <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+              <h2 className="text-2xl font-black">Audit Logs</h2>
+              <p className="mt-2 text-sm text-slate-400">
+                Latest safety and account-control actions.
+              </p>
+
+              <div className="mt-5 space-y-3">
+                {auditLogs.length === 0 ? (
+                  <p className="rounded-2xl bg-black/30 p-4 text-slate-400">
+                    No audit logs yet.
+                  </p>
+                ) : (
+                  auditLogs.slice(0, 25).map((log) => (
+                    <div
+                      key={log.id}
+                      className="rounded-2xl bg-black/30 p-4"
+                    >
+                      <div className="flex flex-col justify-between gap-2 md:flex-row">
+                        <p className="font-black text-yellow-300">
+                          {log.action || "ACTION"}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {log.created_at
+                            ? new Date(log.created_at).toLocaleString()
+                            : ""}
+                        </p>
+                      </div>
+                      <p className="mt-2 text-xs text-slate-500">
+                        Account: {log.account_id || "-"}
+                      </p>
+                      <pre className="mt-3 overflow-auto rounded-xl bg-[#05070D] p-3 text-xs text-slate-300">
+                        {JSON.stringify(log.details || {}, null, 2)}
+                      </pre>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
           </>
         )}
       </div>
@@ -275,7 +399,7 @@ function RiskControls({
   account,
   onSave,
 }: {
-  account: any;
+  account: Account;
   onSave: (id: string, riskMode: string, maxLot: string) => void;
 }) {
   const [riskMode, setRiskMode] = useState(account.risk_mode || "manual");
@@ -328,7 +452,13 @@ function Info({ label, value }: { label: string; value: any }) {
   );
 }
 
-function Badge({ label, color }: { label: string; color: "green" | "red" | "yellow" }) {
+function Badge({
+  label,
+  color,
+}: {
+  label: string;
+  color: "green" | "red" | "yellow";
+}) {
   const colors = {
     green: "bg-emerald-400/10 text-emerald-300 border-emerald-400/30",
     red: "bg-red-400/10 text-red-300 border-red-400/30",
@@ -336,7 +466,9 @@ function Badge({ label, color }: { label: string; color: "green" | "red" | "yell
   };
 
   return (
-    <span className={`rounded-full border px-3 py-1 text-xs font-black ${colors[color]}`}>
+    <span
+      className={`rounded-full border px-3 py-1 text-xs font-black ${colors[color]}`}
+    >
       {label}
     </span>
   );
