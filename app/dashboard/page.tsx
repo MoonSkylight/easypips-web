@@ -641,13 +641,17 @@ export default function HomePage() {
 function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400 text-xl font-black text-black">
-        EP
+      <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-[#05070D] ring-1 ring-yellow-400/30 shadow-lg shadow-yellow-400/10">
+        <img
+          src="/logo.png"
+          alt="EasyPips AI"
+          className="h-10 w-10 object-contain"
+        />
       </div>
       {!compact && (
         <div>
           <h1 className="text-2xl font-black">
-            EasyPips <span className="text-yellow-300">AI</span>
+            Easy<span className="text-yellow-300">Pips</span> <span className="text-emerald-300">AI</span>
           </h1>
           <p className="text-xs text-slate-400">Smart Forex Signals</p>
         </div>

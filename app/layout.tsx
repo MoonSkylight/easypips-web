@@ -3,9 +3,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "EasyPips AI",
-  description: "Live forex signals dashboard with risk-aware execution levels.",
+  description: "Smart Trading Signals",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.ico",
   },
 };
 
