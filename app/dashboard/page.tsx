@@ -231,8 +231,8 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#05070D] text-white">
-      <div className="flex">
-        <aside className="hidden min-h-screen w-72 border-r border-white/10 bg-[#080C14] p-5 xl:block">
+      <div className="flex flex-col xl:flex-row">
+        <aside className="hidden min-h-screen w-72 shrink-0 border-r border-white/10 bg-[#080C14] p-5 xl:block">
           <Logo />
 
           <nav className="mt-8 space-y-2">
@@ -287,7 +287,7 @@ export default function HomePage() {
           </div>
         </aside>
 
-        <section className="flex-1">
+        <section className="min-w-0 flex-1">
           <header className="sticky top-0 z-20 border-b border-white/10 bg-[#05070D]/90 px-5 py-4 backdrop-blur">
             <div className="flex items-center justify-between">
               <div className="xl:hidden">
@@ -325,8 +325,8 @@ export default function HomePage() {
             </div>
           </header>
 
-          <div className="space-y-6 p-5">
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-8">
+          <div className="space-y-6 p-4 sm:p-5">
+            <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-8">
               <TopStat title="Total Signals" value={status?.totalSignals || 0} color="blue" />
               <TopStat title="Active Signals" value={status?.activeSignals || 0} color="green" />
               <TopStat title="Closed Trades" value={status?.closedSignals || 0} color="purple" />
@@ -337,7 +337,7 @@ export default function HomePage() {
               <TopStat title="Desk 2" value={desk2Perf.activeTrades || desk2Signals.length} color="orange" />
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+            <section className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
               <Panel title={`Live Signals (${filteredSignals.length})`}>
                 <div className="mb-5 flex flex-wrap gap-2">
                   {sourceFilters.map((item) => (
@@ -417,7 +417,7 @@ export default function HomePage() {
               </Panel>
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-4">
+            <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               <StrategyCard
                 title="Strategy A"
                 subtitle="EMA + RSI + Momentum"
@@ -434,7 +434,7 @@ export default function HomePage() {
               <DeskCard title="Desk 2" data={desk2Perf} color="orange" />
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-[1fr_1fr_1fr]">
+            <section className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
               <Panel title="Performance Overview">
                 <div className="flex h-52 items-center justify-center">
                   <div className="flex h-40 w-40 items-center justify-center rounded-full border-[18px] border-emerald-400 border-r-yellow-400">
@@ -483,122 +483,66 @@ export default function HomePage() {
                 )}
               </Panel>
 
-              <Panel title="Your Trading Accounts">
-                {accounts.length === 0 ? (
-                  <div className="rounded-2xl bg-black/30 p-4">
-                    <p className="font-black">No accounts connected yet</p>
-                    <p className="mt-2 text-sm text-slate-400">
-                      Client MT4 / MT5 connection requests will appear here.
-                    </p>
-                  </div>
-                ) : (
-                  accounts.map((account) => (
-                    <AccountBox key={account.id || account.account_login} account={account} />
-                  ))
-                )}
-
-                <div className="mt-5 space-y-3 rounded-2xl bg-black/30 p-4">
-                  <input
-                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-                    placeholder="Your name"
-                    value={accountForm.name}
-                    onChange={(e) =>
-                      setAccountForm({ ...accountForm, name: e.target.value })
-                    }
+              <Panel title="MT4 / MT5 Connected Accounts">
+                <div className="grid grid-cols-2 gap-3">
+                  <AccountStat
+                    label="Total Connected"
+                    value={accounts.length}
+                    color="yellow"
                   />
-
-                  <select
-                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none"
-                    value={accountForm.platform}
-                    onChange={(e) =>
-                      setAccountForm({ ...accountForm, platform: e.target.value })
+                  <AccountStat
+                    label="Approved"
+                    value={
+                      accounts.filter((account) => account.status === "approved")
+                        .length
                     }
+                    color="green"
+                  />
+                  <AccountStat
+                    label="Pending"
+                    value={
+                      accounts.filter((account) => account.status !== "approved")
+                        .length
+                    }
+                    color="blue"
+                  />
+                  <AccountStat
+                    label="Auto Trade ON"
+                    value={
+                      accounts.filter((account) => account.auto_trade_enabled)
+                        .length
+                    }
+                    color="purple"
+                  />
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-4">
+                  <p className="font-black text-yellow-300">
+                    Client details are private
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    Public dashboard only shows account totals. Broker, login,
+                    client name, and account details are hidden for privacy.
+                  </p>
+                </div>
+
+                <div className="mt-5 rounded-2xl bg-black/30 p-4">
+                  <p className="font-black">Connect MT4 / MT5</p>
+                  <p className="mt-2 text-sm text-slate-400">
+                    Clients can request connection from their personal area after
+                    signup.
+                  </p>
+                  <a
+                    href="/account"
+                    className="mt-4 block rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black"
                   >
-                    <option className="bg-[#05070D]" value="MT4">MT4</option>
-                    <option className="bg-[#05070D]" value="MT5">MT5</option>
-                  </select>
-
-                  <input
-                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-                    placeholder="Broker name"
-                    value={accountForm.broker}
-                    onChange={(e) =>
-                      setAccountForm({ ...accountForm, broker: e.target.value })
-                    }
-                  />
-
-                  <input
-                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-                    placeholder="Account login"
-                    value={accountForm.account_login}
-                    onChange={(e) =>
-                      setAccountForm({
-                        ...accountForm,
-                        account_login: e.target.value,
-                      })
-                    }
-                  />
-
-                  <select
-                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none"
-                    value={accountForm.risk_mode}
-                    onChange={(e) =>
-                      setAccountForm({ ...accountForm, risk_mode: e.target.value })
-                    }
-                  >
-                    <option className="bg-[#05070D]" value="manual">
-                      Manual approval
-                    </option>
-                    <option className="bg-[#05070D]" value="copy">
-                      Copy signals
-                    </option>
-                  </select>
-
-                  <input
-                    className="w-full rounded-xl bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-                    placeholder="Max lot e.g. 0.01"
-                    value={accountForm.max_lot}
-                    onChange={(e) =>
-                      setAccountForm({ ...accountForm, max_lot: e.target.value })
-                    }
-                  />
-
-                  <label className="flex items-start gap-3 rounded-xl bg-white/5 p-3 text-sm text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={accountForm.consent}
-                      onChange={(e) =>
-                        setAccountForm({
-                          ...accountForm,
-                          consent: e.target.checked,
-                        })
-                      }
-                      className="mt-1"
-                    />
-                    <span>
-                      I understand that automated trading involves risk, and I
-                      give consent for EasyPips to prepare this account for
-                      copy-trading after admin approval.
-                    </span>
-                  </label>
-
-                  <button
-                    onClick={submitAccountConnection}
-                    className="w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black"
-                  >
-                    Request MT4 / MT5 Connection
-                  </button>
-
-                  {accountMessage && (
-                    <p className="text-center text-sm text-yellow-300">
-                      {accountMessage}
-                    </p>
-                  )}
+                    Client Personal Area
+                  </a>
                 </div>
 
                 <p className="mt-4 text-xs leading-5 text-slate-400">
-                  Connected to /client-accounts. Auto-copy trading requires
-                  client consent, lot-size rules, risk limits, and a kill switch.
+                  Auto-copy trading requires client consent, approval, max lot
+                  control, risk limits, and kill switch.
                 </p>
               </Panel>
             </section>
@@ -885,6 +829,31 @@ function AccountBox({ account }: { account: ClientAccount }) {
         </p>
       </div>
       <p className="text-3xl font-black">{account.platform || "MT"}</p>
+    </div>
+  );
+}
+
+
+function AccountStat({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: any;
+  color: "yellow" | "green" | "blue" | "purple";
+}) {
+  const map: any = {
+    yellow: "border-yellow-400/20 text-yellow-300",
+    green: "border-emerald-400/20 text-emerald-300",
+    blue: "border-blue-400/20 text-blue-300",
+    purple: "border-purple-400/20 text-purple-300",
+  };
+
+  return (
+    <div className={`rounded-2xl border bg-black/30 p-4 ${map[color]}`}>
+      <p className="text-xs font-black uppercase">{label}</p>
+      <p className="mt-2 text-3xl font-black text-white">{value}</p>
     </div>
   );
 }
