@@ -296,6 +296,7 @@ export default function HomePage() {
 
               <div className="hidden items-center gap-6 text-sm font-bold text-slate-300 xl:flex">
                 <a className="text-yellow-300" href="#">Dashboard</a>
+                <span className="text-xs font-black text-emerald-400 animate-pulse">● Live Signals Updating</span>
                 <a href="#">Live Signals</a>
                 <a href="#">Performance</a>
                 <a href="#">Strategies</a>
@@ -708,11 +709,19 @@ function SignalBox({ signal }: { signal: Signal }) {
         <div>
           <p className="text-xs text-slate-400">{signal.pattern || "AI Engine"}</p>
           <h3 className="mt-1 text-2xl font-black">{signal.symbol}</h3>
+          <p className="mt-1 text-xs text-slate-400">
+            {signal.created_at
+              ? new Date(signal.created_at).toLocaleString()
+              : "Just now"}
+          </p>
+          <p className="mt-1 text-xs font-bold text-yellow-300">
+            Confidence: {signal.score || signal.confidence || "N/A"}
+          </p>
         </div>
 
         <span
           className={`rounded-xl px-3 py-1 text-xs font-black ${
-            isBuy ? "bg-emerald-400/15 text-emerald-300" : "bg-red-400/15 text-red-300"
+            isBuy ? "bg-emerald-500/20 text-emerald-300 shadow-emerald-400/10" : "bg-red-500/20 text-red-300 shadow-red-400/10"
           }`}
         >
           {signal.direction}
