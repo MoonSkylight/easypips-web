@@ -69,6 +69,7 @@ const sourceFilters = [
 ];
 
 export default function HomePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [signals, setSignals] = useState<Signal[]>([]);
   const [closed, setClosed] = useState<Signal[]>([]);
   const [performance, setPerformance] = useState<any>({});
