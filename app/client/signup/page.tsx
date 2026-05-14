@@ -29,14 +29,13 @@ export default function ClientSignupPage() {
     try {
       const res = await fetch(`${API}/client/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name.trim(),
           email: form.email.trim(),
           password: form.password,
-          account_id: form.account_id.trim() === "" ? null : form.account_id.trim(),
+          account_id:
+            form.account_id.trim() === "" ? null : form.account_id.trim(),
         }),
       });
 
@@ -48,7 +47,7 @@ export default function ClientSignupPage() {
       }
 
       localStorage.setItem("easypips_client_token", data.access_token);
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     } catch {
       setMessage("Signup error. Please try again.");
     }
@@ -74,17 +73,9 @@ export default function ClientSignupPage() {
             </h2>
 
             <p className="mt-5 max-w-xl text-slate-300">
-              Sign up free to access the EasyPips dashboard, live signal preview,
-              market news, signal history, and client tools.
+              Sign up free to unlock the EasyPips dashboard with live signals,
+              market news, signal history, and Desk support.
             </p>
-
-            <div className="mt-8 rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
-              <p className="font-black text-yellow-300">Account ID is optional</p>
-              <p className="mt-2 text-sm text-slate-300">
-                Leave it blank if you do not have an MT4/MT5 account linked yet.
-                Admin can connect it later.
-              </p>
-            </div>
           </section>
 
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-xl">
