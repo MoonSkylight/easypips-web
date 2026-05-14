@@ -296,7 +296,7 @@ export default function HomePage() {
 
               <div className="hidden items-center gap-6 text-sm font-bold text-slate-300 xl:flex">
                 <a className="text-yellow-300" href="#">Dashboard</a>
-                <span className="text-xs font-black text-emerald-400 animate-pulse">● Live Signals Updating</span>
+                <span className="flex items-center gap-2 text-xs font-bold text-emerald-400"><span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>Live Signals Updating</span>
                 <a href="#">Live Signals</a>
                 <a href="#">Performance</a>
                 <a href="#">Strategies</a>
@@ -641,11 +641,11 @@ export default function HomePage() {
 function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-[#05070D] ring-1 ring-yellow-400/30 shadow-lg shadow-yellow-400/10">
+      <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-[#05070D] ring-1 ring-yellow-400/40 shadow-lg shadow-yellow-400/20">
         <img
           src="/logo.png"
           alt="EasyPips AI"
-          className="h-10 w-10 object-contain"
+          className="h-12 w-12 object-contain drop-shadow-lg"
         />
       </div>
       {!compact && (
