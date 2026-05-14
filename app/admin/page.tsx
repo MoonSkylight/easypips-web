@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_API_URL || "https://easypips-api.onrender.com";
 
 export default function AdminPage() {
   const [authorized, setAuthorized] = useState(false);
@@ -12,7 +12,7 @@ export default function AdminPage() {
   const [message, setMessage] = useState("");
 
   const [form, setForm] = useState({
-    symbol: "EUR/USD",
+    symbol: "XAU/USD",
     direction: "BUY",
     entry: "",
     sl: "",
@@ -24,37 +24,15 @@ export default function AdminPage() {
   });
 
   useEffect(() => {
-    async function verify() {
-      const token = localStorage.getItem("admin-token");
+    const token = localStorage.getItem("admin-token");
 
-      if (!token) {
-        window.location.href = "/admin-login";
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API_BASE}/admin/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          localStorage.removeItem("admin-token");
-          window.location.href = "/admin-login";
-          return;
-        }
-
-        setAuthorized(true);
-      } catch {
-        localStorage.removeItem("admin-token");
-        window.location.href = "/admin-login";
-      } finally {
-        setChecking(false);
-      }
+    if (!token) {
+      window.location.href = "/admin-login";
+      return;
     }
 
-    verify();
+    setAuthorized(true);
+    setChecking(false);
   }, []);
 
   function updateField(name: string, value: string) {
@@ -67,32 +45,63 @@ export default function AdminPage() {
 
     const token = localStorage.getItem("admin-token");
 
-    const endpoint =
-      desk === "desk1"
-        ? `${API_BASE}/desk1/signals`
-        : `${API_BASE}/desk2/signals`;
+    if (!token) {
+      setMessage("Missing admin token. Please login again.");
+      return;
+    }
+
+    const deskName = desk === "desk1" ? "Desk 1" : "Desk 2";
+
+    const payload = {
+      desk: deskName,
+      symbol: form.symbol,
+      direction: form.direction,
+      entry: form.entry,
+      sl: form.sl,
+      tp1: form.tp1,
+      tp2: form.tp2,
+      tp3: form.tp3,
+      analyst: form.analyst,
+      note: form.note,
+    };
 
     try {
-      const res = await fetch(endpoint, {
+      const primaryEndpoint =
+        desk === "desk1"
+          ? `${API_BASE}/desk1/signals`
+          : `${API_BASE}/desk2/signals`;
+
+      let res = await fetch(primaryEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        setMessage("Failed to publish signal");
+        res = await fetch(`${API_BASE}/admin/publish-desk-signal`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setMessage(data.detail || data.message || "Failed to publish signal");
         return;
       }
 
-      setMessage(
-        `Signal published to ${desk === "desk1" ? "Desk 1" : "Desk 2"} ✅`
-      );
+      setMessage(`Signal published to ${deskName} ✅`);
 
       setForm({
-        symbol: "EUR/USD",
+        symbol: "XAU/USD",
         direction: "BUY",
         entry: "",
         sl: "",
@@ -165,7 +174,7 @@ export default function AdminPage() {
             <input
               value={form.symbol}
               onChange={(e) => updateField("symbol", e.target.value)}
-              placeholder="EUR/USD"
+              placeholder="XAU/USD"
               className="rounded-xl border border-white/10 bg-black p-3"
               required
             />
@@ -196,7 +205,6 @@ export default function AdminPage() {
             <input
               value={form.analyst}
               onChange={(e) => updateField("analyst", e.target.value)}
-              placeholder="Desk 1 Analyst"
               className="rounded-xl border border-white/10 bg-black p-3"
             />
           </label>
