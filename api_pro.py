@@ -2026,17 +2026,111 @@ def delete_signal(signal_id: str, authorization: str = Header(default="")):
 
 @app.get("/news-calendar")
 def news_calendar():
-    return {
-        "status": "ok",
-        "events": [
-            {"time": "12:30", "currency": "USD", "event": "Non-Farm Payrolls", "impact": "High"},
-            {"time": "14:00", "currency": "USD", "event": "ISM Manufacturing PMI", "impact": "High"},
-            {"time": "15:30", "currency": "USD", "event": "Fed Chair Speech", "impact": "High"},
-            {"time": "16:00", "currency": "USD", "event": "Crude Oil Inventories", "impact": "Medium"},
-            {"time": "18:00", "currency": "GBP", "event": "BoE Speech", "impact": "Medium"},
-        ],
-    }
+    """
+    Real economic calendar from Financial Modeling Prep.
+    Requires FMP_API_KEY in Render environment.
+    Falls back to safe demo events if FMP is unavailable.
+    """
+    fmp_key = os.getenv("FMP_API_KEY")
 
+    fallback_events = [
+        {"time": "12:30", "currency": "USD", "event": "Non-Farm Payrolls", "impact": "High"},
+        {"time": "14:00", "currency": "USD", "event": "ISM Manufacturing PMI", "impact": "High"},
+        {"time": "09:00", "currency": "EUR", "event": "ECB Speech", "impact": "Medium"},
+        {"time": "08:30", "currency": "GBP", "event": "GDP Monthly", "impact": "Medium"},
+    ]
+
+    if not fmp_key:
+        return {
+            "status": "fallback",
+            "source": "demo",
+            "message": "FMP_API_KEY not set",
+            "events": fallback_events,
+        }
+
+    try:
+        today = datetime.now(timezone.utc).date()
+        from_date = today.isoformat()
+        to_date = (today + timedelta(days=7)).isoformat()
+
+        url = "https://financialmodelingprep.com/api/v3/economic_calendar"
+        params = {
+            "from": from_date,
+            "to": to_date,
+            "apikey": fmp_key,
+        }
+
+        response = requests.get(url, params=params, timeout=15)
+
+        if response.status_code != 200:
+            print("FMP news failed:", response.status_code, response.text)
+            return {
+                "status": "fallback",
+                "source": "demo",
+                "message": "FMP request failed",
+                "events": fallback_events,
+            }
+
+        raw_events = response.json()
+
+        important_currencies = {"USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD", "CNY"}
+
+        events = []
+
+        for item in raw_events[:100]:
+            currency = item.get("currency") or item.get("country") or ""
+            event_name = item.get("event") or item.get("title") or item.get("name") or "Economic Event"
+            impact = item.get("impact") or item.get("importance") or "Medium"
+            date_value = item.get("date") or item.get("datetime") or ""
+
+            if currency and currency not in important_currencies:
+                continue
+
+            impact_text = str(impact).capitalize()
+            if impact_text not in ["High", "Medium", "Low"]:
+                impact_text = "Medium"
+
+            display_time = "TBA"
+            display_date = ""
+
+            try:
+                if date_value:
+                    dt = datetime.fromisoformat(str(date_value).replace("Z", "+00:00"))
+                    display_time = dt.strftime("%H:%M")
+                    display_date = dt.date().isoformat()
+            except Exception:
+                display_time = str(date_value)[11:16] if len(str(date_value)) >= 16 else "TBA"
+
+            events.append({
+                "time": display_time,
+                "date": display_date,
+                "currency": currency or "-",
+                "event": event_name,
+                "impact": impact_text,
+            })
+
+        if not events:
+            return {
+                "status": "fallback",
+                "source": "demo",
+                "message": "No FMP events returned",
+                "events": fallback_events,
+            }
+
+        return {
+            "status": "ok",
+            "source": "financialmodelingprep",
+            "events": events[:20],
+        }
+
+    except Exception as e:
+        print("News calendar exception:", str(e))
+        return {
+            "status": "fallback",
+            "source": "demo",
+            "message": str(e),
+            "events": fallback_events,
+        }
 
 @app.get("/client-accounts")
 def client_accounts():
