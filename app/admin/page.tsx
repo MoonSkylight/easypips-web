@@ -1,15 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-const API_BASE =
+const API =
   process.env.NEXT_PUBLIC_API_URL || "https://easypips-api.onrender.com";
 
 export default function AdminPage() {
-  const [authorized, setAuthorized] = useState(false);
-  const [checking, setChecking] = useState(true);
-  const [desk, setDesk] = useState<"desk1" | "desk2">("desk1");
+  const [token, setToken] = useState<string | null>(
+    typeof window !== "undefined"
+      ? localStorage.getItem("admin-token")
+      : null
+  );
+
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const [desk, setDesk] = useState("Desk 1");
 
   const [form, setForm] = useState({
     symbol: "XAU/USD",
@@ -19,246 +26,145 @@ export default function AdminPage() {
     tp1: "",
     tp2: "",
     tp3: "",
-    analyst: "EasyPips Analyst",
-    note: "",
   });
 
-  useEffect(() => {
-    const token = localStorage.getItem("admin-token");
-
-    if (!token) {
-      window.location.href = "/admin-login";
-      return;
-    }
-
-    setAuthorized(true);
-    setChecking(false);
-  }, []);
-
-  function updateField(name: string, value: string) {
-    setForm((prev) => ({ ...prev, [name]: value }));
-  }
-
-  async function submitSignal(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage("Publishing signal...");
-
-    const token = localStorage.getItem("admin-token");
-
-    if (!token) {
-      setMessage("Missing admin token. Please login again.");
-      return;
-    }
-
-    const deskName = desk === "desk1" ? "Desk 1" : "Desk 2";
-
-    const payload = {
-      desk: deskName,
-      symbol: form.symbol,
-      direction: form.direction,
-      entry: form.entry,
-      sl: form.sl,
-      tp1: form.tp1,
-      tp2: form.tp2,
-      tp3: form.tp3,
-      analyst: form.analyst,
-      note: form.note,
-    };
+  async function login() {
+    setMessage("Logging in...");
 
     try {
-      const primaryEndpoint =
-        desk === "desk1"
-          ? `${API_BASE}/desk1/signals`
-          : `${API_BASE}/desk2/signals`;
+      const res = await fetch(`${API}/admin/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-      let res = await fetch(primaryEndpoint, {
+      const data = await res.json();
+
+      if (!data.access_token) {
+        setMessage("Login failed");
+        return;
+      }
+
+      localStorage.setItem("admin-token", data.access_token);
+      setToken(data.access_token);
+      setMessage("Login success");
+    } catch {
+      setMessage("Backend connection failed");
+    }
+  }
+
+  async function publish() {
+    setMessage("Publishing...");
+
+    try {
+      const res = await fetch(`${API}/admin/publish-desk-signal`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          desk,
+          ...form,
+        }),
       });
 
-      if (!res.ok) {
-        res = await fetch(`${API_BASE}/admin/publish-desk-signal`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
-      }
+      const data = await res.json();
 
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setMessage(data.detail || data.message || "Failed to publish signal");
+      if (!data.success) {
+        setMessage("Publish failed");
         return;
       }
 
-      setMessage(`Signal published to ${deskName} ✅`);
-
-      setForm({
-        symbol: "XAU/USD",
-        direction: "BUY",
-        entry: "",
-        sl: "",
-        tp1: "",
-        tp2: "",
-        tp3: "",
-        analyst: "EasyPips Analyst",
-        note: "",
-      });
-    } catch (error) {
-      console.error(error);
-      setMessage("Backend connection failed");
+      setMessage("Signal sent ✅");
+    } catch {
+      setMessage("Error sending signal");
     }
   }
 
   function logout() {
     localStorage.removeItem("admin-token");
-    window.location.href = "/admin-login";
+    setToken(null);
   }
 
-  if (checking) {
+  // 🔐 LOGIN SCREEN
+  if (!token) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#05070d] text-white">
-        Checking admin access...
+      <main className="flex min-h-screen items-center justify-center bg-[#05070D] text-white">
+        <div className="w-full max-w-md p-6 bg-black/30 rounded-2xl">
+          <h2 className="text-2xl font-black mb-4">Admin Login</h2>
+
+          <input
+            className="w-full mb-3 p-3 rounded bg-white/10"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
+          <input
+            className="w-full mb-3 p-3 rounded bg-white/10"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button
+            onClick={login}
+            className="w-full bg-yellow-400 text-black py-3 rounded font-black"
+          >
+            Login
+          </button>
+
+          {message && <p className="mt-3 text-sm">{message}</p>}
+        </div>
       </main>
     );
   }
 
-  if (!authorized) return null;
-
+  // ✅ ADMIN PANEL
   return (
-    <main className="min-h-screen bg-[#05070d] px-5 py-10 text-white">
-      <section className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-slate-950 p-6 shadow-2xl">
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <p className="mb-2 inline-flex rounded-full bg-emerald-400 px-3 py-1 text-xs font-black text-black">
-              EASY PIPS ADMIN
-            </p>
+    <main className="min-h-screen bg-[#05070D] text-white p-6">
+      <h1 className="text-3xl font-black mb-5">Admin Desk Publish</h1>
 
-            <h1 className="text-3xl font-black">Publish Human Signal</h1>
+      <button
+        onClick={logout}
+        className="mb-5 px-4 py-2 bg-red-400 text-black rounded"
+      >
+        Logout
+      </button>
 
-            <p className="mt-2 text-slate-400">
-              Add manual signals to Desk 1 or Desk 2.
-            </p>
-          </div>
+      <select
+        value={desk}
+        onChange={(e) => setDesk(e.target.value)}
+        className="mb-3 p-3 bg-black rounded"
+      >
+        <option>Desk 1</option>
+        <option>Desk 2</option>
+      </select>
 
-          <button
-            onClick={logout}
-            className="rounded-xl border border-red-400/30 px-4 py-2 text-sm font-bold text-red-300"
-          >
-            Logout
-          </button>
-        </div>
+      {["symbol", "direction", "entry", "sl", "tp1", "tp2", "tp3"].map(
+        (f) => (
+          <input
+            key={f}
+            placeholder={f}
+            value={(form as any)[f]}
+            onChange={(e) =>
+              setForm({ ...form, [f]: e.target.value })
+            }
+            className="block w-full mb-2 p-3 bg-white/10 rounded"
+          />
+        )
+      )}
 
-        <form onSubmit={submitSignal} className="grid gap-4">
-          <label className="grid gap-2">
-            <span className="text-sm text-slate-400">Select Desk</span>
-            <select
-              value={desk}
-              onChange={(e) => setDesk(e.target.value as "desk1" | "desk2")}
-              className="rounded-xl border border-white/10 bg-black p-3"
-            >
-              <option value="desk1">Desk 1</option>
-              <option value="desk2">Desk 2</option>
-            </select>
-          </label>
+      <button
+        onClick={publish}
+        className="mt-3 px-5 py-3 bg-green-400 text-black rounded font-black"
+      >
+        Publish Signal
+      </button>
 
-          <label className="grid gap-2">
-            <span className="text-sm text-slate-400">Pair / Symbol</span>
-            <input
-              value={form.symbol}
-              onChange={(e) => updateField("symbol", e.target.value)}
-              placeholder="XAU/USD"
-              className="rounded-xl border border-white/10 bg-black p-3"
-              required
-            />
-          </label>
-
-          <label className="grid gap-2">
-            <span className="text-sm text-slate-400">Direction</span>
-            <select
-              value={form.direction}
-              onChange={(e) => updateField("direction", e.target.value)}
-              className="rounded-xl border border-white/10 bg-black p-3"
-            >
-              <option value="BUY">BUY</option>
-              <option value="SELL">SELL</option>
-            </select>
-          </label>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <PriceInput label="Entry" name="entry" value={form.entry} updateField={updateField} />
-            <PriceInput label="Stop Loss" name="sl" value={form.sl} updateField={updateField} />
-            <PriceInput label="TP1" name="tp1" value={form.tp1} updateField={updateField} />
-            <PriceInput label="TP2" name="tp2" value={form.tp2} updateField={updateField} />
-            <PriceInput label="TP3" name="tp3" value={form.tp3} updateField={updateField} />
-          </div>
-
-          <label className="grid gap-2">
-            <span className="text-sm text-slate-400">Analyst</span>
-            <input
-              value={form.analyst}
-              onChange={(e) => updateField("analyst", e.target.value)}
-              className="rounded-xl border border-white/10 bg-black p-3"
-            />
-          </label>
-
-          <label className="grid gap-2">
-            <span className="text-sm text-slate-400">Note</span>
-            <textarea
-              value={form.note}
-              onChange={(e) => updateField("note", e.target.value)}
-              placeholder="Optional trade note"
-              className="min-h-24 rounded-xl border border-white/10 bg-black p-3"
-            />
-          </label>
-
-          <button
-            type="submit"
-            className="mt-4 rounded-xl bg-emerald-400 px-5 py-4 font-black text-black hover:bg-emerald-300"
-          >
-            Publish Signal
-          </button>
-
-          {message && (
-            <p className="rounded-xl bg-white/10 p-3 text-center text-sm">
-              {message}
-            </p>
-          )}
-        </form>
-      </section>
+      {message && <p className="mt-3">{message}</p>}
     </main>
-  );
-}
-
-function PriceInput({
-  label,
-  name,
-  value,
-  updateField,
-}: {
-  label: string;
-  name: string;
-  value: string;
-  updateField: (name: string, value: string) => void;
-}) {
-  return (
-    <label className="grid gap-2">
-      <span className="text-sm text-slate-400">{label}</span>
-      <input
-        value={value}
-        onChange={(e) => updateField(name, e.target.value)}
-        placeholder="1.08200"
-        inputMode="decimal"
-        className="rounded-xl border border-white/10 bg-black p-3"
-        required
-      />
-    </label>
   );
 }
