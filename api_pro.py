@@ -1214,17 +1214,15 @@ def get_candles_since_signal(yahoo_symbol: str, created_at: str):
 
 def update_all_running_results():
     """
-    Final check-and-balance engine.
+    Safe TP/SL check-and-balance engine.
 
     Rules:
     - Checks every ACTIVE signal.
+    - Skips symbols without Yahoo mapping instead of crashing.
     - Uses candle order after signal creation when available.
-    - Fallback uses latest live price if candles are unavailable.
-    - First valid hit closes the signal:
-        BUY  -> SL if low <= SL, TP1/TP2/TP3 if high >= target
-        SELL -> SL if high >= SL, TP1/TP2/TP3 if low <= target
-    - Closed signals are removed from ACTIVE dashboard and move to history.
-    - Sends Telegram once when a signal closes.
+    - Fallback uses latest live price when candles are unavailable.
+    - Closes signals when TP/SL is hit.
+    - Sends Telegram update when a signal closes.
     """
     if not db_enabled():
         return []
@@ -1241,67 +1239,78 @@ def update_all_running_results():
     updated_signals = []
 
     for signal in running_signals:
-        symbol = signal.get("symbol")
-        yahoo_symbol = SYMBOLS.get(symbol)
+        try:
+            symbol = signal.get("symbol")
+            yahoo_symbol = SYMBOLS.get(symbol)
 
-        direction = str(signal.get("direction", "")).upper()
-        sl = safe_float(signal.get("sl"))
-        tp1 = safe_float(signal.get("tp1"))
-        tp2 = safe_float(signal.get("tp2"))
-        tp3 = safe_float(signal.get("tp3"))
+            # Prevent cron-check crash for symbols not supported in SYMBOLS.
+            if not yahoo_symbol:
+                print("Skipping TP/SL check: missing Yahoo symbol mapping for", symbol)
+                updated_signals.append(signal)
+                continue
 
-        if direction not in ["BUY", "SELL"] or sl is None:
-            updated_signals.append(signal)
-            continue
+            direction = str(signal.get("direction", "")).upper()
+            sl = safe_float(signal.get("sl"))
+            tp1 = safe_float(signal.get("tp1"))
+            tp2 = safe_float(signal.get("tp2"))
+            tp3 = safe_float(signal.get("tp3"))
 
-        targets = [
-            ("TP1", tp1),
-            ("TP2", tp2),
-            ("TP3", tp3),
-        ]
+            if direction not in ["BUY", "SELL", "BUY LIMIT", "SELL LIMIT", "BUY STOP", "SELL STOP"] or sl is None:
+                updated_signals.append(signal)
+                continue
 
-        targets = [(name, value) for name, value in targets if value is not None]
+            direction_base = "BUY" if direction.startswith("BUY") else "SELL"
 
-        if not targets:
-            updated_signals.append(signal)
-            continue
+            targets = [
+                ("TP1", tp1),
+                ("TP2", tp2),
+                ("TP3", tp3),
+            ]
 
-        updates = {}
-        final_result = None
+            targets = [(name, value) for name, value in targets if value is not None]
 
-        def close_signal(result: str):
-            now = datetime.now(timezone.utc).isoformat()
-            result_updates = {
-                "status": "CLOSED",
-                "result": result,
-                "closed_at": now,
-            }
+            if not targets:
+                updated_signals.append(signal)
+                continue
 
-            if result == "SL":
-                result_updates["hit_sl"] = True
-            if result in ["TP1", "TP2", "TP3"]:
-                result_updates["hit_tp1"] = True
-            if result in ["TP2", "TP3"]:
-                result_updates["hit_tp2"] = True
-            if result == "TP3":
-                result_updates["hit_tp3"] = True
+            updates = {}
+            final_result = None
 
-            return result_updates
+            def close_signal(result: str):
+                now = datetime.now(timezone.utc).isoformat()
+                result_updates = {
+                    "status": "CLOSED",
+                    "result": result,
+                    "closed_at": now,
+                }
 
-        candles_checked = False
+                if result == "SL":
+                    result_updates["hit_sl"] = True
+                if result in ["TP1", "TP2", "TP3"]:
+                    result_updates["hit_tp1"] = True
+                if result in ["TP2", "TP3"]:
+                    result_updates["hit_tp2"] = True
+                if result == "TP3":
+                    result_updates["hit_tp3"] = True
 
-        if yahoo_symbol:
-            candles = get_candles_since_signal(yahoo_symbol, signal.get("created_at"))
+                return result_updates
+
+            # First try candle-by-candle history.
+            try:
+                candles = get_candles_since_signal(yahoo_symbol, signal.get("created_at"))
+            except Exception as e:
+                print("Candle fetch failed for", symbol, str(e))
+                candles = None
 
             if candles is not None and not candles.empty:
-                candles_checked = True
-
                 for _, row in candles.iterrows():
-                    high = float(row["High"])
-                    low = float(row["Low"])
+                    try:
+                        high = float(row["High"])
+                        low = float(row["Low"])
+                    except Exception:
+                        continue
 
-                    if direction == "BUY":
-                        # SL first if candle low hits SL before any target on this candle.
+                    if direction_base == "BUY":
                         if low <= sl:
                             final_result = "SL"
                             updates = close_signal("SL")
@@ -1318,8 +1327,7 @@ def update_all_running_results():
                             updates = close_signal(hit_target)
                             break
 
-                    elif direction == "SELL":
-                        # SL first if candle high hits SL before any target on this candle.
+                    elif direction_base == "SELL":
                         if high >= sl:
                             final_result = "SL"
                             updates = close_signal("SL")
@@ -1336,53 +1344,62 @@ def update_all_running_results():
                             updates = close_signal(hit_target)
                             break
 
-        # Fallback live price check for symbols/candles that Yahoo does not return reliably.
-        if not updates and yahoo_symbol:
-            current_price, _ = get_live_price(yahoo_symbol)
-
-            if current_price is not None:
-                if direction == "BUY":
-                    if current_price <= sl:
-                        final_result = "SL"
-                        updates = close_signal("SL")
-                    else:
-                        hit_target = None
-                        for target_name, target_value in reversed(targets):
-                            if current_price >= target_value:
-                                hit_target = target_name
-                                break
-                        if hit_target:
-                            final_result = hit_target
-                            updates = close_signal(hit_target)
-
-                elif direction == "SELL":
-                    if current_price >= sl:
-                        final_result = "SL"
-                        updates = close_signal("SL")
-                    else:
-                        hit_target = None
-                        for target_name, target_value in reversed(targets):
-                            if current_price <= target_value:
-                                hit_target = target_name
-                                break
-                        if hit_target:
-                            final_result = hit_target
-                            updates = close_signal(hit_target)
-
-        if updates:
-            try:
-                supabase.table("signals").update(updates).eq("id", signal["id"]).execute()
-                signal.update(updates)
-
+            # Fallback live price check.
+            if not updates:
                 try:
-                    send_telegram(result_message(signal, final_result))
+                    current_price, _ = get_live_price(yahoo_symbol)
                 except Exception as e:
-                    print("Telegram close update failed:", str(e))
+                    print("Live price fetch failed for", symbol, str(e))
+                    current_price = None
 
-            except Exception as e:
-                print("Signal result update failed:", str(e))
+                if current_price is not None:
+                    if direction_base == "BUY":
+                        if current_price <= sl:
+                            final_result = "SL"
+                            updates = close_signal("SL")
+                        else:
+                            hit_target = None
+                            for target_name, target_value in reversed(targets):
+                                if current_price >= target_value:
+                                    hit_target = target_name
+                                    break
+                            if hit_target:
+                                final_result = hit_target
+                                updates = close_signal(hit_target)
 
-        updated_signals.append(signal)
+                    elif direction_base == "SELL":
+                        if current_price >= sl:
+                            final_result = "SL"
+                            updates = close_signal("SL")
+                        else:
+                            hit_target = None
+                            for target_name, target_value in reversed(targets):
+                                if current_price <= target_value:
+                                    hit_target = target_name
+                                    break
+                            if hit_target:
+                                final_result = hit_target
+                                updates = close_signal(hit_target)
+
+            if updates:
+                try:
+                    supabase.table("signals").update(updates).eq("id", signal["id"]).execute()
+                    signal.update(updates)
+
+                    try:
+                        send_telegram(result_message(signal, final_result))
+                    except Exception as e:
+                        print("Telegram close update failed:", str(e))
+
+                except Exception as e:
+                    print("Signal result update failed:", str(e))
+
+            updated_signals.append(signal)
+
+        except Exception as e:
+            print("TP/SL check failed for signal", signal.get("id"), str(e))
+            updated_signals.append(signal)
+            continue
 
     return updated_signals
 
