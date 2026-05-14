@@ -228,11 +228,15 @@ export default function AdminPage() {
 
   if (!token) {
     return (
-      <main className="min-h-screen bg-[#05070D] px-6 py-10 text-white">
-        <div className="mx-auto grid min-h-screen max-w-6xl gap-10 lg:grid-cols-2 lg:items-center">
+      <main className="relative min-h-screen overflow-hidden bg-[#05070D] px-6 py-10 text-white">
+        <div className="absolute left-[-120px] top-[-120px] h-96 w-96 rounded-full bg-yellow-400/20 blur-[120px]" />
+        <div className="absolute right-[-120px] bottom-[-120px] h-96 w-96 rounded-full bg-emerald-400/20 blur-[120px]" />
+        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/5 blur-[130px]" />
+
+        <div className="relative mx-auto grid min-h-screen max-w-6xl gap-10 lg:grid-cols-2 lg:items-center">
           <section>
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400 text-xl font-black text-black">
+            <div className="mb-8 flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-400 text-xl font-black text-black shadow-lg shadow-yellow-400/30">
                 EP
               </div>
               <div>
@@ -240,30 +244,54 @@ export default function AdminPage() {
                   EasyPips <span className="text-yellow-300">Admin</span>
                 </h1>
                 <p className="text-sm text-slate-400">
-                  Desk publishing and control center
+                  Secure trading desk command center
                 </p>
               </div>
             </div>
 
-            <h2 className="text-5xl font-black leading-tight">
-              Manage signals, clients, and desk publishing.
+            <p className="mb-4 inline-flex rounded-full border border-yellow-400/20 bg-yellow-400/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-yellow-300">
+              Signal Operations
+            </p>
+
+            <h2 className="max-w-xl text-6xl font-black leading-tight">
+              Control signals,
+              <br />
+              clients, and
+              <br />
+              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-emerald-400 bg-clip-text text-transparent">
+                desk publishing.
+              </span>
             </h2>
 
-            <p className="mt-5 max-w-xl text-slate-300">
-              Publish Desk 1 and Desk 2 signals, manage AI/manual signals, and
-              approve MT4/MT5 client requests.
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
+              Publish Desk 1 and Desk 2 signals, manage AI/manual trades, approve
+              MT4/MT5 clients, and keep Telegram alerts live.
             </p>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              <Feature title="Desk Signals" value="LIVE" tone="yellow" />
+              <Feature title="Telegram" value="ON" tone="green" />
+              <Feature title="Controls" value="ADMIN" tone="blue" />
+            </div>
           </section>
 
-          <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl">
-            <h3 className="text-2xl font-black">Admin Login</h3>
+          <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-xl">
+            <div className="mb-6">
+              <p className="mb-3 inline-flex rounded-full bg-emerald-400 px-3 py-1 text-xs font-black text-black">
+                SECURE LOGIN
+              </p>
+              <h3 className="text-3xl font-black">Admin Login</h3>
+              <p className="mt-2 text-sm text-slate-400">
+                Access publishing, signal management, and client approvals.
+              </p>
+            </div>
 
-            <div className="mt-6 space-y-3">
+            <div className="space-y-4">
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Username"
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
+                className="w-full rounded-2xl border border-white/10 bg-black/40 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-yellow-400/50"
               />
 
               <input
@@ -271,14 +299,14 @@ export default function AdminPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 placeholder="Password"
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
+                className="w-full rounded-2xl border border-white/10 bg-black/40 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-yellow-400/50"
               />
 
               <button
                 onClick={login}
-                className="w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black"
+                className="w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black shadow-lg shadow-yellow-400/20 hover:bg-yellow-300"
               >
-                Login
+                Login to Control Panel
               </button>
 
               {message && <MessageBox message={message} />}
@@ -509,6 +537,30 @@ export default function AdminPage() {
         </div>
       )}
     </main>
+  );
+}
+
+function Feature({
+  title,
+  value,
+  tone,
+}: {
+  title: string;
+  value: string;
+  tone: "yellow" | "green" | "blue";
+}) {
+  const color =
+    tone === "yellow"
+      ? "border-yellow-400/20 bg-yellow-400/10 text-yellow-300"
+      : tone === "green"
+      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+      : "border-blue-400/20 bg-blue-400/10 text-blue-300";
+
+  return (
+    <div className={`rounded-2xl border p-4 ${color}`}>
+      <p className="text-xs font-black uppercase tracking-widest">{value}</p>
+      <p className="mt-1 text-sm font-bold text-white">{title}</p>
+    </div>
   );
 }
 
