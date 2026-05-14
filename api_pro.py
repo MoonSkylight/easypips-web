@@ -907,6 +907,51 @@ def count_today_approved_signals():
     return len(response.data or [])
 
 
+
+
+def active_duplicate_signal_exists(signal: dict):
+    """
+    Prevent repeated active duplicates from being inserted/broadcast.
+    Duplicate definition: same source/desk/strategy/symbol/direction/entry and ACTIVE.
+    """
+    if not db_enabled():
+        return None
+
+    try:
+        query = (
+            supabase.table("signals")
+            .select("*")
+            .eq("status", "ACTIVE")
+            .eq("symbol", signal.get("symbol"))
+            .eq("direction", signal.get("direction"))
+            .eq("entry", str(signal.get("entry")))
+        )
+
+        if signal.get("source"):
+            query = query.eq("source", signal.get("source"))
+        if signal.get("desk"):
+            query = query.eq("desk", signal.get("desk"))
+        if signal.get("strategy"):
+            query = query.eq("strategy", signal.get("strategy"))
+
+        response = query.order("created_at", desc=True).limit(1).execute()
+        rows = response.data or []
+        return rows[0] if rows else None
+    except Exception as e:
+        print("Duplicate check failed:", str(e))
+        return None
+
+
+def mark_signal_telegram_sent(signal_id: str):
+    if not db_enabled() or not signal_id:
+        return
+
+    try:
+        supabase.table("signals").update({"telegram_sent": True}).eq("id", signal_id).execute()
+    except Exception as e:
+        print("telegram_sent update failed:", str(e))
+
+
 def active_strategy_signal_exists(symbol: str, strategy: str):
     active = get_active_signals(source="AI Engine", strategy=strategy)
     return any(s.get("symbol") == symbol for s in active)
@@ -975,16 +1020,37 @@ def send_new_signal_with_chart(saved: dict):
 
 
 def insert_signal(signal: dict, send_alert: bool = True):
+    """
+    Insert a signal once and send Telegram once.
+    If the same ACTIVE signal already exists, return it and do NOT resend Telegram.
+    """
     if not db_enabled():
+        if send_alert:
+            send_new_signal_with_chart(signal)
         return signal
+
+    duplicate = active_duplicate_signal_exists(signal)
+    if duplicate:
+        print("Duplicate active signal skipped:", duplicate.get("id"))
+        return duplicate
+
+    try:
+        signal["telegram_sent"] = False
+    except Exception:
+        pass
 
     response = supabase.table("signals").insert(signal).execute()
 
     if response.data:
         saved = response.data[0]
 
-        if send_alert:
-            send_new_signal_with_chart(saved)
+        if send_alert and not saved.get("telegram_sent"):
+            try:
+                send_new_signal_with_chart(saved)
+                mark_signal_telegram_sent(saved.get("id"))
+                saved["telegram_sent"] = True
+            except Exception as e:
+                print("Telegram send after insert failed:", str(e))
 
         return saved
 
@@ -1742,6 +1808,7 @@ def create_desk1_signal(signal: ManualSignal, authorization: str = Header(defaul
         "hit_tp2": False,
         "hit_tp3": False,
         "hit_sl": False,
+        "telegram_sent": False,
     }
 
     saved = insert_signal(new_signal)
@@ -1775,6 +1842,7 @@ def create_desk2_signal(signal: ManualSignal, authorization: str = Header(defaul
         "hit_tp2": False,
         "hit_tp3": False,
         "hit_sl": False,
+        "telegram_sent": False,
     }
 
     saved = insert_signal(new_signal)
