@@ -255,9 +255,8 @@ def calculate_equity_summary(trades: list):
 
 def send_telegram(message: str):
     """
-    Robust Telegram sender.
-    Sends plain text to avoid Markdown parse errors.
-    Prints all failures to Render logs.
+    Telegram sender with premium Markdown formatting.
+    If Markdown fails, it retries as plain text so alerts are not lost.
     """
     try:
         bot_token = TELEGRAM_BOT_TOKEN or os.getenv("TELEGRAM_BOT_TOKEN")
@@ -272,22 +271,36 @@ def send_telegram(message: str):
         payload = {
             "chat_id": chat_id,
             "text": str(message),
+            "parse_mode": "Markdown",
             "disable_web_page_preview": True,
         }
 
         response = requests.post(url, json=payload, timeout=15)
 
-        if response.status_code != 200:
-            print("Telegram send failed:", response.status_code, response.text)
+        if response.status_code == 200:
+            print("Telegram sent successfully")
+            return True
+
+        print("Telegram Markdown failed, retrying plain text:", response.status_code, response.text)
+
+        plain_payload = {
+            "chat_id": chat_id,
+            "text": str(message).replace("*", "").replace("`", ""),
+            "disable_web_page_preview": True,
+        }
+
+        plain_response = requests.post(url, json=plain_payload, timeout=15)
+
+        if plain_response.status_code != 200:
+            print("Telegram plain send failed:", plain_response.status_code, plain_response.text)
             return False
 
-        print("Telegram sent successfully")
+        print("Telegram sent successfully as plain text")
         return True
 
     except Exception as e:
         print("Telegram exception:", str(e))
         return False
-
 
 def format_signal_message(signal: dict):
     symbol = signal.get("symbol") or signal.get("pair") or "-"
@@ -368,6 +381,7 @@ def send_telegram_image(message: str, image_path: str):
 
 
 def new_signal_message(signal: dict):
+    source = signal.get("desk") or signal.get("strategy") or signal.get("source") or "EasyPips"
     return f"""
 🚀 *EASY PIPS VIP SIGNAL*
 
@@ -375,8 +389,8 @@ def new_signal_message(signal: dict):
 
 📊 *Pair:* {signal.get("symbol")}
 📈 *Direction:* {signal.get("direction")}
-🧠 *Strategy:* {signal.get("strategy", "Strategy A")}
-📌 *Pattern:* {signal.get("pattern", "standard")}
+🧠 *Source:* {source}
+📌 *Pattern:* {signal.get("pattern", "manual_signal")}
 ⭐ *Score:* {signal.get("score", "N/A")}
 
 ━━━━━━━━━━━━━━━
@@ -391,9 +405,8 @@ def new_signal_message(signal: dict):
 ━━━━━━━━━━━━━━━
 
 📊 Confidence: *{signal.get("confidence", "N/A")}*
-⚠️ Demo version. Not financial advice.
+⚠️ Educational only. Trading involves risk.
 """
-
 
 def result_message(signal: dict, result: str):
     emoji = "✅"
@@ -1045,17 +1058,20 @@ def insert_signal(signal: dict, send_alert: bool = True):
         saved = response.data[0]
 
         if send_alert and not saved.get("telegram_sent"):
+            ok = False
             try:
                 send_new_signal_with_chart(saved)
-                mark_signal_telegram_sent(saved.get("id"))
-                saved["telegram_sent"] = True
+                ok = True
             except Exception as e:
                 print("Telegram send after insert failed:", str(e))
+
+            if ok:
+                mark_signal_telegram_sent(saved.get("id"))
+                saved["telegram_sent"] = True
 
         return saved
 
     return signal
-
 
 def approve_and_insert_signal(signal: dict):
     approved, reason = quality_gate(signal)
@@ -1437,6 +1453,21 @@ def build_signal_stats():
     }
 
 
+
+class SignalUpdate(BaseModel):
+    symbol: Optional[str] = None
+    direction: Optional[str] = None
+    entry: Optional[str] = None
+    sl: Optional[str] = None
+    tp1: Optional[str] = None
+    tp2: Optional[str] = None
+    tp3: Optional[str] = None
+    status: Optional[str] = None
+    result: Optional[str] = None
+    note: Optional[str] = None
+    analyst: Optional[str] = None
+
+
 @app.get("/")
 def root():
     return {
@@ -1811,9 +1842,18 @@ def create_desk1_signal(signal: ManualSignal, authorization: str = Header(defaul
         "telegram_sent": False,
     }
 
-    saved = insert_signal(new_signal)
-    return {"success": True, "signal": saved}
+    saved = insert_signal(new_signal, send_alert=False)
 
+    if not saved.get("telegram_sent"):
+        try:
+            ok = send_telegram(new_signal_message(saved))
+            if ok and db_enabled() and saved.get("id"):
+                supabase.table("signals").update({"telegram_sent": True}).eq("id", saved.get("id")).execute()
+                saved["telegram_sent"] = True
+        except Exception as e:
+            print("Telegram send failed Desk 1:", str(e))
+
+    return {"success": True, "signal": saved}
 
 @app.post("/desk2/signals")
 def create_desk2_signal(signal: ManualSignal, authorization: str = Header(default="")):
@@ -1845,9 +1885,84 @@ def create_desk2_signal(signal: ManualSignal, authorization: str = Header(defaul
         "telegram_sent": False,
     }
 
-    saved = insert_signal(new_signal)
+    saved = insert_signal(new_signal, send_alert=False)
+
+    if not saved.get("telegram_sent"):
+        try:
+            ok = send_telegram(new_signal_message(saved))
+            if ok and db_enabled() and saved.get("id"):
+                supabase.table("signals").update({"telegram_sent": True}).eq("id", saved.get("id")).execute()
+                saved["telegram_sent"] = True
+        except Exception as e:
+            print("Telegram send failed Desk 2:", str(e))
+
     return {"success": True, "signal": saved}
 
+@app.get("/admin/signals")
+def admin_list_signals(authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"signals": []}
+
+    rows = (
+        supabase.table("signals")
+        .select("*")
+        .neq("status", "DELETED")
+        .order("created_at", desc=True)
+        .limit(100)
+        .execute()
+        .data
+        or []
+    )
+
+    return {"signals": rows}
+
+
+@app.patch("/admin/signals/{signal_id}")
+def admin_update_signal(signal_id: str, data: SignalUpdate, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    updates = {k: v for k, v in data.dict().items() if v is not None}
+
+    if "direction" in updates:
+        updates["direction"] = str(updates["direction"]).upper()
+
+    if not updates:
+        return {"success": False, "message": "No fields to update"}
+
+    response = (
+        supabase.table("signals")
+        .update(updates)
+        .eq("id", signal_id)
+        .execute()
+    )
+
+    updated = response.data[0] if response.data else None
+
+    return {"success": True, "signal": updated}
+
+
+@app.delete("/admin/signals/{signal_id}")
+def admin_delete_signal(signal_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    response = (
+        supabase.table("signals")
+        .update({"status": "DELETED", "result": "DELETED"})
+        .eq("id", signal_id)
+        .execute()
+    )
+
+    deleted = response.data[0] if response.data else None
+
+    return {"success": True, "signal": deleted}
 
 @app.delete("/signals/{signal_id}")
 def delete_signal(signal_id: str, authorization: str = Header(default="")):
@@ -2540,6 +2655,13 @@ def admin_get_trade_history(account_id: str, authorization: str = Header(default
         "equity": calculate_equity_summary(trades),
     }
 
+
+
+@app.get("/admin/telegram-health")
+def admin_telegram_health(authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+    ok = send_telegram("✅ *EasyPips Telegram health check*\\n\\nTelegram is connected and Markdown formatting is working.")
+    return {"success": ok}
 
 @app.get("/debug-telegram")
 def debug_telegram():
