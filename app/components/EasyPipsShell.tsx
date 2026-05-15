@@ -138,7 +138,7 @@ function StatCard({
   };
 
   return (
-    <div className={`rounded-3xl border ${colors[color]} bg-white/[0.035] p-5 shadow-xl`}>
+    <div className={`group rounded-3xl border ${colors[color]} bg-white/[0.045] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-black uppercase">{title}</p>
         <span className="text-2xl opacity-80">{icon}</span>
@@ -153,14 +153,20 @@ function StatCard({
 
 function SystemRule() {
   return (
-    <section className="mb-6 flex items-center gap-5 rounded-3xl border border-yellow-400/60 bg-yellow-400/[0.04] px-6 py-5 shadow-xl shadow-yellow-500/5">
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-3xl text-black">🛡</div>
-      <p className="text-xl font-black text-yellow-300">SYSTEM RULE:</p>
-      <p className="min-w-0 flex-1 text-base text-white">
-        Our AI system analyzes multiple market factors and only publishes signals after
-      </p>
-      <p className="text-7xl font-black leading-none text-yellow-300">82%</p>
-      <p className="text-base text-white">of confirmation minimum is achieved.</p>
+    <section className="mb-6 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-2xl shadow-yellow-500/10">
+      <div className="flex flex-col gap-5 rounded-[2rem] bg-[#07101b]/90 px-6 py-5 backdrop-blur-xl lg:flex-row lg:items-center">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-3xl text-black shadow-lg shadow-yellow-400/30">🛡</div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xl font-black text-yellow-300">SYSTEM RULE</p>
+          <p className="mt-1 text-sm leading-6 text-slate-200">
+            EasyPips AI analyzes multiple market factors and only publishes signals after minimum confirmation is achieved.
+          </p>
+        </div>
+        <div className="flex items-end gap-3">
+          <p className="text-7xl font-black leading-none text-yellow-300 drop-shadow-[0_0_30px_rgba(250,204,21,0.35)]">82%</p>
+          <p className="pb-2 text-sm font-black uppercase tracking-widest text-slate-300">minimum<br />confirmation</p>
+        </div>
+      </div>
     </section>
   );
 }
@@ -168,7 +174,7 @@ function SystemRule() {
 function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#07101d] p-5 shadow-xl">
+    <div className="group rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-400/30">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs text-slate-500">{s.pattern || s.note || "Live market signal"}</p>
@@ -211,7 +217,7 @@ function Mini({ label, value, good, danger }: { label: string; value: any; good?
 
 function Panel({ title, children, right }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/[0.035] p-5 shadow-xl">
+    <section className="rounded-3xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
       <div className="mb-5 flex items-center justify-between gap-4">
         <h2 className="text-2xl font-black text-white">{title}</h2>
         {right}
@@ -280,6 +286,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [selectedPairs, setSelectedPairs] = useState<string[]>(["XAU/USD", "EUR/USD", "GBP/USD"]);
   const [pairSearch, setPairSearch] = useState("");
   const [cat, setCat] = useState("Major");
+  const [settingsMessage, setSettingsMessage] = useState("");
 
   async function loadData() {
     try {
@@ -320,8 +327,44 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
     return () => clearInterval(t);
   }, []);
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("easypips-signal-preferences");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed.selectedPairs)) {
+          setSelectedPairs(parsed.selectedPairs);
+        }
+      }
+    } catch {
+      // keep defaults
+    }
+  }, []);
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(
+        "easypips-signal-preferences",
+        JSON.stringify({
+          selectedPairs,
+          savedAt: new Date().toISOString(),
+        })
+      );
+      setSettingsMessage("Preferences saved ✅");
+      setTimeout(() => setSettingsMessage(""), 2500);
+    } catch {
+      setSettingsMessage("Unable to save preferences");
+    }
+  }
+
   const live = allSignals.filter((s) => (s.status || "ACTIVE") === "ACTIVE");
   const visibleLive = live.filter((s) => {
+    const pairAllowed =
+      selectedPairs.length === 0 ||
+      selectedPairs.includes(String(s.symbol || "").replace("XAUUSD", "XAU/USD"));
+
+    if (!pairAllowed) return false;
+
     if (filter === "All") return true;
     if (filter === "Help Desk") return s.desk === "Desk 1" || s.desk === "Help Desk";
     return s.strategy === filter;
@@ -346,10 +389,17 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   );
 
   return (
-    <main className="min-h-screen bg-[#030811] text-white">
-      <aside className="fixed left-0 top-0 hidden h-screen w-[280px] border-r border-white/10 bg-[#07101b] p-5 xl:block">
+    <main className="min-h-screen overflow-hidden bg-[#030811] text-white">
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute left-[-160px] top-[-160px] h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
+        <div className="absolute right-[-180px] top-[120px] h-[520px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
+        <div className="absolute bottom-[-220px] left-[35%] h-[520px] w-[520px] rounded-full bg-cyan-400/10 blur-[150px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
+      </div>
+
+      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[280px] border-r border-white/10 bg-[#07101b]/90 p-5 shadow-2xl backdrop-blur-xl xl:block">
         <Link href="/dashboard" className="mb-8 flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400 font-black text-black">EP</div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/20">EP</div>
           <div>
             <h1 className="text-2xl font-black">
               Easy<span className="text-yellow-300">Pips</span> <span className="text-emerald-300">AI</span>
@@ -366,7 +416,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
                 key={item.key}
                 href={item.href}
                 className={`flex items-center gap-3 rounded-2xl px-4 py-3 font-black ${
-                  active ? "border border-yellow-400/40 bg-yellow-400/10 text-yellow-300" : "text-white hover:bg-white/10"
+                  active ? "border border-yellow-400/40 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/5" : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <span>{item.icon}</span>
@@ -401,8 +451,8 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
         </div>
       </aside>
 
-      <section className="xl:pl-[280px]">
-        <header className="sticky top-0 z-20 border-b border-white/10 bg-[#030811]/90 px-5 py-4 backdrop-blur">
+      <section className="relative z-10 xl:pl-[280px]">
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-[#030811]/80 px-5 py-4 shadow-xl shadow-black/20 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
             <div className="flex gap-5 overflow-x-auto text-sm font-black">
               {NAV.slice(0, 6).map((item) => (
@@ -416,10 +466,27 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
                 <p className="text-slate-400">Server Time UTC</p>
                 <p className="font-black">{new Date().toLocaleTimeString()}</p>
               </div>
-              <a href="https://t.me/" target="_blank" className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black">Join Telegram</a>
+              <a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300">Join Telegram</a>
             </div>
           </div>
         </header>
+
+        <div className="xl:hidden px-4 pt-4">
+          {/* Mobile navigation */}
+          <div className="flex gap-2 overflow-x-auto rounded-3xl border border-white/10 bg-white/[0.04] p-2">
+            {NAV.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`shrink-0 rounded-2xl px-4 py-3 text-sm font-black ${
+                  page === item.key ? "bg-yellow-400 text-black" : "bg-white/10 text-white"
+                }`}
+              >
+                {item.label.replace(" (MT4/MT5)", "")}
+              </Link>
+            ))}
+          </div>
+        </div>
 
         <div className="mx-auto max-w-[1600px] p-5">
           <SystemRule />
@@ -453,6 +520,8 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
               setPairSearch={setPairSearch}
               cat={cat}
               setCat={setCat}
+              settingsMessage={settingsMessage}
+              saveSettings={saveSettings}
             />
           )}
         </div>
@@ -482,7 +551,7 @@ function LiveSignalsPanel({
             key={f}
             onClick={() => setFilter(f)}
             className={`rounded-xl px-4 py-2 text-sm font-black ${
-              filter === f ? "bg-yellow-400 text-black" : "bg-white/10 text-white hover:bg-white/15"
+              filter === f ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/20" : "bg-white/10 text-white hover:bg-white/15"
             }`}
           >
             {f}
@@ -490,7 +559,7 @@ function LiveSignalsPanel({
         ))}
       </div>
       {signals.length === 0 ? (
-        <div className="rounded-2xl bg-black/30 p-8 text-slate-400">No active signals for this filter.</div>
+        <div className="rounded-3xl border border-dashed border-white/10 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
         <div className={`grid gap-4 ${compact ? "lg:grid-cols-2" : "md:grid-cols-2 xl:grid-cols-3"}`}>
           {signals.map((s, i) => <SignalCard key={s.id || i} s={s} />)}
@@ -668,7 +737,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
             <option>MT4</option>
           </select>
           <textarea placeholder="Risk note / request details" className="min-h-28 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none" />
-          <button className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black">Submit Connection Request</button>
+          <button className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300">Submit Connection Request</button>
         </div>
       </Panel>
 
@@ -754,6 +823,8 @@ function SettingsPage({
   setPairSearch,
   cat,
   setCat,
+  settingsMessage,
+  saveSettings,
 }: {
   selectedPairs: string[];
   setSelectedPairs: (x: string[]) => void;
@@ -761,6 +832,8 @@ function SettingsPage({
   setPairSearch: (x: string) => void;
   cat: string;
   setCat: (x: string) => void;
+  settingsMessage: string;
+  saveSettings: () => void;
 }) {
   const pairs = PAIRS.filter((p) => {
     const q = pairSearch.toLowerCase();
@@ -824,11 +897,41 @@ function SettingsPage({
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <p className="text-sm">Selected: <span className="font-black text-emerald-300">{selectedPairs.length} pairs</span></p>
-            <button onClick={() => setSelectedPairs([])} className="text-sm font-black text-yellow-300">Clear All</button>
+            <p className="text-sm">
+              Selected: <span className="font-black text-emerald-300">{selectedPairs.length} pairs</span>
+            </p>
+            <button onClick={() => setSelectedPairs([])} className="text-sm font-black text-yellow-300">
+              Clear All
+            </button>
           </div>
 
-          <button className="mt-5 rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black">Save Changes</button>
+          {selectedPairs.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {selectedPairs.map((pair) => (
+                <span
+                  key={pair}
+                  className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-300"
+                >
+                  {pair}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              onClick={saveSettings}
+              className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300"
+            >
+              Save Changes
+            </button>
+
+            {settingsMessage && (
+              <span className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-black text-emerald-300">
+                {settingsMessage}
+              </span>
+            )}
+          </div>
         </Panel>
 
         <div className="space-y-5">
