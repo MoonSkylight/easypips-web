@@ -241,7 +241,8 @@ export default function AdminPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-black">
-                  EasyPips <span className="text-yellow-300">Admin</span>
+                  Easy<span className="text-yellow-300">Pips</span>{" "}
+                  <span className="text-emerald-300">AI</span>
                 </h1>
                 <p className="text-sm text-slate-400">
                   Secure trading desk command center
@@ -271,7 +272,7 @@ export default function AdminPage() {
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               <Feature title="Desk Signals" value="LIVE" tone="yellow" />
               <Feature title="Telegram" value="ON" tone="green" />
-              <Feature title="Controls" value="ADMIN" tone="blue" />
+              <Feature title="Strategy C" value="HIGH RR" tone="blue" />
             </div>
           </section>
 
@@ -333,7 +334,14 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
+            <a
+              href="/dashboard"
+              className="rounded-2xl border border-white/10 px-5 py-3 font-black text-white hover:bg-white/10"
+            >
+              Dashboard
+            </a>
+
             <button
               onClick={() => loadData(token)}
               className="rounded-2xl border border-white/10 px-5 py-3 font-black text-white hover:bg-white/10"
@@ -371,19 +379,34 @@ export default function AdminPage() {
             </div>
 
             <div className="mt-5 grid gap-3">
-              <Field label="Symbol" value={form.symbol} onChange={(v) => setForm({ ...form, symbol: v })} placeholder="XAU/USD" />
+              <Field
+                label="Symbol"
+                value={form.symbol}
+                onChange={(v) => setForm({ ...form, symbol: v })}
+                placeholder="XAU/USD"
+              />
 
               <label className="grid gap-2">
                 <span className="text-sm text-slate-400">Direction</span>
                 <select
                   value={form.direction}
-                  onChange={(e) => setForm({ ...form, direction: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, direction: e.target.value })
+                  }
                   className="rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
                 >
-                  <option className="bg-[#05070D]" value="BUY">BUY</option>
-                  <option className="bg-[#05070D]" value="SELL">SELL</option>
-                  <option className="bg-[#05070D]" value="BUY LIMIT">BUY LIMIT</option>
-                  <option className="bg-[#05070D]" value="SELL LIMIT">SELL LIMIT</option>
+                  <option className="bg-[#05070D]" value="BUY">
+                    BUY
+                  </option>
+                  <option className="bg-[#05070D]" value="SELL">
+                    SELL
+                  </option>
+                  <option className="bg-[#05070D]" value="BUY LIMIT">
+                    BUY LIMIT
+                  </option>
+                  <option className="bg-[#05070D]" value="SELL LIMIT">
+                    SELL LIMIT
+                  </option>
                 </select>
               </label>
 
@@ -443,6 +466,31 @@ export default function AdminPage() {
         </aside>
 
         <section className="space-y-6">
+          <Panel title="Strategy Engine Status">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <EngineCard
+                title="Strategy A"
+                value={signals.filter((s) => s.strategy === "Strategy A").length}
+                tone="blue"
+              />
+              <EngineCard
+                title="Strategy B"
+                value={signals.filter((s) => s.strategy === "Strategy B").length}
+                tone="purple"
+              />
+              <EngineCard
+                title="Strategy C"
+                value={signals.filter((s) => s.strategy === "Strategy C").length}
+                tone="green"
+              />
+              <EngineCard
+                title="Desk Signals"
+                value={signals.filter((s) => s.desk).length}
+                tone="yellow"
+              />
+            </div>
+          </Panel>
+
           <Panel title="Signal Management">
             {signals.length === 0 ? (
               <p className="text-slate-400">No signals found.</p>
@@ -454,16 +502,63 @@ export default function AdminPage() {
                     className="flex flex-col justify-between gap-4 rounded-2xl bg-black/30 p-4 md:flex-row md:items-center"
                   >
                     <div>
-                      <p className="font-black">
-                        {s.symbol} {s.direction}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-black">
+                          {s.symbol} {s.direction}
+                        </p>
+
+                        <span
+                          className={`rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-wide ${
+                            s.strategy === "Strategy A"
+                              ? "border border-blue-400/20 bg-blue-400/10 text-blue-300"
+                              : s.strategy === "Strategy B"
+                              ? "border border-purple-400/20 bg-purple-400/10 text-purple-300"
+                              : s.strategy === "Strategy C"
+                              ? "border border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+                              : s.desk === "Desk 1"
+                              ? "border border-yellow-400/20 bg-yellow-400/10 text-yellow-300"
+                              : "border border-orange-400/20 bg-orange-400/10 text-orange-300"
+                          }`}
+                        >
+                          {s.strategy || s.desk || "Signal"}
+                        </span>
+
+                        {s.strategy === "Strategy C" && (
+                          <span className="rounded-lg border border-emerald-400/20 bg-emerald-500/10 px-2 py-1 text-[10px] font-black text-emerald-300">
+                            HIGH RR
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-2 text-sm text-slate-400">
+                        {s.pattern || "No pattern"}
                       </p>
-                      <p className="text-sm text-slate-400">
-                        {s.strategy || s.desk || s.source} · {s.status} ·{" "}
-                        {s.result}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Entry {s.entry} · SL {s.sl} · TP1 {s.tp1} · TP2 {s.tp2} ·
-                        TP3 {s.tp3}
+
+                      <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                        <span className="rounded-lg bg-black/40 px-2 py-1 text-slate-300">
+                          Status: {s.status}
+                        </span>
+
+                        <span className="rounded-lg bg-black/40 px-2 py-1 text-slate-300">
+                          Result: {s.result}
+                        </span>
+
+                        {s.score && (
+                          <span className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-emerald-300">
+                            RR/Score: {s.score}
+                          </span>
+                        )}
+
+                        {s.confidence && (
+                          <span className="rounded-lg border border-yellow-400/20 bg-yellow-400/10 px-2 py-1 text-yellow-300">
+                            Confidence: {s.confidence}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-3 text-xs text-slate-500">
+                        Entry {s.entry} · SL {s.sl} · TP1 {s.tp1} · TP2{" "}
+                        {s.tp2} · TP3 {s.tp3}
                       </p>
                     </div>
 
@@ -498,7 +593,17 @@ export default function AdminPage() {
             <h2 className="text-2xl font-black">Edit Signal</h2>
 
             <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {["symbol", "direction", "entry", "sl", "tp1", "tp2", "tp3", "status", "result"].map((field) => (
+              {[
+                "symbol",
+                "direction",
+                "entry",
+                "sl",
+                "tp1",
+                "tp2",
+                "tp3",
+                "status",
+                "result",
+              ].map((field) => (
                 <input
                   key={field}
                   value={editing[field] || ""}
@@ -564,7 +669,39 @@ function Feature({
   );
 }
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+function EngineCard({
+  title,
+  value,
+  tone,
+}: {
+  title: string;
+  value: any;
+  tone: "blue" | "purple" | "green" | "yellow";
+}) {
+  const color =
+    tone === "blue"
+      ? "border-blue-400/20 bg-blue-400/10 text-blue-300"
+      : tone === "purple"
+      ? "border-purple-400/20 bg-purple-400/10 text-purple-300"
+      : tone === "green"
+      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+      : "border-yellow-400/20 bg-yellow-400/10 text-yellow-300";
+
+  return (
+    <div className={`rounded-2xl border p-4 ${color}`}>
+      <p className="text-xs font-black uppercase">{title}</p>
+      <p className="mt-2 text-3xl font-black text-white">{value}</p>
+    </div>
+  );
+}
+
+function Panel({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-xl">
       <h2 className="mb-4 text-lg font-black">{title}</h2>
