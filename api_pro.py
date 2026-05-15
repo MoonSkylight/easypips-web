@@ -884,25 +884,32 @@ def get_all_signals():
     return response.data or []
 
 
-def get_active_signals(source=None, desk=None, strategy=None):
+def get_active_signals(source=None, strategy=None, desk=None):
     if not db_enabled():
         return []
 
-    query = supabase.table("signals").select("*").eq("status", "ACTIVE")
+    try:
+        query = (
+            supabase.table("signals")
+            .select("*")
+            .eq("status", "ACTIVE")
+        )
 
-    if source:
-        query = query.eq("source", source)
+        if source:
+            query = query.eq("source", source)
 
-    if desk:
-        query = query.eq("desk", desk)
+        if strategy:
+            query = query.eq("strategy", strategy)
 
-    if strategy:
-        query = query.eq("strategy", strategy)
+        if desk:
+            query = query.eq("desk", desk)
 
-    response = query.order("created_at", desc=True).execute()
+        response = query.order("created_at", desc=True).limit(50).execute()
+        return response.data or []
 
-    return response.data or []
-
+    except Exception as e:
+        print("get_active_signals failed:", str(e))
+        return []
 
 def count_today_approved_signals():
     if not db_enabled():
@@ -968,9 +975,25 @@ def mark_signal_telegram_sent(signal_id: str):
 
 
 def active_strategy_signal_exists(symbol: str, strategy: str):
-    active = get_active_signals(source="AI Engine", strategy=strategy)
-    return any(s.get("symbol") == symbol for s in active)
+    if not db_enabled():
+        return False
 
+    try:
+        response = (
+            supabase.table("signals")
+            .select("id")
+            .eq("status", "ACTIVE")
+            .eq("symbol", symbol)
+            .eq("strategy", strategy)
+            .limit(1)
+            .execute()
+        )
+
+        return bool(response.data)
+
+    except Exception as e:
+        print("active_strategy_signal_exists failed:", str(e))
+        return False
 
 def cooldown_duplicate_exists(symbol: str, strategy: str, direction: str):
     if not db_enabled():
@@ -1090,27 +1113,28 @@ def approve_and_insert_signal(signal: dict):
 
 def generate_strategy_c_signals():
     """
-    Strategy C: Smart Money / ICT High RR Scanner.
-
-    Includes:
-    - ICT concepts
-    - Supply / Demand
-    - BOS
-    - Liquidity sweep
-    - QM / fakeout
-    - Asian range manipulation
-    - High RR continuation / reversal
-    - Small SL / large TP
+    Strategy C safe scanner.
+    Keeps all Strategy C features, but avoids repeated Supabase calls.
     """
     created = 0
     rejected = 0
 
+    try:
+        existing_c = get_active_signals(source="AI Engine", strategy="Strategy C")
+        if len(existing_c) >= 3:
+            return {"created": 0, "rejected": 0}
+
+        existing_symbols = set([s.get("symbol") for s in existing_c])
+    except Exception as e:
+        print("Strategy C pre-check failed:", str(e))
+        existing_symbols = set()
+
     for symbol, yahoo_symbol in SYMBOLS.items():
         try:
-            if len(get_active_signals(source="AI Engine", strategy="Strategy C")) >= MAX_STRATEGY_C_ACTIVE_SIGNALS:
+            if created >= 1:
                 break
 
-            if active_strategy_signal_exists(symbol, "Strategy C"):
+            if symbol in existing_symbols:
                 continue
 
             data = yf.Ticker(yahoo_symbol).history(period="7d", interval="15m")
@@ -1172,6 +1196,7 @@ def generate_strategy_c_signals():
         except Exception as e:
             print("Strategy C error for", symbol, str(e))
             rejected += 1
+            continue
 
     return {"created": created, "rejected": rejected}
 
@@ -1648,11 +1673,34 @@ def health():
 
 @app.get("/cron-check")
 def cron_check():
-    strategyA = generate_strategy_a_signals()
-    strategyB = generate_strategy_b_signals()
-    strategyC = generate_strategy_c_signals()
+    strategyA = {"created": 0, "rejected": 0}
+    strategyB = {"created": 0, "rejected": 0}
+    strategyC = {"created": 0, "rejected": 0}
+    updated = []
 
-    updated = update_all_running_results()
+    try:
+        strategyA = generate_strategy_a_signals()
+    except Exception as e:
+        print("Strategy A cron failed:", str(e))
+        strategyA = {"created": 0, "rejected": 1, "error": str(e)}
+
+    try:
+        strategyB = generate_strategy_b_signals()
+    except Exception as e:
+        print("Strategy B cron failed:", str(e))
+        strategyB = {"created": 0, "rejected": 1, "error": str(e)}
+
+    try:
+        strategyC = generate_strategy_c_signals()
+    except Exception as e:
+        print("Strategy C cron failed:", str(e))
+        strategyC = {"created": 0, "rejected": 1, "error": str(e)}
+
+    try:
+        updated = update_all_running_results()
+    except Exception as e:
+        print("TP/SL update failed:", str(e))
+        updated = []
 
     return {
         "status": "ok",
@@ -1660,8 +1708,9 @@ def cron_check():
         "strategyB": strategyB,
         "strategyC": strategyC,
         "checkedSignals": len(updated),
-        "message": "Strategies checked, quality gate applied, TP/SL updated",
+        "message": "Strategies checked safely, TP/SL updated",
     }
+
 
 @app.get("/system-status")
 def system_status():
@@ -1874,11 +1923,35 @@ def rejected_signals():
 
 @app.get("/all-paid-signals")
 def all_paid_signals():
-    strategy_a = get_active_signals(source="AI Engine", strategy="Strategy A")
-    strategy_b = get_active_signals(source="AI Engine", strategy="Strategy B")
-    strategy_c = get_active_signals(source="AI Engine", strategy="Strategy C")
-    desk1 = get_active_signals(desk="Desk 1")
-    desk2 = get_active_signals(desk="Desk 2")
+    try:
+        strategy_a = get_active_signals(source="AI Engine", strategy="Strategy A")
+    except Exception as e:
+        print("strategy_a load failed:", str(e))
+        strategy_a = []
+
+    try:
+        strategy_b = get_active_signals(source="AI Engine", strategy="Strategy B")
+    except Exception as e:
+        print("strategy_b load failed:", str(e))
+        strategy_b = []
+
+    try:
+        strategy_c = get_active_signals(source="AI Engine", strategy="Strategy C")
+    except Exception as e:
+        print("strategy_c load failed:", str(e))
+        strategy_c = []
+
+    try:
+        desk1 = get_active_signals(desk="Desk 1")
+    except Exception as e:
+        print("desk1 load failed:", str(e))
+        desk1 = []
+
+    try:
+        desk2 = get_active_signals(desk="Desk 2")
+    except Exception as e:
+        print("desk2 load failed:", str(e))
+        desk2 = []
 
     ai_signals = strategy_a + strategy_b + strategy_c
 
@@ -1890,6 +1963,7 @@ def all_paid_signals():
         "desk1Signals": desk1,
         "desk2Signals": desk2,
     }
+
 
 @app.get("/closed-signals")
 def closed_signals():
