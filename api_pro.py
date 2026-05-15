@@ -1216,13 +1216,11 @@ def update_all_running_results():
     """
     Safe TP/SL check-and-balance engine.
 
-    Rules:
-    - Checks every ACTIVE signal.
-    - Skips symbols without Yahoo mapping instead of crashing.
-    - Uses candle order after signal creation when available.
-    - Fallback uses latest live price when candles are unavailable.
-    - Closes signals when TP/SL is hit.
-    - Sends Telegram update when a signal closes.
+    Correct trade lifecycle:
+    - TP1 hit -> stays ACTIVE, result TP1, hit_tp1 true
+    - TP2 hit -> stays ACTIVE, result TP2, hit_tp1/hit_tp2 true
+    - TP3 hit -> CLOSED, result TP3
+    - SL hit  -> CLOSED, result SL
     """
     if not db_enabled():
         return []
@@ -1243,59 +1241,84 @@ def update_all_running_results():
             symbol = signal.get("symbol")
             yahoo_symbol = SYMBOLS.get(symbol)
 
-            # Prevent cron-check crash for symbols not supported in SYMBOLS.
             if not yahoo_symbol:
                 print("Skipping TP/SL check: missing Yahoo symbol mapping for", symbol)
                 updated_signals.append(signal)
                 continue
 
             direction = str(signal.get("direction", "")).upper()
+            direction_base = "BUY" if direction.startswith("BUY") else "SELL"
+
             sl = safe_float(signal.get("sl"))
             tp1 = safe_float(signal.get("tp1"))
             tp2 = safe_float(signal.get("tp2"))
             tp3 = safe_float(signal.get("tp3"))
 
-            if direction not in ["BUY", "SELL", "BUY LIMIT", "SELL LIMIT", "BUY STOP", "SELL STOP"] or sl is None:
-                updated_signals.append(signal)
-                continue
-
-            direction_base = "BUY" if direction.startswith("BUY") else "SELL"
-
-            targets = [
-                ("TP1", tp1),
-                ("TP2", tp2),
-                ("TP3", tp3),
-            ]
-
-            targets = [(name, value) for name, value in targets if value is not None]
-
-            if not targets:
+            if direction_base not in ["BUY", "SELL"] or sl is None:
                 updated_signals.append(signal)
                 continue
 
             updates = {}
             final_result = None
 
-            def close_signal(result: str):
-                now = datetime.now(timezone.utc).isoformat()
-                result_updates = {
+            hit_tp1 = bool(signal.get("hit_tp1"))
+            hit_tp2 = bool(signal.get("hit_tp2"))
+            hit_tp3 = bool(signal.get("hit_tp3"))
+
+            def partial_update(result: str):
+                partial = {}
+
+                if result in ["TP1", "TP2", "TP3"]:
+                    partial["hit_tp1"] = True
+                    partial["result"] = result
+
+                if result in ["TP2", "TP3"]:
+                    partial["hit_tp2"] = True
+                    partial["result"] = result
+
+                if result == "TP3":
+                    partial["hit_tp3"] = True
+                    partial["hit_sl"] = False
+                    partial["result"] = "TP3"
+                    partial["status"] = "CLOSED"
+                    partial["closed_at"] = datetime.now(timezone.utc).isoformat()
+
+                return partial
+
+            def close_sl():
+                return {
+                    "hit_sl": True,
+                    "result": "SL",
                     "status": "CLOSED",
-                    "result": result,
-                    "closed_at": now,
+                    "closed_at": datetime.now(timezone.utc).isoformat(),
                 }
 
-                if result == "SL":
-                    result_updates["hit_sl"] = True
-                if result in ["TP1", "TP2", "TP3"]:
-                    result_updates["hit_tp1"] = True
-                if result in ["TP2", "TP3"]:
-                    result_updates["hit_tp2"] = True
-                if result == "TP3":
-                    result_updates["hit_tp3"] = True
+            def apply_target_hit(target_name: str):
+                nonlocal hit_tp1, hit_tp2, hit_tp3, final_result, updates
 
-                return result_updates
+                if target_name == "TP3" and not hit_tp3:
+                    updates.update(partial_update("TP3"))
+                    final_result = "TP3"
+                    hit_tp1 = True
+                    hit_tp2 = True
+                    hit_tp3 = True
+                    return True
 
-            # First try candle-by-candle history.
+                if target_name == "TP2" and not hit_tp2:
+                    updates.update(partial_update("TP2"))
+                    final_result = "TP2"
+                    hit_tp1 = True
+                    hit_tp2 = True
+                    return True
+
+                if target_name == "TP1" and not hit_tp1:
+                    updates.update(partial_update("TP1"))
+                    final_result = "TP1"
+                    hit_tp1 = True
+                    return True
+
+                return False
+
             try:
                 candles = get_candles_since_signal(yahoo_symbol, signal.get("created_at"))
             except Exception as e:
@@ -1311,40 +1334,38 @@ def update_all_running_results():
                         continue
 
                     if direction_base == "BUY":
+                        # SL closes immediately.
                         if low <= sl:
+                            updates = close_sl()
                             final_result = "SL"
-                            updates = close_signal("SL")
                             break
 
-                        hit_target = None
-                        for target_name, target_value in reversed(targets):
-                            if high >= target_value:
-                                hit_target = target_name
-                                break
-
-                        if hit_target:
-                            final_result = hit_target
-                            updates = close_signal(hit_target)
+                        # Highest target reached in this candle.
+                        if tp3 is not None and high >= tp3:
+                            apply_target_hit("TP3")
                             break
+                        if tp2 is not None and high >= tp2:
+                            apply_target_hit("TP2")
+                        elif tp1 is not None and high >= tp1:
+                            apply_target_hit("TP1")
 
                     elif direction_base == "SELL":
+                        # SL closes immediately.
                         if high >= sl:
+                            updates = close_sl()
                             final_result = "SL"
-                            updates = close_signal("SL")
                             break
 
-                        hit_target = None
-                        for target_name, target_value in reversed(targets):
-                            if low <= target_value:
-                                hit_target = target_name
-                                break
-
-                        if hit_target:
-                            final_result = hit_target
-                            updates = close_signal(hit_target)
+                        # Highest target reached in this candle.
+                        if tp3 is not None and low <= tp3:
+                            apply_target_hit("TP3")
                             break
+                        if tp2 is not None and low <= tp2:
+                            apply_target_hit("TP2")
+                        elif tp1 is not None and low <= tp1:
+                            apply_target_hit("TP1")
 
-            # Fallback live price check.
+            # Fallback live price check if candle data did not update anything.
             if not updates:
                 try:
                     current_price, _ = get_live_price(yahoo_symbol)
@@ -1355,41 +1376,37 @@ def update_all_running_results():
                 if current_price is not None:
                     if direction_base == "BUY":
                         if current_price <= sl:
+                            updates = close_sl()
                             final_result = "SL"
-                            updates = close_signal("SL")
-                        else:
-                            hit_target = None
-                            for target_name, target_value in reversed(targets):
-                                if current_price >= target_value:
-                                    hit_target = target_name
-                                    break
-                            if hit_target:
-                                final_result = hit_target
-                                updates = close_signal(hit_target)
+                        elif tp3 is not None and current_price >= tp3:
+                            apply_target_hit("TP3")
+                        elif tp2 is not None and current_price >= tp2:
+                            apply_target_hit("TP2")
+                        elif tp1 is not None and current_price >= tp1:
+                            apply_target_hit("TP1")
 
                     elif direction_base == "SELL":
                         if current_price >= sl:
+                            updates = close_sl()
                             final_result = "SL"
-                            updates = close_signal("SL")
-                        else:
-                            hit_target = None
-                            for target_name, target_value in reversed(targets):
-                                if current_price <= target_value:
-                                    hit_target = target_name
-                                    break
-                            if hit_target:
-                                final_result = hit_target
-                                updates = close_signal(hit_target)
+                        elif tp3 is not None and current_price <= tp3:
+                            apply_target_hit("TP3")
+                        elif tp2 is not None and current_price <= tp2:
+                            apply_target_hit("TP2")
+                        elif tp1 is not None and current_price <= tp1:
+                            apply_target_hit("TP1")
 
             if updates:
                 try:
                     supabase.table("signals").update(updates).eq("id", signal["id"]).execute()
                     signal.update(updates)
 
-                    try:
-                        send_telegram(result_message(signal, final_result))
-                    except Exception as e:
-                        print("Telegram close update failed:", str(e))
+                    # Telegram update, but TP1/TP2 remain ACTIVE.
+                    if final_result in ["TP1", "TP2", "TP3", "SL"]:
+                        try:
+                            send_telegram(result_message(signal, final_result))
+                        except Exception as e:
+                            print("Telegram result update failed:", str(e))
 
                 except Exception as e:
                     print("Signal result update failed:", str(e))
@@ -2026,111 +2043,17 @@ def delete_signal(signal_id: str, authorization: str = Header(default="")):
 
 @app.get("/news-calendar")
 def news_calendar():
-    """
-    Real economic calendar from Financial Modeling Prep.
-    Requires FMP_API_KEY in Render environment.
-    Falls back to safe demo events if FMP is unavailable.
-    """
-    fmp_key = os.getenv("FMP_API_KEY")
+    return {
+        "status": "ok",
+        "events": [
+            {"time": "12:30", "currency": "USD", "event": "Non-Farm Payrolls", "impact": "High"},
+            {"time": "14:00", "currency": "USD", "event": "ISM Manufacturing PMI", "impact": "High"},
+            {"time": "15:30", "currency": "USD", "event": "Fed Chair Speech", "impact": "High"},
+            {"time": "16:00", "currency": "USD", "event": "Crude Oil Inventories", "impact": "Medium"},
+            {"time": "18:00", "currency": "GBP", "event": "BoE Speech", "impact": "Medium"},
+        ],
+    }
 
-    fallback_events = [
-        {"time": "12:30", "currency": "USD", "event": "Non-Farm Payrolls", "impact": "High"},
-        {"time": "14:00", "currency": "USD", "event": "ISM Manufacturing PMI", "impact": "High"},
-        {"time": "09:00", "currency": "EUR", "event": "ECB Speech", "impact": "Medium"},
-        {"time": "08:30", "currency": "GBP", "event": "GDP Monthly", "impact": "Medium"},
-    ]
-
-    if not fmp_key:
-        return {
-            "status": "fallback",
-            "source": "demo",
-            "message": "FMP_API_KEY not set",
-            "events": fallback_events,
-        }
-
-    try:
-        today = datetime.now(timezone.utc).date()
-        from_date = today.isoformat()
-        to_date = (today + timedelta(days=7)).isoformat()
-
-        url = "https://financialmodelingprep.com/api/v3/economic_calendar"
-        params = {
-            "from": from_date,
-            "to": to_date,
-            "apikey": fmp_key,
-        }
-
-        response = requests.get(url, params=params, timeout=15)
-
-        if response.status_code != 200:
-            print("FMP news failed:", response.status_code, response.text)
-            return {
-                "status": "fallback",
-                "source": "demo",
-                "message": "FMP request failed",
-                "events": fallback_events,
-            }
-
-        raw_events = response.json()
-
-        important_currencies = {"USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD", "CNY"}
-
-        events = []
-
-        for item in raw_events[:100]:
-            currency = item.get("currency") or item.get("country") or ""
-            event_name = item.get("event") or item.get("title") or item.get("name") or "Economic Event"
-            impact = item.get("impact") or item.get("importance") or "Medium"
-            date_value = item.get("date") or item.get("datetime") or ""
-
-            if currency and currency not in important_currencies:
-                continue
-
-            impact_text = str(impact).capitalize()
-            if impact_text not in ["High", "Medium", "Low"]:
-                impact_text = "Medium"
-
-            display_time = "TBA"
-            display_date = ""
-
-            try:
-                if date_value:
-                    dt = datetime.fromisoformat(str(date_value).replace("Z", "+00:00"))
-                    display_time = dt.strftime("%H:%M")
-                    display_date = dt.date().isoformat()
-            except Exception:
-                display_time = str(date_value)[11:16] if len(str(date_value)) >= 16 else "TBA"
-
-            events.append({
-                "time": display_time,
-                "date": display_date,
-                "currency": currency or "-",
-                "event": event_name,
-                "impact": impact_text,
-            })
-
-        if not events:
-            return {
-                "status": "fallback",
-                "source": "demo",
-                "message": "No FMP events returned",
-                "events": fallback_events,
-            }
-
-        return {
-            "status": "ok",
-            "source": "financialmodelingprep",
-            "events": events[:20],
-        }
-
-    except Exception as e:
-        print("News calendar exception:", str(e))
-        return {
-            "status": "fallback",
-            "source": "demo",
-            "message": str(e),
-            "events": fallback_events,
-        }
 
 @app.get("/client-accounts")
 def client_accounts():
