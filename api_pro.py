@@ -1648,18 +1648,20 @@ def health():
 
 @app.get("/cron-check")
 def cron_check():
-    a = generate_strategy_a_signals()
-    b = generate_strategy_b_signals()
-    checked = update_all_running_results()
+    strategyA = generate_strategy_a_signals()
+    strategyB = generate_strategy_b_signals()
+    strategyC = generate_strategy_c_signals()
+
+    updated = update_all_running_results()
 
     return {
         "status": "ok",
-        "strategyA": a,
-        "strategyB": b,
-        "checkedSignals": len(checked),
+        "strategyA": strategyA,
+        "strategyB": strategyB,
+        "strategyC": strategyC,
+        "checkedSignals": len(updated),
         "message": "Strategies checked, quality gate applied, TP/SL updated",
     }
-
 
 @app.get("/system-status")
 def system_status():
