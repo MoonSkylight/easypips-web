@@ -3,53 +3,39 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API =
-  process.env.NEXT_PUBLIC_API_URL || "https://easypips-api.onrender.com";
+const API = process.env.NEXT_PUBLIC_API_URL || "https://easypips-api.onrender.com";
 
 export default function ClientSignupPage() {
   const router = useRouter();
-
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     account_id: "",
   });
-
   const [message, setMessage] = useState("");
 
   async function signup() {
     setMessage("Creating account...");
 
-    if (!form.email.trim() || !form.password.trim()) {
-      setMessage("Email and password are required.");
-      return;
-    }
-
     try {
       const res = await fetch(`${API}/client/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          email: form.email.trim(),
-          password: form.password,
-          account_id:
-            form.account_id.trim() === "" ? null : form.account_id.trim(),
-        }),
+        body: JSON.stringify(form),
       });
 
       const data = await res.json();
 
-      if (!res.ok || !data.access_token) {
-        setMessage(data.detail || data.message || "Signup failed");
+      if (!data.access_token) {
+        setMessage(data.detail || "Signup failed");
         return;
       }
 
       localStorage.setItem("easypips_client_token", data.access_token);
-      window.location.href = "/dashboard";
+      router.push("/client/dashboard");
     } catch {
-      setMessage("Signup error. Please try again.");
+      setMessage("Signup error");
     }
   }
 
@@ -69,13 +55,21 @@ export default function ClientSignupPage() {
             </div>
 
             <h2 className="text-5xl font-black leading-tight">
-              Create your free client account.
+              Create your client account.
             </h2>
 
             <p className="mt-5 max-w-xl text-slate-300">
-              Sign up free to unlock the EasyPips dashboard with live signals,
-              market news, signal history, and Desk support.
+              Sign up to access paid signals, account performance, equity curve,
+              and trade history from your EasyPips dashboard.
             </p>
+
+            <div className="mt-8 rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
+              <p className="font-black text-yellow-300">Important</p>
+              <p className="mt-2 text-sm text-slate-300">
+                If you already submitted an MT4/MT5 account, use the account ID
+                provided by admin. You can also leave it blank and admin can link it later.
+              </p>
+            </div>
           </section>
 
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-xl">
@@ -117,7 +111,7 @@ export default function ClientSignupPage() {
                 onClick={signup}
                 className="w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black"
               >
-                Create Free Account
+                Create Client Account
               </button>
 
               <button
