@@ -14,6 +14,7 @@ import tempfile
 import matplotlib.pyplot as plt
 import yfinance as yf
 from strategy_c import generate_strategy_c_signal
+from strategy_b import generate_strategy_b_signal
 import pandas as pd
 from supabase import create_client, Client
 
@@ -1255,32 +1256,81 @@ def generate_strategy_a_signals():
 
 
 def generate_strategy_b_signals():
+    """
+    Strategy B: Advanced Sniper SMC Strategy.
+
+    Uses:
+    - Liquidity sweep
+    - CHoCH / BOS
+    - Premium / discount
+    - Order block tap / reclaim
+    - London / NY sessions
+    - High RR TP structure
+    """
     created = 0
     rejected = 0
 
+    try:
+        existing_b = get_active_signals(source="AI Engine", strategy="Strategy B")
+        if len(existing_b) >= 3:
+            return {"created": 0, "rejected": 0}
+
+        existing_symbols = set([s.get("symbol") for s in existing_b])
+    except Exception as e:
+        print("Strategy B pre-check failed:", str(e))
+        existing_symbols = set()
+
     for symbol, yahoo_symbol in SYMBOLS.items():
-        if active_strategy_signal_exists(symbol, "Strategy B"):
-            continue
+        try:
+            if created >= 1:
+                break
 
-        if len(get_active_signals(source="AI Engine", strategy="Strategy B")) >= MAX_AI_SIGNALS_PER_STRATEGY:
-            break
+            if symbol in existing_symbols:
+                continue
 
-        analysis = analyze_strategy_b(symbol, yahoo_symbol)
+            data = yf.Ticker(yahoo_symbol).history(period="10d", interval="15m")
 
-        if not analysis:
-            continue
+            if data is None or data.empty or len(data) < 120:
+                continue
 
-        signal = build_ai_signal(symbol, analysis)
-        approved, reason = approve_and_insert_signal(signal)
+            setup = generate_strategy_b_signal(data, symbol)
 
-        if approved:
+            if not setup:
+                continue
+
+            new_signal = {
+                "source": "AI Engine",
+                "strategy": "Strategy B",
+                "desk": None,
+                "pattern": setup.get("pattern", "Advanced Sniper SMC"),
+                "timeframe": setup.get("timeframe", "15m"),
+                "symbol": symbol,
+                "direction": setup["direction"],
+                "entry": str(setup["entry"]),
+                "sl": str(setup["sl"]),
+                "tp1": str(setup["tp1"]),
+                "tp2": str(setup["tp2"]),
+                "tp3": str(setup["tp3"]),
+                "confidence": setup.get("confidence", 88),
+                "score": setup.get("rr", 10),
+                "status": "ACTIVE",
+                "result": "RUNNING",
+                "hit_tp1": False,
+                "hit_tp2": False,
+                "hit_tp3": False,
+                "hit_sl": False,
+                "telegram_sent": False,
+            }
+
+            insert_signal(new_signal, send_alert=True)
             created += 1
-        else:
+
+        except Exception as e:
+            print("Strategy B error for", symbol, str(e))
             rejected += 1
-            print("Strategy B rejected:", symbol, reason)
+            continue
 
     return {"created": created, "rejected": rejected}
-
 
 def safe_float(value):
     try:
