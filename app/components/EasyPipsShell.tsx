@@ -61,15 +61,15 @@ type Account = {
 };
 
 const NAV = [
-  { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: "⌂" },
-  { key: "live-signals", label: "Live Signals", href: "/live-signals", icon: "≋" },
-  { key: "performance", label: "Performance", href: "/performance", icon: "↗" },
-  { key: "strategies", label: "Strategies", href: "/strategies", icon: "♟" },
-  { key: "news-calendar", label: "News Calendar", href: "/news-calendar", icon: "▣" },
-  { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "♙" },
-  { key: "history", label: "History", href: "/history", icon: "↺" },
-  { key: "reports", label: "Reports", href: "/reports", icon: "▤" },
-  { key: "settings", label: "Settings", href: "/settings", icon: "⚙" },
+  { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: "dashboard" },
+  { key: "live-signals", label: "Live Signals", href: "/live-signals", icon: "activity" },
+  { key: "performance", label: "Performance", href: "/performance", icon: "chart" },
+  { key: "strategies", label: "Strategies", href: "/strategies", icon: "strategy" },
+  { key: "news-calendar", label: "News Calendar", href: "/news-calendar", icon: "calendar" },
+  { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "account" },
+  { key: "history", label: "History", href: "/history", icon: "history" },
+  { key: "reports", label: "Reports", href: "/reports", icon: "reports" },
+  { key: "settings", label: "Settings", href: "/settings", icon: "settings" },
 ];
 
 const PAIRS = [
@@ -117,6 +117,114 @@ function signalList(data: any): Signal[] {
   });
 }
 
+
+function NavIcon({
+  name,
+  active = false,
+}: {
+  name: string;
+  active?: boolean;
+}) {
+  const cls = active ? "text-yellow-300" : "text-slate-400 group-hover:text-white";
+
+  const common = {
+    className: `h-5 w-5 shrink-0 ${cls}`,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  if (name === "dashboard") {
+    return (
+      <svg {...common}>
+        <path d="M3 11.5 12 4l9 7.5" />
+        <path d="M5 10.5V20h14v-9.5" />
+        <path d="M9 20v-6h6v6" />
+      </svg>
+    );
+  }
+
+  if (name === "activity") {
+    return (
+      <svg {...common}>
+        <path d="M4 12h3l2-6 4 12 2-6h5" />
+      </svg>
+    );
+  }
+
+  if (name === "chart") {
+    return (
+      <svg {...common}>
+        <path d="M4 19V5" />
+        <path d="M4 19h16" />
+        <path d="m7 15 4-4 3 3 5-7" />
+      </svg>
+    );
+  }
+
+  if (name === "strategy") {
+    return (
+      <svg {...common}>
+        <path d="M12 3v18" />
+        <path d="M5 8h14" />
+        <path d="M7 8l-3 5h6L7 8Z" />
+        <path d="m17 8-3 5h6l-3-5Z" />
+      </svg>
+    );
+  }
+
+  if (name === "calendar") {
+    return (
+      <svg {...common}>
+        <rect x="3" y="4" width="18" height="17" rx="3" />
+        <path d="M8 2v4" />
+        <path d="M16 2v4" />
+        <path d="M3 10h18" />
+      </svg>
+    );
+  }
+
+  if (name === "account") {
+    return (
+      <svg {...common}>
+        <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+        <path d="M4 21a8 8 0 0 1 16 0" />
+      </svg>
+    );
+  }
+
+  if (name === "history") {
+    return (
+      <svg {...common}>
+        <path d="M3 12a9 9 0 1 0 3-6.7" />
+        <path d="M3 4v5h5" />
+        <path d="M12 7v5l3 2" />
+      </svg>
+    );
+  }
+
+  if (name === "reports") {
+    return (
+      <svg {...common}>
+        <path d="M7 3h7l5 5v13H7z" />
+        <path d="M14 3v5h5" />
+        <path d="M10 13h6" />
+        <path d="M10 17h6" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...common}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 0 1 4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1A2 2 0 0 1 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3h.1A1.7 1.7 0 0 0 10 3.1V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.6h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 0 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6.9h.1a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1Z" />
+    </svg>
+  );
+}
+
 function StatCard({
   title,
   value,
@@ -141,7 +249,9 @@ function StatCard({
     <div className={`group rounded-3xl border ${colors[color]} bg-white/[0.045] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-black uppercase">{title}</p>
-        <span className="text-2xl opacity-80">{icon}</span>
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
+          {icon}
+        </span>
       </div>
       <p className="mt-4 text-4xl font-black text-white">{value}</p>
       <div className="mt-5 h-2 rounded-full bg-black/40">
@@ -155,7 +265,12 @@ function SystemRule() {
   return (
     <section className="mb-6 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-2xl shadow-yellow-500/10">
       <div className="flex flex-col gap-5 rounded-[2rem] bg-[#07101b]/90 px-6 py-5 backdrop-blur-xl lg:flex-row lg:items-center">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-3xl text-black shadow-lg shadow-yellow-400/30">🛡</div>
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/30">
+          <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3 5 6v5c0 5 3.4 8.7 7 10 3.6-1.3 7-5 7-10V6l-7-3Z" />
+            <path d="m9 12 2 2 4-5" />
+          </svg>
+        </div>
         <div className="min-w-0 flex-1">
           <p className="text-xl font-black text-yellow-300">SYSTEM RULE</p>
           <p className="mt-1 text-sm leading-6 text-slate-200">
@@ -473,7 +588,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
       </div>
 
       <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[280px] border-r border-white/10 bg-[#07101b]/90 p-5 shadow-2xl backdrop-blur-xl xl:block">
-        <Link href="/dashboard" className="mb-8 flex items-center gap-4">
+        <Link href="/dashboard" className="mb-8 flex items-center gap-4 px-1">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/20">EP</div>
           <div>
             <h1 className="text-2xl font-black">
@@ -490,12 +605,14 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
               <Link
                 key={item.key}
                 href={item.href}
-                className={`flex items-center gap-3 rounded-2xl px-4 py-3 font-black ${
+                className={`group flex h-12 items-center gap-3 rounded-2xl px-4 py-3 font-black tracking-tight ${
                   active ? "border border-yellow-400/40 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/5" : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
-                <span>{item.icon}</span>
-                {item.label}
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+                  <NavIcon name={item.icon} active={active} />
+                </span>
+                <span className="truncate">{item.label}</span>
                 {item.key === "history" && <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] text-white">NEW</span>}
               </Link>
             );
