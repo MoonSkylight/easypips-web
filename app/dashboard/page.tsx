@@ -64,6 +64,7 @@ const sourceFilters = [
   "All",
   "Strategy A",
   "Strategy B",
+  "Strategy C",
   "Desk 1",
   "Desk 2",
 ];
@@ -121,6 +122,7 @@ export default function HomePage() {
       const allSignals: Signal[] = [
         ...(signalsData.strategyASignals || []),
         ...(signalsData.strategyBSignals || []),
+        ...(signalsData.strategyCSignals || []),
         ...(signalsData.desk1Signals || []),
         ...(signalsData.desk2Signals || []),
       ];
@@ -198,6 +200,7 @@ export default function HomePage() {
 
   const strategyA: Perf = performance?.["Strategy A"] || {};
   const strategyB: Perf = performance?.["Strategy B"] || {};
+  const strategyC: Perf = performance?.["Strategy C"] || {};
   const desk1Perf: Perf = deskPerformance?.["Desk 1"] || {};
   const desk2Perf: Perf = deskPerformance?.["Desk 2"] || {};
 
@@ -206,16 +209,18 @@ export default function HomePage() {
 
   const tpA = strategyA.tpHits || strategyA.wins || strategyA.tp3Hits || 0;
   const tpB = strategyB.tpHits || strategyB.wins || strategyB.tp3Hits || 0;
+  const tpC = strategyC.tpHits || strategyC.wins || strategyC.tp3Hits || 0;
   const tpD1 = desk1Perf.tpHits || 0;
   const tpD2 = desk2Perf.tpHits || 0;
 
   const slA = strategyA.slHits || strategyA.losses || 0;
   const slB = strategyB.slHits || strategyB.losses || 0;
+  const slC = strategyC.slHits || strategyC.losses || 0;
   const slD1 = desk1Perf.slHits || 0;
   const slD2 = desk2Perf.slHits || 0;
 
-  const totalTP = tpA + tpB + tpD1 + tpD2;
-  const totalSL = slA + slB + slD1 + slD2;
+  const totalTP = tpA + tpB + tpC + tpD1 + tpD2;
+  const totalSL = slA + slB + slC + slD1 + slD2;
 
   const winRate = useMemo(() => {
     const total = totalTP + totalSL;
@@ -226,6 +231,7 @@ export default function HomePage() {
     if (filter === "All") return signals;
     if (filter === "Desk 1") return signals.filter((s) => s.desk === "Desk 1");
     if (filter === "Desk 2") return signals.filter((s) => s.desk === "Desk 2");
+    if (filter === "Strategy C") return signals.filter((s) => s.strategy === "Strategy C");
     return signals.filter((s) => s.strategy === filter);
   }, [signals, filter]);
 
@@ -429,6 +435,12 @@ export default function HomePage() {
                 subtitle="Fibonacci Pattern"
                 color="purple"
                 data={strategyB}
+              />
+              <StrategyCard
+                title="Strategy C"
+                subtitle="Smart Money High RR"
+                color="green"
+                data={strategyC}
               />
               <DeskCard title="Desk 1" data={desk1Perf} color="green" />
               <DeskCard title="Desk 2" data={desk2Perf} color="orange" />
@@ -725,7 +737,7 @@ function StrategyCard({
   title: string;
   subtitle: string;
   data: Perf;
-  color: "yellow" | "purple";
+  color: "yellow" | "purple" | "green";
 }) {
   const tp = data.tpHits || data.wins || data.tp3Hits || 0;
   const sl = data.slHits || data.losses || 0;
@@ -739,7 +751,7 @@ function StrategyCard({
         <Mini label="SL" value={sl} red />
       </div>
       <div className="mt-5 rounded-2xl bg-black/30 p-4">
-        <p className={color === "yellow" ? "text-yellow-300" : "text-purple-300"}>
+        <p className={color === "yellow" ? "text-yellow-300" : color === "green" ? "text-emerald-300" : "text-purple-300"}>
           Win Rate
         </p>
         <p className="mt-2 text-3xl font-black">{data.winRate || 0}%</p>
@@ -861,6 +873,7 @@ function AccountStat({
 function getBadge(source: string) {
   if (source === "Strategy A") return "bg-blue-400/10 text-blue-300 border border-blue-400/30";
   if (source === "Strategy B") return "bg-purple-400/10 text-purple-300 border border-purple-400/30";
+  if (source === "Strategy C") return "bg-emerald-400/10 text-emerald-300 border border-emerald-400/30";
   if (source === "Desk 1") return "bg-emerald-400/10 text-emerald-300 border border-emerald-400/30";
   if (source === "Desk 2") return "bg-orange-400/10 text-orange-300 border border-orange-400/30";
   return "bg-slate-400/10 text-slate-300 border border-slate-400/30";
