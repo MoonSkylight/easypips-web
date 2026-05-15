@@ -767,54 +767,6 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
 }
 
 
-function LiveTradingChart() {
-  return (
-    <Panel
-      title="Live Trading Chart"
-      right={
-        <div className="flex gap-2">
-          <Badge color="blue">Live</Badge>
-          <Badge color="yellow">XAU/USD</Badge>
-        </div>
-      }
-    >
-      <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/40">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-          <div>
-            <p className="text-sm font-black text-white">XAU/USD Live Chart</p>
-            <p className="text-xs text-slate-400">TradingView market preview</p>
-          </div>
-
-          <div className="flex gap-2 text-xs font-black">
-            <span className="rounded-lg bg-white/10 px-2 py-1 text-slate-300">15m</span>
-            <span className="rounded-lg bg-emerald-400/10 px-2 py-1 text-emerald-300">ACTIVE</span>
-          </div>
-        </div>
-
-        <div className="relative h-[430px] w-full bg-[#05070D]">
-          <iframe
-            title="EasyPips Live TradingView Chart"
-            src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_easypips&symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=05070D&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1"
-            className="h-full w-full"
-            allowFullScreen
-          />
-
-          <div className="pointer-events-none absolute left-4 top-4 rounded-2xl border border-yellow-400/20 bg-black/70 px-4 py-3 backdrop-blur">
-            <p className="text-xs font-black uppercase text-yellow-300">System Rule</p>
-            <p className="text-sm text-white">Signals only after 82% confirmation</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-3 gap-3">
-        <Mini label="Chart" value="Live" good />
-        <Mini label="Default Pair" value="XAU/USD" />
-        <Mini label="Timeframe" value="15m" />
-      </div>
-    </Panel>
-  );
-}
-
 function NewsCalendarPage({ events }: { events: NewsEvent[] }) {
   return <NewsCalendar events={events} />;
 }
