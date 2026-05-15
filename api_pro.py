@@ -1058,6 +1058,10 @@ def send_new_signal_with_chart(saved: dict):
         send_telegram(new_signal_message(saved))
 
 
+
+def signal_message(signal: dict):
+    return format_signal_message(signal)
+
 def insert_signal(signal: dict, send_alert: bool = True):
     """
     Insert a new signal and send Telegram only after DB insert succeeds.
