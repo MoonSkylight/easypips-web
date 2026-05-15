@@ -282,7 +282,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [closed, setClosed] = useState<Signal[]>([]);
   const [news, setNews] = useState<NewsEvent[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [filter, setFilter] = useState("Strategy A");
+  const [filter, setFilter] = useState("All");
   const [selectedPairs, setSelectedPairs] = useState<string[]>(["XAU/USD", "EUR/USD", "GBP/USD"]);
   const [pairSearch, setPairSearch] = useState("");
   const [cat, setCat] = useState("Major");
@@ -359,12 +359,9 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
   const live = allSignals.filter((s) => (s.status || "ACTIVE") === "ACTIVE");
   const visibleLive = live.filter((s) => {
-    const pairAllowed =
-      selectedPairs.length === 0 ||
-      selectedPairs.includes(String(s.symbol || "").replace("XAUUSD", "XAU/USD"));
-
-    if (!pairAllowed) return false;
-
+    // Do not hide platform signals from the main dashboard.
+    // User pair preferences are saved in Settings, but filtering should only be applied
+    // later when we build account-based personalization.
     if (filter === "All") return true;
     if (filter === "Help Desk") return s.desk === "Desk 1" || s.desk === "Help Desk";
     return s.strategy === filter;
