@@ -1874,16 +1874,22 @@ def rejected_signals():
 
 @app.get("/all-paid-signals")
 def all_paid_signals():
-    update_all_running_results()
+    strategy_a = get_active_signals(source="AI Engine", strategy="Strategy A")
+    strategy_b = get_active_signals(source="AI Engine", strategy="Strategy B")
+    strategy_c = get_active_signals(source="AI Engine", strategy="Strategy C")
+    desk1 = get_active_signals(desk="Desk 1")
+    desk2 = get_active_signals(desk="Desk 2")
+
+    ai_signals = strategy_a + strategy_b + strategy_c
 
     return {
-        "aiSignals": get_active_signals(source="AI Engine"),
-        "strategyASignals": get_active_signals(source="AI Engine", strategy="Strategy A"),
-        "strategyBSignals": get_active_signals(source="AI Engine", strategy="Strategy B"),
-        "desk1Signals": get_active_signals(source="Human Desk", desk="Desk 1"),
-        "desk2Signals": get_active_signals(source="Human Desk", desk="Desk 2"),
+        "aiSignals": ai_signals,
+        "strategyASignals": strategy_a,
+        "strategyBSignals": strategy_b,
+        "strategyCSignals": strategy_c,
+        "desk1Signals": desk1,
+        "desk2Signals": desk2,
     }
-
 
 @app.get("/closed-signals")
 def closed_signals():
