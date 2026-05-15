@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Union, Dict, Any
 from jose import jwt, JWTError
 import os
+import time
 import math
 import hashlib
 import requests
@@ -257,52 +258,52 @@ def calculate_equity_summary(trades: list):
 
 def send_telegram(message: str):
     """
-    Telegram sender with premium Markdown formatting.
-    If Markdown fails, it retries as plain text so alerts are not lost.
+    Send Telegram message with retry.
+    Returns True only if Telegram confirms success.
     """
-    try:
-        bot_token = TELEGRAM_BOT_TOKEN or os.getenv("TELEGRAM_BOT_TOKEN")
-        chat_id = TELEGRAM_CHAT_ID or os.getenv("TELEGRAM_CHAT_ID")
-
-        if not bot_token or not chat_id:
-            print("Telegram skipped: missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
-            return False
-
-        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-
-        payload = {
-            "chat_id": chat_id,
-            "text": str(message),
-            "parse_mode": "Markdown",
-            "disable_web_page_preview": True,
-        }
-
-        response = requests.post(url, json=payload, timeout=15)
-
-        if response.status_code == 200:
-            print("Telegram sent successfully")
-            return True
-
-        print("Telegram Markdown failed, retrying plain text:", response.status_code, response.text)
-
-        plain_payload = {
-            "chat_id": chat_id,
-            "text": str(message).replace("*", "").replace("`", ""),
-            "disable_web_page_preview": True,
-        }
-
-        plain_response = requests.post(url, json=plain_payload, timeout=15)
-
-        if plain_response.status_code != 200:
-            print("Telegram plain send failed:", plain_response.status_code, plain_response.text)
-            return False
-
-        print("Telegram sent successfully as plain text")
-        return True
-
-    except Exception as e:
-        print("Telegram exception:", str(e))
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        print("Telegram skipped: missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
         return False
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "parse_mode": "Markdown",
+        "disable_web_page_preview": True,
+    }
+
+    for attempt in range(1, 4):
+        try:
+            response = requests.post(url, json=payload, timeout=20)
+
+            try:
+                data = response.json()
+            except Exception:
+                data = {"raw": response.text}
+
+            if response.status_code == 200 and data.get("ok") is True:
+                print("Telegram sent successfully")
+                return True
+
+            print(
+                "Telegram send failed:",
+                "attempt", attempt,
+                "status", response.status_code,
+                "response", data,
+            )
+
+            # If markdown formatting causes Telegram rejection, retry without Markdown.
+            if response.status_code == 400 and attempt == 1:
+                payload.pop("parse_mode", None)
+
+        except Exception as e:
+            print("Telegram exception:", "attempt", attempt, str(e))
+
+        time.sleep(1)
+
+    return False
 
 def format_signal_message(signal: dict):
     symbol = signal.get("symbol") or signal.get("pair") or "-"
@@ -1059,44 +1060,65 @@ def send_new_signal_with_chart(saved: dict):
 
 def insert_signal(signal: dict, send_alert: bool = True):
     """
-    Insert a signal once and send Telegram once.
-    If the same ACTIVE signal already exists, return it and do NOT resend Telegram.
+    Insert a new signal and send Telegram only after DB insert succeeds.
+    telegram_sent=True is saved only if Telegram actually succeeds.
     """
     if not db_enabled():
-        if send_alert:
-            send_new_signal_with_chart(signal)
-        return signal
-
-    duplicate = active_duplicate_signal_exists(signal)
-    if duplicate:
-        print("Duplicate active signal skipped:", duplicate.get("id"))
-        return duplicate
+        print("Insert skipped: database disabled")
+        return None
 
     try:
+        signal = dict(signal)
+
+        # Always mark as not sent before insert. We update to True only after success.
         signal["telegram_sent"] = False
-    except Exception:
-        pass
 
-    response = supabase.table("signals").insert(signal).execute()
+        # Ensure required defaults.
+        signal.setdefault("status", "ACTIVE")
+        signal.setdefault("result", "RUNNING")
+        signal.setdefault("hit_tp1", False)
+        signal.setdefault("hit_tp2", False)
+        signal.setdefault("hit_tp3", False)
+        signal.setdefault("hit_sl", False)
 
-    if response.data:
-        saved = response.data[0]
+        response = supabase.table("signals").insert(signal).execute()
 
-        if send_alert and not saved.get("telegram_sent"):
-            ok = False
+        inserted = None
+        if response.data and len(response.data) > 0:
+            inserted = response.data[0]
+        else:
+            inserted = signal
+
+        telegram_ok = False
+
+        if send_alert:
             try:
-                send_new_signal_with_chart(saved)
-                ok = True
+                telegram_ok = send_telegram(signal_message(inserted))
             except Exception as e:
-                print("Telegram send after insert failed:", str(e))
+                print("Telegram signal alert failed:", str(e))
+                telegram_ok = False
 
-            if ok:
-                mark_signal_telegram_sent(saved.get("id"))
-                saved["telegram_sent"] = True
+            if telegram_ok and inserted.get("id"):
+                try:
+                    supabase.table("signals").update(
+                        {"telegram_sent": True}
+                    ).eq("id", inserted["id"]).execute()
+                    inserted["telegram_sent"] = True
+                except Exception as e:
+                    print("Failed to update telegram_sent:", str(e))
 
-        return saved
+        print(
+            "Signal inserted:",
+            inserted.get("symbol"),
+            inserted.get("strategy") or inserted.get("desk"),
+            "telegram_ok=", telegram_ok,
+        )
 
-    return signal
+        return inserted
+
+    except Exception as e:
+        print("Insert signal failed:", str(e))
+        return None
 
 def approve_and_insert_signal(signal: dict):
     approved, reason = quality_gate(signal)
@@ -1670,6 +1692,54 @@ def health():
         "database": "connected" if db_enabled() else "not connected",
     }
 
+
+@app.get("/admin/resend-unsent-telegram")
+def resend_unsent_telegram():
+    """
+    Admin utility: resend Telegram messages for ACTIVE signals where telegram_sent is False.
+    Useful after Telegram outage/rate-limit.
+    """
+    if not db_enabled():
+        return {"success": False, "message": "Database disabled", "sent": 0}
+
+    try:
+        response = (
+            supabase.table("signals")
+            .select("*")
+            .eq("status", "ACTIVE")
+            .eq("telegram_sent", False)
+            .order("created_at", desc=True)
+            .limit(20)
+            .execute()
+        )
+
+        rows = response.data or []
+        sent = 0
+        failed = 0
+
+        for signal in rows:
+            ok = send_telegram(signal_message(signal))
+            if ok:
+                sent += 1
+                try:
+                    supabase.table("signals").update(
+                        {"telegram_sent": True}
+                    ).eq("id", signal["id"]).execute()
+                except Exception as e:
+                    print("Failed marking resent signal:", str(e))
+            else:
+                failed += 1
+
+        return {
+            "success": True,
+            "sent": sent,
+            "failed": failed,
+            "checked": len(rows),
+        }
+
+    except Exception as e:
+        print("Resend unsent Telegram failed:", str(e))
+        return {"success": False, "message": str(e), "sent": 0}
 
 @app.get("/cron-check")
 def cron_check():
