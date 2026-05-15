@@ -1,3 +1,4 @@
+MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -11,6 +12,7 @@ import requests
 import tempfile
 import matplotlib.pyplot as plt
 import yfinance as yf
+from strategy_c import generate_strategy_c_signal
 import pandas as pd
 from supabase import create_client, Client
 
@@ -1085,6 +1087,94 @@ def approve_and_insert_signal(signal: dict):
     return True, "Approved"
 
 
+
+def generate_strategy_c_signals():
+    """
+    Strategy C: Smart Money / ICT High RR Scanner.
+
+    Includes:
+    - ICT concepts
+    - Supply / Demand
+    - BOS
+    - Liquidity sweep
+    - QM / fakeout
+    - Asian range manipulation
+    - High RR continuation / reversal
+    - Small SL / large TP
+    """
+    created = 0
+    rejected = 0
+
+    for symbol, yahoo_symbol in SYMBOLS.items():
+        try:
+            if len(get_active_signals(source="AI Engine", strategy="Strategy C")) >= MAX_STRATEGY_C_ACTIVE_SIGNALS:
+                break
+
+            if active_strategy_signal_exists(symbol, "Strategy C"):
+                continue
+
+            data = yf.Ticker(yahoo_symbol).history(period="7d", interval="15m")
+
+            if data is None or data.empty or len(data) < 100:
+                continue
+
+            setup = generate_strategy_c_signal(data, symbol)
+
+            if not setup:
+                continue
+
+            entry = float(setup["entry"])
+            sl = float(setup["sl"])
+            direction = setup["direction"]
+
+            risk = abs(entry - sl)
+
+            if risk <= 0:
+                rejected += 1
+                continue
+
+            if direction == "BUY":
+                tp1 = entry + risk
+                tp2 = entry + (risk * 2)
+                tp3 = entry + (risk * 10)
+            else:
+                tp1 = entry - risk
+                tp2 = entry - (risk * 2)
+                tp3 = entry - (risk * 10)
+
+            new_signal = {
+                "source": "AI Engine",
+                "strategy": "Strategy C",
+                "desk": None,
+                "pattern": setup.get("reason", "Smart Money High RR"),
+                "timeframe": "15m",
+                "symbol": symbol,
+                "direction": direction,
+                "entry": str(round(entry, 5)),
+                "sl": str(round(sl, 5)),
+                "tp1": str(round(tp1, 5)),
+                "tp2": str(round(tp2, 5)),
+                "tp3": str(round(tp3, 5)),
+                "confidence": setup.get("confidence", 90),
+                "score": setup.get("rr", 10),
+                "status": "ACTIVE",
+                "result": "RUNNING",
+                "hit_tp1": False,
+                "hit_tp2": False,
+                "hit_tp3": False,
+                "hit_sl": False,
+                "telegram_sent": False,
+            }
+
+            insert_signal(new_signal, send_alert=True)
+            created += 1
+
+        except Exception as e:
+            print("Strategy C error for", symbol, str(e))
+            rejected += 1
+
+    return {"created": created, "rejected": rejected}
+
 def generate_strategy_a_signals():
     created = 0
     rejected = 0
@@ -1585,6 +1675,7 @@ def system_status():
         "rejectedSignals": len([s for s in signals if s.get("status") == "REJECTED"]),
         "strategyAActive": len(get_active_signals(source="AI Engine", strategy="Strategy A")),
         "strategyBActive": len(get_active_signals(source="AI Engine", strategy="Strategy B")),
+        "strategyCActive": len(get_active_signals(source="AI Engine", strategy="Strategy C")),
         "lastSignalTime": signals[0].get("created_at") if signals else None,
         "serverTimeUTC": datetime.now(timezone.utc).isoformat(),
     }
