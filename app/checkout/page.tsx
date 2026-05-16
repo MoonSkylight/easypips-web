@@ -1,14 +1,18 @@
+```tsx
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
-const plans: Record<string, any> = {
+const plans = {
   free: {
     name: "Free",
     price: "$0",
     subtitle: "Starter preview access",
-    features: ["Dashboard preview", "Limited signals", "Free Telegram updates"],
+    features: [
+      "Dashboard preview",
+      "Limited signals",
+      "Free Telegram updates",
+    ],
   },
   premium: {
     name: "Premium",
@@ -36,9 +40,7 @@ const plans: Record<string, any> = {
 };
 
 export default function CheckoutPage() {
-  const searchParams = useSearchParams();
-  const planKey = (searchParams.get("plan") || "premium").toLowerCase();
-  const plan = plans[planKey] || plans.premium;
+  const plan = plans.premium;
 
   function enablePreview() {
     localStorage.setItem("easypips-premium-access", "true");
@@ -59,8 +61,7 @@ export default function CheckoutPage() {
           </p>
 
           <h1 className="text-5xl font-black">
-            Complete your{" "}
-            <span className="text-yellow-300">{plan.name}</span> access
+            Complete your <span className="text-yellow-300">{plan.name}</span> access
           </h1>
 
           <p className="mt-4 max-w-2xl text-slate-300">
@@ -73,18 +74,22 @@ export default function CheckoutPage() {
               placeholder="Full name"
               className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
             />
+
             <input
               placeholder="Email address"
               className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
             />
+
             <input
               placeholder="Card number - Stripe coming soon"
               className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none md:col-span-2"
             />
+
             <input
               placeholder="MM / YY"
               className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
             />
+
             <input
               placeholder="CVC"
               className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
@@ -139,3 +144,16 @@ export default function CheckoutPage() {
     </main>
   );
 }
+```
+
+Replace:
+
+```txt
+app/checkout/page.tsx
+```
+
+Then run:
+
+```powershell
+npm run build
+```
