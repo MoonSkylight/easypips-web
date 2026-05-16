@@ -1690,6 +1690,22 @@ def performance_for_strategy(strategy_name: str, days: int = 7):
     }
 
 
+
+def is_this_week_signal(signal: dict):
+    try:
+        created = signal.get("created_at")
+        if not created:
+            return False
+
+        dt = parse_datetime(created)
+        now = datetime.now(timezone.utc)
+        week_start = now - timedelta(days=now.weekday())
+        week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        return dt >= week_start
+    except Exception:
+        return False
+
 def build_signal_stats():
     update_all_running_results()
 
@@ -3065,5 +3081,6 @@ def reset_ai_signals(authorization: str = Header(default="")):
     supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
 
     return {"success": True, "message": "AI signals reset"}
+
 
 
