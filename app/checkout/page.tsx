@@ -1,47 +1,21 @@
-```tsx
 "use client";
 
 import Link from "next/link";
 
-const plans = {
-  free: {
-    name: "Free",
-    price: "$0",
-    subtitle: "Starter preview access",
-    features: [
-      "Dashboard preview",
-      "Limited signals",
-      "Free Telegram updates",
-    ],
-  },
-  premium: {
-    name: "Premium",
-    price: "$79",
-    subtitle: "Full EasyPips AI access",
-    features: [
-      "Real-time signals",
-      "Strategy A/B/C",
-      "History + reports",
-      "Premium Telegram group",
-      "MT4/MT5 request access",
-    ],
-  },
-  vip: {
-    name: "VIP",
-    price: "$199",
-    subtitle: "Advanced trader access",
-    features: [
-      "Everything in Premium",
-      "Private Help Desk",
-      "VIP Telegram",
-      "Future copy trading access",
-    ],
-  },
+const plan = {
+  name: "Premium",
+  price: "$79",
+  subtitle: "Full EasyPips AI access",
+  features: [
+    "Real-time signals",
+    "Strategy A/B/C",
+    "History + reports",
+    "Premium Telegram group",
+    "MT4/MT5 request access",
+  ],
 };
 
 export default function CheckoutPage() {
-  const plan = plans.premium;
-
   function enablePreview() {
     localStorage.setItem("easypips-premium-access", "true");
     window.location.href = "/dashboard";
@@ -61,12 +35,13 @@ export default function CheckoutPage() {
           </p>
 
           <h1 className="text-5xl font-black">
-            Complete your <span className="text-yellow-300">{plan.name}</span> access
+            Complete your{" "}
+            <span className="text-yellow-300">{plan.name}</span> access
           </h1>
 
           <p className="mt-4 max-w-2xl text-slate-300">
-            This checkout page is ready for Stripe connection. For now, use the
-            preview button to test premium dashboard access.
+            This checkout page is ready for Stripe connection. For now,
+            use the preview button to test premium dashboard access.
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -122,13 +97,15 @@ export default function CheckoutPage() {
           <p className="mt-2 text-slate-300">{plan.subtitle}</p>
 
           <div className="mt-8 space-y-3">
-            {plan.features.map((feature: string) => (
+            {plan.features.map((feature) => (
               <div
                 key={feature}
                 className="flex items-center gap-3 rounded-2xl bg-black/30 px-4 py-3"
               >
                 <span className="text-emerald-300">✓</span>
-                <span className="text-sm text-slate-200">{feature}</span>
+                <span className="text-sm text-slate-200">
+                  {feature}
+                </span>
               </div>
             ))}
           </div>
@@ -143,6 +120,4 @@ export default function CheckoutPage() {
       </section>
     </main>
   );
-}
-```tsx
 }
