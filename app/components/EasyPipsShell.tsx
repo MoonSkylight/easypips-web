@@ -479,6 +479,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [selectedPairs, setSelectedPairs] = useState<string[]>(["XAU/USD", "EUR/USD", "GBP/USD"]);
   const [pairSearch, setPairSearch] = useState("");
   const [cat, setCat] = useState("Major");
+  const [isPremium, setIsPremium] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState("");
 
   async function loadData() {
@@ -522,6 +523,32 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
   useEffect(() => {
     try {
+      setIsPremium(localStorage.getItem("easypips-premium-access") === "true");
+    } catch {
+      setIsPremium(false);
+    }
+  }, []);
+
+  function enablePremiumPreview() {
+    try {
+      localStorage.setItem("easypips-premium-access", "true");
+      setIsPremium(true);
+    } catch {
+      setIsPremium(true);
+    }
+  }
+
+  function disablePremiumPreview() {
+    try {
+      localStorage.removeItem("easypips-premium-access");
+      setIsPremium(false);
+    } catch {
+      setIsPremium(false);
+    }
+  }
+
+  useEffect(() => {
+    try {
       const saved = localStorage.getItem("easypips-signal-preferences");
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -551,7 +578,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   }
 
   const live = allSignals.filter((s) => (s.status || "ACTIVE") === "ACTIVE");
-  const visibleLive = live.filter((s) => {
+  const visibleLiveRaw = live.filter((s) => {
     // Do not hide platform signals from the main dashboard.
     // User pair preferences are saved in Settings, but filtering should only be applied
     // later when we build account-based personalization.
@@ -559,6 +586,10 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
     if (filter === "Help Desk") return s.desk === "Desk 1" || s.desk === "Help Desk";
     return s.strategy === filter;
   });
+
+  const visibleLive = isPremium
+    ? visibleLiveRaw
+    : visibleLiveRaw.filter((s) => s.strategy === "Strategy A").slice(0, 3);
 
   const totalSignals = allSignals.length + closed.length;
   const activeCount = live.length;
@@ -682,11 +713,26 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
         <div className="mx-auto max-w-[1600px] p-5">
           <SystemRule />
+          <PremiumBanner
+            isPremium={isPremium}
+            onEnable={enablePremiumPreview}
+            onDisable={disablePremiumPreview}
+          />
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
             <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
-              <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} compact />
+              <div>
+                <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} compact />
+                {!isPremium && (
+                  <div className="mt-5">
+                    <PremiumLock
+                      title="Premium Signals Locked"
+                      message="Free preview shows limited Strategy A signals. Upgrade to unlock Strategy B, Strategy C, full active signals, history, reports, and Telegram premium access."
+                    />
+                  </div>
+                )}
+              </div>
               <LiveTradingChart />
               <PerformanceMini closed={closed} />
               <RecentClosed closed={closed} />
@@ -695,15 +741,41 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
           )}
 
           {page === "live-signals" && (
-            <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} />
+            <div className="space-y-5">
+              <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} />
+              {!isPremium && (
+                <PremiumLock
+                  title="Full Live Signals Locked"
+                  message="Free users can preview a few Strategy A signals. Premium unlocks all real-time signals, Strategy B, Strategy C, Help Desk signals, and Telegram delivery."
+                />
+              )}
+            </div>
           )}
 
           {page === "performance" && <PerformancePage closed={closed} allSignals={allSignals} />}
           {page === "strategies" && <StrategiesPage allSignals={allSignals} />}
           {page === "news-calendar" && <NewsCalendarPage events={news} />}
           {page === "account" && <AccountPage accounts={accounts} />}
-          {page === "history" && <HistoryPage closed={closed} />}
-          {page === "reports" && <ReportsPage closed={closed} allSignals={allSignals} />}
+
+          {page === "history" &&
+            (isPremium ? (
+              <HistoryPage closed={closed} />
+            ) : (
+              <PremiumLock
+                title="History is Premium"
+                message="Upgrade to Premium to unlock closed trades, TP/SL history, result tracking, dates, strategy outcomes, and export-ready trade records."
+              />
+            ))}
+
+          {page === "reports" &&
+            (isPremium ? (
+              <ReportsPage closed={closed} allSignals={allSignals} />
+            ) : (
+              <PremiumLock
+                title="Reports are Premium"
+                message="Upgrade to Premium to unlock performance reports, downloadable summaries, strategy analytics, and trading result breakdowns."
+              />
+            ))}
           {page === "settings" && (
             <SettingsPage
               selectedPairs={selectedPairs}
@@ -719,6 +791,101 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
         </div>
       </section>
     </main>
+  );
+}
+
+
+function PremiumLock({
+  title,
+  message,
+  cta = "Upgrade to Premium",
+}: {
+  title: string;
+  message: string;
+  cta?: string;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-[2rem] border border-yellow-400/30 bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-2xl shadow-yellow-500/10">
+      <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20">
+          <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="4" y="10" width="16" height="10" rx="2" />
+            <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+          </svg>
+        </div>
+
+        <h3 className="mt-5 text-3xl font-black text-white">{title}</h3>
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
+
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Link
+            href="/pricing"
+            className="rounded-2xl bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
+          >
+            {cta}
+          </Link>
+
+          <Link
+            href="/dashboard"
+            className="rounded-2xl border border-white/10 px-6 py-3 font-black text-white hover:bg-white/10"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PremiumBanner({
+  isPremium,
+  onEnable,
+  onDisable,
+}: {
+  isPremium: boolean;
+  onEnable: () => void;
+  onDisable: () => void;
+}) {
+  return (
+    <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p className="text-sm font-black uppercase tracking-widest text-yellow-300">
+          Membership Status
+        </p>
+        <p className="mt-1 text-2xl font-black text-white">
+          {isPremium ? "Premium Access Active" : "Free Preview Access"}
+        </p>
+        <p className="mt-1 text-sm text-slate-400">
+          Free users see Strategy A preview. Premium unlocks Strategy B, Strategy C, History, Reports, and full signal access.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        {!isPremium ? (
+          <>
+            <Link
+              href="/pricing"
+              className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300"
+            >
+              Upgrade
+            </Link>
+            <button
+              onClick={onEnable}
+              className="rounded-2xl border border-emerald-400/30 px-5 py-3 font-black text-emerald-300 hover:bg-emerald-400/10"
+            >
+              Preview Premium
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={onDisable}
+            className="rounded-2xl border border-red-400/30 px-5 py-3 font-black text-red-300 hover:bg-red-400/10"
+          >
+            Switch to Free View
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
