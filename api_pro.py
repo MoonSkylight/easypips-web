@@ -1695,11 +1695,12 @@ def build_signal_stats():
 
     all_signals = get_all_signals()
     active = [s for s in all_signals if s.get("status") == "ACTIVE"]
-    closed = [s for s in all_signals if s.get("status") == "CLOSED"]
-    rejected = [s for s in all_signals if s.get("status") == "REJECTED"]
+    weekly_signals = [s for s in all_signals if is_this_week_signal(s)]
+    closed = [s for s in weekly_signals if s.get("status") == "CLOSED"]
+    rejected = [s for s in weekly_signals if s.get("status") == "REJECTED"]
 
     return {
-        "totalSignals": len(all_signals),
+        "totalSignals": len(weekly_signals),
         "runningSignals": len(active),
         "closedSignals": len(closed),
         "rejectedSignals": len(rejected),
@@ -2459,7 +2460,7 @@ def desk_performance():
         rows = [s for s in signals if s.get("desk") == desk_name]
 
         total = len(rows)
-        active = len([s for s in rows if s.get("status") == "ACTIVE"])
+        active = len([s for s in rows_all if s.get("status") == "ACTIVE"])
         closed = [s for s in rows if s.get("status") == "CLOSED"]
 
         tp = len([s for s in closed if s.get("result") == "TP3"])
@@ -3064,4 +3065,5 @@ def reset_ai_signals(authorization: str = Header(default="")):
     supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
 
     return {"success": True, "message": "AI signals reset"}
+
 
