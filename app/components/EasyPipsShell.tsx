@@ -290,7 +290,7 @@ function SystemRule() {
 
 function isHighConfidenceLocked(s: Signal) {
   const confidence = Number(s.confidence || s.score || 0);
-  return Number.isFinite(confidence) && confidence >= 90;
+  return Number.isFinite(confidence) && confidence >= 85;
 }
 
 function LockedSignalCard({ s }: { s: Signal }) {
@@ -633,9 +633,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
     return s.strategy === filter;
   });
 
-  const visibleLive = isPremium
-    ? visibleLiveRaw
-    : visibleLiveRaw.filter((s) => s.strategy === "Strategy A").slice(0, 3);
+  const visibleLive = visibleLiveRaw;
 
   const totalSignals = allSignals.length + closed.length;
   const activeCount = live.length;
@@ -773,7 +771,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
           {page === "dashboard" && (
             <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
               <div>
-                <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} compact />
+                <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} compact />
                 {!isPremium && (
                   <div className="mt-5">
                     <PremiumLock
@@ -792,7 +790,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
           {page === "live-signals" && (
             <div className="space-y-5">
-              <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} />
+              <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} />
               {!isPremium && (
                 <PremiumLock
                   title="Full Live Signals Locked"
@@ -946,11 +944,13 @@ function LiveSignalsPanel({
   filter,
   setFilter,
   compact,
+  isPremium,
 }: {
   signals: Signal[];
   filter: string;
   setFilter: (x: string) => void;
   compact?: boolean;
+  isPremium: boolean;
 }) {
   const filters = ["All", "Strategy A", "Strategy B", "Strategy C", "Trading Room"];
 
@@ -974,7 +974,7 @@ function LiveSignalsPanel({
       ) : (
         <div className={`grid gap-4 ${compact ? "lg:grid-cols-2" : "md:grid-cols-2 xl:grid-cols-3"}`}>
           {signals.map((s, i) =>
-            isHighConfidenceLocked(s) ? (
+            !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
             ) : (
               <SignalCard key={s.id || i} s={s} />
@@ -1441,6 +1441,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
