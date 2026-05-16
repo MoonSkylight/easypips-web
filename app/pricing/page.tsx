@@ -1,3 +1,51 @@
+# EasyPips AI - Add Pricing Route to Sidebar Navigation
+# Run this from: C:\Users\Moom\Downloads\easypips-web
+
+$ErrorActionPreference = "Stop"
+
+$root = "C:\Users\Moom\Downloads\easypips-web"
+Set-Location $root
+
+$shellPath = "app\components\EasyPipsShell.tsx"
+
+if (!(Test-Path $shellPath)) {
+    Write-Host "ERROR: app\components\EasyPipsShell.tsx not found" -ForegroundColor Red
+    exit 1
+}
+
+$text = Get-Content $shellPath -Raw
+
+# 1. Add pricing to PageKey type if PageKey exists
+if ($text -match 'type PageKey') {
+    if ($text -notmatch '\| "pricing"') {
+        $text = $text -replace '\| "settings";', '| "settings"`r`n  | "pricing";'
+        Write-Host "Added pricing to PageKey." -ForegroundColor Green
+    } else {
+        Write-Host "Pricing already exists in PageKey." -ForegroundColor Yellow
+    }
+}
+
+# 2. Add pricing to NAV list before Settings
+if ($text -notmatch 'href: "/pricing"') {
+    $pricingLine = '  { key: "pricing", label: "Pricing", href: "/pricing", icon: "reports" },'
+    $text = $text -replace '  \{ key: "settings", label: "Settings", href: "/settings", icon: "settings" \},', "$pricingLine`r`n  { key: `"settings`", label: `"Settings`", href: `"/settings`", icon: `"settings`" },"
+    Write-Host "Added Pricing to sidebar NAV." -ForegroundColor Green
+} else {
+    Write-Host "Pricing already exists in NAV." -ForegroundColor Yellow
+}
+
+# 3. Save shell file
+Set-Content $shellPath $text -Encoding UTF8
+
+# 4. Ensure pricing page exists
+$pricingDir = "app\pricing"
+$pricingPath = "app\pricing\page.tsx"
+
+if (!(Test-Path $pricingDir)) {
+    New-Item -ItemType Directory -Path $pricingDir | Out-Null
+}
+
+$pricingCode = @'
 "use client";
 
 import Link from "next/link";
@@ -55,6 +103,11 @@ const plans = [
 export default function PricingPage() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#030811] px-6 py-10 text-white">
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute left-[-120px] top-[-120px] h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
+        <div className="absolute right-[-120px] top-[160px] h-[520px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
+      </div>
+
       <section className="relative z-10 mx-auto max-w-7xl">
         <div className="mb-10 text-center">
           <p className="mb-4 inline-flex rounded-full border border-yellow-400/20 bg-yellow-400/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-yellow-300">
@@ -68,6 +121,11 @@ export default function PricingPage() {
               Powered by AI + Smart Money
             </span>
           </h1>
+
+          <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-slate-300">
+            Access Strategy A, Strategy B, Strategy C, live dashboards,
+            Telegram delivery, performance reports, and MT4/MT5 integration.
+          </p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -135,3 +193,16 @@ export default function PricingPage() {
     </main>
   );
 }
+'@
+
+Set-Content $pricingPath $pricingCode -Encoding UTF8
+Write-Host "Pricing page written." -ForegroundColor Green
+
+# 5. Build test
+Write-Host "Running build..." -ForegroundColor Cyan
+npm run build
+
+Write-Host "DONE. If build succeeds, run:" -ForegroundColor Green
+Write-Host "git add app/components/EasyPipsShell.tsx app/pricing/page.tsx"
+Write-Host "git commit -m `"add pricing navigation and page`""
+Write-Host "git push origin main"
