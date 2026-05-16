@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -75,20 +75,20 @@ const NAV = [
 ];
 
 const PAIRS = [
-  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "🟡" },
-  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "🇪🇺" },
-  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "🇬🇧" },
-  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "🇯🇵" },
-  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "🇨🇦" },
-  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "🇨🇭" },
-  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "🇦🇺" },
-  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "🇳🇿" },
-  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "₿" },
-  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "◆" },
-  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "🇪🇺" },
-  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "🇯🇵" },
-  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "🇬🇧" },
-  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "🇦🇺" },
+  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "ðŸŸ¡" },
+  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "ðŸ‡ªðŸ‡º" },
+  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "ðŸ‡¬ðŸ‡§" },
+  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "ðŸ‡¯ðŸ‡µ" },
+  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "ðŸ‡¨ðŸ‡¦" },
+  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "ðŸ‡¨ðŸ‡­" },
+  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "ðŸ‡¦ðŸ‡º" },
+  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "ðŸ‡³ðŸ‡¿" },
+  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "â‚¿" },
+  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "â—†" },
+  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "ðŸ‡ªðŸ‡º" },
+  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "ðŸ‡¯ðŸ‡µ" },
+  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "ðŸ‡¬ðŸ‡§" },
+  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "ðŸ‡¦ðŸ‡º" },
 ];
 
 function n(v: any, fallback = 0) {
@@ -294,43 +294,123 @@ function isHighConfidenceLocked(s: Signal) {
 }
 
 function LockedSignalCard({ s }: { s: Signal }) {
+  const [loading, setLoading] = useState(false);
+
+  async function unlockSignal() {
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/create-single-signal-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          signalId: s.id || s.symbol || "single-signal",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      alert("Checkout could not start. Please try again.");
+    } catch {
+      alert("Checkout error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="rounded-3xl border border-yellow-400/30 bg-gradient-to-b from-yellow-400/[0.10] to-white/[0.025] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex item
+
+
+
+
+
+
+
+s-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-yellow-300">Premium AI Signal</p>
-          <h3 className="mt-2 text-3xl font-black text-white">{s.symbol}</h3>
+          <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
+            Premium AI Signal
+          </p>
+ 
+
+
+
+
+         <h3 className="mt-2 text-3xl font-black text-white">{s.symbol}</h3>
           <p className="mt-1 text-sm font-black text-yellow-300">
             Confidence: {s.confidence || s.score || "-"}%
           </p>
         </div>
-        <span className="rounded-full bg-yellow-400 px-3 py-1 text-xs font-black text-black">
+
+        <span className="rounded-
+
+
+
+
+
+full bg-yellow-400 px-3 py-1 text-xs font-black text-black">
           Locked
         </span>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
-        <Mini label="Entry" value="Locked" />
+ 
+
+
+
+
+
+       <Mini label="Entry" value="Locked" />
         <Mini label="SL" value="Locked" danger />
         <Mini label="TP1" value="Locked" good />
         <Mini label="TP2" value="Locked" good />
-        <Mini label="TP3" value="Locked" good />
+  
+
+
+
+      <Mini label="TP3" value="Locked" good />
         <Mini label="Access" value="$3" />
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-slate-300">
-        Unlock this high-confidence setup for individual access. Monthly premium membership remains available.
+ 
+
+
+
+     <p className="mt-4 text-sm leading-6 text-slate-300">
+        Unlock this 85%+ confidence setup for individual access. Monthly premium membership remains available.
       </p>
 
-      <Link
-        href="/checkout?signal=single"
-        className="mt-5 block rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black hover:bg-yellow-300"
+
+
+
+      <button
+        onClick={unlockSignal}
+        disabled={loading}
+ 
+
+
+
+       className="mt-5 block w-full rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black hover:bg-yellow-300 disabled:opacity-60"
       >
-        Unlock Signal - $3
-      </Link>
+        {loading ? "Opening Checkout..." : "Unlock Signal - $3"}
+ 
+
+
+     </button>
     </div>
   );
 }
+
+
 
 function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
@@ -500,7 +580,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
         ))}
       </div>
       <Link href="/news-calendar" className="mt-5 block text-center text-sm font-black text-yellow-300">
-        View full calendar →
+        View full calendar â†’
       </Link>
     </Panel>
   );
@@ -616,7 +696,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
           savedAt: new Date().toISOString(),
         })
       );
-      setSettingsMessage("Preferences saved ✅");
+      setSettingsMessage("Preferences saved âœ…");
       setTimeout(() => setSettingsMessage(""), 2500);
     } catch {
       setSettingsMessage("Unable to save preferences");
@@ -644,12 +724,12 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
   const stats = (
     <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-6">
-      <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="▥" />
-      <StatCard title="Active Signals" value={activeCount} color="green" icon="◉" />
-      <StatCard title="Closed Trades" value={closedCount} color="purple" icon="▣" />
-      <StatCard title="TP Hits" value={tpHits} color="green" icon="◎" />
-      <StatCard title="SL Hits" value={slHits} color="red" icon="⬟" />
-      <StatCard title="Trading Room" value={helpDesk} color="green" icon="☊" />
+      <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="â–¥" />
+      <StatCard title="Active Signals" value={activeCount} color="green" icon="â—‰" />
+      <StatCard title="Closed Trades" value={closedCount} color="purple" icon="â–£" />
+      <StatCard title="TP Hits" value={tpHits} color="green" icon="â—Ž" />
+      <StatCard title="SL Hits" value={slHits} color="red" icon="â¬Ÿ" />
+      <StatCard title="Trading Room" value={helpDesk} color="green" icon="â˜Š" />
     </div>
   );
 
@@ -697,10 +777,10 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
         <div className="mt-8 rounded-3xl border border-yellow-400/40 bg-yellow-400/[0.03] p-5">
           <h3 className="text-xl font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-3 text-sm">
-            <p>✓ AI powered strategies</p>
-            <p>✓ Desk 1 and Trading Room</p>
-            <p>✓ News calendar</p>
-            <p>✓ MT4 / MT5 ready</p>
+            <p>âœ“ AI powered strategies</p>
+            <p>âœ“ Desk 1 and Trading Room</p>
+            <p>âœ“ News calendar</p>
+            <p>âœ“ MT4 / MT5 ready</p>
           </div>
           <a href="https://t.me/" target="_blank" className="mt-5 block rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black">
             Join Telegram
@@ -714,7 +794,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
             <div className="h-4 w-3/4 rounded-full bg-emerald-400" />
           </div>
           <p className="mt-6 text-slate-400">System Status</p>
-          <p className="mt-2 font-black text-emerald-300">RUNNING ●</p>
+          <p className="mt-2 font-black text-emerald-300">RUNNING â—</p>
         </div>
       </aside>
 
@@ -729,7 +809,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
                 </span>
               </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-sm font-black text-white">
-                London Session Active • XAU/USD +420 Pips • EUR/USD +70 Pips • BTC/USD +310 Pips • 3 TP Hits Today • {activeCount} Active Signals • Premium AI Signals Running
+                London Session Active â€¢ XAU/USD +420 Pips â€¢ EUR/USD +70 Pips â€¢ BTC/USD +310 Pips â€¢ 3 TP Hits Today â€¢ {activeCount} Active Signals â€¢ Premium AI Signals Running
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -1012,7 +1092,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
         <div className="space-y-2">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-3 text-sm">
-              <span>{s.symbol} · {s.direction}</span>
+              <span>{s.symbol} Â· {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -1164,8 +1244,8 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
           <div className="space-y-3">
             {accounts.map((a, i) => (
               <div key={a.id || i} className="rounded-2xl bg-black/30 p-4">
-                <p className="font-black">{a.platform || "MT5"} · {a.broker || "Broker"}</p>
-                <p className="text-sm text-slate-400">Login: {a.account_login || "Hidden"} · Status: {a.status || "Pending"}</p>
+                <p className="font-black">{a.platform || "MT5"} Â· {a.broker || "Broker"}</p>
+                <p className="text-sm text-slate-400">Login: {a.account_login || "Hidden"} Â· Status: {a.status || "Pending"}</p>
               </div>
             ))}
           </div>
@@ -1304,7 +1384,7 @@ function SettingsPage({
               const selected = selectedPairs.includes(p.pair);
               return (
                 <button key={p.pair} onClick={() => toggle(p.pair)} className="grid w-full grid-cols-[50px_80px_1fr_100px_110px] border-t border-white/5 px-3 py-3 text-left text-sm hover:bg-white/5">
-                  <span className={`h-5 w-5 rounded border ${selected ? "border-emerald-400 bg-emerald-400 text-black" : "border-slate-600"}`}>{selected ? "✓" : ""}</span>
+                  <span className={`h-5 w-5 rounded border ${selected ? "border-emerald-400 bg-emerald-400 text-black" : "border-slate-600"}`}>{selected ? "âœ“" : ""}</span>
                   <span>{p.icon}</span>
                   <span className="font-black">{p.pair} <span className="font-normal text-slate-400">({p.label})</span></span>
                   <span className="text-yellow-300">{p.cat}</span>
@@ -1357,7 +1437,7 @@ function SettingsPage({
             <div className="grid gap-3 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                  <p className="font-black text-white">✅ {x}</p>
+                  <p className="font-black text-white">âœ… {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
                 </div>
               ))}
@@ -1441,6 +1521,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
