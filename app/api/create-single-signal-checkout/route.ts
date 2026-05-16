@@ -1,12 +1,23 @@
-﻿import Stripe from "stripe";
+import Stripe from "stripe";
 import { NextResponse } from "next/server";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
 export async function POST(req: Request) {
   try {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+
+    if (!secretKey) {
+      return NextResponse.json(
+        { error: "Stripe secret key is missing" },
+        { status: 500 }
+      );
+    }
+
+    const stripe = new Stripe(secretKey);
+
     const body = await req.json();
     const signalId = body.signalId || "single-signal";
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://easypips-web.vercel.app";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -24,34 +35,19 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/premium-success?signal=${signalId}`,
- 
-     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/live-signals`,
+      success_url: `${siteUrl}/premium-success?signal=${signalId}`,
+      cancel_url: `${siteUrl}/live-signals`,
       metadata: {
         signalId,
         type: "single_signal_unlock",
       },
- 
-
-
-
-
-   });
+    });
 
     return NextResponse.json({ url: session.url });
   } catch {
     return NextResponse.json(
-
-
-
-
       { error: "Unable to create checkout session" },
       { status: 500 }
     );
   }
 }
-
-
-
-
-
