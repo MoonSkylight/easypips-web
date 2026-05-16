@@ -144,16 +144,5 @@ export default function CheckoutPage() {
     </main>
   );
 }
-```
-
-Replace:
-
-```txt
-app/checkout/page.tsx
-```
-
-Then run:
-
-```powershell
-npm run build
-```
+```tsx
+}
