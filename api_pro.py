@@ -1644,7 +1644,7 @@ def performance_for_strategy(strategy_name: str, days: int = 7):
 
         created_at = parse_datetime(signal.get("created_at"))
 
-        if created_at < start:
+        if created_at < week_start:
             continue
 
         total += 1
