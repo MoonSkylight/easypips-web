@@ -69,6 +69,8 @@ export default function AdminPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [token, setToken] = useState("");
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<Signal | null>(null);
   const [loading, setLoading] = useState(false);
@@ -76,7 +78,7 @@ export default function AdminPage() {
   const headers = useMemo(
     () => ({
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${token}` : "",
     }),
     [token]
   );
@@ -86,7 +88,33 @@ export default function AdminPage() {
     setToken(saved);
     loadData();
   }, []);
+async function loginAdmin() {
+  try {
+    const res = await fetch(`${API}/admin/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
 
+    const data = await res.json();
+
+    if (!data.success || !data.access_token) {
+      setMessage("Login failed");
+      return;
+    }
+
+    localStorage.setItem("easypips-admin-token", data.access_token);
+    setToken(data.access_token);
+    setMessage("Admin login successful");
+  } catch {
+    setMessage("Unable to login");
+  }
+}
   function saveToken() {
     localStorage.setItem("easypips-admin-token", token);
     setMessage("Admin token saved.");
@@ -244,6 +272,29 @@ export default function AdminPage() {
           </div>
 
           <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
+<div className="grid gap-3 mb-4">
+  <input
+    value={username}
+    onChange={(e) => setUsername(e.target.value)}
+    placeholder="Admin Username"
+    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+  />
+
+  <input
+    type="password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    placeholder="Admin Password"
+    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+  />
+
+  <button
+    onClick={loginAdmin}
+    className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black"
+  >
+    Admin Login
+  </button>
+</div>
             <input
               value={token}
               onChange={(e) => setToken(e.target.value)}
