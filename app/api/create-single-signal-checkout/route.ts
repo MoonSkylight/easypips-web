@@ -30,7 +30,7 @@ export async function POST(req: Request) {
               name: "EasyPips Premium Signal Unlock",
               description: `Single premium signal access: ${signalId}`,
             },
-            unit_amount: 300,
+            unit_amount: Number(body.confidence || 0) >= 90 ? 500 : 300,
           },
           quantity: 1,
         },
