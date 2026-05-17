@@ -83,7 +83,7 @@ const PAIRS = [
   { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "ðŸ‡¨ðŸ‡­" },
   { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "ðŸ‡¦ðŸ‡º" },
   { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "ðŸ‡³ðŸ‡¿" },
-  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "BTC" },
+  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "â‚¿" },
   { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "●†" },
   { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "ðŸ‡ªðŸ‡º" },
   { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "ðŸ‡¯ðŸ‡µ" },
@@ -351,7 +351,15 @@ s-start justify-between gap-3">
           </p>
         </div>
 
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-xl text-yellow-300 shadow-lg shadow-yellow-400/10">🔒</span>
+        <span className="rounded-
+
+
+
+
+
+full bg-yellow-400 px-3 py-1 text-xs font-black text-black">
+          Locked
+        </span>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
@@ -572,7 +580,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
         ))}
       </div>
       <Link href="/news-calendar" className="mt-5 block text-center text-sm font-black text-yellow-300">
-        View full calendar ✓
+        View full calendar â†’
       </Link>
     </Panel>
   );
@@ -688,7 +696,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
           savedAt: new Date().toISOString(),
         })
       );
-      setSettingsMessage("Preferences saved ✓
+      setSettingsMessage("Preferences saved âœ…");
       setTimeout(() => setSettingsMessage(""), 2500);
     } catch {
       setSettingsMessage("Unable to save preferences");
@@ -716,72 +724,12 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
   const stats = (
     <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-6">
-      <StatCard title="Total Signals" value={totalSignals} color="cyan" 
-    param($m)
-    $v = $m.Value
-    if ($v -match 'Total|▥|📄|✓ { 'icon="file"' }
-    elseif ($v -match '◉|📈') { 'icon="activity"' }
-    elseif ($v -match '▣|✅') { 'icon="check"' }
-    elseif ($v -match '◎|🎯') { 'icon="target"' }
-    elseif ($v -match '⬟|🛡') { 'icon="shield"' }
-    elseif ($v -match '☊|👥') { 'icon="users"' }
-    else { $v }
- />
-      <StatCard title="Active Signals" value={activeCount} color="green" 
-    param($m)
-    $v = $m.Value
-    if ($v -match 'Total|▥|📄|✓ { 'icon="file"' }
-    elseif ($v -match '◉|📈') { 'icon="activity"' }
-    elseif ($v -match '▣|✅') { 'icon="check"' }
-    elseif ($v -match '◎|🎯') { 'icon="target"' }
-    elseif ($v -match '⬟|🛡') { 'icon="shield"' }
-    elseif ($v -match '☊|👥') { 'icon="users"' }
-    else { $v }
- />
-      <StatCard title="Closed Trades" value={closedCount} color="purple" 
-    param($m)
-    $v = $m.Value
-    if ($v -match 'Total|▥|📄|✓ { 'icon="file"' }
-    elseif ($v -match '◉|📈') { 'icon="activity"' }
-    elseif ($v -match '▣|✅') { 'icon="check"' }
-    elseif ($v -match '◎|🎯') { 'icon="target"' }
-    elseif ($v -match '⬟|🛡') { 'icon="shield"' }
-    elseif ($v -match '☊|👥') { 'icon="users"' }
-    else { $v }
- />
-      <StatCard title="TP Hits" value={tpHits} color="green" 
-    param($m)
-    $v = $m.Value
-    if ($v -match 'Total|▥|📄|✓ { 'icon="file"' }
-    elseif ($v -match '◉|📈') { 'icon="activity"' }
-    elseif ($v -match '▣|✅') { 'icon="check"' }
-    elseif ($v -match '◎|🎯') { 'icon="target"' }
-    elseif ($v -match '⬟|🛡') { 'icon="shield"' }
-    elseif ($v -match '☊|👥') { 'icon="users"' }
-    else { $v }
- />
-      <StatCard title="SL Hits" value={slHits} color="red" 
-    param($m)
-    $v = $m.Value
-    if ($v -match 'Total|▥|📄|✓ { 'icon="file"' }
-    elseif ($v -match '◉|📈') { 'icon="activity"' }
-    elseif ($v -match '▣|✅') { 'icon="check"' }
-    elseif ($v -match '◎|🎯') { 'icon="target"' }
-    elseif ($v -match '⬟|🛡') { 'icon="shield"' }
-    elseif ($v -match '☊|👥') { 'icon="users"' }
-    else { $v }
- />
-      <StatCard title="Trading Room" value={helpDesk} color="green" 
-    param($m)
-    $v = $m.Value
-    if ($v -match 'Total|▥|📄|✓ { 'icon="file"' }
-    elseif ($v -match '◉|📈') { 'icon="activity"' }
-    elseif ($v -match '▣|✅') { 'icon="check"' }
-    elseif ($v -match '◎|🎯') { 'icon="target"' }
-    elseif ($v -match '⬟|🛡') { 'icon="shield"' }
-    elseif ($v -match '☊|👥') { 'icon="users"' }
-    else { $v }
- />
+      <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="â–¥" />
+      <StatCard title="Active Signals" value={activeCount} color="green" icon="●‰" />
+      <StatCard title="Closed Trades" value={closedCount} color="purple" icon="â–£" />
+      <StatCard title="TP Hits" value={tpHits} color="green" icon="●Ž" />
+      <StatCard title="SL Hits" value={slHits} color="red" icon="â¬Ÿ" />
+      <StatCard title="Trading Room" value={helpDesk} color="green" icon="â˜Š" />
     </div>
   );
 
@@ -1144,7 +1092,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
         <div className="space-y-2">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-3 text-sm">
-              <span>{s.symbol} ✓ {s.direction}</span>
+              <span>{s.symbol} Â· {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -1296,8 +1244,8 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
           <div className="space-y-3">
             {accounts.map((a, i) => (
               <div key={a.id || i} className="rounded-2xl bg-black/30 p-4">
-                <p className="font-black">{a.platform || "MT5"} ✓ {a.broker || "Broker"}</p>
-                <p className="text-sm text-slate-400">Login: {a.account_login || "Hidden"} ✓ Status: {a.status || "Pending"}</p>
+                <p className="font-black">{a.platform || "MT5"} Â· {a.broker || "Broker"}</p>
+                <p className="text-sm text-slate-400">Login: {a.account_login || "Hidden"} Â· Status: {a.status || "Pending"}</p>
               </div>
             ))}
           </div>
@@ -1489,7 +1437,7 @@ function SettingsPage({
             <div className="grid gap-3 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                  <p className="font-black text-white">✓ {x}</p>
+                  <p className="font-black text-white">âœ… {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
                 </div>
               ))}
@@ -1573,8 +1521,6 @@ function HelpCenterPage() {
     </div>
   );
 }
-
-
 
 
 
