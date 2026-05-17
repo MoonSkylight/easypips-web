@@ -76,7 +76,7 @@ export default function AdminPage() {
   const headers = useMemo(
     () => ({
       "Content-Type": "application/json",
-      Authorization: token,
+      Authorization: `Bearer ${token}`,
     }),
     [token]
   );
