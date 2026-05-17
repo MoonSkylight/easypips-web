@@ -1624,7 +1624,8 @@ def parse_datetime(value: str):
 
 def performance_for_strategy(strategy_name: str, days: int = 7):
     now = datetime.now(timezone.utc)
-    start = now - timedelta(days=days)
+    week_start = now - timedelta(days=now.weekday())
+    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
     signals = get_all_signals()
 
     total = 0
