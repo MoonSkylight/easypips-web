@@ -296,6 +296,7 @@ async function loginAdmin() {
   </button>
 </div>
             <input
+              type="password"
               value={token}
               onChange={(e) => setToken(e.target.value)}
               placeholder="Paste admin token here"
