@@ -83,7 +83,7 @@ const PAIRS = [
   { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "ðŸ‡¨ðŸ‡­" },
   { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "ðŸ‡¦ðŸ‡º" },
   { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "ðŸ‡³ðŸ‡¿" },
-  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "✓ },
+  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "BTC" },
   { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "●†" },
   { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "ðŸ‡ªðŸ‡º" },
   { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "ðŸ‡¯ðŸ‡µ" },
@@ -1573,6 +1573,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
