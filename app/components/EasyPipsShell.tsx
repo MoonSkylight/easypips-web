@@ -430,7 +430,7 @@ function SignalCard({ s }: { s: Signal }) {
 
       <div className="mt-4 flex items-center justify-between">
         <span className="rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-xs font-black text-blue-300">
-          "Premium Signal"
+          "LIVE MARKET GENERATED"
         </span>
         <span className="text-xs font-black text-emerald-300">{s.status || "ACTIVE"}</span>
       </div>
@@ -1521,6 +1521,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
