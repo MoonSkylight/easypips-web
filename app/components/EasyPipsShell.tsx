@@ -294,6 +294,9 @@ function isHighConfidenceLocked(s: Signal) {
 }
 
 function LockedSignalCard({ s }: { s: Signal }) {
+  const confidenceValue = Number(s.confidence || s.score || 0);
+  const signalPrice = confidenceValue >= 90 ? "$5" : "$3";
+  const unlockText = confidenceValue >= 90 ? "{unlockText}" : "{unlockText}";
   const [loading, setLoading] = useState(false);
 
   async function unlockSignal() {
@@ -370,7 +373,7 @@ s-start justify-between gap-3">
 
 
       <Mini label="TP3" value="Locked" good />
-        <Mini label="Access" value="$3" />
+        <Mini label="Access" value={signalPrice} />
       </div>
 
  
@@ -393,7 +396,7 @@ s-start justify-between gap-3">
 
        className="mt-5 block w-full rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black hover:bg-yellow-300 disabled:opacity-60"
       >
-        {loading ? "Opening Checkout..." : "Unlock Premium Signal - $3"}
+        {loading ? "Opening Checkout..." : "{unlockText}"}
  
 
 
@@ -1513,6 +1516,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
