@@ -272,7 +272,7 @@ async function loginAdmin() {
           </div>
 
           <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
-<div className="grid gap-3 mb-4">
+  <div className="grid gap-3 mb-4 md:grid-cols-[1fr_1fr_auto_auto]">
   <input
     value={username}
     onChange={(e) => setUsername(e.target.value)}
@@ -294,20 +294,17 @@ async function loginAdmin() {
   >
     Admin Login
   </button>
-</div>
-            <input
-              type="password"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="Paste admin token here"
-              className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-            />
-            <button
-              onClick={saveToken}
-              className="rounded-2xl bg-emerald-400 px-5 py-3 font-black text-black"
-            >
-              Save Token
-            </button>
+
+  <button
+    onClick={() => {
+      localStorage.removeItem("easypips-admin-token");
+      location.reload();
+    }}
+    className="rounded-2xl border border-red-400/20 px-5 py-3 font-black text-red-300"
+  >
+    Logout
+  </button>
+</div>     
           </div>
 
           {message && (
