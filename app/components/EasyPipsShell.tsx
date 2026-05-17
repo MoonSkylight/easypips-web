@@ -351,15 +351,7 @@ s-start justify-between gap-3">
           </p>
         </div>
 
-        <span className="rounded-
-
-
-
-
-
-full bg-yellow-400 px-3 py-1 text-xs font-black text-black">
-          Locked
-        </span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-base font-black text-yellow-300">🔒</span>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
@@ -724,12 +716,12 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
   const stats = (
     <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-6">
-      <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="â–¥" />
-      <StatCard title="Active Signals" value={activeCount} color="green" icon="●‰" />
-      <StatCard title="Closed Trades" value={closedCount} color="purple" icon="â–£" />
-      <StatCard title="TP Hits" value={tpHits} color="green" icon="●Ž" />
-      <StatCard title="SL Hits" value={slHits} color="red" icon="â¬Ÿ" />
-      <StatCard title="Trading Room" value={helpDesk} color="green" icon="â˜Š" />
+      <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
+      <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
+      <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
+      <StatCard title="TP Hits" value={tpHits} color="green" icon="TP" />
+      <StatCard title="SL Hits" value={slHits} color="red" icon="SL" />
+      <StatCard title="Trading Room" value={helpDesk} color="green" icon="TR" />
     </div>
   );
 
@@ -1521,6 +1513,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
