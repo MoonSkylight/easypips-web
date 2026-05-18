@@ -236,6 +236,7 @@ async function loginAdmin() {
 
   const active = signals.filter((s) => s.status === "ACTIVE");
   const closed = signals.filter((s) => s.status === "CLOSED");
+  const isLoggedIn = Boolean(token);
   const pendingAccounts = accounts.filter(
     (a) => String(a.status || "").toLowerCase() !== "approved"
   );
@@ -314,7 +315,8 @@ async function loginAdmin() {
           )}
         </header>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-4">
+  <div>
+    <div className="mb-6 grid gap-4 md:grid-cols-4">
           <Card title="Total Signals" value={signals.length} />
           <Card title="Active" value={active.length} color="text-emerald-300" />
           <Card title="Closed" value={closed.length} color="text-purple-300" />
@@ -436,7 +438,7 @@ async function loginAdmin() {
             <Link
               href="/admin/requests"
               className="mt-5 block rounded-2xl border border-white/10 px-5 py-3 text-center font-black hover:bg-white/10"
-            >
+                                   >
               Open Request Page
             </Link>
           </section>
@@ -450,6 +452,7 @@ async function loginAdmin() {
             onSave={(updates) => editing.id && updateSignal(editing.id, updates)}
           />
         )}
+        </div>
       </section>
     </main>
   );
