@@ -1440,7 +1440,17 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
                 <td className="p-3">{r.sl}</td>
                 <td className="p-3">{r.tp1}</td>
                 <td className="p-3 font-black text-emerald-300">{r.result}</td>
-                <td className="p-3 text-emerald-300">1.25R</td>
+                <td className="p-3 text-emerald-300">
+  {r.result === "TP3"
+    ? "3.0R"
+    : r.result === "TP2"
+    ? "2.0R"
+    : r.result === "TP1"
+    ? "1.0R"
+    : r.result === "SL"
+    ? "-1.0R"
+    : "Pending"}
+</td>
                 <td className="p-3">{r.confidence}%</td>
               </tr>
             ))}
