@@ -875,14 +875,20 @@ if (priceRes.status === "fulfilled") {
   const positive = pips !== null && pips >= 0;
 
   return (
-    <span
-      key={s.id || i}
-      className={`mr-10 ${positive ? "text-emerald-300" : "text-red-300"}`}
-    >
-      {s.symbol} {s.direction} {tpText(s)}{" "}
+  <span key={s.id || i} className="mr-10">
+    <span className="text-white font-black">
+      {s.symbol}
+    </span>{" "}
+
+    <span className="text-yellow-300">
+      {tpText(s)}
+    </span>{" "}
+
+    <span className={positive ? "text-emerald-300" : "text-red-300"}>
       {pips !== null ? `${pips >= 0 ? "+" : ""}${pips} PIPS` : "LIVE"}
     </span>
-  );
+  </span>
+);
 })}
 
 <span className="mr-10 text-yellow-300">
