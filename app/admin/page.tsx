@@ -238,10 +238,59 @@ async function loginAdmin() {
   const closed = signals.filter((s) => s.status === "CLOSED");
   const isLoggedIn = Boolean(token);
   const pendingAccounts = accounts.filter(
-    (a) => String(a.status || "").toLowerCase() !== "approved"
-  );
+  (a) => String(a.status || "").toLowerCase() !== "approved"
+);
 
+if (!token) {
   return (
+    <main className="min-h-screen bg-[#030811] px-5 py-6 text-white">
+      <section className="mx-auto flex min-h-[80vh] max-w-xl items-center justify-center">
+        <div className="w-full rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30">
+          <h1 className="text-3xl font-black">
+            Easy<span className="text-yellow-300">Pips</span>{" "}
+            <span className="text-emerald-300">Admin Login</span>
+          </h1>
+
+          <p className="mt-2 text-sm text-slate-400">
+            Login is required before viewing admin data.
+          </p>
+
+          <div className="mt-6 grid gap-3">
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Admin Username"
+              className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+            />
+
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Admin Password"
+              className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+            />
+
+            <button
+              onClick={loginAdmin}
+              className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black"
+            >
+              Admin Login
+            </button>
+          </div>
+
+          {message && (
+            <div className="mt-4 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 px-5 py-3 font-black text-yellow-300">
+              {message}
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+return (
     <main className="min-h-screen bg-[#030811] px-5 py-6 text-white">
       <section className="mx-auto max-w-[1700px]">
         <header className="mb-6 rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/30">
