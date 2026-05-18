@@ -614,6 +614,55 @@ function getLivePrice(symbol: string | undefined, livePrices: Record<string, any
 }
 
 function pipSize(symbol?: string) {
+function displayPips(s: Signal, livePrices: Record<string, any>) {
+  const entry = Number(s.entry);
+
+  if (!Number.isFinite(entry)) return null;
+
+  if (s.hit_tp3 && s.tp3) {
+    return Math.round(Math.abs(Number(s.tp3) - entry) / pipSize(s.symbol));
+  }
+
+  if (s.hit_tp2 && s.tp2) {
+    return Math.round(Math.abs(Number(s.tp2) - entry) / pipSize(s.symbol));
+  }
+
+  if (s.hit_tp1 && s.tp1) {
+    return Math.round(Math.abs(Number(s.tp1) - entry) / pipSize(s.symbol));
+  }
+
+  return null;
+}
+
+function tickerStatus(s: Signal, livePrices: Record<string, any>) {
+  const pips = displayPips(s, livePrices);
+
+  if (s.hit_tp3) {
+    return {
+      text: `TP3 HIT +${pips} PIPS`,
+      color: "text-emerald-300",
+    };
+  }
+
+  if (s.hit_tp2) {
+    return {
+      text: `TP2 HIT +${pips} PIPS`,
+      color: "text-emerald-300",
+    };
+  }
+
+  if (s.hit_tp1) {
+    return {
+      text: `TP1 HIT +${pips} PIPS`,
+      color: "text-emerald-300",
+    };
+  }
+
+  return {
+    text: "ACTIVE",
+    color: "text-yellow-300 animate-pulse",
+  };
+}
   const s = cleanSymbol(symbol);
   if (s.includes("JPY")) return 0.01;
   if (s.includes("XAU")) return 0.1;
@@ -638,6 +687,32 @@ function tpText(s: Signal) {
   if (s.hit_tp2) return "TP2 HIT";
   if (s.hit_tp1) return "TP1 HIT";
   return "RUNNING";
+}
+function tickerStatus(s: Signal, livePrices: Record<string, any>) {
+  const entry = Number(s.entry);
+
+  function fixedPips(target: any) {
+    const targetPrice = Number(target);
+    if (!Number.isFinite(entry) || !Number.isFinite(targetPrice)) return null;
+    return Math.round(Math.abs(targetPrice - entry) / pipSize(s.symbol));
+  }
+
+  if (s.hit_tp3) {
+    const pips = fixedPips(s.tp3);
+    return { text: `TP3 HIT +${pips ?? 0} PIPS`, color: "text-emerald-300" };
+  }
+
+  if (s.hit_tp2) {
+    const pips = fixedPips(s.tp2);
+    return { text: `TP2 HIT +${pips ?? 0} PIPS`, color: "text-emerald-300" };
+  }
+
+  if (s.hit_tp1) {
+    const pips = fixedPips(s.tp1);
+    return { text: `TP1 HIT +${pips ?? 0} PIPS`, color: "text-emerald-300" };
+  }
+
+  return { text: "ACTIVE", color: "text-yellow-300 animate-pulse" };
 }
 
 export default function EasyPipsShell({ page }: { page: PageKey }) {
@@ -872,39 +947,25 @@ if (priceRes.status === "fulfilled") {
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
   <div className="animate-[ticker_45s_linear_infinite] will-change-transform text-sm font-black text-white">
     {visibleLive.slice(0, 8).map((s, i) => {
-  const pips = runningPips(s, livePrices);
-  const positive = pips !== null && pips >= 0;
+      const status = tickerStatus(s, livePrices);
 
-  return (
-  <span key={s.id || i} className="mr-10">
-    <span className="text-white font-black">
-      {s.symbol}
-    </span>{" "}
+      return (
+        <span key={s.id || i} className="mr-10">
+          <span className="font-black text-white">
+            {s.symbol}
+          </span>{" "}
 
-    <span className="text-yellow-300">
-      {tpText(s)}
-    </span>{" "}
-
-    <span className={positive ? "text-emerald-300" : "text-red-300"}>
-      {pips !== null ? `${pips >= 0 ? "+" : ""}${pips} PIPS` : "LIVE"}
-    </span>
-  </span>
-);
-})}
-
-<span className="mr-10 text-yellow-300">
-  {tpHits} TP HITS THIS WEEK
-</span>
-
-<span className="mr-10 text-purple-300">
-  EASYPIPS AI LIVE
-</span>
+          <span className={status.color}>
+            {status.text}
+          </span>
+        </span>
+      );
+    })}
   </div>
 </div>
-                
-            
-            </div>
-            <div className="flex items-center gap-4">
+</div>
+
+<div className="flex items-center gap-4">
               <div className="hidden text-right text-xs md:block">
                 <p className="text-slate-400">Server Time UTC</p>
                 <p className="font-black">{new Date().toLocaleTimeString()}</p>
