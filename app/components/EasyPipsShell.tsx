@@ -730,6 +730,16 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030811] text-white">
+<style jsx global>{`
+  @keyframes ticker {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+`}</style>
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute left-[-160px] top-[-160px] h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
         <div className="absolute right-[-180px] top-[120px] h-[520px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
@@ -803,9 +813,35 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
                   LIVE MARKET STATUS
                 </span>
               </div>
-              <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-sm font-black text-white">
-                London Session Active ¢ XAU/USD +420 Pips ¢ EUR/USD +70 Pips ¢ BTC/USD +310 Pips ¢ 3 TP Hits Today ¢ {activeCount} Active Signals ¢ Premium AI Signals Running
-              </div>
+              <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
+  <div className="animate-[ticker_22s_linear_infinite] text-sm font-black text-white">
+    <span className="mr-8 text-emerald-300">
+      ● {activeCount} ACTIVE SIGNALS
+    </span>
+
+    <span className="mr-8 text-cyan-300">
+      ▲ {tpHits} TP HITS
+    </span>
+
+    <span className="mr-8 text-red-300">
+      ▼ {slHits} SL HITS
+    </span>
+
+    <span className="mr-8 text-yellow-300">
+      ◆ {closedCount} CLOSED TRADES
+    </span>
+
+    <span className="mr-8 text-purple-300">
+      ⚡ EASYPIPS AI LIVE
+    </span>
+
+    <span className="text-slate-300">
+      {new Date().toLocaleTimeString()}
+    </span>
+  </div>
+</div>
+                
+            
             </div>
             <div className="flex items-center gap-4">
               <div className="hidden text-right text-xs md:block">
