@@ -787,13 +787,14 @@ if (priceRes.status === "fulfilled") {
     <main className="min-h-screen overflow-hidden bg-[#030811] text-white">
 <style jsx global>{`
   @keyframes ticker {
-    0% {
-      transform: translateX(100%);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
+  0% {
+    transform: translate3d(100%, 0, 0);
   }
+
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
 `}</style>
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute left-[-160px] top-[-160px] h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
@@ -869,7 +870,7 @@ if (priceRes.status === "fulfilled") {
                 </span>
               </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-  <div className="animate-[ticker_22s_linear_infinite] text-sm font-black text-white">
+  <div className="animate-[ticker_45s_linear_infinite] will-change-transform text-sm font-black text-white">
     {visibleLive.slice(0, 8).map((s, i) => {
   const pips = runningPips(s, livePrices);
   const positive = pips !== null && pips >= 0;
