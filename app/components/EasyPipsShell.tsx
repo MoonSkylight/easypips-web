@@ -589,6 +589,56 @@ function Badge({ children, color }: { children: React.ReactNode; color?: string 
     "bg-white/10 text-white";
   return <span className={`rounded-full px-3 py-1 text-xs font-black ${cls}`}>{children}</span>;
 }
+function cleanSymbol(symbol?: string) {
+  return String(symbol || "").replace("/", "").toUpperCase();
+}
+
+function getLivePrice(symbol: string | undefined, livePrices: Record<string, any>) {
+  const clean = cleanSymbol(symbol);
+  const candidates = [
+    symbol,
+    clean,
+    clean.replace("XAUUSD", "XAU/USD"),
+    clean.replace("GBPUSD", "GBP/USD"),
+    clean.replace("EURUSD", "EUR/USD"),
+    clean.replace("USDJPY", "USD/JPY"),
+  ].filter(Boolean) as string[];
+
+  for (const key of candidates) {
+    const v = livePrices[key];
+    const n = Number(v);
+    if (Number.isFinite(n)) return n;
+  }
+
+  return null;
+}
+
+function pipSize(symbol?: string) {
+  const s = cleanSymbol(symbol);
+  if (s.includes("JPY")) return 0.01;
+  if (s.includes("XAU")) return 0.1;
+  if (s.includes("BTC") || s.includes("ETH")) return 1;
+  return 0.0001;
+}
+
+function runningPips(s: Signal, livePrices: Record<string, any>) {
+  const live = getLivePrice(s.symbol, livePrices);
+  const entry = Number(s.entry);
+
+  if (!Number.isFinite(entry) || live === null) return null;
+
+  const isSell = String(s.direction || "").toUpperCase().includes("SELL");
+  const diff = isSell ? entry - live : live - entry;
+
+  return Math.round(diff / pipSize(s.symbol));
+}
+
+function tpText(s: Signal) {
+  if (s.hit_tp3) return "TP3 HIT";
+  if (s.hit_tp2) return "TP2 HIT";
+  if (s.hit_tp1) return "TP1 HIT";
+  return "RUNNING";
+}
 
 export default function EasyPipsShell({ page }: { page: PageKey }) {
   const pathname = usePathname();
@@ -596,6 +646,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [closed, setClosed] = useState<Signal[]>([]);
   const [news, setNews] = useState<NewsEvent[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [livePrices, setLivePrices] = useState<Record<string, any>>({});
   const [filter, setFilter] = useState("All");
   const [selectedPairs, setSelectedPairs] = useState<string[]>(["XAU/USD", "EUR/USD", "GBP/USD"]);
   const [pairSearch, setPairSearch] = useState("");
@@ -605,11 +656,11 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
 
   async function loadData() {
     try {
-      const [signalsRes, closedRes, newsRes, accountRes] = await Promise.allSettled([
+      const [signalsRes, closedRes, newsRes, accountRes, priceRes] = await Promise.allSettled([
         fetch(`${API}/all-paid-signals`),
         fetch(`${API}/closed-signals`),
         fetch(`${API}/news-calendar`),
-        fetch(`${API}/client-accounts`),
+        fetch(`${API}/client-accounts`),fetch(`${API}/live-prices`),
       ]);
 
       if (signalsRes.status === "fulfilled") {
@@ -631,6 +682,10 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
         const data = await accountRes.value.json();
         setAccounts(data.accounts || []);
       }
+if (priceRes.status === "fulfilled") {
+  const data = await priceRes.value.json();
+  setLivePrices(data || {});
+}
     } catch {
       // Keep UI stable.
     }
@@ -815,29 +870,28 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
               </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
   <div className="animate-[ticker_22s_linear_infinite] text-sm font-black text-white">
-    <span className="mr-8 text-emerald-300">
-      ● {activeCount} ACTIVE SIGNALS
-    </span>
+    {visibleLive.slice(0, 8).map((s, i) => {
+  const pips = runningPips(s, livePrices);
+  const positive = pips !== null && pips >= 0;
 
-    <span className="mr-8 text-cyan-300">
-      ▲ {tpHits} TP HITS
+  return (
+    <span
+      key={s.id || i}
+      className={`mr-10 ${positive ? "text-emerald-300" : "text-red-300"}`}
+    >
+      {s.symbol} {s.direction} {tpText(s)}{" "}
+      {pips !== null ? `${pips >= 0 ? "+" : ""}${pips} PIPS` : "LIVE"}
     </span>
+  );
+})}
 
-    <span className="mr-8 text-red-300">
-      ▼ {slHits} SL HITS
-    </span>
+<span className="mr-10 text-yellow-300">
+  {tpHits} TP HITS THIS WEEK
+</span>
 
-    <span className="mr-8 text-yellow-300">
-      ◆ {closedCount} CLOSED TRADES
-    </span>
-
-    <span className="mr-8 text-purple-300">
-      ⚡ EASYPIPS AI LIVE
-    </span>
-
-    <span className="text-slate-300">
-      {new Date().toLocaleTimeString()}
-    </span>
+<span className="mr-10 text-purple-300">
+  EASYPIPS AI LIVE
+</span>
   </div>
 </div>
                 
