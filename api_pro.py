@@ -827,7 +827,7 @@ def build_ai_signal(symbol: str, analysis: dict):
     direction = analysis["direction"]
     strategy = analysis["strategy"]
 
-    if strategy == "Strategy B" and all(k in analysis for k in ["sl", "tp1", "tp2", "tp3"]):
+    if all(k in analysis for k in ["sl", "tp1", "tp2", "tp3"]):
         sl = analysis["sl"]
         tp1 = analysis["tp1"]
         tp2 = analysis["tp2"]
