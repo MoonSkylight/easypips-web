@@ -3035,7 +3035,77 @@ def admin_get_trade_history(account_id: str, authorization: str = Header(default
     }
 
 
+@app.get("/mt5/license-check")
+def mt5_license_check(account_login: str = "", license_code: str = ""):
+    if not db_enabled():
+        return {
+            "valid": False,
+            "allowed": False,
+            "message": "EasyPips server unavailable. Contact owner."
+        }
 
+    if not account_login or not license_code:
+        return {
+            "valid": False,
+            "allowed": False,
+            "message": "Missing license. Contact owner to renew your membership."
+        }
+
+    rows = (
+        supabase.table("client_accounts")
+        .select("*")
+        .eq("account_login", account_login)
+        .execute()
+        .data
+        or []
+    )
+
+    if not rows:
+        return {
+            "valid": False,
+            "allowed": False,
+            "message": "Account not registered. Contact owner to activate your membership."
+        }
+
+    account = rows[0]
+
+    expected_code = str(account.get("id", ""))[:8]
+
+    if license_code != expected_code:
+        return {
+            "valid": False,
+            "allowed": False,
+            "message": "Invalid or expired license. Contact owner to renew your membership."
+        }
+
+    if str(account.get("status", "")).lower() != "approved":
+        return {
+            "valid": False,
+            "allowed": False,
+            "message": "Account not approved. Contact owner."
+        }
+
+    if bool(account.get("kill_switch")):
+        return {
+            "valid": False,
+            "allowed": False,
+            "message": "Membership disabled. Contact owner to renew your membership."
+        }
+
+    if not bool(account.get("auto_trade_enabled")):
+        return {
+            "valid": False,
+            "allowed": False,
+            "message": "Auto trade is OFF. Contact owner to renew your membership."
+        }
+
+    return {
+        "valid": True,
+        "allowed": True,
+        "message": "EasyPips membership active.",
+        "max_lot": account.get("max_lot", 0.01),
+        "account_login": account.get("account_login"),
+    }
 @app.get("/admin/telegram-health")
 def admin_telegram_health(authorization: str = Header(default="")):
     verify_admin_token(authorization)
