@@ -1509,45 +1509,19 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
 </form>
 </Panel>
 
-<Panel title="Connected Accounts">
-        {accounts.length === 0 ? <p className="text-slate-400">No MT4 / MT5 accounts connected yet.</p> : (
-          <div className="space-y-3">
-            {accounts.map((a, i) => (
-  <div key={a.id || i} className="rounded-2xl bg-black/30 p-4">
+<Panel title="My EA Access">
+  <p className="text-slate-400">
+    Your MT4 / MT5 license and EA download will appear here after your account is linked and approved.
+  </p>
 
-    <p className="font-black">
-      {a.platform || "MT5"} · {a.broker || "Broker"}
-    </p>
-
-    <p className="text-sm text-slate-400">
-  Login: {a.account_login || "Hidden"} · Status: {a.status || "Pending"}
-</p>
-
-{a.status === "approved" && (
-  <div className="mt-3 rounded-2xl bg-black/40 p-3">
-    <p className="text-xs text-slate-400">
-      EA License Code
-    </p>
-
-    <p className="font-mono text-yellow-300">
-      {a.license_code || "Generating..."}
-    </p>
-
-    <button
-      type="button"
-      onClick={() => navigator.clipboard.writeText(a.license_code || "")}
-      className="mt-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-bold"
-    >
-      Copy License
-    </button>
-  </div>
-)}
-
-</div>
-))}
-          </div>
-        )}
-      </Panel>
+  <a
+    href="/downloads/EasyPipsCopier.ex5"
+    download
+    className="mt-4 inline-block rounded-xl bg-yellow-400 px-4 py-2 font-black text-black"
+  >
+    Download EA
+  </a>
+</Panel>
     </div>
   );
 }
@@ -1842,6 +1816,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
