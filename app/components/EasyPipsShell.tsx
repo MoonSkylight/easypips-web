@@ -1424,6 +1424,7 @@ function NewsCalendarPage({ events }: { events: NewsEvent[] }) {
 }
 
 function AccountPage({ accounts }: { accounts: Account[] }) {
+  const myAccount = null;
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <Panel title="MT5 Connection Request">
@@ -1816,6 +1817,17 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
