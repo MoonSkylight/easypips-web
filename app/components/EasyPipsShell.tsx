@@ -1327,14 +1327,14 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
           <StatCard title="Winning Trades" value={wins} color="green" />
           <StatCard title="Losing Trades" value={losses} color="red" />
           <StatCard title="Win Rate" value={`${rate}%`} color="yellow" />
-          <StatCard title="Total Pips" value="+1,324" color="green" />
+          <StatCard title="Total Pips" value="Real data only" color="green" />
         </div>
       </Panel>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <FakeChart title="Cumulative Pips" value="+1,324 pips" />
+        <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
-        <FakeChart title="Monthly Pips Comparison" value="+1,324 pips" />
+        <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
@@ -1346,8 +1346,8 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
             <Row label="Winning Trades" value={wins} />
             <Row label="Losing Trades" value={losses} />
             <Row label="Win Rate" value={`${rate}%`} />
-            <Row label="Average RR" value="1.23R" />
-            <Row label="Profit Factor" value="2.18" />
+            <Row label="Average RR" value="Real data only" />
+            <Row label="Profit Factor" value="Real data only" />
           </div>
         </Panel>
       </div>
@@ -1817,6 +1817,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
