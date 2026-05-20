@@ -719,6 +719,7 @@ function tickerStatus(s: Signal, livePrices: Record<string, any>) {
 
 export default function EasyPipsShell({ page }: { page: PageKey }) {
   const pathname = usePathname();
+  const isClientDashboard = pathname?.startsWith("/client/dashboard");
   const [allSignals, setAllSignals] = useState<Signal[]>([]);
   const [closed, setClosed] = useState<Signal[]>([]);
   const [news, setNews] = useState<NewsEvent[]>([]);
@@ -1816,6 +1817,10 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
+
 
 
 
