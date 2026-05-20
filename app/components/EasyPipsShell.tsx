@@ -977,7 +977,21 @@ if (priceRes.status === "fulfilled") {
               <div className="hidden text-right text-xs md:block">
                 <p className="text-slate-400">Server Time UTC</p>
                 <p className="font-black">{new Date().toLocaleTimeString()}</p>
-              </div><a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300">Join Telegram</a>
+              </div><Link
+  href="/client/signup"
+  className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300"
+>
+  Sign Up
+</Link>
+
+<Link
+  href="/client/login"
+  className="rounded-2xl border border-white/10 px-5 py-3 font-black text-white hover:bg-white/10"
+>
+  Login
+</Link>
+
+<a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300">Join Telegram</a>
             </div>
           </div>
         </header>
@@ -1801,6 +1815,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
