@@ -186,8 +186,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
     # -----------------------------------------------------
 
     if (
-        sweep["buy_side_liquidity_taken"]
-        and bos["bearish_bos"]
+        (sweep["buy_side_liquidity_taken"] or bos["bearish_bos"]) and bos["bearish_bos"]
         # QM optional
         and zone
         and zone["type"] == "supply"
@@ -219,8 +218,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
     # -----------------------------------------------------
 
     if (
-        sweep["sell_side_liquidity_taken"]
-        and bos["bullish_bos"]
+        (sweep["sell_side_liquidity_taken"] or bos["bullish_bos"]) and bos["bullish_bos"]
         # QM optional
         and zone
         and zone["type"] == "demand"
@@ -248,4 +246,6 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
             }
 
     return None
+
+
 
