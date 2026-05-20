@@ -1,4 +1,4 @@
-﻿MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
+MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -391,52 +391,52 @@ def send_telegram_image(message: str, image_path: str):
 def new_signal_message(signal: dict):
     source = signal.get("desk") or signal.get("strategy") or signal.get("source") or "EasyPips"
     return f"""
-ðŸš€ *EASY PIPS VIP SIGNAL*
+🚀 *EASY PIPS VIP SIGNAL*
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+━━━━━━━━━━━━━━━
 
-ðŸ“Š *Pair:* {signal.get("symbol")}
-ðŸ“ˆ *Direction:* {signal.get("direction")}
-ðŸ§  *Source:* {source}
-ðŸ“Œ *Pattern:* {signal.get("pattern", "manual_signal")}
-â­ *Score:* {signal.get("score", "N/A")}
+📊 *Pair:* {signal.get("symbol")}
+📈 *Direction:* {signal.get("direction")}
+🧠 *Source:* {source}
+📌 *Pattern:* {signal.get("pattern", "manual_signal")}
+⭐ *Score:* {signal.get("score", "N/A")}
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+━━━━━━━━━━━━━━━
 
-ðŸŽ¯ *ENTRY:* `{signal.get("entry")}`
-ðŸ›‘ *STOP LOSS:* `{signal.get("sl")}`
+🎯 *ENTRY:* `{signal.get("entry")}`
+🛑 *STOP LOSS:* `{signal.get("sl")}`
 
-ðŸ’° *TP1:* `{signal.get("tp1")}`
-ðŸ’° *TP2:* `{signal.get("tp2")}`
-ðŸ’° *TP3:* `{signal.get("tp3")}`
+💰 *TP1:* `{signal.get("tp1")}`
+💰 *TP2:* `{signal.get("tp2")}`
+💰 *TP3:* `{signal.get("tp3")}`
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+━━━━━━━━━━━━━━━
 
-ðŸ“Š Confidence: *{signal.get("confidence", "N/A")}*
-âš ï¸ Educational only. Trading involves risk.
+📊 Confidence: *{signal.get("confidence", "N/A")}*
+⚠️ Educational only. Trading involves risk.
 """
 
 def result_message(signal: dict, result: str):
-    emoji = "âœ…"
+    emoji = "✅"
 
     if result == "TP2":
-        emoji = "ðŸš€"
+        emoji = "🚀"
     elif result == "TP3":
-        emoji = "ðŸ”¥"
+        emoji = "🔥"
     elif result == "SL":
-        emoji = "âŒ"
+        emoji = "❌"
 
     return f"""
 {emoji} *EASY PIPS SIGNAL UPDATE*
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+━━━━━━━━━━━━━━━
 
-ðŸ“Š *Pair:* {signal.get("symbol")}
-ðŸ“ˆ *Direction:* {signal.get("direction")}
-ðŸ§  *Strategy:* {signal.get("strategy", "Strategy A")}
-ðŸŽ¯ *Result:* {result}
+📊 *Pair:* {signal.get("symbol")}
+📈 *Direction:* {signal.get("direction")}
+🧠 *Strategy:* {signal.get("strategy", "Strategy A")}
+🎯 *Result:* {result}
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+━━━━━━━━━━━━━━━
 
 Entry: `{signal.get("entry")}`
 SL: `{signal.get("sl")}`
@@ -445,9 +445,9 @@ TP1: `{signal.get("tp1")}`
 TP2: `{signal.get("tp2")}`
 TP3: `{signal.get("tp3")}`
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+━━━━━━━━━━━━━━━
 
-ðŸ“Œ Status: *{signal.get("status", "ACTIVE")}*
+📌 Status: *{signal.get("status", "ACTIVE")}*
 """
 
 
@@ -2131,7 +2131,7 @@ def closed_signals():
 
 @app.get("/telegram-test")
 def telegram_test():
-    send_telegram("ðŸš€ *EasyPips Telegram connected successfully!*")
+    send_telegram("🚀 *EasyPips Telegram connected successfully!*")
     return {"status": "ok", "message": "Telegram test sent"}
 
 
@@ -2420,7 +2420,7 @@ def request_account_connection(account: ClientAccountRequest):
         })
 
     send_telegram(f"""
-ðŸ§¾ *NEW ACCOUNT CONNECTION REQUEST*
+🧾 *NEW ACCOUNT CONNECTION REQUEST*
 
 Name: {account.name}
 Platform: {account.platform.upper()}
@@ -2543,7 +2543,7 @@ def approve_client_account(account_id: str, authorization: str = Header(default=
 
     if account:
         send_telegram(f"""
-âœ… *ACCOUNT APPROVED*
+✅ *ACCOUNT APPROVED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2584,7 +2584,7 @@ def reject_client_account(account_id: str, authorization: str = Header(default="
 
     if account:
         send_telegram(f"""
-âŒ *ACCOUNT REJECTED*
+❌ *ACCOUNT REJECTED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2722,7 +2722,7 @@ def admin_toggle_auto_trade(account_id: str, authorization: str = Header(default
     updated = response.data[0] if response.data else None
 
     send_telegram(f"""
-âš™ï¸ *AUTO TRADE UPDATED*
+⚙️ *AUTO TRADE UPDATED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2785,7 +2785,7 @@ def toggle_kill_switch(account_id: str, authorization: str = Header(default=""))
     })
 
     send_telegram(f"""
-ðŸ›‘ *KILL SWITCH UPDATED*
+🛑 *KILL SWITCH UPDATED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -3134,7 +3134,7 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
 @app.get("/admin/telegram-health")
 def admin_telegram_health(authorization: str = Header(default="")):
     verify_admin_token(authorization)
-    ok = send_telegram("âœ… *EasyPips Telegram health check*\\n\\nTelegram is connected and Markdown formatting is working.")
+    ok = send_telegram("✅ *EasyPips Telegram health check*\\n\\nTelegram is connected and Markdown formatting is working.")
     return {"success": ok}
 
 @app.get("/debug-telegram")
@@ -3177,7 +3177,6 @@ def reset_ai_signals(authorization: str = Header(default="")):
     supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
 
     return {"success": True, "message": "AI signals reset"}
-
 
 
 
