@@ -212,3 +212,4 @@ function SummaryRow({ label, value, green, red }: { label: string; value: any; g
   return <div className="flex items-center justify-between border-b border-white/10 py-3"><span className="text-slate-400">{label}</span><span className={`font-black ${green ? "text-emerald-400" : red ? "text-red-400" : "text-white"}`}>{value}</span></div>;
 }
 
+
