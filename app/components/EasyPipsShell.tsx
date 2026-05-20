@@ -1671,6 +1671,39 @@ function SettingsPage({
                 <div key={x} className="rounded-2xl border border-white/10 bg-black/25 p-4">
                   <p className="font-black text-white">âœ… {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
+{a.status === "approved" && (
+  <div className="mt-3 rounded-2xl bg-black/40 p-3">
+    <p className="text-xs text-slate-400">EA License Code</p>
+
+    <p className="font-mono text-yellow-300">
+      {a.license_code || "Generating..."}
+    </p>
+
+    <button
+      type="button"
+      onClick={() => navigator.clipboard.writeText(a.license_code || "")}
+      className="mt-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-bold"
+    >
+      Copy License
+    </button>
+
+    <a
+      href="/downloads/EasyPipsCopier.ex5"
+      download
+      className="ml-2 inline-block rounded-xl bg-yellow-400 px-3 py-2 text-sm font-black text-black"
+    >
+      Download EA
+    </a>
+
+    <ol className="mt-3 list-decimal pl-5 text-sm text-slate-400">
+      <li>Download EA</li>
+      <li>Open MT5</li>
+      <li>Place EA in MQL5 / Experts / Advisors</li>
+      <li>Enable Auto Trading</li>
+      <li>Paste your license code</li>
+    </ol>
+  </div>
+)}
                 </div>
               ))}
             </div>
