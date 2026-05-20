@@ -728,7 +728,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [cat, setCat] = useState("Major");
   const [isPremium, setIsPremium] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState("");
-
+  
   async function loadData() {
     try {
       const [signalsRes, closedRes, newsRes, accountRes, priceRes] = await Promise.allSettled([
@@ -1379,20 +1379,89 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <Panel title="MT5 Connection Request">
-        <div className="grid gap-4">
-          {["Full Name", "Email", "MT5 Login", "Broker Server"].map((p) => (
-            <input key={p} placeholder={p} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none" />
-          ))}
-          <select className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none">
-            <option>MT5</option>
-            <option>MT4</option>
-          </select>
-          <textarea placeholder="Risk note / request details" className="min-h-28 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none" />
-          <button className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300">Submit Connection Request</button>
-        </div>
-      </Panel>
+        <form
+  className="grid gap-3"
+  onSubmit={async (e) => {
+    e.preventDefault();
 
-      <Panel title="Connected Accounts">
+    const fd = new FormData(e.currentTarget);
+
+    const res = await fetch(`${API}/client-accounts/connect`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: fd.get("name"),
+        platform: fd.get("platform"),
+        broker: fd.get("broker"),
+        account_login: fd.get("account_login"),
+        risk_mode: "copy",
+        max_lot: 0.01,
+        consent: true,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.message || "Request failed");
+      return;
+    }
+
+    alert("Connection request submitted");
+    window.location.reload();
+  }}
+>
+  <input
+    name="name"
+    placeholder="Full Name"
+    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+  />
+
+  <input
+    name="email"
+    placeholder="Email"
+    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+  />
+
+  <input
+    name="account_login"
+    placeholder="MT5 Login"
+    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+  />
+
+  <input
+    name="broker"
+    placeholder="Broker Server"
+    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+  />
+
+  <select
+    name="platform"
+    defaultValue="MT5"
+    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+  >
+    <option>MT5</option>
+    <option>MT4</option>
+  </select>
+
+  <textarea
+    name="note"
+    placeholder="Risk note / request details"
+    className="min-h-28 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+  />
+
+    <button
+    type="submit"
+    className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300"
+  >
+    Submit Connection Request
+  </button>
+</form>
+</Panel>
+
+<Panel title="Connected Accounts">
         {accounts.length === 0 ? <p className="text-slate-400">No MT4 / MT5 accounts connected yet.</p> : (
           <div className="space-y-3">
             {accounts.map((a, i) => (
