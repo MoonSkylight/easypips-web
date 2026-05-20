@@ -1104,7 +1104,7 @@ function PremiumLock({
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
-            href="/pricing"
+            href="/client/signup"
             className="rounded-2xl bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
           >
             {cta}
@@ -1149,7 +1149,7 @@ function PremiumBanner({
         {!isPremium ? (
           <>
             <Link
-              href="/pricing"
+              href="/client/signup"
               className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300"
             >
               Upgrade
@@ -1787,7 +1787,7 @@ function HelpCenterPage() {
 >
   Sign Up
 </Link>
-<Link href="/pricing" className="mt-5 block rounded-2xl border border-white/10 px-5 py-3 text-center font-black hover:bg-white/10">
+<Link href="/client/signup" className="mt-5 block rounded-2xl border border-white/10 px-5 py-3 text-center font-black hover:bg-white/10">
               View Pricing
             </Link>
           </div>
@@ -1796,6 +1796,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
