@@ -2604,6 +2604,29 @@ Login: {account.get("account_login")}
     }
 
 
+
+@app.post("/admin/client-accounts/{account_id}/refresh-license")
+def refresh_client_license(account_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    new_license = generate_mt5_license()
+
+    response = (
+        supabase.table("client_accounts")
+        .update({"license_code": new_license})
+        .eq("id", account_id)
+        .execute()
+    )
+
+    return {
+        "success": True,
+        "license_code": new_license,
+        "account": response.data[0] if response.data else None,
+    }
+
 @app.patch("/admin/client-accounts/{account_id}/update-risk")
 def update_client_account_risk(
     account_id: str,
@@ -3154,6 +3177,7 @@ def reset_ai_signals(authorization: str = Header(default="")):
     supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
 
     return {"success": True, "message": "AI signals reset"}
+
 
 
 
