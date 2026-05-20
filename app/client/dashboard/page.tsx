@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -74,7 +74,13 @@ export default function ClientDashboardPage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <button onClick={loadDashboard} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-bold">Refresh</button>
+            <a
+  href="/account"
+  className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-black text-black hover:bg-yellow-300"
+>
+  Account
+</a>
+<button onClick={loadDashboard} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-bold">Refresh</button>
             <button onClick={logout} className="rounded-xl bg-red-400 px-4 py-2 text-sm font-black text-black">Logout</button>
           </div>
         </div>
@@ -205,3 +211,4 @@ function Info({ label, value }: { label: string; value: any }) {
 function SummaryRow({ label, value, green, red }: { label: string; value: any; green?: boolean; red?: boolean }) {
   return <div className="flex items-center justify-between border-b border-white/10 py-3"><span className="text-slate-400">{label}</span><span className={`font-black ${green ? "text-emerald-400" : red ? "text-red-400" : "text-white"}`}>{value}</span></div>;
 }
+
