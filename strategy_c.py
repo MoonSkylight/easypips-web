@@ -248,3 +248,4 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
             }
 
     return None
+
