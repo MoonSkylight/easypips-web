@@ -2563,7 +2563,7 @@ Max Lot: {account.get("max_lot")}
         "message": "Account approved",
         "account": account,
     }
-    }
+    
 
 
 @app.post("/admin/client-accounts/{account_id}/reject")
