@@ -3060,13 +3060,14 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
         }
 
     rows = (
-        supabase.table("client_accounts")
-        .select("*")
-        .eq("account_login", account_login)
-        .execute()
-        .data
-        or []
-    )
+    supabase.table("client_accounts")
+    .select("*")
+    .eq("account_login", account_login)
+    .eq("license_code", license_code)
+    .execute()
+    .data
+    or []
+)
 
     if not rows:
         return {
@@ -3077,14 +3078,7 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
 
     account = rows[0]
 
-    expected_code = str(account.get("license_code") or "")
-
-    if license_code != expected_code:
-        return {
-            "valid": False,
-            "allowed": False,
-            "message": "Invalid or expired license. Contact owner to renew your membership."
-        }
+   
 
     if str(account.get("status", "")).lower() != "approved":
         return {
