@@ -730,6 +730,11 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [cat, setCat] = useState("Major");
   const [isPremium, setIsPremium] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState("");
+const clientToken =
+  typeof window !== "undefined"
+    ? localStorage.getItem("client_token")
+    : null;
+
   
   async function loadData() {
     try {
@@ -1796,6 +1801,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
