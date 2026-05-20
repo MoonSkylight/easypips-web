@@ -9,6 +9,7 @@ import os
 import time
 import math
 import hashlib
+import secrets
 import requests
 import tempfile
 import matplotlib.pyplot as plt
@@ -63,6 +64,9 @@ SYMBOLS = {
     "XAU/USD": "GC=F",
     "BTC/USD": "BTC-USD",
 }
+
+def generate_mt5_license():
+    return f"EP-{secrets.token_hex(2).upper()}-{secrets.token_hex(2).upper()}"
 
 
 class ManualSignal(BaseModel):
@@ -2527,7 +2531,10 @@ def approve_client_account(account_id: str, authorization: str = Header(default=
 
     response = (
         supabase.table("client_accounts")
-        .update({"status": "approved"})
+        .update({
+            "status": "approved",
+            "license_code": generate_mt5_license()
+        })
         .eq("id", account_id)
         .execute()
     )
@@ -2555,6 +2562,7 @@ Max Lot: {account.get("max_lot")}
         "success": True,
         "message": "Account approved",
         "account": account,
+    }
     }
 
 
@@ -3069,7 +3077,7 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
 
     account = rows[0]
 
-    expected_code = str(account.get("id", ""))[:8]
+    expected_code = str(account.get("license_code") or "")
 
     if license_code != expected_code:
         return {
