@@ -34,51 +34,10 @@ export default function ClientDashboardPage() {
 
   return (
     <div className="relative">
-      <div className="fixed right-6 top-24 z-50 flex gap-3">
-        <a
-          href="/account"
-
-
-
-
-
-
-
-
-
-
-
-
-          className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-black text-black shadow-lg"
-        >
-          Account / EA
-        </a>
-
-        <button
-          type="button"
-          onClick={logout}
-          className="rounded-xl bg-red-500 px-4 py-2 text-sm font-black text-white shadow-lg"
-        >
-          Logout
-        </button>
-      </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       <EasyPipsShell page="dashboard" />
     </div>
   );
 }
+
+
 
