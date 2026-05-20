@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -86,7 +86,7 @@ const PAIRS = [
   { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "ðŸ‡¦ðŸ‡º" },
   { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "ðŸ‡³ðŸ‡¿" },
   { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "â‚¿" },
-  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?†" },
+  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "●†" },
   { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "ðŸ‡ªðŸ‡º" },
   { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "ðŸ‡¯ðŸ‡µ" },
   { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "ðŸ‡¬ðŸ‡§" },
@@ -356,7 +356,7 @@ s-start justify-between gap-3">
           </p>
         </div>
 
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-base font-black text-yellow-300">??</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-base font-black text-yellow-300">🔒</span>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
@@ -915,10 +915,10 @@ if (priceRes.status === "fulfilled") {
         <div className="mt-8 rounded-3xl border border-yellow-400/40 bg-yellow-400/[0.03] p-5">
           <h3 className="text-xl font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-3 text-sm">
-            <p>? AI powered strategies</p>
-            <p>? Desk 1 and Trading Room</p>
-            <p>? News calendar</p>
-            <p>? MT4 / MT5 ready</p>
+            <p>✓ AI powered strategies</p>
+            <p>✓ Desk 1 and Trading Room</p>
+            <p>✓ News calendar</p>
+            <p>✓ MT4 / MT5 ready</p>
           </div>
           <a href="https://t.me/" target="_blank" className="mt-5 block rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black">
             Join Telegram
@@ -932,7 +932,7 @@ if (priceRes.status === "fulfilled") {
             <div className="h-4 w-3/4 rounded-full bg-emerald-400" />
           </div>
           <p className="mt-6 text-slate-400">System Status</p>
-          <p className="mt-2 font-black text-emerald-300">RUNNING ?</p>
+          <p className="mt-2 font-black text-emerald-300">RUNNING ●</p>
         </div>
       </aside>
 
@@ -1474,10 +1474,30 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
     </p>
 
     <p className="text-sm text-slate-400">
-      Login: {a.account_login || "Hidden"} · Status: {a.status || "Pending"}
+  Login: {a.account_login || "Hidden"} · Status: {a.status || "Pending"}
+</p>
+
+{a.status === "approved" && (
+  <div className="mt-3 rounded-2xl bg-black/40 p-3">
+    <p className="text-xs text-slate-400">
+      EA License Code
     </p>
 
+    <p className="font-mono text-yellow-300">
+      {a.license_code || "Generating..."}
+    </p>
+
+    <button
+      type="button"
+      onClick={() => navigator.clipboard.writeText(a.license_code || "")}
+      className="mt-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-bold"
+    >
+      Copy License
+    </button>
   </div>
+)}
+
+</div>
 ))}
           </div>
         )}
@@ -1625,7 +1645,7 @@ function SettingsPage({
               const selected = selectedPairs.includes(p.pair);
               return (
                 <button key={p.pair} onClick={() => toggle(p.pair)} className="grid w-full grid-cols-[50px_80px_1fr_100px_110px] border-t border-white/5 px-3 py-3 text-left text-sm hover:bg-white/5">
-                  <span className={`h-5 w-5 rounded border ${selected ? "border-emerald-400 bg-emerald-400 text-black" : "border-slate-600"}`}>{selected ? "?" : ""}</span>
+                  <span className={`h-5 w-5 rounded border ${selected ? "border-emerald-400 bg-emerald-400 text-black" : "border-slate-600"}`}>{selected ? "✓" : ""}</span>
                   <span>{p.icon}</span>
                   <span className="font-black">{p.pair} <span className="font-normal text-slate-400">({p.label})</span></span>
                   <span className="text-yellow-300">{p.cat}</span>
@@ -1680,6 +1700,39 @@ function SettingsPage({
                 <div key={x} className="rounded-2xl border border-white/10 bg-black/25 p-4">
                   <p className="font-black text-white">âœ… {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
+{a.status === "approved" && (
+  <div className="mt-3 rounded-2xl bg-black/40 p-3">
+    <p className="text-xs text-slate-400">EA License Code</p>
+
+    <p className="font-mono text-yellow-300">
+      {a.license_code || "Generating..."}
+    </p>
+
+    <button
+      type="button"
+      onClick={() => navigator.clipboard.writeText(a.license_code || "")}
+      className="mt-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-bold"
+    >
+      Copy License
+    </button>
+
+    <a
+      href="/downloads/EasyPipsCopier.ex5"
+      download
+      className="ml-2 inline-block rounded-xl bg-yellow-400 px-3 py-2 text-sm font-black text-black"
+    >
+      Download EA
+    </a>
+
+    <ol className="mt-3 list-decimal pl-5 text-sm text-slate-400">
+      <li>Download EA</li>
+      <li>Open MT5</li>
+      <li>Place EA in MQL5 / Experts / Advisors</li>
+      <li>Enable Auto Trading</li>
+      <li>Paste your license code</li>
+    </ol>
+  </div>
+)}
                 </div>
               ))}
             </div>
@@ -1762,7 +1815,6 @@ function HelpCenterPage() {
     </div>
   );
 }
-
 
 
 
