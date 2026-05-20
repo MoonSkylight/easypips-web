@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+﻿from dataclasses import dataclass, asdict
 from typing import Optional
 import pandas as pd
 import numpy as np
@@ -35,8 +35,8 @@ class AdvancedSniperSMCStrategy:
         sweep_lookback: int = 8,
         choch_lookback: int = 20,
         session_mode: str = "london_ny",
-        min_rr: float = 10.0,
-        tp1_rr: float = 5.0,
+        min_rr: float = 2.0,
+        tp1_rr: float = 1.0,
         partial_size: float = 0.7,
         max_holding_bars: int = 96,
         cooldown_bars: int = 8,
@@ -277,7 +277,7 @@ class AdvancedSniperSMCStrategy:
                 if risk <= 0:
                     continue
                 tp1 = entry + risk * self.tp1_rr
-                tp2 = entry + risk * ((self.tp1_rr + self.min_rr) / 2)
+                tp2 = entry + risk * 1.5
                 tp3 = entry + risk * self.min_rr
 
             else:
@@ -287,7 +287,7 @@ class AdvancedSniperSMCStrategy:
                 if risk <= 0:
                     continue
                 tp1 = entry - risk * self.tp1_rr
-                tp2 = entry - risk * ((self.tp1_rr + self.min_rr) / 2)
+                tp2 = entry - risk * 1.5
                 tp3 = entry - risk * self.min_rr
 
             rr = round(abs(tp3 - entry) / abs(entry - sl), 2)
@@ -452,3 +452,4 @@ class AdvancedSniperSMCStrategy:
 def generate_strategy_b_signal(df: pd.DataFrame, symbol: str = "UNKNOWN"):
     strategy = AdvancedSniperSMCStrategy()
     return strategy.latest_signal(df, symbol)
+
