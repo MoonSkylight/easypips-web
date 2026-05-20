@@ -1774,7 +1774,20 @@ function HelpCenterPage() {
             <p className="mt-3 text-sm leading-6 text-slate-300">
               We will add repeated questions, trading rules, billing help, and onboarding support here.
             </p>
-            <Link href="/pricing" className="mt-5 block rounded-2xl border border-white/10 px-5 py-3 text-center font-black hover:bg-white/10">
+            <Link
+  href="/client/login"
+  className="rounded-xl bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/20"
+>
+  Login
+</Link>
+
+<Link
+  href="/client/signup"
+  className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-black text-black hover:bg-yellow-300"
+>
+  Sign Up
+</Link>
+<Link href="/pricing" className="mt-5 block rounded-2xl border border-white/10 px-5 py-3 text-center font-black hover:bg-white/10">
               View Pricing
             </Link>
           </div>
@@ -1783,6 +1796,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
