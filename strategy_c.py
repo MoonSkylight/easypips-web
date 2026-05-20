@@ -1,4 +1,4 @@
-# strategy_c.py
+﻿# strategy_c.py
 # EasyPips Strategy C
 # Smart Money / ICT High RR Scanner
 # Version 1 Architecture
@@ -11,8 +11,8 @@ import numpy as np
 # SETTINGS
 # =========================================================
 
-MIN_RR = 5
-MAX_SL_PIPS = 30
+MIN_RR = 2
+MAX_SL_PIPS = 50
 ASIAN_SESSION_START = 0
 ASIAN_SESSION_END = 6
 
@@ -188,7 +188,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
     if (
         sweep["buy_side_liquidity_taken"]
         and bos["bearish_bos"]
-        and qm["fakeout_sell"]
+        # QM optional
         and zone
         and zone["type"] == "supply"
     ):
@@ -196,7 +196,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
         entry = last_close
         sl = zone["zone_high"]
 
-        tp = entry - ((sl - entry) * 10)
+        tp = entry - ((sl - entry) * 2)
 
         rr = calculate_rr(entry, sl, tp)
 
@@ -210,7 +210,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
                 "sl": round(sl, 5),
                 "tp1": round(tp, 5),
                 "rr": rr,
-                "confidence": 92,
+                "confidence": 88,
                 "reason": "Supply + BOS + Liquidity Sweep + QM"
             }
 
@@ -221,7 +221,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
     if (
         sweep["sell_side_liquidity_taken"]
         and bos["bullish_bos"]
-        and qm["fakeout_buy"]
+        # QM optional
         and zone
         and zone["type"] == "demand"
     ):
@@ -229,7 +229,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
         entry = last_close
         sl = zone["zone_low"]
 
-        tp = entry + ((entry - sl) * 10)
+        tp = entry + ((entry - sl) * 2)
 
         rr = calculate_rr(entry, sl, tp)
 
@@ -243,7 +243,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
                 "sl": round(sl, 5),
                 "tp1": round(tp, 5),
                 "rr": rr,
-                "confidence": 92,
+                "confidence": 88,
                 "reason": "Demand + BOS + Liquidity Sweep + QM"
             }
 
