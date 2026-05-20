@@ -99,7 +99,37 @@ export default function ClientDashboardPage() {
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1fr_1.4fr]">
-          <Panel title="MT4 / MT5 Account Status">
+          <Panel title="Client Membership Profile">
+  <div className="grid gap-3 md:grid-cols-2">
+
+    <Info label="Client Name" value={client?.name || "EasyPips Member"} />
+
+    <Info label="Email" value={client?.email || "No email"} />
+
+    <Info
+      label="Membership Status"
+      value={account?.status === "approved" ? "ACTIVE" : "PENDING"}
+    />
+
+    <Info
+      label="Plan"
+      value={account?.status === "approved" ? "Premium AI Signals" : "Free"}
+    />
+
+    <Info
+      label="License Code"
+      value={account?.license_code || "Not generated"}
+    />
+
+    <Info
+      label="Auto Trade"
+      value={account?.auto_trade_enabled ? "ON" : "OFF"}
+    />
+
+  </div>
+</Panel>
+
+<Panel title="MT4 / MT5 Account Status">
             {!account ? (
               <p className="text-slate-400">No account linked to this client.</p>
             ) : (
@@ -211,5 +241,6 @@ function Info({ label, value }: { label: string; value: any }) {
 function SummaryRow({ label, value, green, red }: { label: string; value: any; green?: boolean; red?: boolean }) {
   return <div className="flex items-center justify-between border-b border-white/10 py-3"><span className="text-slate-400">{label}</span><span className={`font-black ${green ? "text-emerald-400" : red ? "text-red-400" : "text-white"}`}>{value}</span></div>;
 }
+
 
 
