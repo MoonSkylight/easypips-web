@@ -732,7 +732,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [settingsMessage, setSettingsMessage] = useState("");
 const clientToken =
   typeof window !== "undefined"
-    ? localStorage.getItem("client_token")
+    ? localStorage.getItem("easypips_client_token")
     : null;
 
   
@@ -1801,6 +1801,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
