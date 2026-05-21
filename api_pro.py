@@ -1941,6 +1941,7 @@ def cron_check():
     strategyA = {"created": 0, "rejected": 0}
     strategyB = {"created": 0, "rejected": 0}
     strategyC = {"created": 0, "rejected": 0}
+    strategyD = {"created": 0, "rejected": 0}
     updated = []
 
     try:
@@ -1972,6 +1973,7 @@ def cron_check():
         "strategyA": strategyA,
         "strategyB": strategyB,
         "strategyC": strategyC,
+        "strategyD": strategyD,
         "checkedSignals": len(updated),
         "message": "Strategies checked safely, TP/SL updated",
     }
@@ -3296,6 +3298,7 @@ def reset_ai_signals(authorization: str = Header(default="")):
     supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
 
     return {"success": True, "message": "AI signals reset"}
+
 
 
 
