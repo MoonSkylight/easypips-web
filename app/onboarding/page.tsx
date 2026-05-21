@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
                 <div className="mt-5 space-y-3">
                   {["Strategy A/B/C", "Live Signals", "History + Reports", "Premium Telegram", "MT4/MT5 access"].map((item) => (
                     <div key={item} className="rounded-2xl bg-black/30 px-4 py-3">
-                      ✓ {item}
+                      âœ“ {item}
                     </div>
                   ))}
                 </div>

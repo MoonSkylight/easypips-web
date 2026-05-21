@@ -1,4 +1,4 @@
-export default function AIHeroBanner() {
+﻿export default function AIHeroBanner() {
   return (
     <div className="mb-6 overflow-hidden rounded-3xl border border-emerald-400/20 bg-[radial-gradient(circle_at_top,rgba(0,255,157,0.12),transparent_40%),linear-gradient(135deg,#02040a_0%,#07131f_55%,#02060b_100%)] p-8 shadow-[0_0_70px_rgba(0,255,157,0.10)]">
       <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-center">
@@ -45,7 +45,7 @@ export default function AIHeroBanner() {
               </p>
 
               <p className="mt-1 text-3xl font-black text-yellow-300">
-                ONLINE 🧠
+                ONLINE ðŸ§ 
               </p>
             </div>
 
@@ -59,7 +59,7 @@ export default function AIHeroBanner() {
             <div className="absolute inset-14 rounded-full border border-emerald-400/20" />
 
             <div className="text-[120px] drop-shadow-[0_0_40px_rgba(0,255,157,0.45)]">
-              🧠
+              ðŸ§ 
             </div>
 
           </div>

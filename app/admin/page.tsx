@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -455,7 +455,7 @@ return (
                   <div key={a.id || i} className="rounded-2xl bg-black/30 p-4">
                     <p className="font-black">{a.name || a.email || "Customer"}</p>
                     <p className="text-sm text-slate-400">
-                      {a.platform || "MT5"} · {a.broker || "Broker"} · Login:{" "}
+                      {a.platform || "MT5"} Â· {a.broker || "Broker"} Â· Login:{" "}
                       {a.account_login || "-"}
                     </p>
                     <p className="mt-1 text-sm">
@@ -604,3 +604,4 @@ function EditModal({
     </div>
   );
 }
+

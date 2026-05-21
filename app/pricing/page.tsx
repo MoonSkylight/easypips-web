@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 
@@ -99,7 +99,7 @@ export default function PricingPage() {
                     key={feature}
                     className="flex items-center gap-3 rounded-2xl bg-black/30 px-4 py-3"
                   >
-                    <span className="text-emerald-300">✓</span>
+                    <span className="text-emerald-300">âœ“</span>
                     <span className="text-sm text-slate-200">{feature}</span>
                   </div>
                 ))}
