@@ -19,3 +19,76 @@ body {
 a {
   text-decoration: none;
 }
+/* EasyPips AI Premium Theme Upgrade */
+:root {
+  --ep-green: #00ff9d;
+  --ep-cyan: #00d5ff;
+  --ep-yellow: #ffd400;
+}
+
+html,
+body {
+  background:
+    radial-gradient(circle at 50% -10%, rgba(0, 213, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 80% 10%, rgba(0, 255, 157, 0.12), transparent 28%),
+    linear-gradient(135deg, #02040a 0%, #04101a 45%, #02060b 100%) !important;
+  color: #ffffff;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(0, 255, 157, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 213, 255, 0.03) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+aside,
+header,
+[class*="rounded-3xl"],
+[class*="rounded-2xl"] {
+  backdrop-filter: blur(18px);
+}
+
+[class*="border-white/10"] {
+  border-color: rgba(0, 255, 157, 0.14) !important;
+}
+
+[class*="bg-black/30"],
+[class*="bg-black/35"],
+[class*="bg-black/40"] {
+  background-color: rgba(5, 15, 26, 0.72) !important;
+}
+
+.text-yellow-300,
+.text-yellow-400 {
+  text-shadow: 0 0 16px rgba(255, 212, 0, 0.32);
+}
+
+.text-emerald-300,
+.text-emerald-400 {
+  text-shadow: 0 0 18px rgba(0, 255, 157, 0.32);
+}
+
+.bg-yellow-400 {
+  box-shadow: 0 0 22px rgba(255, 212, 0, 0.22);
+}
+
+.bg-emerald-400,
+.bg-emerald-500 {
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.25);
+}
+
+a,
+button {
+  transition: all 0.2s ease;
+}
+
+a:hover,
+button:hover {
+  transform: translateY(-1px);
+}
