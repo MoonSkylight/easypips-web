@@ -111,3 +111,76 @@ button:hover {
   box-shadow: 0 0 35px rgba(0, 255, 157, 0.06) !important;
 }
 
+
+/* Visible AI Neural Wallpaper */
+body {
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 157, 0.35) 0 2px, transparent 3px),
+    radial-gradient(circle at 80% 30%, rgba(0, 213, 255, 0.35) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 70%, rgba(255, 212, 0, 0.18) 0 2px, transparent 3px),
+    linear-gradient(115deg, transparent 0%, transparent 45%, rgba(0,255,157,0.12) 46%, transparent 47%),
+    linear-gradient(55deg, transparent 0%, transparent 38%, rgba(0,213,255,0.10) 39%, transparent 40%);
+  background-size: 260px 260px, 320px 320px, 380px 380px, 220px 220px, 280px 280px;
+  animation: aiNeuralMove 18s linear infinite;
+}
+
+body::after {
+  content: "AI";
+  position: fixed;
+  right: 5vw;
+  bottom: 5vh;
+  z-index: 0;
+  pointer-events: none;
+  font-size: 180px;
+  font-weight: 900;
+
+
+
+
+
+  letter-spacing: -14px;
+  color: rgba(0, 255, 157, 0.055);
+  text-shadow: 0 0 80px rgba(0, 255, 157, 0.22);
+}
+
+
+
+
+
+@keyframes aiNeuralMove {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+
+
+ }
+  to { background-position: 260px 260px, -320px 320px, 380px -380px, 220px 220px, -280px 280px; }
+}
+
+
+
+
+#__next,
+main,
+aside,
+h
+
+
+
+eader,
+section {
+  position: relative;
+  z-index: 1;
+}
+
+
+
+
