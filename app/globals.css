@@ -92,3 +92,22 @@ a:hover,
 button:hover {
   transform: translateY(-1px);
 }
+
+/* Strong EasyPips visual override */
+[class*="bg-[#030811]"],
+[class*="bg-[#05070D]"],
+[class*="bg-[#020617]"] {
+  background:
+    radial-gradient(circle at top, rgba(0, 213, 255, 0.16), transparent 32%),
+    radial-gradient(circle at right, rgba(0, 255, 157, 0.12), transparent 28%),
+    linear-gradient(135deg, #02040a 0%, #06121f 50%, #02060b 100%) !important;
+}
+
+[class*="bg-white/[0.04]"],
+[class*="bg-white/[0.045]"],
+[class*="bg-white/[0.06]"] {
+  background-color: rgba(7, 20, 34, 0.82) !important;
+  border-color: rgba(0, 255, 157, 0.18) !important;
+  box-shadow: 0 0 35px rgba(0, 255, 157, 0.06) !important;
+}
+
