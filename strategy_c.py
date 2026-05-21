@@ -11,8 +11,8 @@ import numpy as np
 # SETTINGS
 # =========================================================
 
-MIN_RR = 3
-MAX_SL_PIPS = 35
+MIN_RR = 2
+MAX_SL_PIPS = 50
 ASIAN_SESSION_START = 0
 ASIAN_SESSION_END = 6
 
@@ -187,13 +187,15 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
 
     if (
         (sweep["buy_side_liquidity_taken"] or bos["bearish_bos"]) and bos["bearish_bos"]
-        qm["fakeout_sell"] and zone and zone["type"] == "supply"
+        # QM optional
+        and zone
+        and zone["type"] == "supply"
     ):
 
         entry = last_close
         sl = zone["zone_high"]
 
-        tp = entry - ((sl - entry) * 3)
+        tp = entry - ((sl - entry) * 2)
 
         rr = calculate_rr(entry, sl, tp)
 
@@ -207,7 +209,7 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
                 "sl": round(sl, 5),
                 "tp1": round(tp, 5),
                 "rr": rr,
-                "confidence": 92,
+                "confidence": 88,
                 "reason": "Supply + BOS + Liquidity Sweep + QM"
             }
 
@@ -217,13 +219,15 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
 
     if (
         (sweep["sell_side_liquidity_taken"] or bos["bullish_bos"]) and bos["bullish_bos"]
-        qm["fakeout_buy"] and zone and zone["type"] == "demand"
+        # QM optional
+        and zone
+        and zone["type"] == "demand"
     ):
 
         entry = last_close
         sl = zone["zone_low"]
 
-        tp = entry + ((entry - sl) * 3)
+        tp = entry + ((entry - sl) * 2)
 
         rr = calculate_rr(entry, sl, tp)
 
@@ -237,13 +241,11 @@ def generate_strategy_c_signal(df, symbol="UNKNOWN"):
                 "sl": round(sl, 5),
                 "tp1": round(tp, 5),
                 "rr": rr,
-                "confidence": 92,
+                "confidence": 88,
                 "reason": "Demand + BOS + Liquidity Sweep + QM"
             }
 
     return None
-
-
 
 
 
