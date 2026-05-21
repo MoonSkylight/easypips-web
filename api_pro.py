@@ -2191,48 +2191,36 @@ def rejected_signals():
 @app.get("/all-paid-signals")
 def all_paid_signals():
     try:
-        strategy_a = get_active_signals(source="AI Engine", strategy="Strategy A")
+        strategy_a = get_active_signals(source="AI Engine", strategy="Strategy A") or []
+        strategy_b = get_active_signals(source="AI Engine", strategy="Strategy B") or []
+        strategy_c = get_active_signals(source="AI Engine", strategy="Strategy C") or []
+        desk1 = get_active_signals(desk="Desk 1") or []
+        desk2 = get_active_signals(desk="Desk 2") or []
+
+        ai_signals = strategy_a + strategy_b + strategy_c
+
+        return {
+            "aiSignals": ai_signals,
+            "strategyASignals": strategy_a,
+            "strategyBSignals": strategy_b,
+            "strategyCSignals": strategy_c,
+            "strategyDSignals": [],
+            "desk1Signals": desk1,
+            "desk2Signals": desk2,
+        }
+
     except Exception as e:
-        print("strategy_a load failed:", str(e))
-        strategy_a = []
-
-    try:
-        strategy_b = get_active_signals(source="AI Engine", strategy="Strategy B")
-    except Exception as e:
-        print("strategy_b load failed:", str(e))
-        strategy_b = []
-
-    try:
-        strategy_c = get_active_signals(source="AI Engine", strategy="Strategy C")
-    except Exception as e:
-        print("strategy_c load failed:", str(e))
-        strategy_c = []
-
-    try:
-        desk1 = get_active_signals(desk="Desk 1")
-    except Exception as e:
-        print("desk1 load failed:", str(e))
-        desk1 = []
-
-    try:
-        desk2 = get_active_signals(desk="Desk 2")
-    except Exception as e:
-        print("desk2 load failed:", str(e))
-        desk2 = []
-
-    ai_signals = strategy_a + strategy_b + strategy_c
-
-    return {
-        "aiSignals": ai_signals,
-        "strategyASignals": strategy_a,
-        "strategyBSignals": strategy_b,
-        "strategyCSignals": strategy_c,
-        "strategyDSignals": strategy_d,
-        "desk1Signals": desk1,
-        "desk2Signals": desk2,
-    }
-
-
+        print("all_paid_signals emergency fallback:", str(e))
+        return {
+            "aiSignals": [],
+            "strategyASignals": [],
+            "strategyBSignals": [],
+            "strategyCSignals": [],
+            "strategyDSignals": [],
+            "desk1Signals": [],
+            "desk2Signals": [],
+            "error": str(e),
+        }
 @app.get("/closed-signals")
 def closed_signals():
     if not db_enabled():
@@ -3299,6 +3287,7 @@ def reset_ai_signals(authorization: str = Header(default="")):
     supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
 
     return {"success": True, "message": "AI signals reset"}
+
 
 
 
