@@ -19,11 +19,6 @@ export default function ClientDashboardPage() {
     setReady(true);
   }, [router]);
 
-  function logout() {
-    localStorage.removeItem("easypips_client_token");
-    router.push("/client/login");
-  }
-
   if (!ready) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#05070D] text-white">
@@ -32,13 +27,7 @@ export default function ClientDashboardPage() {
     );
   }
 
-  return (
-    <div className="relative">
-      <EasyPipsShell page="dashboard" />
-    </div>
-  );
+
+
+  return <EasyPipsShell page="dashboard" />;
 }
-
-
-
-
