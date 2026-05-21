@@ -2227,6 +2227,7 @@ def all_paid_signals():
         "strategyASignals": strategy_a,
         "strategyBSignals": strategy_b,
         "strategyCSignals": strategy_c,
+        "strategyDSignals": strategy_d,
         "desk1Signals": desk1,
         "desk2Signals": desk2,
     }
@@ -3298,6 +3299,7 @@ def reset_ai_signals(authorization: str = Header(default="")):
     supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
 
     return {"success": True, "message": "AI signals reset"}
+
 
 
 

@@ -1394,6 +1394,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
     { title: "Strategy A", sub: "EMA + RSI + Momentum", color: "blue" },
     { title: "Strategy B", sub: "Advanced SMC Sniper", color: "purple" },
     { title: "Strategy C", sub: "Smart Money High RR", color: "green" },
+    { title: "Strategy D", sub: "Institutional Liquidity Scalper", color: "cyan" },
     { title: "Trading Room", sub: "Manual support desk signals", color: "yellow" },
   ];
   return (
@@ -1817,6 +1818,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
