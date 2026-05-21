@@ -1,0 +1,113 @@
+export default function AIHeroBanner() {
+  return (
+    <div className="mb-6 overflow-hidden rounded-3xl border border-emerald-400/20 bg-[radial-gradient(circle_at_top,rgba(0,255,157,0.12),transparent_40%),linear-gradient(135deg,#02040a_0%,#07131f_55%,#02060b_100%)] p-8 shadow-[0_0_70px_rgba(0,255,157,0.10)]">
+      <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-center">
+
+        <div>
+          <p className="text-sm font-black uppercase tracking-[0.35em] text-emerald-300">
+            AI Powered Forex Intelligence
+          </p>
+
+          <h1 className="mt-4 text-5xl font-black tracking-tight md:text-7xl">
+            EasyPips <span className="text-emerald-300">AI</span>
+          </h1>
+
+          <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">
+            Neural trading intelligence analyzing momentum,
+            liquidity, volatility, and market structure in real time.
+          </p>
+
+          <div className="mt-7 grid gap-3 md:grid-cols-3">
+
+            <div className="rounded-2xl border border-emerald-400/20 bg-black/30 p-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                AI Accuracy
+              </p>
+
+              <p className="mt-1 text-3xl font-black text-emerald-300">
+                82%
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-cyan-400/20 bg-black/30 p-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                Live A
+
+
+
+
+
+
+nalysis
+              </p>
+
+              <p className="mt-1 text-3xl font-black text-cyan-300">
+                ACTIVE
+              </p>
+            </div>
+
+ 
+
+
+
+
+
+
+
+           <div className="rounded-2xl border border-yellow-400/20 bg-black/30 p-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                Neural Engine
+              </p>
+
+              <p className="mt-1 text-3xl font-black text-yellow-300">
+ 
+
+
+
+
+
+               ONLINE ??
+              </p>
+            </div>
+
+          </div>
+ 
+
+
+
+
+       </div>
+
+        <div className="hidden xl:flex items-center justify-center">
+          <div className="relative flex h-64 w-64 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/5 shadow-[0_0_90px_rgba(0,255,157,0.18)]">
+
+
+
+
+
+            <div className="absolute inset-6 rounded-full border border-cyan-400/20" />
+            <div className="absolute inset-14 rounded-full border border-emerald-400/20" />
+
+ 
+
+
+
+           <div className="text-[120px] drop-shadow-[0_0_40px_rgba(0,255,157,0.45)]">
+              ??
+            </div>
+
+ 
+
+
+
+         </div>
+        </div>
+
+      </div>
+ 
+
+
+
+   </div>
+  );
+}
