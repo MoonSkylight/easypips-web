@@ -27,7 +27,5 @@ export default function ClientDashboardPage() {
     );
   }
 
-
-
   return <EasyPipsShell page="dashboard" />;
 }
