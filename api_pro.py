@@ -2190,6 +2190,7 @@ def rejected_signals():
 
 @app.get("/all-paid-signals")
 def all_paid_signals():
+
     try:
         strategy_a = get_active_signals(source="AI Engine", strategy="Strategy A")
     except Exception as e:
@@ -2216,7 +2217,10 @@ def all_paid_signals():
 
     try:
         desk2 = get_active_signals(desk="Desk 2")
-    except Exception as e:
+    except 
+
+
+Exception as e:
         print("desk2 load failed:", str(e))
         desk2 = []
 
@@ -2227,12 +2231,10 @@ def all_paid_signals():
         "strategyASignals": strategy_a,
         "strategyBSignals": strategy_b,
         "strategyCSignals": strategy_c,
-        "strategyDSignals": strategy_d,
+        "strategyDSignals": [],
         "desk1Signals": desk1,
         "desk2Signals": desk2,
     }
-
-
 @app.get("/closed-signals")
 def closed_signals():
     if not db_enabled():
@@ -3299,6 +3301,7 @@ def reset_ai_signals(authorization: str = Header(default="")):
     supabase.table("signals").update({"status": "DELETED"}).eq("source", "AI Engine").execute()
 
     return {"success": True, "message": "AI signals reset"}
+
 
 
 
