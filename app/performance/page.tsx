@@ -3,4 +3,3 @@
 export default function Page() {
   return <EasyPipsShell page="performance" />;
 }
-
