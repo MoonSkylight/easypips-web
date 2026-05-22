@@ -1329,12 +1329,34 @@ function AccountMini({ accounts }: { accounts: Account[] }) {
 }
 
 function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
+
+  const [analytics, setAnalytics] = useState<any>(null);
+
+  useEffect(() => {
+    fetch(`${API}/real-analytics`)
+      .then((r) => r.json())
+      .then(setAnalytics)
+      .catch(() => setAnalytics(null));
+  }, []);
+
   const wins = closed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
+
   const losses = closed.filter((s) => String(s.result || "").toUpperCase().includes("SL") || String(s.result || "").toUpperCase().includes("LOSS")).length;
+
   const rate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
 
   return (
     <div className="space-y-5">
+      {analytics && (
+        <Panel title="Real Backend Analytics">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <StatCard title="Closed Trades" value={analytics.totalClosed || 0} color="cyan" />
+            <StatCard title="Wins" value={analytics.wins || 0} color="green" />
+            <StatCard title="Losses" value={analytics.losses || 0} color="red" />
+            <StatCard title="Real Win Rate" value={`${analytics.winRate || 0}%`} color="yellow" />
+          </div>
+        </Panel>
+      )}
       <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/10 px-4 py-2">Export CSV</button>}>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
