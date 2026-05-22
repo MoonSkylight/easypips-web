@@ -77,20 +77,20 @@ const NAV = [
 ];
 
 const PAIRS = [
-  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "🟡" },
-  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "🇪🇺" },
-  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "🇬🇧" },
-  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "🇯🇵" },
-  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "🇨🇦" },
-  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "🇨🇭" },
-  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "🇦🇺" },
-  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "🇳🇿" },
-  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "₿" },
-  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?�" },
-  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "🇪🇺" },
-  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "🇯🇵" },
-  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "🇬🇧" },
-  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "🇦🇺" },
+  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "ðŸŸ¡" },
+  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "ðŸ‡ªðŸ‡º" },
+  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "ðŸ‡¬ðŸ‡§" },
+  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "ðŸ‡¯ðŸ‡µ" },
+  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "ðŸ‡¨ðŸ‡¦" },
+  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "ðŸ‡¨ðŸ‡­" },
+  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "ðŸ‡¦ðŸ‡º" },
+  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "ðŸ‡³ðŸ‡¿" },
+  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "â‚¿" },
+  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?†" },
+  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "ðŸ‡ªðŸ‡º" },
+  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "ðŸ‡¯ðŸ‡µ" },
+  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "ðŸ‡¬ðŸ‡§" },
+  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "ðŸ‡¦ðŸ‡º" },
 ];
 
 function n(v: any, fallback = 0) {
@@ -577,7 +577,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
         ))}
       </div>
       <Link href="/news-calendar" className="mt-5 block text-center text-sm font-black text-yellow-300">
-        View full calendar →
+        View full calendar â†’
       </Link>
     </Panel>
   );
@@ -829,7 +829,7 @@ if (priceRes.status === "fulfilled") {
           savedAt: new Date().toISOString(),
         })
       );
-      setSettingsMessage("Preferences saved ✅");
+      setSettingsMessage("Preferences saved âœ…");
       setTimeout(() => setSettingsMessage(""), 2500);
     } catch {
       setSettingsMessage("Unable to save preferences");
@@ -938,7 +938,7 @@ if (priceRes.status === "fulfilled") {
             <div className="h-4 w-3/4 rounded-full bg-emerald-400" />
           </div>
           <p className="mt-6 text-slate-400">System Status</p>
-          <p className="mt-2 font-black text-emerald-300">RUNNING ?�</p>
+          <p className="mt-2 font-black text-emerald-300">RUNNING ?</p>
         </div>
       </aside>
 
@@ -1293,7 +1293,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
         <div className="space-y-2">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-3 text-sm">
-              <span>{s.symbol} · {s.direction}</span>
+              <span>{s.symbol} Â· {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -1720,7 +1720,7 @@ function SettingsPage({
             <div className="grid gap-3 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                  <p className="font-black text-white">✅ {x}</p>
+                  <p className="font-black text-white">âœ… {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
 
                 </div>
