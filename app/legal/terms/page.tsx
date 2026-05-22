@@ -1,58 +1,17 @@
-export default function RiskDisclaimerPage() {
+﻿export default function TermsPage() {
   return (
     <main className="min-h-screen bg-[#05070D] px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+        <h1 className="text-4xl font-black text-yellow-300">Terms of Service</h1>
 
-        <h1 className="text-4xl font-black text-yellow-300">
-          Risk Disclaimer
-        </h1>
-
-        <p className="mt-6 text-slate-300">
-          EasyPips AI provides educational market analysis,
-          AI-generated trading insights, and algorithmic signal research
-          for informational and educational purposes only.
-        </p>
-
-        <p className="mt-4 text-slate-300">
-          EasyPips AI is not a licensed financial advisor,
-          investment advisor, broker, financial services provider,
-          or fund manager.
-        </p>
-
-        <p className="mt-4 text-slate-300">
-          Nothing on this platform constitutes financial advice,
-          investment advice, trading advice, legal advice,
-          tax advice, or a recommendation to buy, sell,
-          hold, or trade any financial instrument.
-        </p>
-
-        <p className="mt-4 text-slate-300">
-          Forex, CFDs, crypto, commodities, indices,
-          and leveraged products involve substantial risk
-          and may result in the loss of some or all capital.
-        </p>
-
-        <p className="mt-4 text-slate-300">
-          Past performance does not guarantee future results.
-          No win rate, profit, accuracy, or future performance
-          is guaranteed.
-        </p>
-
-        <p className="mt-4 text-slate-300">
-          Users are solely responsible for their own trading decisions,
-          risk management, broker selection, and financial outcomes.
-        </p>
-
-        <p className="mt-4 text-slate-300">
-          By using EasyPips AI, users acknowledge that they trade
-          at their own risk and that EasyPips AI is not liable
-          for any financial losses or damages.
-        </p>
-
-        <p className="mt-6 font-bold text-red-300">
-          Consult a licensed financial professional before trading.
-        </p>
-
+        <p className="mt-6 text-slate-300">By using EasyPips AI, you agree to these Terms of Service.</p>
+        <p className="mt-4 text-slate-300">EasyPips AI is an educational market analysis platform. We do not provide licensed financial advice or investment recommendations.</p>
+        <p className="mt-4 text-slate-300">Users must use the platform lawfully and must not misuse, copy, resell, reverse engineer, or abuse any part of the service.</p>
+        <p className="mt-4 text-slate-300">We may suspend or terminate accounts for fraud, abuse, payment failure, chargeback abuse, or violation of these terms.</p>
+        <p className="mt-4 text-slate-300">Platform access, signals, reports, and AI outputs may be delayed, unavailable, inaccurate, incomplete, or interrupted.</p>
+        <p className="mt-4 text-slate-300">All content, branding, systems, strategies, and platform materials remain the intellectual property of EasyPips AI unless otherwise stated.</p>
+        <p className="mt-4 text-slate-300">EasyPips AI is not liable for trading losses, financial damages, missed opportunities, technical failures, broker issues, or market outcomes.</p>
+        <p className="mt-4 text-slate-300">To the maximum extent permitted by law, our liability is limited to the amount paid by the user for the relevant service.</p>
       </div>
     </main>
   );
