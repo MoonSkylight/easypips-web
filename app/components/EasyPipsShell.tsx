@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -77,20 +77,20 @@ const NAV = [
 ];
 
 const PAIRS = [
-  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "ðŸŸ¡" },
-  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "ðŸ‡ªðŸ‡º" },
-  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "ðŸ‡¬ðŸ‡§" },
-  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "ðŸ‡¯ðŸ‡µ" },
-  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "ðŸ‡¨ðŸ‡¦" },
-  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "ðŸ‡¨ðŸ‡­" },
-  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "ðŸ‡¦ðŸ‡º" },
-  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "ðŸ‡³ðŸ‡¿" },
-  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "â‚¿" },
-  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?†" },
-  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "ðŸ‡ªðŸ‡º" },
-  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "ðŸ‡¯ðŸ‡µ" },
-  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "ðŸ‡¬ðŸ‡§" },
-  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "ðŸ‡¦ðŸ‡º" },
+  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "Ã°Å¸Å¸Â¡" },
+  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "Ã°Å¸â€¡ÂªÃ°Å¸â€¡Âº" },
+  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â¬Ã°Å¸â€¡Â§" },
+  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "Ã°Å¸â€¡Â¯Ã°Å¸â€¡Âµ" },
+  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â¦" },
+  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â­" },
+  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â¦Ã°Å¸â€¡Âº" },
+  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â³Ã°Å¸â€¡Â¿" },
+  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "Ã¢â€šÂ¿" },
+  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?â€ " },
+  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "Ã°Å¸â€¡ÂªÃ°Å¸â€¡Âº" },
+  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¯Ã°Å¸â€¡Âµ" },
+  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¬Ã°Å¸â€¡Â§" },
+  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¦Ã°Å¸â€¡Âº" },
 ];
 
 function n(v: any, fallback = 0) {
@@ -577,7 +577,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
         ))}
       </div>
       <Link href="/news-calendar" className="mt-5 block text-center text-sm font-black text-yellow-300">
-        View full calendar â†’
+        View full calendar Ã¢â€ â€™
       </Link>
     </Panel>
   );
@@ -829,7 +829,7 @@ if (priceRes.status === "fulfilled") {
           savedAt: new Date().toISOString(),
         })
       );
-      setSettingsMessage("Preferences saved âœ…");
+      setSettingsMessage("Preferences saved Ã¢Å“â€¦");
       setTimeout(() => setSettingsMessage(""), 2500);
     } catch {
       setSettingsMessage("Unable to save preferences");
@@ -938,7 +938,7 @@ if (priceRes.status === "fulfilled") {
             <div className="h-4 w-3/4 rounded-full bg-emerald-400" />
           </div>
           <p className="mt-6 text-slate-400">System Status</p>
-          <p className="mt-2 font-black text-emerald-300">RUNNING ?</p>
+          <p className="mt-2 font-black text-emerald-300">RUNNING ?Â</p>
         </div>
       </aside>
 
@@ -1121,7 +1121,21 @@ er:bg-white/10"
           )}
         </div>
       </section>
-    </main>
+    
+<div className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-400">
+  <div className="flex flex-wrap items-center justify-center gap-4">
+    <a href="/legal/disclaimer" className="hover:text-white">Disclaimer</a>
+    <a href="/legal/terms" className="hover:text-white">Terms</a>
+    <a href="/legal/privacy" className="hover:text-white">Privacy</a>
+    <a href="/legal/refund-policy" className="hover:text-white">Refund Policy</a>
+  </div>
+
+  <p className="mt-4 text-xs text-slate-500">
+    Educational purposes only. Not financial advice. Trading involves risk.
+  </p>
+</div>
+
+</main>
   );
 }
 
@@ -1293,7 +1307,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
         <div className="space-y-2">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-3 text-sm">
-              <span>{s.symbol} Â· {s.direction}</span>
+              <span>{s.symbol} Ã‚Â· {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -1720,7 +1734,7 @@ function SettingsPage({
             <div className="grid gap-3 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                  <p className="font-black text-white">âœ… {x}</p>
+                  <p className="font-black text-white">Ã¢Å“â€¦ {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
 
                 </div>
@@ -1818,6 +1832,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
