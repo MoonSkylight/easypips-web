@@ -2219,9 +2219,102 @@ def signal_stats():
 
 @app.get("/strategy-performance")
 def strategy_performance():
+
     return {
         "Strategy A": performance_for_strategy("Strategy A", 7),
         "Strategy B": performance_for_strategy("Strategy B", 7),
+    }
+
+
+@app.get("/real-analytics")
+def real_analytics():
+
+    if not db_enabled():
+        return {
+            "totalClosed": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "byStrategy": {},
+            "byPair": {},
+        }
+
+    signals = get_all_signals()
+
+    closed = [
+        s for s in signals
+        if s.get("status") == "CLOSED"
+    ]
+
+    wins = [
+        s for s in closed
+        if str(s.get("result", "")).upper() in ["TP3", "TP2", "TP1", "WIN"]
+    ]
+
+    losses = [
+        s for s in closed
+        if str(s.get("result", "")).upper() in ["SL", "LOSS"]
+    ]
+
+    total = len(wins) + len(losses)
+
+    win_rate = round((len(wins) / total) * 100, 2) if total else 0
+
+    by_strategy = {}
+    by_pair = {}
+
+    for s in closed:
+
+        result = str(s.get("result", "")).upper()
+
+        is_win = result in ["TP3", "TP2", "TP1", "WIN"]
+        is_loss = result in ["SL", "LOSS"]
+
+        strategy = s.get("strategy") or "Unknown"
+        symbol = s.get("symbol") or "Unknown"
+
+        if strategy not in by_strategy:
+            by_strategy[strategy] = {
+                "wins": 0,
+                "losses": 0,
+                "total": 0,
+                "winRate": 0,
+            }
+
+        if symbol not in by_pair:
+            by_pair[symbol] = {
+                "wins": 0,
+                "losses": 0,
+                "total": 0,
+                "winRate": 0,
+            }
+
+        if is_win:
+            by_strategy[strategy]["wins"] += 1
+            by_pair[symbol]["wins"] += 1
+
+        if is_loss:
+            by_strategy[strategy]["losses"] += 1
+            by_pair[symbol]["losses"] += 1
+
+    for group in [by_strategy, by_pair]:
+
+        for key, value in group.items():
+
+            value["total"] = value["wins"] + value["losses"]
+
+            value["winRate"] = round(
+                (value["wins"] / value["total"]) * 100,
+                2
+            ) if value["total"] else 0
+
+    return {
+        "totalClosed": len(closed),
+        "wins": len(wins),
+        "losses": len(losses),
+        "winRate": win_rate,
+        "byStrategy": by_strategy,
+        "byPair": by_pair,
     }
 
 
