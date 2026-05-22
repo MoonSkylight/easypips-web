@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -77,20 +77,20 @@ const NAV = [
 ];
 
 const PAIRS = [
-  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "ðŸŸ¡" },
-  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "ðŸ‡ªðŸ‡º" },
-  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "ðŸ‡¬ðŸ‡§" },
-  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "ðŸ‡¯ðŸ‡µ" },
-  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "ðŸ‡¨ðŸ‡¦" },
-  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "ðŸ‡¨ðŸ‡­" },
-  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "ðŸ‡¦ðŸ‡º" },
-  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "ðŸ‡³ðŸ‡¿" },
-  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "â‚¿" },
-  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "●†" },
-  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "ðŸ‡ªðŸ‡º" },
-  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "ðŸ‡¯ðŸ‡µ" },
-  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "ðŸ‡¬ðŸ‡§" },
-  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "ðŸ‡¦ðŸ‡º" },
+  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "🟡" },
+  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "🇪🇺" },
+  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "🇬🇧" },
+  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "🇯🇵" },
+  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "🇨🇦" },
+  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "🇨🇭" },
+  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "🇦🇺" },
+  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "🇳🇿" },
+  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "₿" },
+  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?�" },
+  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "🇪🇺" },
+  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "🇯🇵" },
+  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "🇬🇧" },
+  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "🇦🇺" },
 ];
 
 function n(v: any, fallback = 0) {
@@ -356,7 +356,7 @@ s-start justify-between gap-3">
           </p>
         </div>
 
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-base font-black text-yellow-300">🔒</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-base font-black text-yellow-300">??</span>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
@@ -577,7 +577,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
         ))}
       </div>
       <Link href="/news-calendar" className="mt-5 block text-center text-sm font-black text-yellow-300">
-        View full calendar â†’
+        View full calendar →
       </Link>
     </Panel>
   );
@@ -829,7 +829,7 @@ if (priceRes.status === "fulfilled") {
           savedAt: new Date().toISOString(),
         })
       );
-      setSettingsMessage("Preferences saved âœ…");
+      setSettingsMessage("Preferences saved ✅");
       setTimeout(() => setSettingsMessage(""), 2500);
     } catch {
       setSettingsMessage("Unable to save preferences");
@@ -921,10 +921,10 @@ if (priceRes.status === "fulfilled") {
         <div className="mt-8 rounded-3xl border border-yellow-400/40 bg-yellow-400/[0.03] p-5">
           <h3 className="text-xl font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-3 text-sm">
-            <p>✓ AI powered strategies</p>
-            <p>✓ Desk 1 and Trading Room</p>
-            <p>✓ News calendar</p>
-            <p>✓ MT4 / MT5 ready</p>
+            <p>? AI powered strategies</p>
+            <p>? Desk 1 and Trading Room</p>
+            <p>? News calendar</p>
+            <p>? MT4 / MT5 ready</p>
           </div>
           <a href="https://t.me/" target="_blank" className="mt-5 block rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black">
             Join Telegram
@@ -938,7 +938,7 @@ if (priceRes.status === "fulfilled") {
             <div className="h-4 w-3/4 rounded-full bg-emerald-400" />
           </div>
           <p className="mt-6 text-slate-400">System Status</p>
-          <p className="mt-2 font-black text-emerald-300">RUNNING ●</p>
+          <p className="mt-2 font-black text-emerald-300">RUNNING ?�</p>
         </div>
       </aside>
 
@@ -1233,7 +1233,7 @@ function LiveSignalsPanel({
   compact?: boolean;
   isPremium: boolean;
 }) {
-  const filters = ["All", "Strategy A", "Strategy B", "Strategy C", "Trading Room"];
+  const filters = ["All", "Strategy A", "Strategy B", "Strategy C", "Strategy D", "Trading Room"];
 
   return (
     <Panel title={`Live Signals (${signals.length})`}>
@@ -1293,7 +1293,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
         <div className="space-y-2">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-3 text-sm">
-              <span>{s.symbol} Â· {s.direction}</span>
+              <span>{s.symbol} · {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -1667,7 +1667,7 @@ function SettingsPage({
               const selected = selectedPairs.includes(p.pair);
               return (
                 <button key={p.pair} onClick={() => toggle(p.pair)} className="grid w-full grid-cols-[50px_80px_1fr_100px_110px] border-t border-white/5 px-3 py-3 text-left text-sm hover:bg-white/5">
-                  <span className={`h-5 w-5 rounded border ${selected ? "border-emerald-400 bg-emerald-400 text-black" : "border-slate-600"}`}>{selected ? "✓" : ""}</span>
+                  <span className={`h-5 w-5 rounded border ${selected ? "border-emerald-400 bg-emerald-400 text-black" : "border-slate-600"}`}>{selected ? "?" : ""}</span>
                   <span>{p.icon}</span>
                   <span className="font-black">{p.pair} <span className="font-normal text-slate-400">({p.label})</span></span>
                   <span className="text-yellow-300">{p.cat}</span>
@@ -1720,7 +1720,7 @@ function SettingsPage({
             <div className="grid gap-3 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                  <p className="font-black text-white">âœ… {x}</p>
+                  <p className="font-black text-white">✅ {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
 
                 </div>
@@ -1818,6 +1818,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
