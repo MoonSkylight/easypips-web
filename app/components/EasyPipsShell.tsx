@@ -1046,7 +1046,7 @@ er:bg-white/10"
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
-            <div className="grid h-full gap-4 overflow-hidden xl:grid-cols-[1.5fr_1fr]">
+            <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
               <div>
                 <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} compact />
                 {!isPremium && (
@@ -1801,6 +1801,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
