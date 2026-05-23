@@ -864,15 +864,27 @@ if (priceRes.status === "fulfilled") {
 
 const utcHour = new Date().getUTCHours();
 
+const utcMinute = new Date().getUTCMinutes();
+
 const isLondon =
   utcHour >= 7 && utcHour <= 16;
 
 const isNewYork =
   utcHour >= 12 && utcHour <= 21;
 
-const sessionAllowed =
-  isLondon || isNewYork;
+const newsProtection =
+  utcMinute >= 25 && utcMinute <= 35;
 
+const sessionAllowed =
+  (isLondon || isNewYork) &&
+  !newsProtection;
+const londonLabel = isLondon
+  ? "{londonLabel}"
+  : "London ○ CLOSED";
+
+const newYorkLabel = isNewYork
+  ? "{newYorkLabel}"
+  : "New York ○ CLOSED";
 const visibleLiveRaw = sessionAllowed
   ? live.filter((s) => {
       // Do not hide platform signals from the main dashboard.
@@ -1165,7 +1177,14 @@ er:bg-white/10"
     </span>
   </div>
 )}
-          
+
+ <span className={`rounded-full border px-3 py-1 ${
+  newsProtection
+    ? "border-red-400/20 bg-red-400/10 text-red-300"
+    : "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+}`}>
+  News Protection: {newsProtection ? "ACTIVE" : "CLEAR"}
+</span>         
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
