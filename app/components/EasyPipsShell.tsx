@@ -3,6 +3,28 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+function UTCClock() {
+  const [time, setTime] = useState("--:--:--");
+
+  useEffect(() => {
+    const update = () => {
+      setTime(new Date().toISOString().slice(11, 19));
+    };
+
+    update();
+
+    const timer = setInterval(update, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="hidden text-right text-xs md:block">
+      <p className="text-slate-400">Server Time UTC</p>
+      <p className="font-black">{time}</p>
+    </div>
+  );
+}
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://easypips-api.onrender.com";
 
@@ -993,7 +1015,7 @@ if (priceRes.status === "fulfilled") {
 <div className="flex items-center gap-4">
               <div className="hidden text-right text-xs md:block">
                 <p className="text-slate-400">Server Time UTC</p>
-                <p className="font-black">Live</p>
+                <UTCClock />
               </div>{clientToken ? (
   <>
     <button
