@@ -1142,53 +1142,52 @@ er:bg-white/10"
         <div className="mx-auto max-w-[1600px] p-5">
           <SystemRule />
 {page === "dashboard" && (
-  <div className="mb-4 grid grid-cols-2 gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-3 text-xs md:grid-cols-5">
-    <div>
-      <p className="text-slate-400">Win Rate</p>
-      <p className="font-black text-emerald-300">{dashboardWinRate}%</p>
+  <>
+    <div className="mb-4 grid grid-cols-2 gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-3 text-xs md:grid-cols-5">
+      <div>
+        <p className="text-slate-400">Win Rate</p>
+        <p className="font-black text-emerald-300">{dashboardWinRate}%</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Active</p>
+        <p className="font-black text-white">{activeCount}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Closed</p>
+        <p className="font-black text-white">{closedCount}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Wins</p>
+        <p className="font-black text-emerald-300">{wins}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Losses</p>
+        <p className="font-black text-red-300">{losses}</p>
+      </div>
     </div>
 
-    <div>
-      <p className="text-slate-400">Active</p>
-      <p className="font-black text-white">{activeCount}</p>
+    <div className="mb-4 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest">
+      <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
+        Volatility: Normal
+      </span>
+
+      <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-cyan-300">
+        Liquidity: High
+      </span>
+
+      <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-yellow-300">
+        Spreads: Stable
+      </span>
+
+      <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-red-300">
+        News Risk: Low
+      </span>
     </div>
-
-    <div>
-      <p className="text-slate-400">Closed</p>
-      <p className="font-black text-white">{closedCount}</p>
-    </div>
-
-    <div>
-      <p className="text-slate-400">Wins</p>
-      <p className="font-black text-emerald-300">{wins}</p>
-    </div>
-
-    <div>
-      <p className="text-slate-400">Losses</p>
-      <p className="font-black text-red-300">{losses}</p>
-    </div>
-  </div>
-)}
-{page === "dashboard" && (
-  <div className="mb-4 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest">
-{page === "dashboard" && (
-  <div className="mb-4 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest">
-    <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
-      Volatility: Normal
-    </span>
-
-    <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-cyan-300">
-      Liquidity: High
-    </span>
-
-    <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-yellow-300">
-      Spreads: Stable
-    </span>
-
-    <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-red-300">
-      News Risk: Low
-    </span>
-  </div>
+  </>
 )}
 <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-cyan-300">
   Strategy Quality: {strategyQualityScore} — {strategyQualityLabel}
