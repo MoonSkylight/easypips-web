@@ -320,7 +320,10 @@ function isHighConfidenceLocked(s: Signal) {
 function LockedSignalCard({ s }: { s: Signal }) {
   const confidenceValue = Number(s.confidence || s.score || 0);
   const signalPrice = confidenceValue >= 90 ? "$5" : "$3";
-  const unlockText = confidenceValue >= 90 ? "Unlock VIP Signal - $5" : "Unlock Premium Signal - $3";
+  const unlockText = confidenceValue >= 90
+    ? "Unlock VIP Signal - $5"
+    : "Unlock Premium Signal - $3";
+
   const [loading, setLoading] = useState(false);
 
   async function unlockSignal() {
@@ -353,8 +356,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
   }
 
   return (
-    <div className="rounded-3xl border border-yellow-400/30 bg-gradient-to-b from-yellow-400/[0.10] to-white/[0.025] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
-      <div className="flex item
+    <div className="relative overflow-hidden rounded-3xl border border-yellow-400/30 bg-gradient-to-br from
 
 
 
@@ -362,51 +364,88 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-s-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
-            Premium AI Signal
-          </p>
+
+
+
+
+
+-yellow-400/[0.10] via-white/[0.04] to-black/40 p-5 shadow-xl shadow-yellow-400/10">
+      <div className="absolute right-4 top-4 rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+        Premium
+      </div>
+
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
+          Premium AI Signal
+
+
+
+
+
+
+
+
+        </p>
+
+        <h3 className="mt-2 text-3xl font-black text-white">
+          {s.symbol}
+        </h3>
+
  
 
 
 
 
-         <h3 className="mt-2 text-3xl font-black text-white">{s.symbol}</h3>
-          <p className="mt-1 text-sm font-black text-yellow-300">
-            Confidence: {s.confidence || s.score || "-"}%
-          </p>
+
+       <p className="mt-1 text-sm font-black text-slate-400">
+          Information hidden until unlocked
+        </p>
+      </div>
+
+      <div className="my-7 flex justify-center">
+ 
+
+
+
+
+
+       <div className="flex h-20 w-20 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-3xl shadow-lg shadow-yellow-400/20">
+          🔒
         </div>
-
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-base font-black text-yellow-300">Locked</span>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
+
+
+
+
+      <div className="rounded-2xl border border-white/10 bg-black/25 p-4 text-center">
+        <p className="text-sm font-black text-white">
+          Entry • SL • TP • Direction Hidden
+        </p>
+
+
+
+
+
+
+        <p className="mt-1 text-xs text-slate-400">
+          Unlock this signal instantly for {signalPrice}
+ 
+
+
+       </p>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-slate-300">
  
 
 
 
-
-
-       <Mini label="Entry" value="Locked" />
-        <Mini label="SL" value="Locked" danger />
-        <Mini label="TP1" value="Locked" good />
-        <Mini label="TP2" value="Locked" good />
-  
-
-
-
-      <Mini label="TP3" value="Locked" good />
-        <Mini label="Access" value={signalPrice} />
+       <span>{s.strategy || "AI Strategy"}</span>
+        <span>Live</span>
+        <span>{confidenceValue}%</span>
       </div>
 
- 
-
-
-
-     <p className="mt-4 text-sm leading-6 text-slate-300">
-        Unlock this premium AI setup instantly. Premium members receive unlimited access to all premium signals.
-      </p>
 
 
 
@@ -418,7 +457,7 @@ s-start justify-between gap-3">
 
 
 
-       className="mt-5 block w-full rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black hover:bg-yellow-300 disabled:opacity-60"
+       className="mt-5 w-full rounded-2xl bg-yellow-400 px-5 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -428,6 +467,9 @@ s-start justify-between gap-3">
     </div>
   );
 }
+
+
+
 
 
 
@@ -2046,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
