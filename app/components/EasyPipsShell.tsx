@@ -1448,19 +1448,60 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
   const losses = closed.filter((s) => String(s.result || "").toUpperCase().includes("SL") || String(s.result || "").toUpperCase().includes("LOSS")).length;
 const dashboardWinRate = closed.length > 0 ? ((wins / closed.length) * 100).toFixed(1) : "0.0";
   const rate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
-const equityCurve = closed.map((_, i) => i + 1);
+const tradeResults = closed.map((s) => {
+  const result = String(s.result || "").toUpperCase();
+
+  if (result.includes("TP")) return 1;
+  if (result.includes("WIN")) return 1;
+  if (result.includes("SL")) return -1;
+  if (result.includes("LOSS")) return -1;
+
+  return 0;
+});
+
+let runningEquity = 0;
+let peakEquity = 0;
+let worstDrawdown = 0;
+let currentWinStreak = 0;
+let currentLossStreak = 0;
+let bestWinStreak = 0;
+
+const equityCurve = tradeResults.map((r) => {
+  runningEquity += r;
+  peakEquity = Math.max(peakEquity, runningEquity);
+
+  const drawdown = runningEquity - peakEquity;
+  worstDrawdown = Math.min(worstDrawdown, drawdown);
+
+  if (r > 0) {
+    currentWinStreak += 1;
+    currentLossStreak = 0;
+    bestWinStreak = Math.max(bestWinStreak, currentWinStreak);
+  }
+
+  if (r < 0) {
+    currentLossStreak += 1;
+    currentWinStreak = 0;
+  }
+
+  return runningEquity;
+});
 
 const maxDrawdown =
-  closed.length > 0 ? "-4.2%" : "0.0%";
+  equityCurve.length > 0 ? `${worstDrawdown}` : "0";
 
 const bestStreak =
-  closed.length > 0 ? "6" : "0";
+  equityCurve.length > 0 ? `${bestWinStreak}` : "0";
 
 const currentStreak =
-  closed.length > 0 ? "3" : "0";
+  currentWinStreak > 0
+    ? `W${currentWinStreak}`
+    : currentLossStreak > 0
+      ? `L${currentLossStreak}`
+      : "0";
 
 const monthlyReturn =
-  closed.length > 0 ? "+8.1%" : "0.0%";
+  equityCurve.length > 0 ? `${runningEquity > 0 ? "+" : ""}${runningEquity}R` : "0R";
 
   return (
     <div className="space-y-5">
