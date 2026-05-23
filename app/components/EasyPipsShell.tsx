@@ -945,7 +945,7 @@ if (priceRes.status === "fulfilled") {
       <section className="relative z-10 xl:pl-[240px]">
         <header className="sticky top-0 z-30 border-b border-white/10 bg-[#030811]/90 px-4 py-3 shadow-xl shadow-black/20 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
-            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-2">
+            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-1.5">
               <div className="mr-4 flex shrink-0 items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
                 <span className="text-xs font-black uppercase tracking-widest text-emerald-300">
@@ -953,7 +953,7 @@ if (priceRes.status === "fulfilled") {
                 </span>
               </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-  <div className="animate-[ticker_45s_linear_infinite] will-change-transform text-sm font-black text-white">
+  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-sx font-black text-white">
     {visibleLive.slice(0, 8).map((s, i) => {
       const status = tickerStatus(s, livePrices);
 
