@@ -871,11 +871,23 @@ if (priceRes.status === "fulfilled") {
   const visibleLive = visibleLiveRaw;
 
   const totalSignals = allSignals.length + closed.length;
-  const activeCount = live.length;
-  const closedCount = closed.length;
-  const tpHits = allSignals.filter((s) => s.hit_tp1 || s.hit_tp2 || s.hit_tp3).length + closed.filter((s) => String(s.result || "").includes("TP")).length;
-  const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
-  const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Trading Room").length;
+const activeCount = live.length;
+const closedCount = closed.length;
+
+const wins = closed.filter((s) => String(s.result || "").includes("WIN")).length;
+
+const losses = closed.filter((s) => String(s.result || "").includes("LOSS")).length;
+
+const dashboardWinRate =
+  closedCount > 0
+    ? ((wins / closedCount) * 100).toFixed(1)
+    : "0.0";
+
+const tpHits = allSignals.filter((s) => s.hit_tp1 || s.hit_tp2 || s.hit_tp3).length + closed.filter((s) => String(s.result || "").includes("TP")).length;
+
+const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Trading Room").length;
+
+const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
 
   const stats = (
     <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-6">
@@ -1081,6 +1093,34 @@ er:bg-white/10"
 
         <div className="mx-auto max-w-[1600px] p-5">
           <SystemRule />
+{page === "dashboard" && (
+  <div className="mb-4 grid grid-cols-2 gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-3 text-xs md:grid-cols-5">
+    <div>
+      <p className="text-slate-400">Win Rate</p>
+      <p className="font-black text-emerald-300">{dashboardWinRate}%</p>
+    </div>
+
+    <div>
+      <p className="text-slate-400">Active</p>
+      <p className="font-black text-white">{activeCount}</p>
+    </div>
+
+    <div>
+      <p className="text-slate-400">Closed</p>
+      <p className="font-black text-white">{closedCount}</p>
+    </div>
+
+    <div>
+      <p className="text-slate-400">Wins</p>
+      <p className="font-black text-emerald-300">{wins}</p>
+    </div>
+
+    <div>
+      <p className="text-slate-400">Losses</p>
+      <p className="font-black text-red-300">{losses}</p>
+    </div>
+  </div>
+)}
           
           {page !== "settings" && stats}
 
@@ -1328,7 +1368,7 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
   const wins = closed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
 
   const losses = closed.filter((s) => String(s.result || "").toUpperCase().includes("SL") || String(s.result || "").toUpperCase().includes("LOSS")).length;
-
+const dashboardWinRate = closed.length > 0 ? ((wins / closed.length) * 100).toFixed(1) : "0.0";
   const rate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
 
   return (
