@@ -267,7 +267,7 @@ function StatCard({
 
 function SystemRule() {
   return (
-    <section className="mb-6 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-2xl shadow-yellow-500/10">
+    <section className="mb-4 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-2xl shadow-yellow-500/10">
       <div className="flex flex-col gap-4 rounded-3xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/30">
           <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -432,7 +432,7 @@ function SignalCard({ s }: { s: Signal }) {
         <span className="text-xs font-black text-emerald-300">{s.status || "ACTIVE"}</span>
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-2 grid grid-cols-3 gap-2">
         <Mini label="Entry" value={s.entry} />
         <Mini label="SL" value={s.sl} danger />
         <Mini label="TP1" value={s.tp1} good />
@@ -1387,7 +1387,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
         return (
           <Panel key={c.title} title={c.title}>
             <p className="text-slate-400">{c.sub}</p>
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-2 grid grid-cols-3 gap-2">
               <Mini label="Active" value={count} />
               <Mini label="TP" value={0} good />
               <Mini label="SL" value={0} danger />
