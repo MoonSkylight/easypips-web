@@ -356,7 +356,7 @@ s-start justify-between gap-3">
           </p>
         </div>
 
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-base font-black text-yellow-300">LOCKED</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-yellow-400/40 bg-yellow-400/10 text-base font-black text-yellow-300">Locked</span>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
@@ -577,7 +577,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
         ))}
       </div>
       <Link href="/news-calendar" className="mt-5 block text-center text-sm font-black text-yellow-300">
-        View full calendar â†’
+        View full calendar →
       </Link>
     </Panel>
   );
@@ -829,7 +829,7 @@ if (priceRes.status === "fulfilled") {
           savedAt: new Date().toISOString(),
         })
       );
-      setSettingsMessage("Preferences saved âœ…");
+      setSettingsMessage("Preferences saved ✓");
       setTimeout(() => setSettingsMessage(""), 2500);
     } catch {
       setSettingsMessage("Unable to save preferences");
@@ -1046,7 +1046,7 @@ er:bg-white/10"
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
-            <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
+            <div className="grid h-full gap-4 overflow-hidden xl:grid-cols-[1.5fr_1fr]">
               <div>
                 <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} compact />
                 {!isPremium && (
@@ -1214,7 +1214,7 @@ function LiveSignalsPanel({
       {signals.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-white/10 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid gap-4 ${compact ? "lg:grid-cols-2" : "md:grid-cols-2 xl:grid-cols-3"}`}>
+        <div className={`grid max-h-[520px] gap-3 overflow-y-auto pr-2 ${compact ? "lg:grid-cols-2" : "md:grid-cols-2 xl:grid-cols-3"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1703,7 +1703,7 @@ function SettingsPage({
             <div className="grid gap-3 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                  <p className="font-black text-white">âœ… {x}</p>
+                  <p className="font-black text-white">✓ {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
 
                 </div>
@@ -1801,6 +1801,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
