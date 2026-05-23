@@ -267,7 +267,7 @@ function StatCard({
 
 function SystemRule() {
   return (
-    <section className="mb-4 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-2xl shadow-yellow-500/10">
+    <section className="mb-4 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="flex flex-col gap-4 rounded-3xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/30">
           <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -886,7 +886,7 @@ if (priceRes.status === "fulfilled") {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
-      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/10 bg-[#07101b]/90 p-5 shadow-2xl backdrop-blur-xl xl:block">
+      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/10 bg-[#07101b]/90 p-4 shadow-xl backdrop-blur-xl xl:block">
         <Link href="/dashboard" className="mb-5 flex items-center gap-4 px-1">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/20">EP</div>
           <div>
@@ -1146,7 +1146,7 @@ function PremiumLock({
   cta?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-yellow-400/30 bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-2xl shadow-yellow-500/10">
+    <div className="relative overflow-hidden rounded-[2rem] border border-yellow-400/30 bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20">
           <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
