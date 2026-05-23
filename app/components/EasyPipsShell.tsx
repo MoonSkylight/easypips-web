@@ -398,7 +398,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
        <p className="mt-1 text-sm font-black text-slate-400">
-          Information hidden until unlocked
+          Premium institutional setup hidden
         </p>
       </div>
 
@@ -418,9 +418,9 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-      <div className="rounded-2xl border border-white/10 bg-black/25 p-4 text-center">
+      <div className="rounded-2xl border border-white/10 bg-black/30 p-4 text-center backdrop-blur-md">
         <p className="text-sm font-black text-white">
-          Entry • SL • TP • Setup Hidden
+          ••••••••••••••••
         </p>
 
 
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
