@@ -318,39 +318,58 @@ function isHighConfidenceLocked(s: Signal) {
 }
 
 function LockedSignalCard({ s }: { s: Signal }) {
-  const confidenceValue = Number(s.confidence || s.score || 0);
-  const signalPrice = confidenceValue >= 90 ? "$5" : "$3";
-  const unlockText = confidenceValue >= 90 ? "Unlock VIP Signal - $5" : "Unlock Premium Signal - $3";
-  const [loading, setLoading] = useState(false);
+  const isSell = String(s.direction || "").toUpperCase().includes("SELL");
 
-  async function unlockSignal() {
-    try {
-      setLoading(true);
+  return (
+    <div
+      className={`relative overflow-hidden rounded-3xl border ${
+        isSell ? "border-red-400/35" : "border-yellow-400/35"
+      } bg-gradient-to-br from-white/[0.06] via-black/40 to-yellow-400/[0.04] p-4 shadow-xl shadow-black/30`}
+    >
+      <div className="absolute right-4 top-4 text-yellow-300">☆</div>
 
-      const res = await fetch("/api/create-single-signal-checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          signalId: s.id || s.symbol || "single-signal",
-        }),
-      });
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-400/15 text-lg">
+          🔒
+        </div>
 
-      const data = await res.json();
+        <div>
+          <p className="text-2xl font-black text-white">{s.symbol}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
+            Premium Signal
+          </p>
+        </div>
+      </div>
 
-      if (data.url) {
-        window.location.href = data.url;
-        return;
-      }
+      <div className="my-7 flex justify-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-3xl shadow-lg shadow-yellow-400/20">
+          🔒
+        </div>
+      </div>
 
-      alert("Checkout could not start. Please try again.");
-    } catch {
-      alert("Checkout error. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
+      <p className="text-center text-sm text-slate-300">
+        Information Hidden
+      </p>
+
+      <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-slate-300">
+        <span>{s.strategy || "Strategy"}</span>
+        <span>•</span>
+        <span>{s.session || "London"}</span>
+        <span>•</span>
+        <span>{s.time || "Live"}</span>
+      </div>
+
+      <a
+        href="/checkout"
+        className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-yellow-400 px-4 py-3 text-sm font-black text-black shadow-lg shadow-yellow-400/20 hover:bg-yellow-300"
+      >
+        🔒 Unlock $3
+      </a>
+    </div>
+  );
+}
+
+
 
   return (
     <div className="rounded-3xl border border-yellow-400/30 bg-gradient-to-b from-yellow-400/[0.10] to-white/[0.025] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
