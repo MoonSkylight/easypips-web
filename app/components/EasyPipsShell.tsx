@@ -356,7 +356,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-yellow-400/30 bg-gradient-to-br from
+    <div className="relative overflow-hidden rounded-3xl border border-yellow-400/30 bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-2xl hover:shadow-yellow-400/20 from
 
 
 
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
