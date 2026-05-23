@@ -1446,6 +1446,38 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
   const wins = closed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
 
   const losses = closed.filter((s) => String(s.result || "").toUpperCase().includes("SL") || String(s.result || "").toUpperCase().includes("LOSS")).length;
+const strategyStats = ["Strategy A", "Strategy B", "Strategy C", "Strategy D"]
+  .map((strategy) => {
+    const strategyTrades = closed.filter(
+      (s) => s.strategy === strategy
+    );
+
+    const total = strategyTrades.length;
+
+    const wins = strategyTrades.filter((s) =>
+      String(s.result || "").toUpperCase().includes("WIN") ||
+      String(s.result || "").toUpperCase().includes("TP")
+    ).length;
+
+    const rate =
+      total > 0
+        ? Math.round((wins / total) * 100)
+        : 0;
+
+    let status = "Monitor";
+
+    if (rate >= 70) status = "Strong";
+    else if (rate >= 55) status = "Healthy";
+    else if (rate < 40) status = "Weak";
+
+    return {
+      strategy,
+      total,
+      wins,
+      rate,
+      status,
+    };
+  });
 const dashboardWinRate = closed.length > 0 ? ((wins / closed.length) * 100).toFixed(1) : "0.0";
   const rate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
 const tradeResults = closed.map((s) => {
