@@ -266,7 +266,7 @@ function StatCard({
     cyan: "border-cyan-400/20 text-cyan-300",
     green: "border-emerald-400/20 text-emerald-300",
     purple: "border-purple-400/20 text-purple-300",
-    yellow: "border-yellow-400/30 text-yellow-300",
+    yellow: "border-yellow-300/40 animate-pulse text-yellow-300",
     red: "border-red-400/20 text-red-300",
     orange: "border-orange-400/20 text-orange-300",
   };
@@ -356,7 +356,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-yellow-400/30 bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-2xl hover:shadow-yellow-400/20 from
+    <div className="relative overflow-hidden rounded-3xl border border-yellow-300/40 animate-pulse bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-2xl hover:shadow-yellow-400/20 from
 
 
 
@@ -369,8 +369,8 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
--yellow-400/[0.10] via-white/[0.04] to-black/40 p-5 shadow-xl shadow-yellow-400/10">
-      <div className="absolute right-4 top-4 rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+-yellow-400/[0.10] via-white/[0.04] to-black/40 p-5 shadow-xl shadow-yellow-400/20">
+      <div className="absolute right-4 top-4 rounded-full border border-yellow-300/40 animate-pulse bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
         Premium
       </div>
 
@@ -398,7 +398,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
        <p className="mt-1 text-sm font-black text-slate-400">
-          Premium institutional setup hidden
+          Institutional AI setup hidden
         </p>
       </div>
 
@@ -476,7 +476,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
   return (
-    <div className="group rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-400/30">
+    <div className="group rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 animate-pulse">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs text-slate-500">LIVE MARKET GENERATED</p>
@@ -1345,7 +1345,7 @@ function PremiumLock({
   cta?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-yellow-400/30 bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
+    <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40 animate-pulse bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20">
           <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
