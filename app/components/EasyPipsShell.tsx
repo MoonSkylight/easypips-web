@@ -1185,7 +1185,7 @@ er:bg-white/10"
           <SystemRule />
 {page === "dashboard" && (
   <>
-    <div className="mb-4 grid grid-cols-2 gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-3 text-xs md:grid-cols-5">
+    <div className="mb-3 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2 text-[11px] md:grid-cols-5">
       <div>
         <p className="text-slate-400">Win Rate</p>
         <p className="font-black text-emerald-300">{dashboardWinRate}%</p>
@@ -1212,7 +1212,7 @@ er:bg-white/10"
       </div>
     </div>
 
-    <div className="mb-4 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest">
+    <div className="mb-3 flex flex-wrap gap-1.5 text-[9px] font-black uppercase tracking-widest">
       <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
         Volatility: Normal
       </span>
@@ -2088,6 +2088,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
