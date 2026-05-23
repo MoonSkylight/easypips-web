@@ -1121,6 +1121,25 @@ er:bg-white/10"
     </div>
   </div>
 )}
+{page === "dashboard" && (
+  <div className="mb-4 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest">
+    <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
+      Volatility: Normal
+    </span>
+
+    <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-cyan-300">
+      Liquidity: High
+    </span>
+
+    <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-yellow-300">
+      Spreads: Stable
+    </span>
+
+    <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-red-300">
+      News Risk: Low
+    </span>
+  </div>
+)}
           
           {page !== "settings" && stats}
 
