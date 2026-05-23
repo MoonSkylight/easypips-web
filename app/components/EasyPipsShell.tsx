@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -1042,11 +1042,7 @@ er:bg-white/10"
 
         <div className="mx-auto max-w-[1600px] p-5">
           <SystemRule />
-          <PremiumBanner
-            isPremium={isPremium}
-            onEnable={enablePremiumPreview}
-            onDisable={disablePremiumPreview}
-          />
+          
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
@@ -1182,58 +1178,9 @@ function PremiumLock({
   );
 }
 
-function PremiumBanner({
-  isPremium,
-  onEnable,
-  onDisable,
-}: {
-  isPremium: boolean;
-  onEnable: () => void;
-  onDisable: () => void;
-}) {
-  return (
-    <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between">
-      <div>
-        <p className="text-sm font-black uppercase tracking-widest text-yellow-300">
-          Membership Status
-        </p>
-        <p className="mt-1 text-2xl font-black text-white">
-          {isPremium ? "Premium Access Active" : "Free Preview Access"}
-        </p>
-        <p className="mt-1 text-sm text-slate-400">
-          Free users see Strategy A preview. Premium unlocks Strategy B, Strategy C, History, Reports, and full signal access.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        {!isPremium ? (
-          <>
-            <Link
-              href="/client/signup"
-              className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300"
-            >
-              Upgrade
-            </Link>
-            <button
-              onClick={onEnable}
-              className="rounded-2xl border border-emerald-400/30 px-5 py-3 font-black text-emerald-300 hover:bg-emerald-400/10"
-            >
-              Preview Premium
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={onDisable}
-            className="rounded-2xl border border-red-400/30 px-5 py-3 font-black text-red-300 hover:bg-red-400/10"
-          >
-            Switch to Free View
-          </button>
-        )}
-      </div>
-    </div>
-  );
+function PremiumBanner() {
+  return null;
 }
-
 function LiveSignalsPanel({
   signals,
   filter,
