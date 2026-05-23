@@ -856,7 +856,7 @@ if (priceRes.status === "fulfilled") {
   const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Trading Room").length;
 
   const stats = (
-    <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-6">
+    <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-6">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1046,7 +1046,7 @@ er:bg-white/10"
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
-            <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
+            <div className="grid h-full gap-4 overflow-hidden xl:grid-cols-[1.5fr_1fr]">
               <div>
                 <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} compact />
                 {!isPremium && (
@@ -1801,6 +1801,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
