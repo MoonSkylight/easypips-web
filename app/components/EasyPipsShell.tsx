@@ -878,6 +878,17 @@ const newsProtection =
 const sessionAllowed =
   (isLondon || isNewYork) &&
   !newsProtection;
+
+const strategyQualityScore =
+  sessionAllowed && !newsProtection
+    ? "A"
+    : "C";
+
+const strategyQualityLabel =
+  strategyQualityScore === "A"
+    ? "High Quality Market"
+    : "Protected / Low Quality Market";
+
 const londonLabel = isLondon
   ? "{londonLabel}"
   : "London ○ CLOSED";
@@ -1177,6 +1188,9 @@ er:bg-white/10"
     </span>
   </div>
 )}
+<span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-cyan-300">
+  Strategy Quality: {strategyQualityScore} — {strategyQualityLabel}
+</span>
 
  <span className={`rounded-full border px-3 py-1 ${
   newsProtection
