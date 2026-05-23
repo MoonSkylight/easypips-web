@@ -886,8 +886,8 @@ if (priceRes.status === "fulfilled") {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
-      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[280px] border-r border-white/10 bg-[#07101b]/90 p-5 shadow-2xl backdrop-blur-xl xl:block">
-        <Link href="/dashboard" className="mb-8 flex items-center gap-4 px-1">
+      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/10 bg-[#07101b]/90 p-5 shadow-2xl backdrop-blur-xl xl:block">
+        <Link href="/dashboard" className="mb-5 flex items-center gap-4 px-1">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/20">EP</div>
           <div>
             <h1 className="text-2xl font-black">
@@ -942,7 +942,7 @@ if (priceRes.status === "fulfilled") {
         </div>
       </aside>
 
-      <section className="relative z-10 xl:pl-[280px]">
+      <section className="relative z-10 xl:pl-[240px]">
         <header className="sticky top-0 z-30 border-b border-white/10 bg-[#030811]/90 px-4 py-3 shadow-xl shadow-black/20 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
             <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-2">
