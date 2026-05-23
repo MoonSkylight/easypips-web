@@ -457,7 +457,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-5 w-full rounded-2xl bg-yellow-400 px-5 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/20 hover:bg-yellow-300 disabled:opacity-60"
+       className="mt-5 w-full rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/30 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
