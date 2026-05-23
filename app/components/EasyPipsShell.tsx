@@ -947,13 +947,30 @@ if (priceRes.status === "fulfilled") {
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
             <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-1.5">
               <div className="mr-4 flex shrink-0 items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <span className="text-xs font-black uppercase tracking-widest text-emerald-300">
-                  LIVE MARKET STATUS
-                </span>
-              </div>
+  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+
+  <div className="flex items-center gap-3">
+    <span className="text-xs font-black uppercase tracking-widest text-emerald-300">
+      LIVE MARKET STATUS
+    </span>
+
+    <div className="ml-2 hidden items-center gap-2 xl:flex">
+      <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+        London ● OPEN
+      </span>
+
+      <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+        New York ● OPEN
+      </span>
+
+      <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+        Asia ○ Closed
+      </span>
+    </div>
+  </div>
+</div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-sx font-black text-white">
+  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-xs font-black text-white">
     {visibleLive.slice(0, 8).map((s, i) => {
       const status = tickerStatus(s, livePrices);
 
