@@ -858,15 +858,40 @@ if (priceRes.status === "fulfilled") {
     }
   }
 
-  const live = allSignals.filter((s) => (s.status || "ACTIVE") === "ACTIVE");
-  const visibleLiveRaw = live.filter((s) => {
-    // Do not hide platform signals from the main dashboard.
-    // User pair preferences are saved in Settings, but filtering should only be applied
-    // later when we build account-based personalization.
-    if (filter === "All") return true;
-    if (filter === "Trading Room") return s.desk === "Desk 1" || s.desk === "Help Desk" || s.desk === "Trading Room";
-    return s.strategy === filter;
-  });
+ const live = allSignals.filter(
+  (s) => (s.status || "ACTIVE") === "ACTIVE"
+);
+
+const utcHour = new Date().getUTCHours();
+
+const isLondon =
+  utcHour >= 7 && utcHour <= 16;
+
+const isNewYork =
+  utcHour >= 12 && utcHour <= 21;
+
+const sessionAllowed =
+  isLondon || isNewYork;
+
+const visibleLiveRaw = sessionAllowed
+  ? live.filter((s) => {
+      // Do not hide platform signals from the main dashboard.
+      // User pair preferences are saved in Settings, but filtering should only be applied
+      // later when we build account-based personalization.
+
+      if (filter === "All") return true;
+
+      if (filter === "Trading Room") {
+        return (
+          s.desk === "Desk 1" ||
+          s.desk === "Help Desk" ||
+          s.desk === "Trading Room"
+        );
+      }
+
+      return s.strategy === filter;
+    })
+  : [];
 
   const visibleLive = visibleLiveRaw;
 
