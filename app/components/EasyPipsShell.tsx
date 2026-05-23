@@ -266,13 +266,13 @@ function StatCard({
     cyan: "border-cyan-400/20 text-cyan-300",
     green: "border-emerald-400/20 text-emerald-300",
     purple: "border-purple-400/20 text-purple-300",
-    yellow: "border-yellow-300/40 animate-pulse text-yellow-300",
+    yellow: "border-yellow-300/40  text-yellow-300",
     red: "border-red-400/20 text-red-300",
     orange: "border-orange-400/20 text-orange-300",
   };
 
   return (
-    <div className={`group rounded-3xl border ${colors[color]} bg-white/[0.045] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
+    <div className={`group rounded-3xl border ${colors[color]} bg-white/[0.045] p-5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-black uppercase">{title}</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
@@ -291,7 +291,7 @@ function SystemRule() {
   return (
     <section className="mb-4 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="flex flex-col gap-4 rounded-3xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/30">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
           <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 3 5 6v5c0 5 3.4 8.7 7 10 3.6-1.3 7-5 7-10V6l-7-3Z" />
             <path d="m9 12 2 2 4-5" />
@@ -356,7 +356,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-yellow-300/40 animate-pulse bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-2xl hover:shadow-yellow-400/20 from
+    <div className="relative overflow-hidden rounded-3xl border border-yellow-300/40  bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-xl hover:shadow-yellow-400/15 from
 
 
 
@@ -369,8 +369,8 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
--yellow-400/[0.10] via-white/[0.04] to-black/40 p-5 shadow-xl shadow-yellow-400/20">
-      <div className="absolute right-4 top-4 rounded-full border border-yellow-300/40 animate-pulse bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+-yellow-400/[0.10] via-white/[0.04] to-black/40 p-5 shadow-xl shadow-yellow-400/15">
+      <div className="absolute right-4 top-4 rounded-full border border-yellow-300/40  bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
         Premium
       </div>
 
@@ -409,7 +409,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       <div className="flex h-20 w-20 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-3xl shadow-lg shadow-yellow-400/20">
+       <div className="flex h-20 w-20 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-3xl shadow-lg shadow-yellow-400/15">
           🔒
         </div>
       </div>
@@ -457,7 +457,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-5 w-full rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/30 transition hover:scale-[1.02] disabled:opacity-60"
+       className="mt-5 w-full rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -476,7 +476,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
   return (
-    <div className="group rounded-3xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 animate-pulse">
+    <div className="group rounded-3xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs text-slate-500">LIVE MARKET GENERATED</p>
@@ -519,7 +519,7 @@ function Mini({ label, value, good, danger }: { label: string; value: any; good?
 
 function Panel({ title, children, right }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-white/8 bg-white/[0.045] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
+    <section className="rounded-3xl border border-white/8 bg-white/[0.045] p-5 shadow-xl shadow-black/30 backdrop-blur-xl">
       <div className="mb-5 flex items-center justify-between gap-4">
         <h2 className="text-2xl font-black text-white">{title}</h2>
         {right}
@@ -726,7 +726,7 @@ function tickerStatus(s: Signal, livePrices: Record<string, any>) {
 
   return {
     text: "ACTIVE",
-    color: "text-yellow-300 animate-pulse",
+    color: "text-yellow-300 ",
   };
 }
   const s = cleanSymbol(symbol);
@@ -778,7 +778,7 @@ function tickerStatus(s: Signal, livePrices: Record<string, any>) {
     return { text: `TP1 HIT +${pips ?? 0} PIPS`, color: "text-emerald-300" };
   }
 
-  return { text: "ACTIVE", color: "text-yellow-300 animate-pulse" };
+  return { text: "ACTIVE", color: "text-yellow-300 " };
 }
 
 export default function EasyPipsShell({ page }: { page: PageKey }) {
@@ -1012,7 +1012,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
       <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/8 bg-[#07101b]/90 p-4 shadow-xl backdrop-blur-xl xl:block">
         <Link href="/dashboard" className="mb-5 flex items-center gap-4 px-1">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/20">EP</div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
           <div>
             <h1 className="text-2xl font-black">
               Easy<span className="text-yellow-300">Pips</span> <span className="text-emerald-300">AI</span>
@@ -1131,7 +1131,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
       Logout
     </button>
 
-    <a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300">
+    <a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
       Join Telegram
     </a>
   </>
@@ -1153,7 +1153,7 @@ er:bg-white/10"
       Login
     </Link>
 
-    <a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300">
+    <a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
       Join Telegram
     </a>
 
@@ -1345,9 +1345,9 @@ function PremiumLock({
   cta?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40 animate-pulse bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
+    <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40  bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
           <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="10" width="16" height="10" rx="2" />
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
@@ -1403,7 +1403,7 @@ function LiveSignalsPanel({
             key={f}
             onClick={() => setFilter(f)}
             className={`rounded-xl px-4 py-2 text-sm font-black ${
-              filter === f ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/20" : "bg-white/10 text-white hover:bg-white/15"
+              filter === f ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/15" : "bg-white/10 text-white hover:bg-white/15"
             }`}
           >
             {f}
@@ -1774,7 +1774,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
 
     <button
     type="submit"
-    className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/20 hover:from-yellow-200 hover:to-yellow-300"
+    className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300"
   >
     Submit Connection Request
   </button>
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
