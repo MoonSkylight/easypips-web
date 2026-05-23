@@ -420,7 +420,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
       <div className="rounded-2xl border border-white/10 bg-black/25 p-4 text-center">
         <p className="text-sm font-black text-white">
-          Entry • SL • TP • Direction Hidden
+          Entry • SL • TP • Setup Hidden
         </p>
 
 
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
