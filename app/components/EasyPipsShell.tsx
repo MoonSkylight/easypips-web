@@ -1448,9 +1448,7 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
   const losses = closed.filter((s) => String(s.result || "").toUpperCase().includes("SL") || String(s.result || "").toUpperCase().includes("LOSS")).length;
 const strategyStats = ["Strategy A", "Strategy B", "Strategy C", "Strategy D"]
   .map((strategy) => {
-    const strategyTrades = closed.filter(
-      (s) => s.strategy === strategy
-    );
+    const strategyTrades = closed.filter((s) => s.strategy === strategy);
 
     const total = strategyTrades.length;
 
@@ -1478,6 +1476,10 @@ const strategyStats = ["Strategy A", "Strategy B", "Strategy C", "Strategy D"]
       status,
     };
   });
+
+const disabledStrategies = strategyStats
+  .filter((x) => x.status === "Weak" && x.total >= 5)
+  .map((x) => x.strategy);
 const dashboardWinRate = closed.length > 0 ? ((wins / closed.length) * 100).toFixed(1) : "0.0";
   const rate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
 const tradeResults = closed.map((s) => {
