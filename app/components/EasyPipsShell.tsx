@@ -268,7 +268,7 @@ function StatCard({
 function SystemRule() {
   return (
     <section className="mb-6 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-2xl shadow-yellow-500/10">
-      <div className="flex flex-col gap-5 rounded-[2rem] bg-[#07101b]/90 px-6 py-5 backdrop-blur-xl lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-4 rounded-3xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/30">
           <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 3 5 6v5c0 5 3.4 8.7 7 10 3.6-1.3 7-5 7-10V6l-7-3Z" />
@@ -282,7 +282,7 @@ function SystemRule() {
           </p>
         </div>
         <div className="flex items-end gap-3">
-          <p className="text-7xl font-black leading-none text-yellow-300 drop-shadow-[0_0_30px_rgba(250,204,21,0.35)]">82%</p>
+          <p className="text-6xl font-black leading-none text-yellow-300 drop-shadow-[0_0_30px_rgba(250,204,21,0.35)]">82%</p>
           <p className="pb-2 text-sm font-black uppercase tracking-widest text-slate-300">minimum<br />confirmation</p>
         </div>
       </div>
