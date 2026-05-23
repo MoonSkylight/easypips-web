@@ -976,7 +976,7 @@ if (priceRes.status === "fulfilled") {
 <div className="flex items-center gap-4">
               <div className="hidden text-right text-xs md:block">
                 <p className="text-slate-400">Server Time UTC</p>
-                <p className="font-black">{new Date().toLocaleTimeString()}</p>
+                <p className="font-black">Live</p>
               </div>{clientToken ? (
   <>
     <button
