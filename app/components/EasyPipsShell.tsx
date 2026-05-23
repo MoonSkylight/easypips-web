@@ -432,7 +432,7 @@ function SignalCard({ s }: { s: Signal }) {
         <span className="text-xs font-black text-emerald-300">{s.status || "ACTIVE"}</span>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 gap-3">
+      <div className="mt-3 grid grid-cols-3 gap-2">
         <Mini label="Entry" value={s.entry} />
         <Mini label="SL" value={s.sl} danger />
         <Mini label="TP1" value={s.tp1} good />
@@ -1387,7 +1387,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
         return (
           <Panel key={c.title} title={c.title}>
             <p className="text-slate-400">{c.sub}</p>
-            <div className="mt-5 grid grid-cols-3 gap-3">
+            <div className="mt-3 grid grid-cols-3 gap-2">
               <Mini label="Active" value={count} />
               <Mini label="TP" value={0} good />
               <Mini label="SL" value={0} danger />
