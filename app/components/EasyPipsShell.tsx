@@ -274,8 +274,8 @@ function StatCard({
   return (
     <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-black uppercase">{title}</p>
-        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
+        <p className="text-xs font-black uppercase">{title}</p>
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
           {icon}
         </span>
       </div>
@@ -393,7 +393,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
       </div>
 
       <div>
-        <p className="text-[11px] font-black uppercase tracking-widest text-yellow-300">
+        <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
           Premium AI Signal
 
 
@@ -415,7 +415,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       <p className="mt-1 text-[11px] font-black text-slate-500">
+       <p className="mt-1 text-xs font-black text-slate-500">
           Institutional AI setup hidden
         </p>
       </div>
@@ -437,7 +437,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
       <div className="rounded-xl border border-white/8 bg-black/30 p-1.5 text-center backdrop-blur-md">
-        <p className="text-[11px] font-black text-white">
+        <p className="text-xs font-black text-white">
           ••••••••••••••••
         </p>
 
@@ -475,7 +475,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-[11px] font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
+       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-xs font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -492,7 +492,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 function SignalCard({ s }: { s: Signal }) {
-  const isSell = String(s.direction || "").toUpperCase().includes("SELL");
+  const isLocked = String(s.direction || "").toUpperCase().includes("Locked");
   return (
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
@@ -500,18 +500,18 @@ function SignalCard({ s }: { s: Signal }) {
           <p className="text-[9px] text-slate-500">LIVE MARKET GENERATED</p>
           <h3 className="mt-1 text-sm font-black text-white">{s.symbol}</h3>
           <p className="text-[9px] text-slate-500">{formatDate(s.created_at)}</p>
-          <p className="text-[11px] font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
+          <p className="text-xs font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
-        <span className={`rounded-full px-3 py-1 text-[11px] font-black ${isSell ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
+        <span className={`rounded-full px-3 py-1 text-xs font-black ${isLocked ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
         </span>
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <span className="rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-[11px] font-black text-blue-300">
+        <span className="rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-xs font-black text-blue-300">
           "LIVE MARKET GENERATED"
         </span>
-        <span className="text-[11px] font-black text-emerald-300">{s.status || "ACTIVE"}</span>
+        <span className="text-xs font-black text-emerald-300">{s.status || "ACTIVE"}</span>
       </div>
 
       <div className="mt-2 grid grid-cols-3 gap-1.5">
@@ -530,7 +530,7 @@ function Mini({ label, value, good, danger }: { label: string; value: any; good?
   return (
     <div className="rounded-xl bg-black/35 p-1.5">
       <p className="text-[9px] text-slate-500">{label}</p>
-      <p className={`mt-1 max-w-full break-words text-[11px] font-black leading-tight ${good ? "text-emerald-300" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
+      <p className={`mt-1 max-w-full break-words text-xs font-black leading-tight ${good ? "text-emerald-300" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
     </div>
   );
 }
@@ -577,7 +577,7 @@ function LiveTradingChart() {
           <select
             value={pair}
             onChange={(e) => setPair(e.target.value)}
-            className="rounded-xl border border-white/8 bg-black/40 px-2 py-1.5 text-[11px] font-black text-yellow-300 outline-none"
+            className="rounded-xl border border-white/8 bg-black/40 px-2 py-1.5 text-xs font-black text-yellow-300 outline-none"
           >
             {pairs.map((p) => (
               <option key={p.value} value={p.value}>
@@ -591,11 +591,11 @@ function LiveTradingChart() {
       <div className="overflow-hidden rounded-xl border border-white/8 bg-black/40">
         <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
           <div>
-            <p className="text-[11px] font-black text-white">{currentPair} Live Chart</p>
+            <p className="text-xs font-black text-white">{currentPair} Live Chart</p>
             <p className="text-[9px] text-slate-500">TradingView market preview</p>
           </div>
 
-          <div className="flex gap-1.5 text-[11px] font-black">
+          <div className="flex gap-1.5 text-xs font-black">
             <span className="rounded-lg bg-white/10 px-2 py-1 text-slate-300">
               15m
             </span>
@@ -635,7 +635,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-white/8">
-        <div className="grid grid-cols-[70px_70px_1fr_80px] bg-black/40 px-3 py-3 text-[11px] font-black text-slate-400">
+        <div className="grid grid-cols-[70px_70px_1fr_80px] bg-black/40 px-3 py-3 text-xs font-black text-slate-400">
           <span>Time</span>
           <span>Curr.</span>
           <span>Event</span>
@@ -652,13 +652,13 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
             <span>{e.time}</span>
             <span className="font-black">{e.currency}</span>
             <span>{e.event}</span>
-            <span className={`rounded-lg px-2 py-1 text-center text-[11px] font-black ${String(e.impact).toLowerCase().includes("high") ? "bg-red-500/20 text-red-300" : "bg-yellow-500/20 text-yellow-300"}`}>
+            <span className={`rounded-lg px-2 py-1 text-center text-xs font-black ${String(e.impact).toLowerCase().includes("high") ? "bg-red-500/20 text-red-300" : "bg-yellow-500/20 text-yellow-300"}`}>
               {e.impact}
             </span>
           </div>
         ))}
       </div>
-      <Link href="/news-calendar" className="mt-2 block text-center text-[11px] font-black text-yellow-300">
+      <Link href="/news-calendar" className="mt-2 block text-center text-xs font-black text-yellow-300">
         View full calendar →
       </Link>
     </Panel>
@@ -671,7 +671,7 @@ function Badge({ children, color }: { children: React.ReactNode; color?: string 
     color === "yellow" ? "bg-yellow-500/15 text-yellow-300" :
     color === "blue" ? "bg-cyan-500/15 text-cyan-300" :
     "bg-white/10 text-white";
-  return <span className={`rounded-full px-3 py-1 text-[11px] font-black ${cls}`}>{children}</span>;
+  return <span className={`rounded-full px-3 py-1 text-xs font-black ${cls}`}>{children}</span>;
 }
 function cleanSymbol(symbol?: string) {
   return String(symbol || "").replace("/", "").toUpperCase();
@@ -760,8 +760,8 @@ function runningPips(s: Signal, livePrices: Record<string, any>) {
 
   if (!Number.isFinite(entry) || live === null) return null;
 
-  const isSell = String(s.direction || "").toUpperCase().includes("SELL");
-  const diff = isSell ? entry - live : live - entry;
+  const isLocked = String(s.direction || "").toUpperCase().includes("Locked");
+  const diff = isLocked ? entry - live : live - entry;
 
   return Math.round(diff / pipSize(s.symbol));
 }
@@ -1061,14 +1061,14 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         </nav>
 
         <div className="mt-8 rounded-xl border border-yellow-400/40 bg-yellow-400/[0.03] p-1.5">
-          <h3 className="text-[11px] font-black text-yellow-300">Premium AI Signals</h3>
+          <h3 className="text-xs font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-1.5 text-sm">
             <p>✓ AI powered strategies</p>
             <p>✓ Desk 1 and Trading Room</p>
             <p>✓ News calendar</p>
             <p>✓ MT4 / MT5 ready</p>
           </div>
-          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 text-center font-black text-black">
+          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 text-center font-black text-black">
             Join Telegram
           </a>
         </div>
@@ -1087,12 +1087,12 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
       <section className="relative z-10 xl:pl-[240px]">
         <header className="sticky top-0 z-30 border-b border-white/8 bg-[#030811]/90 px-4 py-3 shadow-xl shadow-black/20 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-1.5">
-            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-2.5 py-1">
+            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-1.5">
               <div className="mr-4 flex shrink-0 items-center gap-1.5">
   <span className="h-2 w-2 rounded-full bg-emerald-400" />
 
   <div className="flex items-center gap-1.5">
-    <span className="text-[11px] font-black uppercase tracking-widest text-emerald-300">
+    <span className="text-xs font-black uppercase tracking-widest text-emerald-300">
       LIVE MARKET STATUS
     </span>
 
@@ -1112,7 +1112,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   </div>
 </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-[11px] font-black text-white">
+  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-xs font-black text-white">
     {visibleLive.slice(0, 8).map((s, i) => {
       const status = tickerStatus(s, livePrices);
 
@@ -1157,7 +1157,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   <>
     <Link
       href="/client/signup"
-      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 font-black text-black hover:bg-yellow-300"
+      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black hover:bg-yellow-300"
     >
       Sign Up
     </Link>
@@ -1189,7 +1189,7 @@ er:bg-white/10"
               <Link
                 key={item.key}
                 href={item.href}
-                className={`shrink-0 rounded-xl px-4 py-3 text-[11px] font-black ${
+                className={`shrink-0 rounded-xl px-4 py-3 text-xs font-black ${
                   page === item.key ? "bg-yellow-400 text-black" : "bg-white/10 text-white"
                 }`}
               >
@@ -1398,7 +1398,7 @@ function PremiumLock({
     <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40  bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
         <div className="mx-auto flex h-6 w-6 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
-          <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="10" width="16" height="10" rx="2" />
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
           </svg>
@@ -1452,7 +1452,7 @@ isPremium,
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-xl px-2 py-1.5 text-[11px] font-black ${
+            className={`rounded-xl px-2 py-1.5 text-xs font-black ${
               filter === f ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/15" : "bg-white/10 text-white hover:bg-white/15"
             }`}
           >
@@ -1463,7 +1463,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid max-h-[260px] gap-1.5 overflow-y-auto pr-1 scrollbar-thin ${compact ? "xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1641,7 +1641,7 @@ const monthlyReturn =
           </div>
         </Panel>
       )}
-      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-2.5 py-1">Export CSV</button>}>
+      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-1.5">Export CSV</button>}>
         <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
           <StatCard title="Winning Trades" value={wins} color="green" />
@@ -1839,7 +1839,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <a
     href="/downloads/EasyPipsCopier.ex5"
     download
-    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 font-black text-black"
+    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black"
   >
     Download EA
   </a>
@@ -1850,12 +1850,12 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
 
 function HistoryPage({ closed }: { closed: Signal[] }) {
   const rows = closed.length ? closed : [
-    { symbol: "BTC/USD", direction: "BUY", strategy: "Strategy A", entry: "81317.35", sl: "80317.35", tp1: "82317.35", result: "Win", confidence: 82, created_at: "2026-05-15T10:22:00Z" },
-    { symbol: "EUR/USD", direction: "SELL", strategy: "Strategy A", entry: "1.16550", sl: "1.17550", tp1: "1.15550", result: "Win", confidence: 95, created_at: "2026-05-15T01:33:00Z" },
+    { symbol: "BTC/USD", direction: "Locked", strategy: "Strategy A", entry: "81317.35", sl: "80317.35", tp1: "82317.35", result: "Win", confidence: 82, created_at: "2026-05-15T10:22:00Z" },
+    { symbol: "EUR/USD", direction: "Locked", strategy: "Strategy A", entry: "1.16550", sl: "1.17550", tp1: "1.15550", result: "Win", confidence: 95, created_at: "2026-05-15T01:33:00Z" },
   ] as Signal[];
 
   return (
-    <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-2.5 py-1">Export CSV</button>}>
+    <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-1.5">Export CSV</button>}>
       <div className="mb-2 grid gap-1.5 md:grid-cols-4">
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Strategies</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Pairs</option></select>
@@ -1874,7 +1874,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
               <tr key={r.id || i} className="border-b border-white/5">
                 <td className="p-1.5">{formatDate(r.created_at)}</td>
                 <td className="p-1.5 font-black">{r.symbol}</td>
-                <td className={`p-1.5 font-black ${String(r.direction).includes("SELL") ? "text-red-300" : "text-emerald-300"}`}>{r.direction}</td>
+                <td className={`p-1.5 font-black ${String(r.direction).includes("Locked") ? "text-red-300" : "text-emerald-300"}`}>{r.direction}</td>
                 <td className="p-1.5">{r.strategy || r.desk}</td>
                 <td className="p-1.5">{r.entry}</td>
                 <td className="p-1.5">{r.sl}</td>
@@ -1950,7 +1950,7 @@ function SettingsPage({
   return (
     <div>
       <h2 className="mb-5 text-3xl font-black">Settings</h2>
-      <div className="mb-5 flex flex-wrap gap-1.5 border-b border-white/8 pb-3 text-[11px] font-black">
+      <div className="mb-5 flex flex-wrap gap-1.5 border-b border-white/8 pb-3 text-xs font-black">
         {["General", "Notifications", "Signal Preferences", "Risk Management", "Account Connections", "Security", "API Settings"].map((t) => (
           <button key={t} className={t === "Signal Preferences" ? "text-yellow-300" : "text-white"}>{t}</button>
         ))}
@@ -1972,15 +1972,15 @@ function SettingsPage({
               <button
                 key={c}
                 onClick={() => setCat(c)}
-                className={`rounded-xl px-2.5 py-1 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
+                className={`rounded-xl px-3 py-1.5 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
               >
                 {c}
               </button>
             ))}
           </div>
 
-          <div className="max-h-[430px] overflow-y-auto rounded-xl border border-white/8">
-            <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-3 text-[11px] font-black text-slate-500">
+          <div className=" overflow-visible rounded-xl border border-white/8">
+            <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-3 text-xs font-black text-slate-500">
               <span>Pair</span><span></span><span>Instrument</span><span>Category</span><span>Status</span>
             </div>
             {pairs.map((p) => {
@@ -2001,7 +2001,7 @@ function SettingsPage({
             <p className="text-sm">
               Selected: <span className="font-black text-emerald-300">{selectedPairs.length} pairs</span>
             </p>
-            <button onClick={() => setSelectedPairs([])} className="text-[11px] font-black text-yellow-300">
+            <button onClick={() => setSelectedPairs([])} className="text-xs font-black text-yellow-300">
               Clear All
             </button>
           </div>
@@ -2011,7 +2011,7 @@ function SettingsPage({
               {selectedPairs.map((pair) => (
                 <span
                   key={pair}
-                  className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-black text-emerald-300"
+                  className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-300"
                 >
                   {pair}
                 </span>
@@ -2022,13 +2022,13 @@ function SettingsPage({
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <button
               onClick={saveSettings}
-              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 font-black text-black hover:bg-yellow-300"
+              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black hover:bg-yellow-300"
             >
               Save Changes
             </button>
 
             {settingsMessage && (
-              <span className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-[11px] font-black text-emerald-300">
+              <span className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-xs font-black text-emerald-300">
                 {settingsMessage}
               </span>
             )}
@@ -2038,7 +2038,7 @@ function SettingsPage({
         <div className="space-y-1.5">
           <Panel title="Signal Types">
             <div className="grid gap-1.5 md:grid-cols-2">
-              {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
+              {["Locked Signals", "Locked Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-xl border border-white/8 bg-black/35 p-1.5">
                   <p className="font-black text-white">✓ {x}</p>
                   <p className="text-[9px] text-slate-500">Receive {x.toLowerCase()}</p>
@@ -2092,11 +2092,11 @@ function HelpCenterPage() {
       <Panel title="Help Center">
         <div className="grid gap-1.5 xl:grid-cols-4">
           <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
-            <h3 className="text-[11px] font-black text-yellow-300">Premium Support</h3>
+            <h3 className="text-xs font-black text-yellow-300">Premium Support</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
-            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 text-center font-black text-black">
+            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 text-center font-black text-black">
               Contact Support
             </a>
           </div>
@@ -2125,7 +2125,7 @@ function HelpCenterPage() {
 
 <Link
   href="/client/signup"
-  className="rounded-xl bg-yellow-400 px-2 py-1.5 text-[11px] font-black text-black hover:bg-yellow-300"
+  className="rounded-xl bg-yellow-400 px-2 py-1.5 text-xs font-black text-black hover:bg-yellow-300"
 >
   Sign Up
 </Link>
@@ -2138,6 +2138,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
