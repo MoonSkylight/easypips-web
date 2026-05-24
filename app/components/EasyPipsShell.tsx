@@ -1045,10 +1045,10 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         <div className="mt-8 rounded-3xl border border-yellow-400/40 bg-yellow-400/[0.03] p-5">
           <h3 className="text-xl font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-3 text-sm">
-            <p>? AI powered strategies</p>
-            <p>? Desk 1 and Trading Room</p>
-            <p>? News calendar</p>
-            <p>? MT4 / MT5 ready</p>
+            <p>✓ AI powered strategies</p>
+            <p>✓ Desk 1 and Trading Room</p>
+            <p>✓ News calendar</p>
+            <p>✓ MT4 / MT5 ready</p>
           </div>
           <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2 text-center font-black text-black">
             Join Telegram
@@ -2081,6 +2081,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
