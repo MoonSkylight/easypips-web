@@ -94,7 +94,7 @@ const NAV = [
   { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "account" },
   { key: "history", label: "History", href: "/history", icon: "history" },
   { key: "reports", label: "Reports", href: "/reports", icon: "reports" },
-  { key: "settings", label: "Settings", href: "/settings", icon: "settings" },
+  
   { key: "help-center", label: "Help Center", href: "/help-center", icon: "account" },
 ];
 
@@ -1203,7 +1203,7 @@ er:bg-white/10"
           <SystemRule />
 
         
-          {page !== "settings" && stats}
+          {page !== "settings" && page !== "history" && stats}
 
           {page === "dashboard" && (
   <div className="space-y-2">
@@ -2109,6 +2109,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
