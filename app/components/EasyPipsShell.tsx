@@ -1227,7 +1227,7 @@ er:bg-white/10"
               <LiveTradingChart />
               
               
-              <AccountMini accounts={accounts} />
+              
             </div>
           )}
 
@@ -2055,6 +2055,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
