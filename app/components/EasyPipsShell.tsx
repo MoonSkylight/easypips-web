@@ -303,7 +303,7 @@ function SystemRule() {
             EasyPips AI analyzes multiple market factors and only publishes signals after minimum confirmation is achieved.
           </p>
         </div>
-        <div className="flex items-end gap-3">
+        <div className="flex items-end gap-2">
           <p className="text-6xl font-black leading-none text-yellow-300 drop-shadow-[0_0_30px_rgba(250,204,21,0.35)]">82%</p>
           <p className="pb-2 text-sm font-black uppercase tracking-widest text-slate-300">minimum<br />confirmation</p>
         </div>
@@ -477,9 +477,9 @@ function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
   return (
     <div className="group rounded-2xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-3 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-xs text-slate-500">LIVE MARKET GENERATED</p>
+          <p className="text-[10px] text-slate-500">LIVE MARKET GENERATED</p>
           <h3 className="mt-1 text-xl font-black text-white">{s.symbol}</h3>
           <p className="text-xs text-slate-400">{formatDate(s.created_at)}</p>
           <p className="text-sm font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
@@ -511,7 +511,7 @@ function SignalCard({ s }: { s: Signal }) {
 function Mini({ label, value, good, danger }: { label: string; value: any; good?: boolean; danger?: boolean }) {
   return (
     <div className="rounded-2xl bg-black/35 p-3">
-      <p className="text-xs text-slate-500">{label}</p>
+      <p className="text-[10px] text-slate-500">{label}</p>
       <p className={`mt-1 max-w-full break-words text-sm font-black leading-tight ${good ? "text-emerald-300" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
     </div>
   );
@@ -598,7 +598,7 @@ function LiveTradingChart() {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="mt-4 grid grid-cols-3 gap-2">
         <Mini label="Chart" value="Live" good />
         <Mini label="Pair" value={currentPair} />
         <Mini label="Timeframe" value="15m" />
@@ -980,7 +980,7 @@ const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Tra
 const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
 
   const stats = (
-    <div className="mb-3 grid grid-cols-3 gap-2 xl:grid-cols-6">
+    <div className="mb-2 grid grid-cols-3 gap-2 xl:grid-cols-6">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1028,7 +1028,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
               <Link
                 key={item.key}
                 href={item.href}
-                className={`group flex h-12 items-center gap-3 rounded-2xl px-4 py-3 font-black tracking-tight ${
+                className={`group flex h-12 items-center gap-2 rounded-2xl px-4 py-3 font-black tracking-tight ${
                   active ? "border border-yellow-400/40 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/5" : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -1073,7 +1073,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
               <div className="mr-4 flex shrink-0 items-center gap-2">
   <span className="h-2 w-2 rounded-full bg-emerald-400" />
 
-  <div className="flex items-center gap-3">
+  <div className="flex items-center gap-2">
     <span className="text-xs font-black uppercase tracking-widest text-emerald-300">
       LIVE MARKET STATUS
     </span>
@@ -1219,7 +1219,7 @@ er:bg-white/10"
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
-  <div className="space-y-4">
+  <div className="space-y-3">
     <LiveSignalsPanel
       signals={visibleLive}
       filter={filter}
@@ -1260,14 +1260,14 @@ er:bg-white/10"
       </div>
     </div>
 
-    <div className="border-t border-white/10 pt-4 text-center text-xs text-slate-500">
+    <div className="border-t border-white/10 pt-2 text-center text-[10px] text-slate-500">
       Disclaimer <span className="mx-2">•</span> Terms <span className="mx-2">•</span> Privacy <span className="mx-2">•</span> Refund Policy
     </div>
   </div>
 )}
 
           {page === "live-signals" && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} />
               {!isPremium && (
                 <PremiumLock
@@ -1327,7 +1327,7 @@ er:bg-white/10"
     <a href="/legal/refund-policy" className="hover:text-white">Refund Policy</a>
   </div>
 
-  <p className="mt-4 text-xs text-slate-500">
+  <p className="mt-4 text-[10px] text-slate-500">
     Educational purposes only. Not financial advice. Trading involves risk.
   </p>
 </div>
@@ -1359,7 +1359,7 @@ function PremiumLock({
         <h3 className="mt-5 text-xl font-black text-white">{title}</h3>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link
             href="/client/signup"
             className="rounded-2xl bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
@@ -1415,7 +1415,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid max-h-[500px] gap-3 overflow-y-auto pr-2 ${compact ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+        <div className={`grid max-h-[500px] gap-2 overflow-y-auto pr-2 ${compact ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1582,7 +1582,7 @@ const monthlyReturn =
   equityCurve.length > 0 ? `${runningEquity > 0 ? "+" : ""}${runningEquity}R` : "0R";
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {analytics && (
         <Panel title="Real Backend Analytics">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -1603,13 +1603,13 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid gap-2 lg:grid-cols-3">
         <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid gap-2 lg:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
@@ -1645,7 +1645,7 @@ function TablePanel({ title, rows }: { title: string; rows: string[] }) {
     <Panel title={title}>
       <div className="space-y-3">
         {rows.map((r, i) => (
-          <div key={r} className="grid grid-cols-4 gap-3 border-b border-white/5 pb-2 text-sm">
+          <div key={r} className="grid grid-cols-4 gap-2 border-b border-white/5 pb-2 text-sm">
             <span className="col-span-1">{r}</span>
             <span>{i + 3}</span>
             <span>{80 - i * 5}%</span>
@@ -1670,7 +1670,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
     { title: "Trading Room", sub: "Manual support desk signals", color: "yellow" },
   ];
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="grid gap-2 lg:grid-cols-2">
       {cards.map((c) => {
         const count = allSignals.filter((s) => s.strategy === c.title || s.desk === c.title).length;
         return (
@@ -1699,10 +1699,10 @@ function NewsCalendarPage({ events }: { events: NewsEvent[] }) {
 function AccountPage({ accounts }: { accounts: Account[] }) {
   const myAccount = null;
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="grid gap-2 lg:grid-cols-2">
       <Panel title="MT5 Connection Request">
         <form
-  className="grid gap-3"
+  className="grid gap-2"
   onSubmit={async (e) => {
     e.preventDefault();
 
@@ -1808,7 +1808,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
 
   return (
     <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-4 py-2">Export CSV</button>}>
-      <div className="mb-4 grid gap-3 md:grid-cols-4">
+      <div className="mb-4 grid gap-2 md:grid-cols-4">
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Strategies</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Pairs</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Results</option></select>
@@ -1855,7 +1855,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
 
 function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Panel title="Reports">
         <div className="grid gap-4 md:grid-cols-4">
           <button className="rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black">Download Daily Report</button>
@@ -1908,7 +1908,7 @@ function SettingsPage({
         ))}
       </div>
 
-      <div className="grid gap-3 xl:grid-cols-[1fr_1fr]">
+      <div className="grid gap-2 xl:grid-cols-[1fr_1fr]">
         <Panel title="Signal Preferences">
           <p className="mb-5 text-slate-400">Choose specific instruments. Example: select only XAU/USD Gold or EUR/USD.</p>
 
@@ -1971,7 +1971,7 @@ function SettingsPage({
             </div>
           )}
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-2">
             <button
               onClick={saveSettings}
               className="rounded-xl bg-yellow-400 px-4 py-2 font-black text-black hover:bg-yellow-300"
@@ -1987,9 +1987,9 @@ function SettingsPage({
           </div>
         </Panel>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <Panel title="Signal Types">
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-2 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-2xl border border-white/8 bg-black/35 p-4">
                   <p className="font-black text-white">✓ {x}</p>
@@ -2040,9 +2040,9 @@ function Slider({ label, value }: { label: string; value: string }) {
 
 function HelpCenterPage() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Panel title="Help Center">
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-2 lg:grid-cols-3">
           <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
             <h3 className="text-xl font-black text-yellow-300">Premium Support</h3>
             <p className="mt-3 text-sm leading-6 text-slate-300">
@@ -2090,6 +2090,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
