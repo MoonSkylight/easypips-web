@@ -275,7 +275,7 @@ function StatCard({
     <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-black uppercase">{title}</p>
-        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
+        <span className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
           {icon}
         </span>
       </div>
@@ -290,7 +290,7 @@ function StatCard({
 function SystemRule() {
   return (
     <section className="mb-2 rounded-xl border border-yellow-400/20 bg-white/[0.025] p-3">
-      <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-sm font-black uppercase tracking-widest text-yellow-300">
@@ -500,7 +500,7 @@ function SignalCard({ s }: { s: Signal }) {
           <p className="text-[9px] text-slate-500">LIVE MARKET GENERATED</p>
           <h3 className="mt-1 text-sm font-black text-white">{s.symbol}</h3>
           <p className="text-[9px] text-slate-500">{formatDate(s.created_at)}</p>
-          <p className="text-sm font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
+          <p className="text-lg font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-sm font-black ${isLocked ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
@@ -577,7 +577,7 @@ function LiveTradingChart() {
           <select
             value={pair}
             onChange={(e) => setPair(e.target.value)}
-            className="rounded-xl border border-white/8 bg-black/40 px-2 py-1.5 text-sm font-black text-yellow-300 outline-none"
+            className="rounded-xl border border-white/8 bg-black/40 px-2 py-1.5 text-lg font-black text-yellow-300 outline-none"
           >
             {pairs.map((p) => (
               <option key={p.value} value={p.value}>
@@ -658,7 +658,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
           </div>
         ))}
       </div>
-      <Link href="/news-calendar" className="mt-2 block text-center text-sm font-black text-yellow-300">
+      <Link href="/news-calendar" className="mt-2 block text-center text-lg font-black text-yellow-300">
         View full calendar →
       </Link>
     </Panel>
@@ -1061,14 +1061,14 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         </nav>
 
         <div className="mt-8 rounded-xl border border-yellow-400/40 bg-yellow-400/[0.03] p-1.5">
-          <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
+          <h3 className="text-lg font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-1.5 text-sm">
             <p>✓ AI powered strategies</p>
             <p>✓ Desk 1 and Trading Room</p>
             <p>✓ News calendar</p>
             <p>✓ MT4 / MT5 ready</p>
           </div>
-          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-4 py-2 text-center font-black text-black">
+          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center font-black text-black">
             Join Telegram
           </a>
         </div>
@@ -1087,7 +1087,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
       <section className="relative z-10 xl:pl-[240px]">
         <header className="sticky top-0 z-30 border-b border-white/8 bg-[#030811]/90 px-4 py-3 shadow-xl shadow-black/20 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-1.5">
-            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-4 py-2">
+            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-5 py-3">
               <div className="mr-4 flex shrink-0 items-center gap-1.5">
   <span className="h-2 w-2 rounded-full bg-emerald-400" />
 
@@ -1157,7 +1157,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   <>
     <Link
       href="/client/signup"
-      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-4 py-2 font-black text-black hover:bg-yellow-300"
+      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 font-black text-black hover:bg-yellow-300"
     >
       Sign Up
     </Link>
@@ -1207,7 +1207,7 @@ er:bg-white/10"
 
           {page === "dashboard" && (
   <div className="space-y-2">
-    <div className="grid gap-2 xl:grid-cols-[1fr_340px]">
+    <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
       <div className="space-y-2">
         
 
@@ -1237,7 +1237,7 @@ er:bg-white/10"
               Liquidity monitoring active.
             </p>
 
-            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-4 py-2 text-sm font-black text-yellow-300">
+            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-5 py-3 text-lg font-black text-yellow-300">
               Go to Trading Room
             </button>
           </div>
@@ -1398,7 +1398,7 @@ function PremiumLock({
     <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40  bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
         <div className="mx-auto flex h-6 w-6 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
-          <svg className="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="h-16 w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="10" width="16" height="10" rx="2" />
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
           </svg>
@@ -1641,7 +1641,7 @@ const monthlyReturn =
           </div>
         </Panel>
       )}
-      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-4 py-2">Export CSV</button>}>
+      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-5 py-3">Export CSV</button>}>
         <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
           <StatCard title="Winning Trades" value={wins} color="green" />
@@ -1839,7 +1839,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <a
     href="/downloads/EasyPipsCopier.ex5"
     download
-    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-4 py-2 font-black text-black"
+    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 font-black text-black"
   >
     Download EA
   </a>
@@ -1855,7 +1855,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
   ] as Signal[];
 
   return (
-    <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-4 py-2">Export CSV</button>}>
+    <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-5 py-3">Export CSV</button>}>
       <div className="mb-2 grid gap-1.5 md:grid-cols-4">
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Strategies</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Pairs</option></select>
@@ -1972,7 +1972,7 @@ function SettingsPage({
               <button
                 key={c}
                 onClick={() => setCat(c)}
-                className={`rounded-xl px-4 py-2 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
+                className={`rounded-xl px-5 py-3 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
               >
                 {c}
               </button>
@@ -2001,7 +2001,7 @@ function SettingsPage({
             <p className="text-sm">
               Selected: <span className="font-black text-emerald-300">{selectedPairs.length} pairs</span>
             </p>
-            <button onClick={() => setSelectedPairs([])} className="text-sm font-black text-yellow-300">
+            <button onClick={() => setSelectedPairs([])} className="text-lg font-black text-yellow-300">
               Clear All
             </button>
           </div>
@@ -2022,7 +2022,7 @@ function SettingsPage({
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <button
               onClick={saveSettings}
-              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-4 py-2 font-black text-black hover:bg-yellow-300"
+              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 font-black text-black hover:bg-yellow-300"
             >
               Save Changes
             </button>
@@ -2092,11 +2092,11 @@ function HelpCenterPage() {
       <Panel title="Help Center">
         <div className="grid gap-1.5 xl:grid-cols-3">
           <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
-            <h3 className="text-sm font-black text-yellow-300">Premium Support</h3>
+            <h3 className="text-lg font-black text-yellow-300">Premium Support</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
-            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-4 py-2 text-center font-black text-black">
+            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center font-black text-black">
               Contact Support
             </a>
           </div>
@@ -2138,6 +2138,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
