@@ -1050,7 +1050,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
             <p>? News calendar</p>
             <p>? MT4 / MT5 ready</p>
           </div>
-          <a href="https://t.me/" target="_blank" className="mt-5 block rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black">
+          <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2.5 text-center font-black text-black">
             Join Telegram
           </a>
         </div>
@@ -1139,7 +1139,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   <>
     <Link
       href="/client/signup"
-      className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300"
+      className="rounded-xl bg-yellow-400 px-4 py-2.5 font-black text-black hover:bg-yellow-300"
     >
       Sign Up
     </Link>
@@ -1972,7 +1972,7 @@ function SettingsPage({
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <button
               onClick={saveSettings}
-              className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300"
+              className="rounded-xl bg-yellow-400 px-4 py-2.5 font-black text-black hover:bg-yellow-300"
             >
               Save Changes
             </button>
@@ -2046,7 +2046,7 @@ function HelpCenterPage() {
             <p className="mt-3 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
-            <a href="https://t.me/" target="_blank" className="mt-5 block rounded-2xl bg-yellow-400 px-5 py-3 text-center font-black text-black">
+            <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2.5 text-center font-black text-black">
               Contact Support
             </a>
           </div>
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
