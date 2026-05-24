@@ -280,7 +280,7 @@ function StatCard({
         </span>
       </div>
       <p className="mt-4 text-4xl font-black text-white">{value}</p>
-      <div className="mt-5 h-2 rounded-full bg-black/40">
+      <div className="mt-3 h-2 rounded-full bg-black/40">
         <div className={`h-2 w-1/3 rounded-full ${color === "red" ? "bg-red-400" : color === "yellow" ? "bg-yellow-400" : color === "purple" ? "bg-purple-400" : "bg-emerald-400"}`} />
       </div>
     </div>
@@ -290,8 +290,8 @@ function StatCard({
 function SystemRule() {
   return (
     <section className="mb-4 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
-      <div className="flex flex-col gap-4 rounded-2xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
+      <div className="flex flex-col gap-3 rounded-2xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
           <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 3 5 6v5c0 5 3.4 8.7 7 10 3.6-1.3 7-5 7-10V6l-7-3Z" />
             <path d="m9 12 2 2 4-5" />
@@ -370,7 +370,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 -yellow-400/[0.10] via-white/[0.04] to-black/40 p-3 shadow-xl shadow-yellow-400/15">
-      <div className="absolute right-4 top-4 rounded-full border border-yellow-300/40  bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+      <div className="absolute right-4 top-3 rounded-full border border-yellow-300/40  bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
         Premium
       </div>
 
@@ -402,14 +402,14 @@ function LockedSignalCard({ s }: { s: Signal }) {
         </p>
       </div>
 
-      <div className="my-4 flex justify-center">
+      <div className="my-3 flex justify-center">
  
 
 
 
 
 
-       <div className="flex h-16 w-16 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-2xl shadow-lg shadow-yellow-400/15">
+       <div className="flex h-14 w-14 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-xl shadow-lg shadow-yellow-400/15">
           🔒
         </div>
       </div>
@@ -418,7 +418,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-      <div className="rounded-2xl border border-white/8 bg-black/30 p-4 text-center backdrop-blur-md">
+      <div className="rounded-2xl border border-white/8 bg-black/30 p-3 text-center backdrop-blur-md">
         <p className="text-sm font-black text-white">
           ••••••••••••••••
         </p>
@@ -457,7 +457,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-5 w-full rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
+       className="mt-3 w-full rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -520,7 +520,7 @@ function Mini({ label, value, good, danger }: { label: string; value: any; good?
 function Panel({ title, children, right }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-white/8 bg-white/[0.045] p-3 shadow-xl shadow-black/30 backdrop-blur-xl">
-      <div className="mb-5 flex items-center justify-between gap-4">
+      <div className="mb-5 flex items-center justify-between gap-3">
         <h2 className="text-xl font-black text-white">{title}</h2>
         {right}
       </div>
@@ -640,7 +640,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
           </div>
         ))}
       </div>
-      <Link href="/news-calendar" className="mt-5 block text-center text-sm font-black text-yellow-300">
+      <Link href="/news-calendar" className="mt-3 block text-center text-sm font-black text-yellow-300">
         View full calendar →
       </Link>
     </Panel>
@@ -1010,8 +1010,8 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
-      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/8 bg-[#07101b]/90 p-4 shadow-xl backdrop-blur-xl xl:block">
-        <Link href="/dashboard" className="mb-5 flex items-center gap-4 px-1">
+      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/8 bg-[#07101b]/90 p-3 shadow-xl backdrop-blur-xl xl:block">
+        <Link href="/dashboard" className="mb-5 flex items-center gap-3 px-1">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
           <div>
             <h1 className="text-xl font-black">
@@ -1050,12 +1050,12 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
             <p>✓ News calendar</p>
             <p>✓ MT4 / MT5 ready</p>
           </div>
-          <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2 text-center font-black text-black">
+          <a href="https://t.me/" target="_blank" className="mt-3 block rounded-xl bg-yellow-400 px-4 py-2 text-center font-black text-black">
             Join Telegram
           </a>
         </div>
 
-        <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+        <div className="mt-3 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
           <p className="text-slate-400">Market Status</p>
           <p className="mt-2 font-black text-emerald-300">OPEN</p>
           <div className="mt-4 h-4 rounded-full bg-emerald-500/20">
@@ -1068,7 +1068,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
       <section className="relative z-10 xl:pl-[240px]">
         <header className="sticky top-0 z-30 border-b border-white/8 bg-[#030811]/90 px-4 py-3 shadow-xl shadow-black/20 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
+          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-1.5">
               <div className="mr-4 flex shrink-0 items-center gap-2">
   <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -1114,7 +1114,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 </div>
 </div>
 
-<div className="flex items-center gap-4">
+<div className="flex items-center gap-3">
               <div className="hidden text-right text-xs md:block">
                 <p className="text-slate-400">Server Time UTC</p>
                 <UTCClock />
@@ -1228,10 +1228,10 @@ er:bg-white/10"
      
     />
 
-    <div className="grid gap-4 xl:grid-cols-[1fr_280px]">
+    <div className="grid gap-3 xl:grid-cols-[1fr_280px]">
       <LiveTradingChart />
 
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         <Panel title="Trading Room">
           <div className="space-y-3 text-sm">
             <p className="text-emerald-300 font-black">Live</p>
@@ -1320,7 +1320,7 @@ er:bg-white/10"
       </section>
     
 <div className="mt-10 border-t border-white/8 pt-6 text-center text-sm text-slate-400">
-  <div className="flex flex-wrap items-center justify-center gap-4">
+  <div className="flex flex-wrap items-center justify-center gap-3">
     <a href="/legal/disclaimer" className="hover:text-white">Disclaimer</a>
     <a href="/legal/terms" className="hover:text-white">Terms</a>
     <a href="/legal/privacy" className="hover:text-white">Privacy</a>
@@ -1349,14 +1349,14 @@ function PremiumLock({
   return (
     <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40  bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
           <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="10" width="16" height="10" rx="2" />
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
           </svg>
         </div>
 
-        <h3 className="mt-5 text-xl font-black text-white">{title}</h3>
+        <h3 className="mt-3 text-xl font-black text-white">{title}</h3>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -1415,7 +1415,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid max-h-[500px] gap-2 overflow-y-auto pr-2 ${compact ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+        <div className={`grid max-h-[460px] gap-2 overflow-y-auto pr-1 ${compact ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1468,7 +1468,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
 function AccountMini({ accounts }: { accounts: Account[] }) {
   return (
     <Panel title="MT4 / MT5 Connected Accounts">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <Mini label="Total Connected" value={accounts.length} />
         <Mini label="Approved" value={accounts.filter((a) => a.status === "approved").length} good />
       </div>
@@ -1585,7 +1585,7 @@ const monthlyReturn =
     <div className="space-y-3">
       {analytics && (
         <Panel title="Real Backend Analytics">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard title="Closed Trades" value={analytics.totalClosed || 0} color="cyan" />
             <StatCard title="Wins" value={analytics.wins || 0} color="green" />
             <StatCard title="Losses" value={analytics.losses || 0} color="red" />
@@ -1594,7 +1594,7 @@ const monthlyReturn =
         </Panel>
       )}
       <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-4 py-2">Export CSV</button>}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
           <StatCard title="Winning Trades" value={wins} color="green" />
           <StatCard title="Losing Trades" value={losses} color="red" />
@@ -1631,7 +1631,7 @@ function FakeChart({ title, value }: { title: string; value: string }) {
   return (
     <Panel title={title}>
       <p className="text-right font-black text-emerald-300">{value}</p>
-      <div className="mt-5 flex h-48 items-end gap-2 border-b border-l border-white/8 p-3">
+      <div className="mt-3 flex h-48 items-end gap-2 border-b border-l border-white/8 p-3">
         {[20, 30, 25, 50, 55, 70, 90, 80, 100, 120, 140, 160].map((h, i) => (
           <div key={i} className="flex-1 rounded-t bg-emerald-400/70" style={{ height: `${h}px` }} />
         ))}
@@ -1681,7 +1681,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
               <Mini label="TP" value={0} good />
               <Mini label="SL" value={0} danger />
             </div>
-            <div className="mt-5 rounded-2xl bg-black/30 p-3">
+            <div className="mt-3 rounded-2xl bg-black/30 p-3">
               <p className="text-sm text-slate-300">This strategy only publishes signals after the 82% system confirmation rule is achieved.</p>
             </div>
           </Panel>
@@ -1857,7 +1857,7 @@ function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
   return (
     <div className="space-y-3">
       <Panel title="Reports">
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-4">
           <button className="rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black">Download Daily Report</button>
           <button className="rounded-2xl bg-white/10 px-5 py-4 font-black">Download Weekly Report</button>
           <button className="rounded-2xl bg-white/10 px-5 py-4 font-black">Download Monthly Report</button>
@@ -1902,7 +1902,7 @@ function SettingsPage({
   return (
     <div>
       <h2 className="mb-5 text-4xl font-black">Settings</h2>
-      <div className="mb-5 flex flex-wrap gap-4 border-b border-white/8 pb-3 text-sm font-black">
+      <div className="mb-5 flex flex-wrap gap-3 border-b border-white/8 pb-3 text-sm font-black">
         {["General", "Notifications", "Signal Preferences", "Risk Management", "Account Connections", "Security", "API Settings"].map((t) => (
           <button key={t} className={t === "Signal Preferences" ? "text-yellow-300" : "text-white"}>{t}</button>
         ))}
@@ -1971,7 +1971,7 @@ function SettingsPage({
             </div>
           )}
 
-          <div className="mt-5 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <button
               onClick={saveSettings}
               className="rounded-xl bg-yellow-400 px-4 py-2 font-black text-black hover:bg-yellow-300"
@@ -1991,7 +1991,7 @@ function SettingsPage({
           <Panel title="Signal Types">
             <div className="grid gap-2 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
-                <div key={x} className="rounded-2xl border border-white/8 bg-black/35 p-4">
+                <div key={x} className="rounded-2xl border border-white/8 bg-black/35 p-3">
                   <p className="font-black text-white">✓ {x}</p>
                   <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
 
@@ -2048,7 +2048,7 @@ function HelpCenterPage() {
             <p className="mt-3 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
-            <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2 text-center font-black text-black">
+            <a href="https://t.me/" target="_blank" className="mt-3 block rounded-xl bg-yellow-400 px-4 py-2 text-center font-black text-black">
               Contact Support
             </a>
           </div>
@@ -2058,7 +2058,7 @@ function HelpCenterPage() {
             <p className="mt-3 text-sm leading-6 text-slate-300">
               Need help connecting your trading account? Submit a request from the Account page.
             </p>
-            <Link href="/account" className="mt-5 block rounded-2xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
+            <Link href="/account" className="mt-3 block rounded-2xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
               Open Account Page
             </Link>
           </div>
@@ -2081,7 +2081,7 @@ function HelpCenterPage() {
 >
   Sign Up
 </Link>
-<Link href="/client/signup" className="mt-5 block rounded-2xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
+<Link href="/client/signup" className="mt-3 block rounded-2xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
               View Pricing
             </Link>
           </div>
@@ -2090,6 +2090,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
