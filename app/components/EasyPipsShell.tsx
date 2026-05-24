@@ -1201,31 +1201,7 @@ er:bg-white/10"
 
         <div className="mx-auto max-w-[1600px] p-2">
           <SystemRule />
-{page === "dashboard" && (
-  <>
 
-    <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2 text-[9px] font-black uppercase tracking-widest">
-      <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
-        Volatility: Normal
-      </span>
-
-      <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-cyan-300">
-        Liquidity: High
-      </span>
-
-      <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-yellow-300">
-        Spreads: Stable
-      </span>
-
-      <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-red-300">
-        News Risk: Low
-      </span>
-    </div>
-  </>
-)}
-<span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-cyan-300">
-  Strategy Quality: {strategyQualityScore} — {strategyQualityLabel}
-</span>
 
  <span className={`rounded-full border px-3 py-1 ${
   newsProtection
