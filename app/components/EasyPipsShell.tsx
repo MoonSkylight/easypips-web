@@ -272,7 +272,7 @@ function StatCard({
   };
 
   return (
-    <div className={`group rounded-2xl border ${colors[color]} bg-white/[0.045] p-2 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
+    <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-2 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-black uppercase">{title}</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
@@ -289,7 +289,7 @@ function StatCard({
 
 function SystemRule() {
   return (
-    <section className="mb-2 rounded-2xl border border-yellow-400/20 bg-white/[0.025] p-3">
+    <section className="mb-2 rounded-xl border border-yellow-400/20 bg-white/[0.025] p-3">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -374,7 +374,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-yellow-300/40  bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-xl hover:shadow-yellow-400/15 from
+    <div className="relative overflow-hidden rounded-xl border border-yellow-300/40  bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-xl hover:shadow-yellow-400/15 from
 
 
 
@@ -405,7 +405,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
         </p>
 
-        <h3 className="mt-2 text-base font-black text-white">
+        <h3 className="mt-2 text-sm font-black text-white">
           {s.symbol}
         </h3>
 
@@ -427,7 +427,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       <div className="flex h-9 w-9 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-base shadow-lg shadow-yellow-400/15">
+       <div className="flex h-7 w-7 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-base shadow-lg shadow-yellow-400/15">
           🔒
         </div>
       </div>
@@ -436,7 +436,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-      <div className="rounded-2xl border border-white/8 bg-black/30 p-2 text-center backdrop-blur-md">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-2 text-center backdrop-blur-md">
         <p className="text-xs font-black text-white">
           ••••••••••••••••
         </p>
@@ -454,7 +454,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
        </p>
       </div>
 
-      <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/8 bg-black/35 px-3 py-2 text-xs text-slate-300">
+      <div className="mt-4 flex items-center justify-between rounded-xl border border-white/8 bg-black/35 px-3 py-2 text-xs text-slate-300">
  
 
 
@@ -475,7 +475,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-2 w-full rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-xs font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
+       className="mt-2 w-full rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-xs font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -494,11 +494,11 @@ function LockedSignalCard({ s }: { s: Signal }) {
 function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
   return (
-    <div className="group rounded-2xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
+    <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-[10px] text-slate-500">LIVE MARKET GENERATED</p>
-          <h3 className="mt-1 text-base font-black text-white">{s.symbol}</h3>
+          <h3 className="mt-1 text-sm font-black text-white">{s.symbol}</h3>
           <p className="text-xs text-slate-400">{formatDate(s.created_at)}</p>
           <p className="text-xs font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
@@ -528,7 +528,7 @@ function SignalCard({ s }: { s: Signal }) {
 
 function Mini({ label, value, good, danger }: { label: string; value: any; good?: boolean; danger?: boolean }) {
   return (
-    <div className="rounded-2xl bg-black/35 p-2">
+    <div className="rounded-xl bg-black/35 p-2">
       <p className="text-[10px] text-slate-500">{label}</p>
       <p className={`mt-1 max-w-full break-words text-xs font-black leading-tight ${good ? "text-emerald-300" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
     </div>
@@ -537,9 +537,9 @@ function Mini({ label, value, good, danger }: { label: string; value: any; good?
 
 function Panel({ title, children, right }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-white/8 bg-white/[0.045] p-2 shadow-xl shadow-black/30 backdrop-blur-xl">
+    <section className="rounded-xl border border-white/8 bg-white/[0.045] p-2 shadow-xl shadow-black/30 backdrop-blur-xl">
       <div className="mb-5 flex items-center justify-between gap-2">
-        <h2 className="text-base font-black text-white">{title}</h2>
+        <h2 className="text-sm font-black text-white">{title}</h2>
         {right}
       </div>
       {children}
@@ -588,7 +588,7 @@ function LiveTradingChart() {
         </div>
       }
     >
-      <div className="overflow-hidden rounded-2xl border border-white/8 bg-black/40">
+      <div className="overflow-hidden rounded-xl border border-white/8 bg-black/40">
         <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
           <div>
             <p className="text-xs font-black text-white">{currentPair} Live Chart</p>
@@ -634,7 +634,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
         <Badge color="yellow">Medium</Badge>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/8">
+      <div className="overflow-hidden rounded-xl border border-white/8">
         <div className="grid grid-cols-[70px_70px_1fr_80px] bg-black/40 px-3 py-3 text-xs font-black text-slate-400">
           <span>Time</span>
           <span>Curr.</span>
@@ -1030,9 +1030,9 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
       <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/8 bg-[#07101b]/90 p-2 shadow-xl backdrop-blur-xl xl:block">
         <Link href="/dashboard" className="mb-5 flex items-center gap-2 px-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
+          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
           <div>
-            <h1 className="text-base font-black">
+            <h1 className="text-sm font-black">
               Easy<span className="text-yellow-300">Pips</span> <span className="text-emerald-300">AI</span>
             </h1>
             <p className="text-xs text-slate-400">Smart Forex Signals</p>
@@ -1046,7 +1046,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
               <Link
                 key={item.key}
                 href={item.href}
-                className={`group flex h-12 items-center gap-2 rounded-2xl px-4 py-3 font-black tracking-tight ${
+                className={`group flex h-12 items-center gap-2 rounded-xl px-4 py-3 font-black tracking-tight ${
                   active ? "border border-yellow-400/40 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/5" : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -1060,8 +1060,8 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           })}
         </nav>
 
-        <div className="mt-8 rounded-2xl border border-yellow-400/40 bg-yellow-400/[0.03] p-2">
-          <h3 className="text-base font-black text-yellow-300">Premium AI Signals</h3>
+        <div className="mt-8 rounded-xl border border-yellow-400/40 bg-yellow-400/[0.03] p-2">
+          <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-2 text-sm">
             <p>✓ AI powered strategies</p>
             <p>✓ Desk 1 and Trading Room</p>
@@ -1073,7 +1073,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           </a>
         </div>
 
-        <div className="mt-2 rounded-2xl border border-white/8 bg-white/[0.04] p-2">
+        <div className="mt-2 rounded-xl border border-white/8 bg-white/[0.04] p-2">
           <p className="text-slate-400">Market Status</p>
           <p className="mt-2 font-black text-emerald-300">OPEN</p>
           <div className="mt-4 h-4 rounded-full bg-emerald-500/20">
@@ -1144,12 +1144,12 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         localStorage.removeItem("easypips_client_token");
         window.location.href = "/client/login";
       }}
-      className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white hover:bg-red-400"
+      className="rounded-xl bg-red-500 px-5 py-3 font-black text-white hover:bg-red-400"
     >
       Logout
     </button>
 
-    <a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
+    <a href="https://t.me/" target="_blank" className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
       Join Telegram
     </a>
   </>
@@ -1165,13 +1165,13 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
     <Link
  
      href="/client/login"
-      className="rounded-2xl border border-white/8 px-5 py-3 font-black text-white hov
+      className="rounded-xl border border-white/8 px-5 py-3 font-black text-white hov
 er:bg-white/10"
     >
       Login
     </Link>
 
-    <a href="https://t.me/" target="_blank" className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
+    <a href="https://t.me/" target="_blank" className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
       Join Telegram
     </a>
 
@@ -1184,12 +1184,12 @@ er:bg-white/10"
 
         <div className="xl:hidden px-4 pt-4">
           {/* Mobile navigation */}
-          <div className="flex gap-2 overflow-x-auto rounded-2xl border border-white/8 bg-white/[0.04] p-2">
+          <div className="flex gap-2 overflow-x-auto rounded-xl border border-white/8 bg-white/[0.04] p-2">
             {NAV.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}
-                className={`shrink-0 rounded-2xl px-4 py-3 text-xs font-black ${
+                className={`shrink-0 rounded-xl px-4 py-3 text-xs font-black ${
                   page === item.key ? "bg-yellow-400 text-black" : "bg-white/10 text-white"
                 }`}
               >
@@ -1204,7 +1204,7 @@ er:bg-white/10"
 {page === "dashboard" && (
   <>
 
-    <div className="mb-2 flex flex-wrap items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-2 text-[9px] font-black uppercase tracking-widest">
+    <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2 text-[9px] font-black uppercase tracking-widest">
       <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
         Volatility: Normal
       </span>
@@ -1263,7 +1263,7 @@ er:bg-white/10"
         <Panel title="AI Market Scan">
           <div className="space-y-2 text-sm">
             <p className="text-slate-400">AI markets monitored</p>
-            <p className="text-base font-black text-white">28</p>
+            <p className="text-sm font-black text-white">28</p>
             <p className="text-slate-300">Actionable details hidden for premium users.</p>
           </div>
         </Panel>
@@ -1337,7 +1337,7 @@ er:bg-white/10"
         </div>
       </section>
     
-<div className="mt-10 border-t border-white/8 pt-6 text-center text-sm text-slate-400">
+<div className="mt-10 border-t border-white/8 pt-6 text-center text-[10px] text-slate-500">
   <div className="flex flex-wrap items-center justify-center gap-2">
     <a href="/legal/disclaimer" className="hover:text-white">Disclaimer</a>
     <a href="/legal/terms" className="hover:text-white">Terms</a>
@@ -1367,27 +1367,27 @@ function PremiumLock({
   return (
     <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40  bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
-        <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
+        <div className="mx-auto flex h-7 w-7 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
           <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="10" width="16" height="10" rx="2" />
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
           </svg>
         </div>
 
-        <h3 className="mt-2 text-base font-black text-white">{title}</h3>
+        <h3 className="mt-2 text-sm font-black text-white">{title}</h3>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link
             href="/client/signup"
-            className="rounded-2xl bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
+            className="rounded-xl bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
           >
             {cta}
           </Link>
 
           <Link
             href="/dashboard"
-            className="rounded-2xl border border-white/8 px-6 py-3 font-black text-white hover:bg-white/10"
+            className="rounded-xl border border-white/8 px-6 py-3 font-black text-white hover:bg-white/10"
           >
             Back to Dashboard
           </Link>
@@ -1431,7 +1431,7 @@ isPremium,
         ))}
       </div>
       {signals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
+        <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
         <div className={`grid max-h-[260px] gap-2 overflow-y-auto pr-1 ${compact ? "xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"}`}>
           {signals.map((s, i) =>
@@ -1454,7 +1454,7 @@ function PerformanceMini({ closed }: { closed: Signal[] }) {
   return (
     <Panel title="Performance Overview">
       <div className="flex items-center gap-6">
-        <div className="flex h-32 w-32 items-center justify-center rounded-full border-[16px] border-emerald-400/80 text-base font-black">{rate}%</div>
+        <div className="flex h-32 w-32 items-center justify-center rounded-full border-[16px] border-emerald-400/80 text-sm font-black">{rate}%</div>
         <div className="space-y-2 text-sm">
           <p>Win Rate <span className="float-right ml-10">{rate}%</span></p>
           <p>TP Hit Rate <span className="float-right ml-10">0%</span></p>
@@ -1699,7 +1699,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
               <Mini label="TP" value={0} good />
               <Mini label="SL" value={0} danger />
             </div>
-            <div className="mt-2 rounded-2xl bg-black/30 p-2">
+            <div className="mt-2 rounded-xl bg-black/30 p-2">
               <p className="text-sm text-slate-300">This strategy only publishes signals after the 82% system confirmation rule is achieved.</p>
             </div>
           </Panel>
@@ -1756,31 +1756,31 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <input
     name="name"
     placeholder="Full Name"
-    className="rounded-2xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
   />
 
   <input
     name="email"
     placeholder="Email"
-    className="rounded-2xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
   />
 
   <input
     name="account_login"
     placeholder="MT5 Login"
-    className="rounded-2xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
   />
 
   <input
     name="broker"
     placeholder="Broker Server"
-    className="rounded-2xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
   />
 
   <select
     name="platform"
     defaultValue="MT5"
-    className="rounded-2xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
   >
     <option>MT5</option>
     <option>MT4</option>
@@ -1789,12 +1789,12 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <textarea
     name="note"
     placeholder="Risk note / request details"
-    className="min-h-28 rounded-2xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="min-h-28 rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
   />
 
     <button
     type="submit"
-    className="rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300"
+    className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300"
   >
     Submit Connection Request
   </button>
@@ -1876,10 +1876,10 @@ function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
     <div className="space-y-2">
       <Panel title="Reports">
         <div className="grid gap-2 md:grid-cols-4">
-          <button className="rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black">Download Daily Report</button>
-          <button className="rounded-2xl bg-white/10 px-5 py-4 font-black">Download Weekly Report</button>
-          <button className="rounded-2xl bg-white/10 px-5 py-4 font-black">Download Monthly Report</button>
-          <button className="rounded-2xl bg-white/10 px-5 py-4 font-black">Export CSV</button>
+          <button className="rounded-xl bg-yellow-400 px-5 py-4 font-black text-black">Download Daily Report</button>
+          <button className="rounded-xl bg-white/10 px-5 py-4 font-black">Download Weekly Report</button>
+          <button className="rounded-xl bg-white/10 px-5 py-4 font-black">Download Monthly Report</button>
+          <button className="rounded-xl bg-white/10 px-5 py-4 font-black">Export CSV</button>
         </div>
       </Panel>
       <PerformancePage closed={closed} allSignals={allSignals} />
@@ -1934,7 +1934,7 @@ function SettingsPage({
             value={pairSearch}
             onChange={(e) => setPairSearch(e.target.value)}
             placeholder="Search for a pair or instrument..."
-            className="mb-2 w-full rounded-2xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+            className="mb-2 w-full rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
           />
 
           <div className="mb-2 flex flex-wrap gap-2">
@@ -1949,7 +1949,7 @@ function SettingsPage({
             ))}
           </div>
 
-          <div className="max-h-[430px] overflow-y-auto rounded-2xl border border-white/8">
+          <div className="max-h-[430px] overflow-y-auto rounded-xl border border-white/8">
             <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-3 text-xs font-black text-slate-500">
               <span>Pair</span><span></span><span>Instrument</span><span>Category</span><span>Status</span>
             </div>
@@ -1998,7 +1998,7 @@ function SettingsPage({
             </button>
 
             {settingsMessage && (
-              <span className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-xs font-black text-emerald-300">
+              <span className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-xs font-black text-emerald-300">
                 {settingsMessage}
               </span>
             )}
@@ -2009,9 +2009,9 @@ function SettingsPage({
           <Panel title="Signal Types">
             <div className="grid gap-2 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
-                <div key={x} className="rounded-2xl border border-white/8 bg-black/35 p-2">
+                <div key={x} className="rounded-xl border border-white/8 bg-black/35 p-2">
                   <p className="font-black text-white">✓ {x}</p>
-                  <p className="text-sm text-slate-400">Receive {x.toLowerCase()}</p>
+                  <p className="text-[10px] text-slate-500">Receive {x.toLowerCase()}</p>
 
                 </div>
               ))}
@@ -2030,7 +2030,7 @@ function SettingsPage({
               <div key={x} className="flex items-center justify-between border-b border-white/5 py-4">
                 <div>
                   <p className="font-black">{x}</p>
-                  <p className="text-sm text-slate-400">Customize your signal delivery rules</p>
+                  <p className="text-[10px] text-slate-500">Customize your signal delivery rules</p>
                 </div>
                 <span className={`h-7 w-12 rounded-full ${i === 0 ? "bg-white/20" : "bg-emerald-500"}`} />
               </div>
@@ -2047,7 +2047,7 @@ function Slider({ label, value }: { label: string; value: string }) {
     <div className="grid gap-2 md:grid-cols-[1fr_280px_70px] md:items-center">
       <div>
         <p className="font-black">{label}</p>
-        <p className="text-sm text-slate-400">Set your minimum quality level</p>
+        <p className="text-[10px] text-slate-500">Set your minimum quality level</p>
       </div>
       <div className="h-2 rounded-full bg-white/10"><div className="h-2 w-3/4 rounded-full bg-yellow-400" /></div>
       <span className="rounded-lg border border-yellow-400/50 px-3 py-2 text-center font-black">{value}</span>
@@ -2061,8 +2061,8 @@ function HelpCenterPage() {
     <div className="space-y-2">
       <Panel title="Help Center">
         <div className="grid gap-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
-            <h3 className="text-base font-black text-yellow-300">Premium Support</h3>
+          <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
+            <h3 className="text-sm font-black text-yellow-300">Premium Support</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
@@ -2071,18 +2071,18 @@ function HelpCenterPage() {
             </a>
           </div>
 
-          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.06] p-6">
-            <h3 className="text-base font-black text-emerald-300">MT4 / MT5 Help</h3>
+          <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] p-6">
+            <h3 className="text-sm font-black text-emerald-300">MT4 / MT5 Help</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Need help connecting your trading account? Submit a request from the Account page.
             </p>
-            <Link href="/account" className="mt-2 block rounded-2xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
+            <Link href="/account" className="mt-2 block rounded-xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
               Open Account Page
             </Link>
           </div>
 
-          <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.06] p-6">
-            <h3 className="text-base font-black text-cyan-300">FAQ Coming Soon</h3>
+          <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/[0.06] p-6">
+            <h3 className="text-sm font-black text-cyan-300">FAQ Coming Soon</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               We will add repeated questions, trading rules, billing help, and onboarding support here.
             </p>
@@ -2099,7 +2099,7 @@ function HelpCenterPage() {
 >
   Sign Up
 </Link>
-<Link href="/client/signup" className="mt-2 block rounded-2xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
+<Link href="/client/signup" className="mt-2 block rounded-xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
               View Pricing
             </Link>
           </div>
@@ -2108,6 +2108,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
