@@ -1277,30 +1277,7 @@ er:bg-white/10"
           </div>
         </Panel>
 
-        <Panel title="Market Sessions">
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span>London</span>
-              <span className="text-emerald-300">
-                OPEN
-              </span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>New York</span>
-              <span className="text-emerald-300">
-                OPEN
-              </span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Asia</span>
-              <span className="text-slate-400">
-                CLOSED
-              </span>
-            </div>
-          </div>
-        </Panel>
+        
       </div>
     </div>
 
@@ -2138,6 +2115,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
