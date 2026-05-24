@@ -1220,8 +1220,6 @@ er:bg-white/10"
 
           {page === "dashboard" && (
   <div className="space-y-5">
-    <LiveTradingChart />
-
     <LiveSignalsPanel
       signals={visibleLive}
       filter={filter}
@@ -1230,12 +1228,40 @@ er:bg-white/10"
       compact
     />
 
+    <div className="grid gap-4 xl:grid-cols-[1fr_280px]">
+      <LiveTradingChart />
+
+      <div className="space-y-4">
+        <Panel title="Trading Room">
+          <div className="space-y-3 text-sm">
+            <p className="text-emerald-300 font-black">Live</p>
+            <p className="text-slate-300">High probability setups in progress.</p>
+            <button className="mt-3 w-full rounded-xl border border-yellow-400/40 px-4 py-2 text-sm font-black text-yellow-300">
+              Go to Trading Room
+            </button>
+          </div>
+        </Panel>
+
+        <Panel title="AI Market Scan">
+          <div className="space-y-3 text-sm">
+            <p className="text-slate-400">Markets monitored</p>
+            <p className="text-2xl font-black text-white">28</p>
+            <p className="text-slate-300">Details hidden for premium users.</p>
+          </div>
+        </Panel>
+
+        <Panel title="Market Sessions">
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between"><span>London</span><span className="text-emerald-300">OPEN</span></div>
+            <div className="flex justify-between"><span>New York</span><span className="text-emerald-300">OPEN</span></div>
+            <div className="flex justify-between"><span>Asia</span><span className="text-slate-400">CLOSED</span></div>
+          </div>
+        </Panel>
+      </div>
+    </div>
+
     <div className="border-t border-white/10 pt-4 text-center text-xs text-slate-500">
-      <a href="/legal/disclaimer" className="hover:text-white">Disclaimer</a>
-      <span className="mx-2">•</span>
-      <a href="/legal/terms" className="hover:text-white">Terms</a>
-      <span className="mx-2">•</span>
-      <a href="/legal/privacy" className="hover:text-white">Privacy</a>
+      Disclaimer <span className="mx-2">•</span> Terms <span className="mx-2">•</span> Privacy <span className="mx-2">•</span> Refund Policy
     </div>
   </div>
 )}
