@@ -1185,32 +1185,6 @@ er:bg-white/10"
           <SystemRule />
 {page === "dashboard" && (
   <>
-    <div className="mb-3 grid grid-cols-2 gap-2 rounded-2xl border border-white/8 bg-white/[0.025] p-2 text-[11px] md:grid-cols-5">
-      <div>
-        <p className="text-slate-400">Win Rate</p>
-        <p className="font-black text-emerald-300">{dashboardWinRate}%</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Active</p>
-        <p className="font-black text-white">{activeCount}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Closed</p>
-        <p className="font-black text-white">{closedCount}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Wins</p>
-        <p className="font-black text-emerald-300">{wins}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Losses</p>
-        <p className="font-black text-red-300">{losses}</p>
-      </div>
-    </div>
 
     <div className="mb-3 flex flex-wrap gap-1.5 text-[9px] font-black uppercase tracking-widest">
       <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
@@ -2081,6 +2055,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
