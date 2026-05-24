@@ -302,7 +302,7 @@ function SystemRule() {
             </span>
           </div>
 
-          <p className="mt-1 text-[10px] text-slate-500">
+          <p className="mt-1 text-xs text-slate-400">
             AI confirms setups only after minimum confirmation.
           </p>
         </div>
@@ -420,7 +420,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
         </p>
       </div>
 
-      <div className="my-1 flex justify-center">
+      <div className="my-2 flex justify-center">
  
 
 
@@ -446,7 +446,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-        <p className="mt-1 text-[10px] text-slate-500">
+        <p className="mt-1 text-xs text-slate-400">
           Unlock this signal instantly for {signalPrice}
  
 
@@ -475,7 +475,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-xs font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
+       className="mt-2 w-full rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-xs font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -499,7 +499,7 @@ function SignalCard({ s }: { s: Signal }) {
         <div>
           <p className="text-[10px] text-slate-500">LIVE MARKET GENERATED</p>
           <h3 className="mt-1 text-sm font-black text-white">{s.symbol}</h3>
-          <p className="text-[10px] text-slate-500">{formatDate(s.created_at)}</p>
+          <p className="text-xs text-slate-400">{formatDate(s.created_at)}</p>
           <p className="text-xs font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-black ${isSell ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
@@ -592,7 +592,7 @@ function LiveTradingChart() {
         <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
           <div>
             <p className="text-xs font-black text-white">{currentPair} Live Chart</p>
-            <p className="text-[10px] text-slate-500">TradingView market preview</p>
+            <p className="text-xs text-slate-400">TradingView market preview</p>
           </div>
 
           <div className="flex gap-2 text-xs font-black">
@@ -1028,14 +1028,14 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
-      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[220px] border-r border-white/8 bg-[#07101b]/90 p-2 shadow-xl backdrop-blur-xl xl:block">
+      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/8 bg-[#07101b]/90 p-2 shadow-xl backdrop-blur-xl xl:block">
         <Link href="/dashboard" className="mb-5 flex items-center gap-2 px-1">
           <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
           <div>
             <h1 className="text-sm font-black">
               Easy<span className="text-yellow-300">Pips</span> <span className="text-emerald-300">AI</span>
             </h1>
-            <p className="text-[10px] text-slate-500">Smart Forex Signals</p>
+            <p className="text-xs text-slate-400">Smart Forex Signals</p>
           </div>
         </Link>
 
@@ -1053,7 +1053,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                   <NavIcon name={item.icon} active={active} />
                 </span>
-                <span className="truncate min-w-0">{item.label}</span>
+                <span className="truncate">{item.label}</span>
                 {item.key === "history" && <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] text-white">NEW</span>}
               </Link>
             );
@@ -1068,7 +1068,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
             <p>✓ News calendar</p>
             <p>✓ MT4 / MT5 ready</p>
           </div>
-          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 text-center font-black text-black">
+          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 text-center font-black text-black">
             Join Telegram
           </a>
         </div>
@@ -1157,7 +1157,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   <>
     <Link
       href="/client/signup"
-      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black hover:bg-yellow-300"
+      className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black hover:bg-yellow-300"
     >
       Sign Up
     </Link>
@@ -1229,7 +1229,7 @@ er:bg-white/10"
         <Panel title="Trading Room">
           <div className="space-y-2 text-sm">
             <p className="text-emerald-300 font-black">Live</p>
-            <p className="text-slate-300">Desk monitoring active.</p>
+            <p className="text-slate-300">Premium desk monitoring active.</p>
             <button className="mt-2 w-full rounded-xl border border-yellow-400/40 px-3 py-2 text-xs font-black text-yellow-300">
               Go to Trading Room
             </button>
@@ -1238,9 +1238,9 @@ er:bg-white/10"
 
         <Panel title="AI Market Scan">
           <div className="space-y-2 text-sm">
-            <p className="text-slate-400">Markets monitored</p>
+            <p className="text-slate-400">AI markets monitored</p>
             <p className="text-sm font-black text-white">28</p>
-            <p className="text-slate-300">Details hidden for premium.</p>
+            <p className="text-slate-300">Actionable details hidden for premium users.</p>
           </div>
         </Panel>
 
@@ -1313,7 +1313,7 @@ er:bg-white/10"
         </div>
       </section>
     
-<div className="mt-4 border-t border-white/8 pt-2 text-center text-[10px] text-slate-500">
+<div className="mt-10 border-t border-white/8 pt-6 text-center text-[10px] text-slate-500">
   <div className="flex flex-wrap items-center justify-center gap-2">
     <a href="/legal/disclaimer" className="hover:text-white">Disclaimer</a>
     <a href="/legal/terms" className="hover:text-white">Terms</a>
@@ -1409,7 +1409,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid max-h-[260px] gap-2 overflow-y-auto pr-1 scrollbar-thin ${compact ? "xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+        <div className={`grid max-h-[260px] gap-2 overflow-y-auto pr-1 ${compact ? "xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1785,7 +1785,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <a
     href="/downloads/EasyPipsCopier.ex5"
     download
-    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black"
+    className="mt-4 inline-block rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black"
   >
     Download EA
   </a>
@@ -1852,10 +1852,10 @@ function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
     <div className="space-y-2">
       <Panel title="Reports">
         <div className="grid gap-2 md:grid-cols-4">
-          <button className="rounded-xl bg-yellow-400 px-3 py-2 font-black text-black">Download Daily Report</button>
-          <button className="rounded-xl bg-white/10 px-3 py-2 font-black">Download Weekly Report</button>
-          <button className="rounded-xl bg-white/10 px-3 py-2 font-black">Download Monthly Report</button>
-          <button className="rounded-xl bg-white/10 px-3 py-2 font-black">Export CSV</button>
+          <button className="rounded-xl bg-yellow-400 px-5 py-4 font-black text-black">Download Daily Report</button>
+          <button className="rounded-xl bg-white/10 px-5 py-4 font-black">Download Weekly Report</button>
+          <button className="rounded-xl bg-white/10 px-5 py-4 font-black">Download Monthly Report</button>
+          <button className="rounded-xl bg-white/10 px-5 py-4 font-black">Export CSV</button>
         </div>
       </Panel>
       <PerformancePage closed={closed} allSignals={allSignals} />
@@ -1968,7 +1968,7 @@ function SettingsPage({
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <button
               onClick={saveSettings}
-              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black hover:bg-yellow-300"
+              className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black hover:bg-yellow-300"
             >
               Save Changes
             </button>
@@ -2042,7 +2042,7 @@ function HelpCenterPage() {
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
-            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 text-center font-black text-black">
+            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 text-center font-black text-black">
               Contact Support
             </a>
           </div>
@@ -2084,7 +2084,6 @@ function HelpCenterPage() {
     </div>
   );
 }
-
 
 
 
