@@ -1281,13 +1281,7 @@ er:bg-white/10"
       </div>
     </div>
 
-    <div className="border-t border-white/8 pt-2 text-center text-[10px] text-slate-500">
-      Disclaimer
-      <span className="mx-2">•</span>
-      Terms
-      <span className="mx-2">•</span>
-      Privacy
-    </div>
+    
   </div>
 )}
 
@@ -2115,6 +2109,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
