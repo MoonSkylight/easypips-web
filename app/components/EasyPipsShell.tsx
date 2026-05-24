@@ -1005,8 +1005,8 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 `}</style>
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute left-[-160px] top-[-160px] h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
-        <div className="absolute right-[-180px] top-[120px] h-[520px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
-        <div className="absolute bottom-[-220px] left-[35%] h-[520px] w-[520px] rounded-full bg-cyan-400/10 blur-[150px]" />
+        <div className="absolute right-[-180px] top-[120px] h-[420px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
+        <div className="absolute bottom-[-220px] left-[35%] h-[420px] w-[520px] rounded-full bg-cyan-400/10 blur-[150px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
@@ -1413,7 +1413,7 @@ function LiveSignalsPanel({
       {signals.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid max-h-[560px] gap-4 overflow-y-auto pr-2 ${compact ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+        <div className={`grid max-h-[500px] gap-4 overflow-y-auto pr-2 ${compact ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
