@@ -956,7 +956,7 @@ const visibleLiveRaw = sessionAllowed
 
       return s.strategy === filter;
     })
-  : [];
+  : live.slice(0, 6);
 
   const visibleLive = visibleLiveRaw;
 
@@ -2088,6 +2088,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
