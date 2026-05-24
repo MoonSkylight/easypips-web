@@ -1248,14 +1248,7 @@ er:bg-white/10"
             <div className="grid h-full gap-4 overflow-hidden xl:grid-cols-[1.5fr_1fr]">
               <div>
                 <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} compact />
-                {!isPremium && (
-                  <div className="mt-5">
-                    <PremiumLock
-                      title="Premium Signals Locked"
-                      message="Free preview shows limited Strategy A signals. Upgrade to unlock Strategy B, Strategy C, full active signals, history, reports, and Telegram premium access."
-                    />
-                  </div>
-                )}
+                
               </div>
               <LiveTradingChart />
               <PerformanceMini closed={closed} />
@@ -2088,6 +2081,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
