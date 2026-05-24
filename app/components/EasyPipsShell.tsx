@@ -1225,8 +1225,8 @@ er:bg-white/10"
                 
               </div>
               <LiveTradingChart />
-              <PerformanceMini closed={closed} />
-              <RecentClosed closed={closed} />
+              
+              
               <AccountMini accounts={accounts} />
             </div>
           )}
@@ -2055,6 +2055,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
