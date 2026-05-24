@@ -1186,7 +1186,7 @@ er:bg-white/10"
 {page === "dashboard" && (
   <>
 
-    <div className="mb-3 flex flex-wrap gap-1.5 text-[9px] font-black uppercase tracking-widest">
+    <div className="mb-2 flex flex-wrap items-center gap-2 text-[9px] font-black uppercase tracking-widest">
       <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
         Volatility: Normal
       </span>
@@ -2055,6 +2055,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
