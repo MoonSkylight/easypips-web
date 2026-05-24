@@ -387,7 +387,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
         </p>
 
-        <h3 className="mt-2 text-2xl font-black text-white">
+        <h3 className="mt-2 text-xl font-black text-white">
           {s.symbol}
         </h3>
 
@@ -480,7 +480,7 @@ function SignalCard({ s }: { s: Signal }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs text-slate-500">LIVE MARKET GENERATED</p>
-          <h3 className="mt-1 text-2xl font-black text-white">{s.symbol}</h3>
+          <h3 className="mt-1 text-xl font-black text-white">{s.symbol}</h3>
           <p className="text-xs text-slate-400">{formatDate(s.created_at)}</p>
           <p className="text-sm font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
@@ -521,7 +521,7 @@ function Panel({ title, children, right }: { title: string; children: React.Reac
   return (
     <section className="rounded-3xl border border-white/8 bg-white/[0.045] p-3 shadow-xl shadow-black/30 backdrop-blur-xl">
       <div className="mb-5 flex items-center justify-between gap-4">
-        <h2 className="text-2xl font-black text-white">{title}</h2>
+        <h2 className="text-xl font-black text-white">{title}</h2>
         {right}
       </div>
       {children}
@@ -1014,7 +1014,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         <Link href="/dashboard" className="mb-5 flex items-center gap-4 px-1">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
           <div>
-            <h1 className="text-2xl font-black">
+            <h1 className="text-xl font-black">
               Easy<span className="text-yellow-300">Pips</span> <span className="text-emerald-300">AI</span>
             </h1>
             <p className="text-xs text-slate-400">Smart Forex Signals</p>
@@ -1231,12 +1231,12 @@ er:bg-white/10"
     <div className="grid gap-4 xl:grid-cols-[1fr_280px]">
       <LiveTradingChart />
 
-      <div className="space-y-4">
+      <div className="grid gap-4">
         <Panel title="Trading Room">
           <div className="space-y-3 text-sm">
             <p className="text-emerald-300 font-black">Live</p>
             <p className="text-slate-300">High probability setups in progress.</p>
-            <button className="mt-3 w-full rounded-xl border border-yellow-400/40 px-4 py-2 text-sm font-black text-yellow-300">
+            <button className="mt-3 w-full rounded-xl border border-yellow-400/40 px-3 py-2 text-xs font-black text-yellow-300">
               Go to Trading Room
             </button>
           </div>
@@ -1245,7 +1245,7 @@ er:bg-white/10"
         <Panel title="AI Market Scan">
           <div className="space-y-3 text-sm">
             <p className="text-slate-400">Markets monitored</p>
-            <p className="text-2xl font-black text-white">28</p>
+            <p className="text-xl font-black text-white">28</p>
             <p className="text-slate-300">Details hidden for premium users.</p>
           </div>
         </Panel>
@@ -1356,7 +1356,7 @@ function PremiumLock({
           </svg>
         </div>
 
-        <h3 className="mt-5 text-2xl font-black text-white">{title}</h3>
+        <h3 className="mt-5 text-xl font-black text-white">{title}</h3>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -1404,7 +1404,7 @@ function LiveSignalsPanel({
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-xl px-4 py-2 text-sm font-black ${
+            className={`rounded-xl px-3 py-2 text-xs font-black ${
               filter === f ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/15" : "bg-white/10 text-white hover:bg-white/15"
             }`}
           >
@@ -1436,7 +1436,7 @@ function PerformanceMini({ closed }: { closed: Signal[] }) {
   return (
     <Panel title="Performance Overview">
       <div className="flex items-center gap-6">
-        <div className="flex h-32 w-32 items-center justify-center rounded-full border-[16px] border-emerald-400/80 text-2xl font-black">{rate}%</div>
+        <div className="flex h-32 w-32 items-center justify-center rounded-full border-[16px] border-emerald-400/80 text-xl font-black">{rate}%</div>
         <div className="space-y-2 text-sm">
           <p>Win Rate <span className="float-right ml-10">{rate}%</span></p>
           <p>TP Hit Rate <span className="float-right ml-10">0%</span></p>
@@ -2044,7 +2044,7 @@ function HelpCenterPage() {
       <Panel title="Help Center">
         <div className="grid gap-3 lg:grid-cols-3">
           <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
-            <h3 className="text-2xl font-black text-yellow-300">Premium Support</h3>
+            <h3 className="text-xl font-black text-yellow-300">Premium Support</h3>
             <p className="mt-3 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
@@ -2054,7 +2054,7 @@ function HelpCenterPage() {
           </div>
 
           <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/[0.06] p-6">
-            <h3 className="text-2xl font-black text-emerald-300">MT4 / MT5 Help</h3>
+            <h3 className="text-xl font-black text-emerald-300">MT4 / MT5 Help</h3>
             <p className="mt-3 text-sm leading-6 text-slate-300">
               Need help connecting your trading account? Submit a request from the Account page.
             </p>
@@ -2064,20 +2064,20 @@ function HelpCenterPage() {
           </div>
 
           <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/[0.06] p-6">
-            <h3 className="text-2xl font-black text-cyan-300">FAQ Coming Soon</h3>
+            <h3 className="text-xl font-black text-cyan-300">FAQ Coming Soon</h3>
             <p className="mt-3 text-sm leading-6 text-slate-300">
               We will add repeated questions, trading rules, billing help, and onboarding support here.
             </p>
             <Link
   href="/client/login"
-  className="rounded-xl bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/20"
+  className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/20"
 >
   Login
 </Link>
 
 <Link
   href="/client/signup"
-  className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-black text-black hover:bg-yellow-300"
+  className="rounded-xl bg-yellow-400 px-3 py-2 text-xs font-black text-black hover:bg-yellow-300"
 >
   Sign Up
 </Link>
@@ -2090,6 +2090,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
