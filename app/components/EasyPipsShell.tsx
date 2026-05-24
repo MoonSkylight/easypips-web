@@ -1219,17 +1219,26 @@ er:bg-white/10"
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
-            <div className="grid h-full gap-4 overflow-hidden xl:grid-cols-[1.5fr_1fr]">
-              <div>
-                <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} compact />
-                
-              </div>
-              <LiveTradingChart />
-              
-              
-              
-            </div>
-          )}
+  <div className="space-y-5">
+    <LiveTradingChart />
+
+    <LiveSignalsPanel
+      signals={visibleLive}
+      filter={filter}
+      setFilter={setFilter}
+      isPremium={isPremium}
+      compact
+    />
+
+    <div className="border-t border-white/10 pt-4 text-center text-xs text-slate-500">
+      <a href="/legal/disclaimer" className="hover:text-white">Disclaimer</a>
+      <span className="mx-2">•</span>
+      <a href="/legal/terms" className="hover:text-white">Terms</a>
+      <span className="mx-2">•</span>
+      <a href="/legal/privacy" className="hover:text-white">Privacy</a>
+    </div>
+  </div>
+)}
 
           {page === "live-signals" && (
             <div className="space-y-5">
