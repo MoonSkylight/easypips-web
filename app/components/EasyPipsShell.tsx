@@ -1225,7 +1225,7 @@ er:bg-white/10"
       filter={filter}
       setFilter={setFilter}
       isPremium={isPremium}
-      compact
+     
     />
 
     <div className="grid gap-4 xl:grid-cols-[1fr_280px]">
@@ -1386,13 +1386,13 @@ function LiveSignalsPanel({
   signals,
   filter,
   setFilter,
-  compact,
-  isPremium,
+compact,
+isPremium,
 }: {
   signals: Signal[];
   filter: string;
   setFilter: (x: string) => void;
-  compact?: boolean;
+ compact?: boolean;
   isPremium: boolean;
 }) {
   const filters = ["All", "Strategy A", "Strategy B", "Strategy C", "Strategy D", "Trading Room"];
@@ -2090,6 +2090,10 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
+
 
 
 
