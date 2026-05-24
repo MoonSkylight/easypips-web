@@ -272,7 +272,7 @@ function StatCard({
   };
 
   return (
-    <div className={`group rounded-3xl border ${colors[color]} bg-white/[0.045] p-3 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
+    <div className={`group rounded-2xl border ${colors[color]} bg-white/[0.045] p-3 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-black uppercase">{title}</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
@@ -290,7 +290,7 @@ function StatCard({
 function SystemRule() {
   return (
     <section className="mb-4 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
-      <div className="flex flex-col gap-4 rounded-3xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-4 rounded-2xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
           <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 3 5 6v5c0 5 3.4 8.7 7 10 3.6-1.3 7-5 7-10V6l-7-3Z" />
@@ -356,7 +356,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-yellow-300/40  bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-xl hover:shadow-yellow-400/15 from
+    <div className="relative overflow-hidden rounded-2xl border border-yellow-300/40  bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-xl hover:shadow-yellow-400/15 from
 
 
 
@@ -476,7 +476,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
   return (
-    <div className="group rounded-3xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-3 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
+    <div className="group rounded-2xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-3 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs text-slate-500">LIVE MARKET GENERATED</p>
@@ -519,7 +519,7 @@ function Mini({ label, value, good, danger }: { label: string; value: any; good?
 
 function Panel({ title, children, right }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-white/8 bg-white/[0.045] p-3 shadow-xl shadow-black/30 backdrop-blur-xl">
+    <section className="rounded-2xl border border-white/8 bg-white/[0.045] p-3 shadow-xl shadow-black/30 backdrop-blur-xl">
       <div className="mb-5 flex items-center justify-between gap-4">
         <h2 className="text-xl font-black text-white">{title}</h2>
         {right}
@@ -570,7 +570,7 @@ function LiveTradingChart() {
         </div>
       }
     >
-      <div className="overflow-hidden rounded-3xl border border-white/8 bg-black/40">
+      <div className="overflow-hidden rounded-2xl border border-white/8 bg-black/40">
         <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
           <div>
             <p className="text-sm font-black text-white">{currentPair} Live Chart</p>
@@ -1042,7 +1042,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           })}
         </nav>
 
-        <div className="mt-8 rounded-3xl border border-yellow-400/40 bg-yellow-400/[0.03] p-3">
+        <div className="mt-8 rounded-2xl border border-yellow-400/40 bg-yellow-400/[0.03] p-3">
           <h3 className="text-xl font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-3 text-sm">
             <p>✓ AI powered strategies</p>
@@ -1055,7 +1055,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           </a>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-white/8 bg-white/[0.04] p-3">
+        <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
           <p className="text-slate-400">Market Status</p>
           <p className="mt-2 font-black text-emerald-300">OPEN</p>
           <div className="mt-4 h-4 rounded-full bg-emerald-500/20">
@@ -1166,7 +1166,7 @@ er:bg-white/10"
 
         <div className="xl:hidden px-4 pt-4">
           {/* Mobile navigation */}
-          <div className="flex gap-2 overflow-x-auto rounded-3xl border border-white/8 bg-white/[0.04] p-2">
+          <div className="flex gap-2 overflow-x-auto rounded-2xl border border-white/8 bg-white/[0.04] p-2">
             {NAV.map((item) => (
               <Link
                 key={item.key}
@@ -1219,7 +1219,7 @@ er:bg-white/10"
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
-  <div className="space-y-5">
+  <div className="space-y-4">
     <LiveSignalsPanel
       signals={visibleLive}
       filter={filter}
@@ -1267,7 +1267,7 @@ er:bg-white/10"
 )}
 
           {page === "live-signals" && (
-            <div className="space-y-5">
+            <div className="space-y-4">
               <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} />
               {!isPremium && (
                 <PremiumLock
@@ -1413,9 +1413,9 @@ isPremium,
         ))}
       </div>
       {signals.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
+        <div className="rounded-2xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid max-h-[500px] gap-4 overflow-y-auto pr-2 ${compact ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+        <div className={`grid max-h-[500px] gap-3 overflow-y-auto pr-2 ${compact ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1582,7 +1582,7 @@ const monthlyReturn =
   equityCurve.length > 0 ? `${runningEquity > 0 ? "+" : ""}${runningEquity}R` : "0R";
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {analytics && (
         <Panel title="Real Backend Analytics">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -1855,7 +1855,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
 
 function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <Panel title="Reports">
         <div className="grid gap-4 md:grid-cols-4">
           <button className="rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black">Download Daily Report</button>
@@ -1987,7 +1987,7 @@ function SettingsPage({
           </div>
         </Panel>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
           <Panel title="Signal Types">
             <div className="grid gap-3 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
@@ -2040,10 +2040,10 @@ function Slider({ label, value }: { label: string; value: string }) {
 
 function HelpCenterPage() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <Panel title="Help Center">
         <div className="grid gap-3 lg:grid-cols-3">
-          <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
+          <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
             <h3 className="text-xl font-black text-yellow-300">Premium Support</h3>
             <p className="mt-3 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
@@ -2053,7 +2053,7 @@ function HelpCenterPage() {
             </a>
           </div>
 
-          <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/[0.06] p-6">
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.06] p-6">
             <h3 className="text-xl font-black text-emerald-300">MT4 / MT5 Help</h3>
             <p className="mt-3 text-sm leading-6 text-slate-300">
               Need help connecting your trading account? Submit a request from the Account page.
@@ -2063,7 +2063,7 @@ function HelpCenterPage() {
             </Link>
           </div>
 
-          <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/[0.06] p-6">
+          <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.06] p-6">
             <h3 className="text-xl font-black text-cyan-300">FAQ Coming Soon</h3>
             <p className="mt-3 text-sm leading-6 text-slate-300">
               We will add repeated questions, trading rules, billing help, and onboarding support here.
@@ -2090,6 +2090,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
