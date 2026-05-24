@@ -272,7 +272,7 @@ function StatCard({
   };
 
   return (
-    <div className={`group rounded-3xl border ${colors[color]} bg-white/[0.045] p-5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
+    <div className={`group rounded-3xl border ${colors[color]} bg-white/[0.045] p-3 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-black uppercase">{title}</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
@@ -369,7 +369,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
--yellow-400/[0.10] via-white/[0.04] to-black/40 p-5 shadow-xl shadow-yellow-400/15">
+-yellow-400/[0.10] via-white/[0.04] to-black/40 p-3 shadow-xl shadow-yellow-400/15">
       <div className="absolute right-4 top-4 rounded-full border border-yellow-300/40  bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
         Premium
       </div>
@@ -387,7 +387,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
         </p>
 
-        <h3 className="mt-2 text-3xl font-black text-white">
+        <h3 className="mt-2 text-2xl font-black text-white">
           {s.symbol}
         </h3>
 
@@ -409,7 +409,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       <div className="flex h-16 w-16 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-3xl shadow-lg shadow-yellow-400/15">
+       <div className="flex h-16 w-16 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-2xl shadow-lg shadow-yellow-400/15">
           🔒
         </div>
       </div>
@@ -476,11 +476,11 @@ function LockedSignalCard({ s }: { s: Signal }) {
 function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
   return (
-    <div className="group rounded-3xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
+    <div className="group rounded-3xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-3 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs text-slate-500">LIVE MARKET GENERATED</p>
-          <h3 className="mt-1 text-3xl font-black text-white">{s.symbol}</h3>
+          <h3 className="mt-1 text-2xl font-black text-white">{s.symbol}</h3>
           <p className="text-xs text-slate-400">{formatDate(s.created_at)}</p>
           <p className="text-sm font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
@@ -519,7 +519,7 @@ function Mini({ label, value, good, danger }: { label: string; value: any; good?
 
 function Panel({ title, children, right }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-white/8 bg-white/[0.045] p-5 shadow-xl shadow-black/30 backdrop-blur-xl">
+    <section className="rounded-3xl border border-white/8 bg-white/[0.045] p-3 shadow-xl shadow-black/30 backdrop-blur-xl">
       <div className="mb-5 flex items-center justify-between gap-4">
         <h2 className="text-2xl font-black text-white">{title}</h2>
         {right}
@@ -980,7 +980,7 @@ const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Tra
 const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
 
   const stats = (
-    <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-6">
+    <div className="mb-3 grid grid-cols-3 gap-2 xl:grid-cols-6">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1042,7 +1042,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           })}
         </nav>
 
-        <div className="mt-8 rounded-3xl border border-yellow-400/40 bg-yellow-400/[0.03] p-5">
+        <div className="mt-8 rounded-3xl border border-yellow-400/40 bg-yellow-400/[0.03] p-3">
           <h3 className="text-xl font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-3 text-sm">
             <p>✓ AI powered strategies</p>
@@ -1055,7 +1055,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           </a>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-white/8 bg-white/[0.04] p-5">
+        <div className="mt-5 rounded-3xl border border-white/8 bg-white/[0.04] p-3">
           <p className="text-slate-400">Market Status</p>
           <p className="mt-2 font-black text-emerald-300">OPEN</p>
           <div className="mt-4 h-4 rounded-full bg-emerald-500/20">
@@ -1181,7 +1181,7 @@ er:bg-white/10"
           </div>
         </div>
 
-        <div className="mx-auto max-w-[1600px] p-5">
+        <div className="mx-auto max-w-[1600px] p-3">
           <SystemRule />
 {page === "dashboard" && (
   <>
@@ -1321,7 +1321,7 @@ function PremiumLock({
           </svg>
         </div>
 
-        <h3 className="mt-5 text-3xl font-black text-white">{title}</h3>
+        <h3 className="mt-5 text-2xl font-black text-white">{title}</h3>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -1568,13 +1568,13 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-3 lg:grid-cols-3">
         <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-3 lg:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
@@ -1635,7 +1635,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
     { title: "Trading Room", sub: "Manual support desk signals", color: "yellow" },
   ];
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
+    <div className="grid gap-3 lg:grid-cols-2">
       {cards.map((c) => {
         const count = allSignals.filter((s) => s.strategy === c.title || s.desk === c.title).length;
         return (
@@ -1646,7 +1646,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
               <Mini label="TP" value={0} good />
               <Mini label="SL" value={0} danger />
             </div>
-            <div className="mt-5 rounded-2xl bg-black/30 p-5">
+            <div className="mt-5 rounded-2xl bg-black/30 p-3">
               <p className="text-sm text-slate-300">This strategy only publishes signals after the 82% system confirmation rule is achieved.</p>
             </div>
           </Panel>
@@ -1664,7 +1664,7 @@ function NewsCalendarPage({ events }: { events: NewsEvent[] }) {
 function AccountPage({ accounts }: { accounts: Account[] }) {
   const myAccount = null;
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
+    <div className="grid gap-3 lg:grid-cols-2">
       <Panel title="MT5 Connection Request">
         <form
   className="grid gap-3"
@@ -1873,7 +1873,7 @@ function SettingsPage({
         ))}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+      <div className="grid gap-3 xl:grid-cols-[1fr_1fr]">
         <Panel title="Signal Preferences">
           <p className="mb-5 text-slate-400">Choose specific instruments. Example: select only XAU/USD Gold or EUR/USD.</p>
 
@@ -2007,7 +2007,7 @@ function HelpCenterPage() {
   return (
     <div className="space-y-5">
       <Panel title="Help Center">
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-3">
           <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
             <h3 className="text-2xl font-black text-yellow-300">Premium Support</h3>
             <p className="mt-3 text-sm leading-6 text-slate-300">
@@ -2055,6 +2055,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
