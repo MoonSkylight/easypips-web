@@ -951,11 +951,11 @@ const strategyQualityLabel =
 
 const londonLabel = isLondon
   ? "{londonLabel}"
-  : "London ○ CLOSED";
+  : "London Session ○ CLOSED";
 
 const newYorkLabel = isNewYork
   ? "{newYorkLabel}"
-  : "New York ○ CLOSED";
+  : "New York Session ○ CLOSED";
 const visibleLiveRaw = sessionAllowed
   ? live.filter((s) => {
       // Do not hide platform signals from the main dashboard.
@@ -1039,7 +1039,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           </div>
         </Link>
 
-        <nav className="space-y-2">
+        <nav className="space-y-1.5">
           {NAV.map((item) => {
             const active = pathname === item.href || page === item.key;
             return (
@@ -1062,7 +1062,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
         <div className="mt-8 rounded-xl border border-yellow-400/40 bg-yellow-400/[0.03] p-2">
           <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
-          <div className="mt-4 space-y-2 text-sm">
+          <div className="mt-4 space-y-1.5 text-sm">
             <p>✓ AI powered strategies</p>
             <p>✓ Desk 1 and Trading Room</p>
             <p>✓ News calendar</p>
@@ -1098,11 +1098,11 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
     <div className="ml-2 hidden items-center gap-2 xl:flex">
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        London ● OPEN
+        London Session ● OPEN
       </span>
 
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        New York ● OPEN
+        New York Session ● OPEN
       </span>
 
       <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -1213,7 +1213,7 @@ er:bg-white/10"
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
-  <div className="space-y-2">
+  <div className="space-y-1.5">
     <LiveSignalsPanel
       signals={visibleLive}
       filter={filter}
@@ -1227,9 +1227,9 @@ er:bg-white/10"
 
       <div className="grid gap-2">
         <Panel title="Trading Room">
-          <div className="space-y-2 text-sm">
+          <div className="space-y-1.5 text-sm">
             <p className="text-emerald-300 font-black">Live</p>
-            <p className="text-slate-300">Desk monitoring active.</p>
+            <p className="text-slate-300">AI desk monitoring active. High probability setups forming.</p>
             <button className="mt-2 w-full rounded-xl border border-yellow-400/40 px-3 py-2 text-xs font-black text-yellow-300">
               Go to Trading Room
             </button>
@@ -1237,17 +1237,17 @@ er:bg-white/10"
         </Panel>
 
         <Panel title="AI Market Scan">
-          <div className="space-y-2 text-sm">
-            <p className="text-slate-400">Markets monitored</p>
+          <div className="space-y-1.5 text-sm">
+            <p className="text-slate-400">28 markets monitored</p>
             <p className="text-sm font-black text-white">28</p>
-            <p className="text-slate-300">Details hidden for premium.</p>
+            <p className="text-slate-300">2 premium zones detected. Actionable details hidden.</p>
           </div>
         </Panel>
 
         <Panel title="Market Sessions">
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span>London</span><span className="text-emerald-300">OPEN</span></div>
-            <div className="flex justify-between"><span>New York</span><span className="text-emerald-300">OPEN</span></div>
+          <div className="space-y-1.5 text-sm">
+            <div className="flex justify-between"><span>London Session</span><span className="text-emerald-300">OPEN</span></div>
+            <div className="flex justify-between"><span>New York Session</span><span className="text-emerald-300">OPEN</span></div>
             <div className="flex justify-between"><span>Asia</span><span className="text-slate-400">CLOSED</span></div>
           </div>
         </Panel>
@@ -1261,7 +1261,7 @@ er:bg-white/10"
 )}
 
           {page === "live-signals" && (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} />
               {!isPremium && (
                 <PremiumLock
@@ -1431,7 +1431,7 @@ function PerformanceMini({ closed }: { closed: Signal[] }) {
     <Panel title="Performance Overview">
       <div className="flex items-center gap-6">
         <div className="flex h-32 w-32 items-center justify-center rounded-full border-[16px] border-emerald-400/80 text-sm font-black">{rate}%</div>
-        <div className="space-y-2 text-sm">
+        <div className="space-y-1.5 text-sm">
           <p>Win Rate <span className="float-right ml-10">{rate}%</span></p>
           <p>TP Hit Rate <span className="float-right ml-10">0%</span></p>
           <p>SL Hit Rate <span className="float-right ml-10">0%</span></p>
@@ -1446,7 +1446,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
   return (
     <Panel title="Recent Closed Trades">
       {closed.length === 0 ? <p className="text-slate-400">No closed trades yet.</p> : (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-2 text-sm">
               <span>{s.symbol} Â· {s.direction}</span>
@@ -1576,7 +1576,7 @@ const monthlyReturn =
   equityCurve.length > 0 ? `${runningEquity > 0 ? "+" : ""}${runningEquity}R` : "0R";
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       {analytics && (
         <Panel title="Real Backend Analytics">
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -1607,7 +1607,7 @@ const monthlyReturn =
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
-          <div className="space-y-2 text-sm">
+          <div className="space-y-1.5 text-sm">
             <Row label="Total Trades" value={closed.length} />
             <Row label="Winning Trades" value={wins} />
             <Row label="Losing Trades" value={losses} />
@@ -1637,7 +1637,7 @@ function FakeChart({ title, value }: { title: string; value: string }) {
 function TablePanel({ title, rows }: { title: string; rows: string[] }) {
   return (
     <Panel title={title}>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {rows.map((r, i) => (
           <div key={r} className="grid grid-cols-4 gap-2 border-b border-white/5 pb-2 text-sm">
             <span className="col-span-1">{r}</span>
@@ -1849,7 +1849,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
 
 function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <Panel title="Reports">
         <div className="grid gap-2 md:grid-cols-4">
           <button className="rounded-xl bg-yellow-400 px-3 py-2 font-black text-black">Download Daily Report</button>
@@ -1981,7 +1981,7 @@ function SettingsPage({
           </div>
         </Panel>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Panel title="Signal Types">
             <div className="grid gap-2 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
@@ -2034,7 +2034,7 @@ function Slider({ label, value }: { label: string; value: string }) {
 
 function HelpCenterPage() {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <Panel title="Help Center">
         <div className="grid gap-2 xl:grid-cols-4">
           <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
@@ -2084,6 +2084,9 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
 
 
 
