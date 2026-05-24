@@ -272,9 +272,9 @@ function StatCard({
   };
 
   return (
-    <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-2 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
+    <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
-        <p className="text-xs font-black uppercase">{title}</p>
+        <p className="text-[11px] font-black uppercase">{title}</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
           {icon}
         </span>
@@ -290,9 +290,9 @@ function StatCard({
 function SystemRule() {
   return (
     <section className="mb-2 rounded-xl border border-yellow-400/20 bg-white/[0.025] p-3">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-sm font-black uppercase tracking-widest text-yellow-300">
               SYSTEM RULE
             </span>
@@ -302,12 +302,12 @@ function SystemRule() {
             </span>
           </div>
 
-          <p className="mt-1 text-[10px] text-slate-500">
+          <p className="mt-1 text-[9px] text-slate-500">
             AI confirms setups only after minimum confirmation.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-[8px] font-black uppercase tracking-widest text-slate-300">
+        <div className="flex flex-wrap items-center gap-1.5 text-[8px] font-black uppercase tracking-widest text-slate-300">
           <span>Volatility NORMAL</span>
           <span>•</span>
 
@@ -387,13 +387,13 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
--yellow-400/[0.10] via-white/[0.04] to-black/40 p-2 shadow-xl shadow-yellow-400/15">
-      <div className="absolute right-4 top-2 rounded-full border border-yellow-300/40  bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+-yellow-400/[0.10] via-white/[0.04] to-black/40 p-1.5 shadow-xl shadow-yellow-400/15">
+      <div className="absolute right-4 top-1.5 rounded-full border border-yellow-300/40  bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
         Premium
       </div>
 
       <div>
-        <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
+        <p className="text-[11px] font-black uppercase tracking-widest text-yellow-300">
           Premium AI Signal
 
 
@@ -415,19 +415,19 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       <p className="mt-1 text-xs font-black text-slate-500">
+       <p className="mt-1 text-[11px] font-black text-slate-500">
           Institutional AI setup hidden
         </p>
       </div>
 
-      <div className="my-1 flex justify-center">
+      <div className="my-0.5 flex justify-center">
  
 
 
 
 
 
-       <div className="flex h-7 w-7 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-base shadow-lg shadow-yellow-400/15">
+       <div className="flex h-6 w-6 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-base shadow-lg shadow-yellow-400/15">
           🔒
         </div>
       </div>
@@ -436,8 +436,8 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-      <div className="rounded-xl border border-white/8 bg-black/30 p-2 text-center backdrop-blur-md">
-        <p className="text-xs font-black text-white">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-1.5 text-center backdrop-blur-md">
+        <p className="text-[11px] font-black text-white">
           ••••••••••••••••
         </p>
 
@@ -446,7 +446,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-        <p className="mt-1 text-[10px] text-slate-500">
+        <p className="mt-1 text-[9px] text-slate-500">
           Unlock this signal instantly for {signalPrice}
  
 
@@ -454,7 +454,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
        </p>
       </div>
 
-      <div className="mt-4 flex items-center justify-between rounded-xl border border-white/8 bg-black/35 px-3 py-2 text-xs text-slate-300">
+      <div className="mt-4 flex items-center justify-between rounded-xl border border-white/8 bg-black/35 px-2 py-1.5 text-xs text-slate-300">
  
 
 
@@ -475,7 +475,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-xs font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
+       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-[11px] font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -494,27 +494,27 @@ function LockedSignalCard({ s }: { s: Signal }) {
 function SignalCard({ s }: { s: Signal }) {
   const isSell = String(s.direction || "").toUpperCase().includes("SELL");
   return (
-    <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
-      <div className="flex items-start justify-between gap-2">
+    <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
+      <div className="flex items-start justify-between gap-1.5">
         <div>
-          <p className="text-[10px] text-slate-500">LIVE MARKET GENERATED</p>
+          <p className="text-[9px] text-slate-500">LIVE MARKET GENERATED</p>
           <h3 className="mt-1 text-sm font-black text-white">{s.symbol}</h3>
-          <p className="text-[10px] text-slate-500">{formatDate(s.created_at)}</p>
-          <p className="text-xs font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
+          <p className="text-[9px] text-slate-500">{formatDate(s.created_at)}</p>
+          <p className="text-[11px] font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-black ${isSell ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
+        <span className={`rounded-full px-3 py-1 text-[11px] font-black ${isSell ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
         </span>
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <span className="rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-xs font-black text-blue-300">
+        <span className="rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-[11px] font-black text-blue-300">
           "LIVE MARKET GENERATED"
         </span>
-        <span className="text-xs font-black text-emerald-300">{s.status || "ACTIVE"}</span>
+        <span className="text-[11px] font-black text-emerald-300">{s.status || "ACTIVE"}</span>
       </div>
 
-      <div className="mt-2 grid grid-cols-3 gap-2">
+      <div className="mt-2 grid grid-cols-3 gap-1.5">
         <Mini label="Entry" value={s.entry} />
         <Mini label="SL" value={s.sl} danger />
         <Mini label="TP1" value={s.tp1} good />
@@ -528,17 +528,17 @@ function SignalCard({ s }: { s: Signal }) {
 
 function Mini({ label, value, good, danger }: { label: string; value: any; good?: boolean; danger?: boolean }) {
   return (
-    <div className="rounded-xl bg-black/35 p-2">
-      <p className="text-[10px] text-slate-500">{label}</p>
-      <p className={`mt-1 max-w-full break-words text-xs font-black leading-tight ${good ? "text-emerald-300" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
+    <div className="rounded-xl bg-black/35 p-1.5">
+      <p className="text-[9px] text-slate-500">{label}</p>
+      <p className={`mt-1 max-w-full break-words text-[11px] font-black leading-tight ${good ? "text-emerald-300" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
     </div>
   );
 }
 
 function Panel({ title, children, right }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-white/8 bg-white/[0.045] p-2 shadow-xl shadow-black/30 backdrop-blur-xl">
-      <div className="mb-5 flex items-center justify-between gap-2">
+    <section className="rounded-xl border border-white/8 bg-white/[0.045] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl">
+      <div className="mb-5 flex items-center justify-between gap-1.5">
         <h2 className="text-sm font-black text-white">{title}</h2>
         {right}
       </div>
@@ -571,13 +571,13 @@ function LiveTradingChart() {
     <Panel
       title="Live Trading Chart"
       right={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Badge color="blue">Live</Badge>
 
           <select
             value={pair}
             onChange={(e) => setPair(e.target.value)}
-            className="rounded-xl border border-white/8 bg-black/40 px-3 py-2 text-xs font-black text-yellow-300 outline-none"
+            className="rounded-xl border border-white/8 bg-black/40 px-2 py-1.5 text-[11px] font-black text-yellow-300 outline-none"
           >
             {pairs.map((p) => (
               <option key={p.value} value={p.value}>
@@ -591,11 +591,11 @@ function LiveTradingChart() {
       <div className="overflow-hidden rounded-xl border border-white/8 bg-black/40">
         <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
           <div>
-            <p className="text-xs font-black text-white">{currentPair} Live Chart</p>
-            <p className="text-[10px] text-slate-500">TradingView market preview</p>
+            <p className="text-[11px] font-black text-white">{currentPair} Live Chart</p>
+            <p className="text-[9px] text-slate-500">TradingView market preview</p>
           </div>
 
-          <div className="flex gap-2 text-xs font-black">
+          <div className="flex gap-1.5 text-[11px] font-black">
             <span className="rounded-lg bg-white/10 px-2 py-1 text-slate-300">
               15m
             </span>
@@ -616,7 +616,7 @@ function LiveTradingChart() {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-4 grid grid-cols-3 gap-1.5">
         <Mini label="Chart" value="Live" good />
         <Mini label="Pair" value={currentPair} />
         <Mini label="Timeframe" value="15m" />
@@ -628,14 +628,14 @@ function LiveTradingChart() {
 function NewsCalendar({ events }: { events: NewsEvent[] }) {
   return (
     <Panel title="Economic News Calendar">
-      <div className="mb-2 flex flex-wrap gap-2">
+      <div className="mb-2 flex flex-wrap gap-1.5">
         <Badge color="blue">Live Feed</Badge>
         <Badge color="red">High Impact</Badge>
         <Badge color="yellow">Medium</Badge>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-white/8">
-        <div className="grid grid-cols-[70px_70px_1fr_80px] bg-black/40 px-3 py-3 text-xs font-black text-slate-400">
+        <div className="grid grid-cols-[70px_70px_1fr_80px] bg-black/40 px-3 py-3 text-[11px] font-black text-slate-400">
           <span>Time</span>
           <span>Curr.</span>
           <span>Event</span>
@@ -652,13 +652,13 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
             <span>{e.time}</span>
             <span className="font-black">{e.currency}</span>
             <span>{e.event}</span>
-            <span className={`rounded-lg px-2 py-1 text-center text-xs font-black ${String(e.impact).toLowerCase().includes("high") ? "bg-red-500/20 text-red-300" : "bg-yellow-500/20 text-yellow-300"}`}>
+            <span className={`rounded-lg px-2 py-1 text-center text-[11px] font-black ${String(e.impact).toLowerCase().includes("high") ? "bg-red-500/20 text-red-300" : "bg-yellow-500/20 text-yellow-300"}`}>
               {e.impact}
             </span>
           </div>
         ))}
       </div>
-      <Link href="/news-calendar" className="mt-2 block text-center text-xs font-black text-yellow-300">
+      <Link href="/news-calendar" className="mt-2 block text-center text-[11px] font-black text-yellow-300">
         View full calendar →
       </Link>
     </Panel>
@@ -671,7 +671,7 @@ function Badge({ children, color }: { children: React.ReactNode; color?: string 
     color === "yellow" ? "bg-yellow-500/15 text-yellow-300" :
     color === "blue" ? "bg-cyan-500/15 text-cyan-300" :
     "bg-white/10 text-white";
-  return <span className={`rounded-full px-3 py-1 text-xs font-black ${cls}`}>{children}</span>;
+  return <span className={`rounded-full px-3 py-1 text-[11px] font-black ${cls}`}>{children}</span>;
 }
 function cleanSymbol(symbol?: string) {
   return String(symbol || "").replace("/", "").toUpperCase();
@@ -998,7 +998,7 @@ const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Tra
 const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
 
   const stats = (
-    <div className="mb-2 grid grid-cols-3 gap-2 xl:grid-cols-6">
+    <div className="mb-2 grid grid-cols-3 gap-1.5 xl:grid-cols-6">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1028,14 +1028,14 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
-      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[220px] border-r border-white/8 bg-[#07101b]/90 p-2 shadow-xl backdrop-blur-xl xl:block">
-        <Link href="/dashboard" className="mb-5 flex items-center gap-2 px-1">
-          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
+      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[200px] border-r border-white/8 bg-[#07101b]/90 p-1.5 shadow-xl backdrop-blur-xl xl:block">
+        <Link href="/dashboard" className="mb-5 flex items-center gap-1.5 px-1">
+          <div className="flex h-6 w-6 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
           <div>
             <h1 className="text-sm font-black">
               Easy<span className="text-yellow-300">Pips</span> <span className="text-emerald-300">AI</span>
             </h1>
-            <p className="text-[10px] text-slate-500">Smart Forex Signals</p>
+            <p className="text-[9px] text-slate-500">Smart Forex Signals</p>
           </div>
         </Link>
 
@@ -1046,7 +1046,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
               <Link
                 key={item.key}
                 href={item.href}
-                className={`group flex h-12 items-center gap-2 rounded-xl px-4 py-3 font-black tracking-tight ${
+                className={`group flex h-12 items-center gap-1.5 rounded-xl px-4 py-3 font-black tracking-tight ${
                   active ? "border border-yellow-400/40 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/5" : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -1060,20 +1060,20 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           })}
         </nav>
 
-        <div className="mt-8 rounded-xl border border-yellow-400/40 bg-yellow-400/[0.03] p-2">
-          <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
+        <div className="mt-8 rounded-xl border border-yellow-400/40 bg-yellow-400/[0.03] p-1.5">
+          <h3 className="text-[11px] font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-1.5 text-sm">
             <p>✓ AI powered strategies</p>
             <p>✓ Desk 1 and Trading Room</p>
             <p>✓ News calendar</p>
             <p>✓ MT4 / MT5 ready</p>
           </div>
-          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 text-center font-black text-black">
+          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 text-center font-black text-black">
             Join Telegram
           </a>
         </div>
 
-        <div className="mt-2 rounded-xl border border-white/8 bg-white/[0.04] p-2">
+        <div className="mt-2 rounded-xl border border-white/8 bg-white/[0.04] p-1.5">
           <p className="text-slate-400">Market Status</p>
           <p className="mt-2 font-black text-emerald-300">OPEN</p>
           <div className="mt-4 h-4 rounded-full bg-emerald-500/20">
@@ -1086,17 +1086,17 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
       <section className="relative z-10 xl:pl-[240px]">
         <header className="sticky top-0 z-30 border-b border-white/8 bg-[#030811]/90 px-4 py-3 shadow-xl shadow-black/20 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-2">
-            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-1.5">
-              <div className="mr-4 flex shrink-0 items-center gap-2">
+          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-1.5">
+            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-2.5 py-1">
+              <div className="mr-4 flex shrink-0 items-center gap-1.5">
   <span className="h-2 w-2 rounded-full bg-emerald-400" />
 
-  <div className="flex items-center gap-2">
-    <span className="text-xs font-black uppercase tracking-widest text-emerald-300">
+  <div className="flex items-center gap-1.5">
+    <span className="text-[11px] font-black uppercase tracking-widest text-emerald-300">
       LIVE MARKET STATUS
     </span>
 
-    <div className="ml-2 hidden items-center gap-2 xl:flex">
+    <div className="ml-2 hidden items-center gap-1.5 xl:flex">
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
         London Session ● OPEN
       </span>
@@ -1112,7 +1112,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   </div>
 </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-xs font-black text-white">
+  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-[11px] font-black text-white">
     {visibleLive.slice(0, 8).map((s, i) => {
       const status = tickerStatus(s, livePrices);
 
@@ -1132,7 +1132,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 </div>
 </div>
 
-<div className="flex items-center gap-2">
+<div className="flex items-center gap-1.5">
               <div className="hidden text-right text-xs md:block">
                 <p className="text-slate-400">Server Time UTC</p>
                 <UTCClock />
@@ -1157,7 +1157,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   <>
     <Link
       href="/client/signup"
-      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black hover:bg-yellow-300"
+      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 font-black text-black hover:bg-yellow-300"
     >
       Sign Up
     </Link>
@@ -1184,12 +1184,12 @@ er:bg-white/10"
 
         <div className="xl:hidden px-4 pt-4">
           {/* Mobile navigation */}
-          <div className="flex gap-2 overflow-x-auto rounded-xl border border-white/8 bg-white/[0.04] p-2">
+          <div className="flex gap-1.5 overflow-x-auto rounded-xl border border-white/8 bg-white/[0.04] p-1.5">
             {NAV.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}
-                className={`shrink-0 rounded-xl px-4 py-3 text-xs font-black ${
+                className={`shrink-0 rounded-xl px-4 py-3 text-[11px] font-black ${
                   page === item.key ? "bg-yellow-400 text-black" : "bg-white/10 text-white"
                 }`}
               >
@@ -1199,7 +1199,7 @@ er:bg-white/10"
           </div>
         </div>
 
-        <div className="mx-auto max-w-[1600px] p-2">
+        <div className="mx-auto max-w-[1600px] p-1.5">
           <SystemRule />
 
 
@@ -1222,15 +1222,15 @@ er:bg-white/10"
      
     />
 
-    <div className="grid gap-2 xl:grid-cols-[1fr_280px]">
+    <div className="grid gap-1.5 xl:grid-cols-[1fr_320px]">
       <LiveTradingChart />
 
-      <div className="grid gap-2">
+      <div className="grid gap-1.5">
         <Panel title="Trading Room">
           <div className="space-y-1.5 text-sm">
             <p className="text-emerald-300 font-black">Live</p>
             <p className="text-slate-300">AI desk monitoring active. High probability setups forming.</p>
-            <button className="mt-2 w-full rounded-xl border border-yellow-400/40 px-3 py-2 text-xs font-black text-yellow-300">
+            <button className="mt-2 w-full rounded-xl border border-yellow-400/40 px-2 py-1.5 text-[11px] font-black text-yellow-300">
               Go to Trading Room
             </button>
           </div>
@@ -1254,7 +1254,7 @@ er:bg-white/10"
       </div>
     </div>
 
-    <div className="border-t border-white/10 pt-2 text-center text-[10px] text-slate-500">
+    <div className="border-t border-white/10 pt-2 text-center text-[9px] text-slate-500">
       Disclaimer <span className="mx-2">•</span> Terms <span className="mx-2">•</span> Privacy <span className="mx-2">•</span> Refund Policy
     </div>
   </div>
@@ -1313,15 +1313,15 @@ er:bg-white/10"
         </div>
       </section>
     
-<div className="mt-4 border-t border-white/8 pt-2 text-center text-[10px] text-slate-500">
-  <div className="flex flex-wrap items-center justify-center gap-2">
+<div className="mt-4 border-t border-white/8 pt-2 text-center text-[9px] text-slate-500">
+  <div className="flex flex-wrap items-center justify-center gap-1.5">
     <a href="/legal/disclaimer" className="hover:text-white">Disclaimer</a>
     <a href="/legal/terms" className="hover:text-white">Terms</a>
     <a href="/legal/privacy" className="hover:text-white">Privacy</a>
     <a href="/legal/refund-policy" className="hover:text-white">Refund Policy</a>
   </div>
 
-  <p className="mt-4 text-[10px] text-slate-500">
+  <p className="mt-4 text-[9px] text-slate-500">
     Educational purposes only. Not financial advice. Trading involves risk.
   </p>
 </div>
@@ -1343,7 +1343,7 @@ function PremiumLock({
   return (
     <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40  bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
-        <div className="mx-auto flex h-7 w-7 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
+        <div className="mx-auto flex h-6 w-6 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
           <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="10" width="16" height="10" rx="2" />
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
@@ -1353,7 +1353,7 @@ function PremiumLock({
         <h3 className="mt-2 text-sm font-black text-white">{title}</h3>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-6 flex flex-wrap justify-center gap-1.5">
           <Link
             href="/client/signup"
             className="rounded-xl bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
@@ -1393,12 +1393,12 @@ isPremium,
 
   return (
     <Panel title={`Live Signals (${signals.length})`}>
-      <div className="mb-2 flex flex-wrap gap-2">
+      <div className="mb-2 flex flex-wrap gap-1.5">
         {filters.map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-xl px-3 py-2 text-xs font-black ${
+            className={`rounded-xl px-2 py-1.5 text-[11px] font-black ${
               filter === f ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/15" : "bg-white/10 text-white hover:bg-white/15"
             }`}
           >
@@ -1409,7 +1409,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid max-h-[260px] gap-2 overflow-y-auto pr-1 scrollbar-thin ${compact ? "xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+        <div className={`grid max-h-[260px] gap-1.5 overflow-y-auto pr-1 scrollbar-thin ${compact ? "xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1448,7 +1448,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
       {closed.length === 0 ? <p className="text-slate-400">No closed trades yet.</p> : (
         <div className="space-y-1.5">
           {closed.slice(0, 5).map((s, i) => (
-            <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-2 text-sm">
+            <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-1.5 text-sm">
               <span>{s.symbol} Â· {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
@@ -1462,7 +1462,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
 function AccountMini({ accounts }: { accounts: Account[] }) {
   return (
     <Panel title="MT4 / MT5 Connected Accounts">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-1.5">
         <Mini label="Total Connected" value={accounts.length} />
         <Mini label="Approved" value={accounts.filter((a) => a.status === "approved").length} good />
       </div>
@@ -1579,7 +1579,7 @@ const monthlyReturn =
     <div className="space-y-1.5">
       {analytics && (
         <Panel title="Real Backend Analytics">
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-4">
             <StatCard title="Closed Trades" value={analytics.totalClosed || 0} color="cyan" />
             <StatCard title="Wins" value={analytics.wins || 0} color="green" />
             <StatCard title="Losses" value={analytics.losses || 0} color="red" />
@@ -1587,8 +1587,8 @@ const monthlyReturn =
           </div>
         </Panel>
       )}
-      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-1.5">Export CSV</button>}>
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
+      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-2.5 py-1">Export CSV</button>}>
+        <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
           <StatCard title="Winning Trades" value={wins} color="green" />
           <StatCard title="Losing Trades" value={losses} color="red" />
@@ -1597,13 +1597,13 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid gap-2 xl:grid-cols-4">
+      <div className="grid gap-1.5 xl:grid-cols-4">
         <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
-      <div className="grid gap-2 xl:grid-cols-4">
+      <div className="grid gap-1.5 xl:grid-cols-4">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
@@ -1625,7 +1625,7 @@ function FakeChart({ title, value }: { title: string; value: string }) {
   return (
     <Panel title={title}>
       <p className="text-right font-black text-emerald-300">{value}</p>
-      <div className="mt-2 flex h-48 items-end gap-2 border-b border-l border-white/8 p-2">
+      <div className="mt-2 flex h-48 items-end gap-1.5 border-b border-l border-white/8 p-1.5">
         {[20, 30, 25, 50, 55, 70, 90, 80, 100, 120, 140, 160].map((h, i) => (
           <div key={i} className="flex-1 rounded-t bg-emerald-400/70" style={{ height: `${h}px` }} />
         ))}
@@ -1639,7 +1639,7 @@ function TablePanel({ title, rows }: { title: string; rows: string[] }) {
     <Panel title={title}>
       <div className="space-y-1.5">
         {rows.map((r, i) => (
-          <div key={r} className="grid grid-cols-4 gap-2 border-b border-white/5 pb-2 text-sm">
+          <div key={r} className="grid grid-cols-4 gap-1.5 border-b border-white/5 pb-2 text-sm">
             <span className="col-span-1">{r}</span>
             <span>{i + 3}</span>
             <span>{80 - i * 5}%</span>
@@ -1664,18 +1664,18 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
     { title: "Trading Room", sub: "Manual support desk signals", color: "yellow" },
   ];
   return (
-    <div className="grid gap-2 lg:grid-cols-2">
+    <div className="grid gap-1.5 lg:grid-cols-2">
       {cards.map((c) => {
         const count = allSignals.filter((s) => s.strategy === c.title || s.desk === c.title).length;
         return (
           <Panel key={c.title} title={c.title}>
             <p className="text-slate-400">{c.sub}</p>
-            <div className="mt-2 grid grid-cols-3 gap-2">
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
               <Mini label="Active" value={count} />
               <Mini label="TP" value={0} good />
               <Mini label="SL" value={0} danger />
             </div>
-            <div className="mt-2 rounded-xl bg-black/30 p-2">
+            <div className="mt-2 rounded-xl bg-black/30 p-1.5">
               <p className="text-sm text-slate-300">This strategy only publishes signals after the 82% system confirmation rule is achieved.</p>
             </div>
           </Panel>
@@ -1693,10 +1693,10 @@ function NewsCalendarPage({ events }: { events: NewsEvent[] }) {
 function AccountPage({ accounts }: { accounts: Account[] }) {
   const myAccount = null;
   return (
-    <div className="grid gap-2 lg:grid-cols-2">
+    <div className="grid gap-1.5 lg:grid-cols-2">
       <Panel title="MT5 Connection Request">
         <form
-  className="grid gap-2"
+  className="grid gap-1.5"
   onSubmit={async (e) => {
     e.preventDefault();
 
@@ -1785,7 +1785,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <a
     href="/downloads/EasyPipsCopier.ex5"
     download
-    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black"
+    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 font-black text-black"
   >
     Download EA
   </a>
@@ -1801,8 +1801,8 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
   ] as Signal[];
 
   return (
-    <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-1.5">Export CSV</button>}>
-      <div className="mb-2 grid gap-2 md:grid-cols-4">
+    <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-2.5 py-1">Export CSV</button>}>
+      <div className="mb-2 grid gap-1.5 md:grid-cols-4">
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Strategies</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Pairs</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Results</option></select>
@@ -1812,21 +1812,21 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-black/30 text-slate-400">
             <tr>
-              {["Date & Time", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-2">{h}</th>)}
+              {["Date & Time", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-1.5">{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {rows.map((r, i) => (
               <tr key={r.id || i} className="border-b border-white/5">
-                <td className="p-2">{formatDate(r.created_at)}</td>
-                <td className="p-2 font-black">{r.symbol}</td>
-                <td className={`p-2 font-black ${String(r.direction).includes("SELL") ? "text-red-300" : "text-emerald-300"}`}>{r.direction}</td>
-                <td className="p-2">{r.strategy || r.desk}</td>
-                <td className="p-2">{r.entry}</td>
-                <td className="p-2">{r.sl}</td>
-                <td className="p-2">{r.tp1}</td>
-                <td className="p-2 font-black text-emerald-300">{r.result}</td>
-                <td className="p-2 text-emerald-300">
+                <td className="p-1.5">{formatDate(r.created_at)}</td>
+                <td className="p-1.5 font-black">{r.symbol}</td>
+                <td className={`p-1.5 font-black ${String(r.direction).includes("SELL") ? "text-red-300" : "text-emerald-300"}`}>{r.direction}</td>
+                <td className="p-1.5">{r.strategy || r.desk}</td>
+                <td className="p-1.5">{r.entry}</td>
+                <td className="p-1.5">{r.sl}</td>
+                <td className="p-1.5">{r.tp1}</td>
+                <td className="p-1.5 font-black text-emerald-300">{r.result}</td>
+                <td className="p-1.5 text-emerald-300">
   {r.result === "TP3"
     ? "3.0R"
     : r.result === "TP2"
@@ -1837,7 +1837,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
     ? "-1.0R"
     : "Pending"}
 </td>
-                <td className="p-2">{r.confidence}%</td>
+                <td className="p-1.5">{r.confidence}%</td>
               </tr>
             ))}
           </tbody>
@@ -1851,11 +1851,11 @@ function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
   return (
     <div className="space-y-1.5">
       <Panel title="Reports">
-        <div className="grid gap-2 md:grid-cols-4">
-          <button className="rounded-xl bg-yellow-400 px-3 py-2 font-black text-black">Download Daily Report</button>
-          <button className="rounded-xl bg-white/10 px-3 py-2 font-black">Download Weekly Report</button>
-          <button className="rounded-xl bg-white/10 px-3 py-2 font-black">Download Monthly Report</button>
-          <button className="rounded-xl bg-white/10 px-3 py-2 font-black">Export CSV</button>
+        <div className="grid gap-1.5 md:grid-cols-4">
+          <button className="rounded-xl bg-yellow-400 px-2 py-1.5 font-black text-black">Download Daily Report</button>
+          <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Download Weekly Report</button>
+          <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Download Monthly Report</button>
+          <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Export CSV</button>
         </div>
       </Panel>
       <PerformancePage closed={closed} allSignals={allSignals} />
@@ -1896,13 +1896,13 @@ function SettingsPage({
   return (
     <div>
       <h2 className="mb-5 text-3xl font-black">Settings</h2>
-      <div className="mb-5 flex flex-wrap gap-2 border-b border-white/8 pb-3 text-xs font-black">
+      <div className="mb-5 flex flex-wrap gap-1.5 border-b border-white/8 pb-3 text-[11px] font-black">
         {["General", "Notifications", "Signal Preferences", "Risk Management", "Account Connections", "Security", "API Settings"].map((t) => (
           <button key={t} className={t === "Signal Preferences" ? "text-yellow-300" : "text-white"}>{t}</button>
         ))}
       </div>
 
-      <div className="grid gap-2 xl:grid-cols-[1fr_1fr]">
+      <div className="grid gap-1.5 xl:grid-cols-[1fr_1fr]">
         <Panel title="Signal Preferences">
           <p className="mb-5 text-slate-400">Choose specific instruments. Example: select only XAU/USD Gold or EUR/USD.</p>
 
@@ -1913,12 +1913,12 @@ function SettingsPage({
             className="mb-2 w-full rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
           />
 
-          <div className="mb-2 flex flex-wrap gap-2">
+          <div className="mb-2 flex flex-wrap gap-1.5">
             {["Major", "Cross", "Metals", "Crypto", "All"].map((c) => (
               <button
                 key={c}
                 onClick={() => setCat(c)}
-                className={`rounded-xl px-3 py-1.5 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
+                className={`rounded-xl px-2.5 py-1 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
               >
                 {c}
               </button>
@@ -1926,7 +1926,7 @@ function SettingsPage({
           </div>
 
           <div className="max-h-[430px] overflow-y-auto rounded-xl border border-white/8">
-            <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-3 text-xs font-black text-slate-500">
+            <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-3 text-[11px] font-black text-slate-500">
               <span>Pair</span><span></span><span>Instrument</span><span>Category</span><span>Status</span>
             </div>
             {pairs.map((p) => {
@@ -1947,17 +1947,17 @@ function SettingsPage({
             <p className="text-sm">
               Selected: <span className="font-black text-emerald-300">{selectedPairs.length} pairs</span>
             </p>
-            <button onClick={() => setSelectedPairs([])} className="text-xs font-black text-yellow-300">
+            <button onClick={() => setSelectedPairs([])} className="text-[11px] font-black text-yellow-300">
               Clear All
             </button>
           </div>
 
           {selectedPairs.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {selectedPairs.map((pair) => (
                 <span
                   key={pair}
-                  className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-300"
+                  className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-black text-emerald-300"
                 >
                   {pair}
                 </span>
@@ -1965,16 +1965,16 @@ function SettingsPage({
             </div>
           )}
 
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <button
               onClick={saveSettings}
-              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 font-black text-black hover:bg-yellow-300"
+              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 font-black text-black hover:bg-yellow-300"
             >
               Save Changes
             </button>
 
             {settingsMessage && (
-              <span className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-xs font-black text-emerald-300">
+              <span className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-[11px] font-black text-emerald-300">
                 {settingsMessage}
               </span>
             )}
@@ -1983,11 +1983,11 @@ function SettingsPage({
 
         <div className="space-y-1.5">
           <Panel title="Signal Types">
-            <div className="grid gap-2 md:grid-cols-2">
+            <div className="grid gap-1.5 md:grid-cols-2">
               {["Buy Signals", "Sell Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
-                <div key={x} className="rounded-xl border border-white/8 bg-black/35 p-2">
+                <div key={x} className="rounded-xl border border-white/8 bg-black/35 p-1.5">
                   <p className="font-black text-white">✓ {x}</p>
-                  <p className="text-[10px] text-slate-500">Receive {x.toLowerCase()}</p>
+                  <p className="text-[9px] text-slate-500">Receive {x.toLowerCase()}</p>
 
                 </div>
               ))}
@@ -2006,7 +2006,7 @@ function SettingsPage({
               <div key={x} className="flex items-center justify-between border-b border-white/5 py-4">
                 <div>
                   <p className="font-black">{x}</p>
-                  <p className="text-[10px] text-slate-500">Customize your signal delivery rules</p>
+                  <p className="text-[9px] text-slate-500">Customize your signal delivery rules</p>
                 </div>
                 <span className={`h-7 w-12 rounded-full ${i === 0 ? "bg-white/20" : "bg-emerald-500"}`} />
               </div>
@@ -2020,13 +2020,13 @@ function SettingsPage({
 
 function Slider({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid gap-2 md:grid-cols-[1fr_280px_70px] md:items-center">
+    <div className="grid gap-1.5 md:grid-cols-[1fr_280px_70px] md:items-center">
       <div>
         <p className="font-black">{label}</p>
-        <p className="text-[10px] text-slate-500">Set your minimum quality level</p>
+        <p className="text-[9px] text-slate-500">Set your minimum quality level</p>
       </div>
       <div className="h-2 rounded-full bg-white/10"><div className="h-2 w-3/4 rounded-full bg-yellow-400" /></div>
-      <span className="rounded-lg border border-yellow-400/50 px-3 py-2 text-center font-black">{value}</span>
+      <span className="rounded-lg border border-yellow-400/50 px-2 py-1.5 text-center font-black">{value}</span>
     </div>
   );
 }
@@ -2036,13 +2036,13 @@ function HelpCenterPage() {
   return (
     <div className="space-y-1.5">
       <Panel title="Help Center">
-        <div className="grid gap-2 xl:grid-cols-4">
+        <div className="grid gap-1.5 xl:grid-cols-4">
           <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
-            <h3 className="text-sm font-black text-yellow-300">Premium Support</h3>
+            <h3 className="text-[11px] font-black text-yellow-300">Premium Support</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
-            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-1.5 text-center font-black text-black">
+            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-2.5 py-1 text-center font-black text-black">
               Contact Support
             </a>
           </div>
@@ -2064,14 +2064,14 @@ function HelpCenterPage() {
             </p>
             <Link
   href="/client/login"
-  className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/20"
+  className="rounded-xl bg-white/10 px-2 py-1.5 text-xs font-bold text-white hover:bg-white/20"
 >
   Login
 </Link>
 
 <Link
   href="/client/signup"
-  className="rounded-xl bg-yellow-400 px-3 py-2 text-xs font-black text-black hover:bg-yellow-300"
+  className="rounded-xl bg-yellow-400 px-2 py-1.5 text-[11px] font-black text-black hover:bg-yellow-300"
 >
   Sign Up
 </Link>
@@ -2084,6 +2084,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
