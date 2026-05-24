@@ -321,8 +321,8 @@ function LockedSignalCard({ s }: { s: Signal }) {
   const confidenceValue = Number(s.confidence || s.score || 0);
   const signalPrice = confidenceValue >= 90 ? "$5" : "$3";
   const unlockText = confidenceValue >= 90
-    ? "Unlock VIP Signal - $5"
-    : "Unlock Premium Signal - $3";
+    ? "Unlock $5"
+    : "Unlock $3";
 
   const [loading, setLoading] = useState(false);
 
@@ -482,7 +482,7 @@ function SignalCard({ s }: { s: Signal }) {
           <p className="text-xs text-slate-500">LIVE MARKET GENERATED</p>
           <h3 className="mt-1 text-3xl font-black text-white">{s.symbol}</h3>
           <p className="text-xs text-slate-400">{formatDate(s.created_at)}</p>
-          <p className="text-sm font-black text-yellow-300">Confidence: {s.confidence || s.score || "-"}</p>
+          <p className="text-sm font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-black ${isSell ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
@@ -2088,6 +2088,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
