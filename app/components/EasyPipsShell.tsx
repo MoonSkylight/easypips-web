@@ -89,7 +89,7 @@ const NAV = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: "dashboard" },
   { key: "live-signals", label: "Live Signals", href: "/live-signals", icon: "activity" },
   { key: "performance", label: "Performance", href: "/performance", icon: "chart" },
-  { key: "strategies", label: "Strategies", href: "/strategies", icon: "strategy" },
+  
   { key: "news-calendar", label: "News Calendar", href: "/news-calendar", icon: "calendar" },
   { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "account" },
   { key: "history", label: "History", href: "/history", icon: "history" },
@@ -1298,7 +1298,7 @@ er:bg-white/10"
           )}
 
           {page === "performance" && <PerformancePage closed={closed} allSignals={allSignals} />}
-          {page === "strategies" && <StrategiesPage allSignals={allSignals} />}
+          
           {page === "news-calendar" && <NewsCalendarPage events={news} />}
           {page === "account" && <AccountPage accounts={accounts} />}
 
@@ -2109,6 +2109,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
