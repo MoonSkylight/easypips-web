@@ -279,7 +279,7 @@ function StatCard({
           {icon}
         </span>
       </div>
-      <p className="mt-4 text-3xl font-black text-white">{value}</p>
+      <p className="mt-4 text-2xl font-black text-white">{value}</p>
       <div className="mt-2 h-2 rounded-full bg-black/40">
         <div className={`h-2 w-1/3 rounded-full ${color === "red" ? "bg-red-400" : color === "yellow" ? "bg-yellow-400" : color === "purple" ? "bg-purple-400" : "bg-emerald-400"}`} />
       </div>
@@ -290,7 +290,7 @@ function StatCard({
 function SystemRule() {
   return (
     <section className="mb-2 rounded-xl border border-yellow-400/20 bg-white/[0.025] p-3">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-sm font-black uppercase tracking-widest text-yellow-300">
@@ -1207,7 +1207,7 @@ er:bg-white/10"
 
           {page === "dashboard" && (
   <div className="space-y-2">
-    <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
+    <div className="grid gap-2 grid-cols-1 xl:grid-cols-[1fr_320px]">
       <div className="space-y-2">
         
 
@@ -1434,7 +1434,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "xl:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-3"}`}>
+        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 xl:grid-cols-3"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1622,13 +1622,13 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid gap-1.5 xl:grid-cols-3">
+      <div className="grid gap-1.5 md:grid-cols-2 xl:grid-cols-3">
         <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
-      <div className="grid gap-1.5 xl:grid-cols-3">
+      <div className="grid gap-1.5 md:grid-cols-2 xl:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
@@ -1920,7 +1920,7 @@ function SettingsPage({
 
   return (
     <div>
-      <h2 className="mb-5 text-3xl font-black">Settings</h2>
+      <h2 className="mb-5 text-2xl font-black">Settings</h2>
       <div className="mb-5 flex flex-wrap gap-1.5 border-b border-white/8 pb-3 text-sm font-black">
         {["General", "Notifications", "Signal Preferences", "Risk Management", "Account Connections", "Security", "API Settings"].map((t) => (
           <button key={t} className={t === "Signal Preferences" ? "text-yellow-300" : "text-white"}>{t}</button>
@@ -2061,7 +2061,7 @@ function HelpCenterPage() {
   return (
     <div className="space-y-1.5">
       <Panel title="Help Center">
-        <div className="grid gap-1.5 xl:grid-cols-3">
+        <div className="grid gap-1.5 md:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
             <h3 className="text-lg font-black text-yellow-300">Premium Support</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
@@ -2109,6 +2109,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
