@@ -397,19 +397,19 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       <p className="mt-1 text-sm font-black text-slate-400">
+       <p className="mt-1 text-xs font-black text-slate-500">
           Institutional AI setup hidden
         </p>
       </div>
 
-      <div className="my-7 flex justify-center">
+      <div className="my-5 flex justify-center">
  
 
 
 
 
 
-       <div className="flex h-20 w-20 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-3xl shadow-lg shadow-yellow-400/15">
+       <div className="flex h-16 w-16 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-3xl shadow-lg shadow-yellow-400/15">
           🔒
         </div>
       </div>
@@ -929,7 +929,7 @@ const strategyQualityScore =
 const strategyQualityLabel =
   strategyQualityScore === "A"
     ? "High Quality Market"
-    : "Protected / Low Quality Market";
+    : "Monitoring Market";
 
 const londonLabel = isLondon
   ? "{londonLabel}"
@@ -1050,7 +1050,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
             <p>? News calendar</p>
             <p>? MT4 / MT5 ready</p>
           </div>
-          <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2.5 text-center font-black text-black">
+          <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2 text-center font-black text-black">
             Join Telegram
           </a>
         </div>
@@ -1139,7 +1139,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   <>
     <Link
       href="/client/signup"
-      className="rounded-xl bg-yellow-400 px-4 py-2.5 font-black text-black hover:bg-yellow-300"
+      className="rounded-xl bg-yellow-400 px-4 py-2 font-black text-black hover:bg-yellow-300"
     >
       Sign Up
     </Link>
@@ -1923,7 +1923,7 @@ function SettingsPage({
           </div>
 
           <div className="max-h-[430px] overflow-y-auto rounded-2xl border border-white/8">
-            <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-3 text-sm font-black text-slate-400">
+            <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-3 text-xs font-black text-slate-500">
               <span>Pair</span><span></span><span>Instrument</span><span>Category</span><span>Status</span>
             </div>
             {pairs.map((p) => {
@@ -1965,7 +1965,7 @@ function SettingsPage({
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <button
               onClick={saveSettings}
-              className="rounded-xl bg-yellow-400 px-4 py-2.5 font-black text-black hover:bg-yellow-300"
+              className="rounded-xl bg-yellow-400 px-4 py-2 font-black text-black hover:bg-yellow-300"
             >
               Save Changes
             </button>
@@ -2039,7 +2039,7 @@ function HelpCenterPage() {
             <p className="mt-3 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
-            <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2.5 text-center font-black text-black">
+            <a href="https://t.me/" target="_blank" className="mt-5 block rounded-xl bg-yellow-400 px-4 py-2 text-center font-black text-black">
               Contact Support
             </a>
           </div>
@@ -2081,6 +2081,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
