@@ -1206,49 +1206,110 @@ er:bg-white/10"
           {page !== "settings" && stats}
 
           {page === "dashboard" && (
-  <div className="space-y-1.5">
-    <LiveSignalsPanel
-      signals={visibleLive}
-      filter={filter}
-      setFilter={setFilter}
-      isPremium={isPremium}
-     
-    />
+  <div className="space-y-2">
+    <div className="grid gap-2 xl:grid-cols-[1fr_340px]">
+      <div className="space-y-2">
+        <SystemRule />
 
-    <div className="grid gap-1.5 xl:grid-cols-[1fr_320px]">
-      <LiveTradingChart />
+        <LiveSignalsPanel
+          signals={visibleLive}
+          filter={filter}
+          setFilter={setFilter}
+          isPremium={isPremium}
+          compact
+        />
+      </div>
 
-      <div className="grid gap-1.5">
+      <div className="space-y-2">
+        <LiveTradingChart />
+
         <Panel title="Trading Room">
-          <div className="space-y-1.5 text-sm">
-            <p className="text-emerald-300 font-black">Live</p>
-            <p className="text-slate-300">AI desk monitoring active. High probability setups forming.</p>
-            <button className="mt-2 w-full rounded-xl border border-yellow-400/40 px-2 py-1.5 text-[11px] font-black text-yellow-300">
+          <div className="space-y-2 text-sm">
+            <p className="font-black text-emerald-300">
+              AI Desk Live
+            </p>
+
+            <p className="text-slate-300">
+              High probability setups forming.
+            </p>
+
+            <p className="text-slate-400">
+              Liquidity monitoring active.
+            </p>
+
+            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-1.5 text-xs font-black text-yellow-300">
               Go to Trading Room
             </button>
           </div>
         </Panel>
 
         <Panel title="AI Market Scan">
-          <div className="space-y-1.5 text-sm">
-            <p className="text-slate-400">28 markets monitored</p>
-            <p className="text-sm font-black text-white">28</p>
-            <p className="text-slate-300">2 premium zones detected. Actionable details hidden.</p>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-400">
+                Markets monitored
+              </span>
+
+              <span className="font-black text-white">
+                28
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-slate-400">
+                Premium zones
+              </span>
+
+              <span className="font-black text-yellow-300">
+                2
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-slate-400">
+                AI monitoring
+              </span>
+
+              <span className="font-black text-emerald-300">
+                ACTIVE
+              </span>
+            </div>
           </div>
         </Panel>
 
         <Panel title="Market Sessions">
-          <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between"><span>London Session</span><span className="text-emerald-300">OPEN</span></div>
-            <div className="flex justify-between"><span>New York Session</span><span className="text-emerald-300">OPEN</span></div>
-            <div className="flex justify-between"><span>Asia</span><span className="text-slate-400">CLOSED</span></div>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span>London</span>
+              <span className="text-emerald-300">
+                OPEN
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>New York</span>
+              <span className="text-emerald-300">
+                OPEN
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Asia</span>
+              <span className="text-slate-400">
+                CLOSED
+              </span>
+            </div>
           </div>
         </Panel>
       </div>
     </div>
 
-    <div className="border-t border-white/10 pt-2 text-center text-[9px] text-slate-500">
-      Disclaimer <span className="mx-2">•</span> Terms <span className="mx-2">•</span> Privacy <span className="mx-2">•</span> Refund Policy
+    <div className="border-t border-white/8 pt-2 text-center text-[10px] text-slate-500">
+      Disclaimer
+      <span className="mx-2">•</span>
+      Terms
+      <span className="mx-2">•</span>
+      Privacy
     </div>
   </div>
 )}
