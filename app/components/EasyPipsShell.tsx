@@ -402,7 +402,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
         </p>
       </div>
 
-      <div className="my-5 flex justify-center">
+      <div className="my-4 flex justify-center">
  
 
 
@@ -2090,6 +2090,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
