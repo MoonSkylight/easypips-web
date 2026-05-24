@@ -289,23 +289,41 @@ function StatCard({
 
 function SystemRule() {
   return (
-    <section className="mb-2 overflow-hidden rounded-[2rem] border border-yellow-400/40 bg-gradient-to-r from-yellow-400/[0.13] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
-      <div className="flex flex-col gap-2 rounded-2xl bg-[#07101b]/90 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
-          <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 3 5 6v5c0 5 3.4 8.7 7 10 3.6-1.3 7-5 7-10V6l-7-3Z" />
-            <path d="m9 12 2 2 4-5" />
-          </svg>
-        </div>
+    <section className="mb-2 rounded-2xl border border-yellow-400/20 bg-white/[0.025] p-3">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1">
-          <p className="text-base font-black text-yellow-300">SYSTEM RULE</p>
-          <p className="mt-1 text-sm leading-6 text-slate-200">
-            EasyPips AI analyzes multiple market factors and only publishes signals after minimum confirmation is achieved.
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-black uppercase tracking-widest text-yellow-300">
+              SYSTEM RULE
+            </span>
+
+            <span className="rounded-full bg-yellow-400/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-300">
+              82% CONFIRMATION
+            </span>
+          </div>
+
+          <p className="mt-1 text-xs text-slate-400">
+            AI confirms setups only after minimum confirmation.
           </p>
         </div>
-        <div className="flex items-end gap-2">
-          <p className="text-6xl font-black leading-none text-yellow-300 drop-shadow-[0_0_30px_rgba(250,204,21,0.35)]">82%</p>
-          <p className="pb-2 text-xs font-black uppercase tracking-widest text-slate-300">minimum<br />confirmation</p>
+
+        <div className="flex flex-wrap items-center gap-2 text-[8px] font-black uppercase tracking-widest text-slate-300">
+          <span>Volatility NORMAL</span>
+          <span>•</span>
+
+          <span>Liquidity HIGH</span>
+          <span>•</span>
+
+          <span>Spreads STABLE</span>
+          <span>•</span>
+
+          <span>News LOW</span>
+          <span>•</span>
+
+          <span>Quality A</span>
+          <span>•</span>
+
+          <span>Protection ACTIVE</span>
         </div>
       </div>
     </section>
