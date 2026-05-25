@@ -2056,58 +2056,85 @@ function Slider({ label, value }: { label: string; value: string }) {
 
 
 function HelpCenterPage() {
+  const [message, setMessage] = useState("");
+
   return (
-    <div className="space-y-1.5">
-      <Panel title="Help Center">
-        <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-          <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
-            <h3 className="text-sm font-black text-yellow-300">Premium Support</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
-            </p>
-            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-center text-xs font-black text-yellow-300 hover:bg-yellow-400/20">
-              Contact Support
-            </a>
+    <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+      <Panel title="Live Admin Support">
+        <div className="flex h-[500px] flex-col">
+          <div className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-300" />
+            Admin Online
           </div>
 
-          <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] p-6">
-            <h3 className="text-sm font-black text-emerald-300">MT4 / MT5 Help</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              Need help connecting your trading account? Submit a request from the Account page.
-            </p>
-            <Link href="/account" className="mt-2 block rounded-xl border border-white/8 px-3 py-3 text-center font-black hover:bg-white/10">
-              Open Account Page
-            </Link>
+          <div className="flex-1 space-y-3 overflow-y-auto rounded-2xl border border-white/8 bg-black/20 p-4">
+            <div className="max-w-[80%] rounded-2xl bg-white/[0.04] p-3 text-sm text-slate-200">
+              Welcome to EasyPips support. How can we help you today?
+            </div>
+
+            <div className="ml-auto max-w-[80%] rounded-2xl bg-yellow-400/10 p-3 text-sm text-yellow-200">
+              I need help with premium access.
+            </div>
+
+            <div className="max-w-[80%] rounded-2xl bg-white/[0.04] p-3 text-sm text-slate-200">
+              Our admin team will assist you shortly.
+            </div>
           </div>
 
-          <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/[0.06] p-6">
-            <h3 className="text-sm font-black text-cyan-300">FAQ Coming Soon</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              We will add repeated questions, trading rules, billing help, and onboarding support here.
-            </p>
-            <Link
-  href="/client/login"
-  className="rounded-xl bg-white/10 px-2 py-1.5 text-xs font-bold text-white hover:bg-white/20"
->
-  Login
-</Link>
+          <div className="mt-4 flex gap-2">
+            <input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your message..."
+              className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm outline-none focus:border-yellow-300/40"
+            />
 
-<Link
-  href="/client/signup"
-  className="rounded-xl bg-yellow-400 px-2 py-1.5 text-sm font-black text-black hover:bg-yellow-300"
->
-  Sign Up
-</Link>
-<Link href="/client/signup" className="mt-2 block rounded-xl border border-white/8 px-3 py-3 text-center font-black hover:bg-white/10">
-              View Pricing
-            </Link>
+            <button
+              className="rounded-xl border border-yellow-300/30 bg-yellow-400/10 px-4 py-3 text-sm font-black text-yellow-300 hover:bg-yellow-400/20"
+            >
+              Send
+            </button>
           </div>
         </div>
       </Panel>
+
+      <div className="space-y-4">
+        <Panel title="Support Channels">
+          <div className="space-y-3 text-sm">
+            <a
+              href="https://t.me/"
+              target="_blank"
+              className="block rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 hover:bg-white/[0.05]"
+            >
+              Telegram Support
+            </a>
+
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+              support@easypips.ai
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+              Billing Assistance
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+              Technical Support
+            </div>
+          </div>
+        </Panel>
+
+        <Panel title="Response Time">
+          <div className="space-y-2 text-sm text-slate-300">
+            <p>Average response: 5–15 minutes</p>
+            <p>Priority support for premium users</p>
+            <p>24/7 AI monitoring active</p>
+          </div>
+        </Panel>
+      </div>
     </div>
   );
 }
-
+            
 
 
 
