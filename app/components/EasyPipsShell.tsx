@@ -90,7 +90,7 @@ const NAV = [
   { key: "live-signals", label: "Live Signals", href: "/live-signals", icon: "activity" },
   { key: "performance", label: "Performance", href: "/performance", icon: "chart" },
   
-  { key: "news-calendar", label: "News Calendar", href: "/news-calendar", icon: "calendar" },
+  
   { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "account" },
   { key: "history", label: "History", href: "/history", icon: "history" },
   { key: "reports", label: "Reports", href: "/reports", icon: "reports" },
@@ -1094,7 +1094,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
   <div className="flex items-center gap-1.5">
     <span className="text-sm font-black uppercase tracking-widest text-emerald-300">
-      LIVE MARKET STATUS
+      LIVE MARKET / NEWS STATUS
     </span>
 
     <div className="ml-2 hidden items-center gap-1.5 xl:flex">
@@ -1107,7 +1107,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
       </span>
 
       <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
-        Asia ○ Closed
+        Protection: Active
       </span>
     </div>
   </div>
@@ -2108,6 +2108,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
