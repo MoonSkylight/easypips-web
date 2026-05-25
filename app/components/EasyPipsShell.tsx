@@ -475,7 +475,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
+       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -1069,7 +1069,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
             <p>✓ News calendar</p>
             <p>✓ MT4 / MT5 ready</p>
           </div>
-          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center font-black text-black">
+          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 text-center font-black text-black">
             Join Telegram
           </a>
         </div>
@@ -1088,7 +1088,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
       <section className="relative z-10 xl:pl-[240px]">
         <header className="sticky top-0 z-30 border-b border-white/8 bg-[#030811]/90 px-4 py-3 shadow-xl shadow-black/20 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-1.5">
-            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-5 py-3">
+            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-3">
               <div className="mr-4 flex shrink-0 items-center gap-1.5">
   <span className="h-2 w-2 rounded-full bg-emerald-400" />
 
@@ -1145,12 +1145,12 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         localStorage.removeItem("easypips_client_token");
         window.location.href = "/client/login";
       }}
-      className="rounded-xl bg-red-500 px-5 py-3 font-black text-white hover:bg-red-400"
+      className="rounded-xl bg-red-500 px-3 py-3 font-black text-white hover:bg-red-400"
     >
       Logout
     </button>
 
-    <a href="https://t.me/" target="_blank" className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
+    <a href="https://t.me/" target="_blank" className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-3 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
       Join Telegram
     </a>
   </>
@@ -1158,7 +1158,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   <>
     <Link
       href="/client/signup"
-      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 font-black text-black hover:bg-yellow-300"
+      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 font-black text-black hover:bg-yellow-300"
     >
       Sign Up
     </Link>
@@ -1166,13 +1166,13 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
     <Link
  
      href="/client/login"
-      className="rounded-xl border border-white/8 px-5 py-3 font-black text-white hov
+      className="rounded-xl border border-white/8 px-3 py-3 font-black text-white hov
 er:bg-white/10"
     >
       Login
     </Link>
 
-    <a href="https://t.me/" target="_blank" className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
+    <a href="https://t.me/" target="_blank" className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-3 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300">
       Join Telegram
     </a>
 
@@ -1223,7 +1223,7 @@ er:bg-white/10"
 
           {page === "dashboard" && (
   <div className="space-y-2">
-    <div className="grid gap-2 grid-cols-1 xl:grid-cols-[1fr_320px]">
+    <div className="grid gap-2 grid-cols-1 grid-cols-1 xl:grid-cols-[1fr_320px]">
       <div className="space-y-2">
         
 
@@ -1253,7 +1253,7 @@ er:bg-white/10"
               Liquidity monitoring active.
             </p>
 
-            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-5 py-3 text-lg font-black text-yellow-300">
+            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-3 text-lg font-black text-yellow-300">
               Go to Trading Room
             </button>
           </div>
@@ -1434,7 +1434,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 xl:grid-cols-3"}`}>
+        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1612,7 +1612,7 @@ const monthlyReturn =
           </div>
         </Panel>
       )}
-      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-5 py-3">Export CSV</button>}>
+      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-3">Export CSV</button>}>
         <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
           <StatCard title="Winning Trades" value={wins} color="green" />
@@ -1622,13 +1622,13 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid gap-1.5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
         <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
-      <div className="grid gap-1.5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
@@ -1795,7 +1795,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
 
     <button
     type="submit"
-    className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-5 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300"
+    className="rounded-xl bg-gradient-to-r from-yellow-300 to-yellow-400 px-3 py-3 font-black text-black shadow-lg shadow-yellow-400/15 hover:from-yellow-200 hover:to-yellow-300"
   >
     Submit Connection Request
   </button>
@@ -1810,7 +1810,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <a
     href="/downloads/EasyPipsCopier.ex5"
     download
-    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 font-black text-black"
+    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 font-black text-black"
   >
     Download EA
   </a>
@@ -1826,7 +1826,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
   ] as Signal[];
 
   return (
-    <div className="relative"><div className="pointer-events-none absolute inset-0 flex items-center justify-center text-8xl font-black uppercase tracking-widest text-white/[0.03]">EasyPips</div><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-5 py-3">Export CSV</button>}>
+    <div className="relative"><div className="pointer-events-none absolute inset-0 flex items-center justify-center text-8xl font-black uppercase tracking-widest text-white/[0.03]">EasyPips</div><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-3">Export CSV</button>}>
       <div className="mb-2 grid gap-1.5 md:grid-cols-4">
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Strategies</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Pairs</option></select>
@@ -1942,7 +1942,7 @@ function SettingsPage({
               <button
                 key={c}
                 onClick={() => setCat(c)}
-                className={`rounded-xl px-5 py-3 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
+                className={`rounded-xl px-3 py-3 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
               >
                 {c}
               </button>
@@ -1992,7 +1992,7 @@ function SettingsPage({
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <button
               onClick={saveSettings}
-              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 font-black text-black hover:bg-yellow-300"
+              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 font-black text-black hover:bg-yellow-300"
             >
               Save Changes
             </button>
@@ -2027,7 +2027,7 @@ function SettingsPage({
 
           <Panel title="Additional Preferences">
             {["Only high impact news period", "Avoid low liquidity sessions", "Weekend protection"].map((x, i) => (
-              <div key={x} className="flex items-center justify-between border-b border-white/5 py-4">
+              <div key={x} className="flex items-center justify-between border-b border-white/5 py-3">
                 <div>
                   <p className="font-black">{x}</p>
                   <p className="text-[9px] text-slate-500">Customize your signal delivery rules</p>
@@ -2060,13 +2060,13 @@ function HelpCenterPage() {
   return (
     <div className="space-y-1.5">
       <Panel title="Help Center">
-        <div className="grid gap-1.5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
             <h3 className="text-lg font-black text-yellow-300">Premium Support</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
-            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-5 py-3 text-center font-black text-black">
+            <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 text-center font-black text-black">
               Contact Support
             </a>
           </div>
@@ -2076,7 +2076,7 @@ function HelpCenterPage() {
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Need help connecting your trading account? Submit a request from the Account page.
             </p>
-            <Link href="/account" className="mt-2 block rounded-xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
+            <Link href="/account" className="mt-2 block rounded-xl border border-white/8 px-3 py-3 text-center font-black hover:bg-white/10">
               Open Account Page
             </Link>
           </div>
@@ -2099,7 +2099,7 @@ function HelpCenterPage() {
 >
   Sign Up
 </Link>
-<Link href="/client/signup" className="mt-2 block rounded-xl border border-white/8 px-5 py-3 text-center font-black hover:bg-white/10">
+<Link href="/client/signup" className="mt-2 block rounded-xl border border-white/8 px-3 py-3 text-center font-black hover:bg-white/10">
               View Pricing
             </Link>
           </div>
@@ -2108,6 +2108,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
