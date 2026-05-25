@@ -1222,7 +1222,7 @@ er:bg-white/10"
 
           {page === "dashboard" && (
   <div className="space-y-2">
-    <div className="grid gap-2 grid-cols-1 grid-cols-1 xl:grid-cols-[1fr_320px]">
+    <div className="grid gap-2 grid-cols-1 grid-cols-1 grid-cols-1 xl:grid-cols-[1fr_320px]">
       <div className="space-y-2">
         
 
@@ -1433,7 +1433,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"}`}>
+        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1621,13 +1621,13 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
         <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
-      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
@@ -2059,7 +2059,7 @@ function HelpCenterPage() {
   return (
     <div className="space-y-1.5">
       <Panel title="Help Center">
-        <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
             <h3 className="text-sm font-black text-yellow-300">Premium Support</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
@@ -2107,6 +2107,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
