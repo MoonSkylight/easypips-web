@@ -1302,25 +1302,9 @@ er:bg-white/10"
           {page === "news-calendar" && <NewsCalendarPage events={news} />}
           {page === "account" && <AccountPage accounts={accounts} />}
 
-          {page === "history" &&
-            (isPremium ? (
-              <HistoryPage closed={closed} />
-            ) : (
-              <PremiumLock
-                title="History is Premium"
-                message="Upgrade to Premium to unlock closed trades, TP/SL history, result tracking, dates, strategy outcomes, and export-ready trade records."
-              />
-            ))}
+          {page === "history" && <HistoryPage closed={closed} />}
 
-          {page === "reports" &&
-            (isPremium ? (
-              <ReportsPage closed={closed} allSignals={allSignals} />
-            ) : (
-              <PremiumLock
-                title="Reports are Premium"
-                message="Upgrade to Premium to unlock performance reports, downloadable summaries, strategy analytics, and trading result breakdowns."
-              />
-            ))}
+          {page === "reports" && <ReportsPage closed={closed} allSignals={allSignals} />}
           {page === "help-center" && <HelpCenterPage />}
 
           {page === "settings" && (
@@ -2108,6 +2092,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
