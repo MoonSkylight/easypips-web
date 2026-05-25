@@ -1826,7 +1826,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
   ] as Signal[];
 
   return (
-    <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-5 py-3">Export CSV</button>}>
+    <div className="relative"><div className="pointer-events-none absolute inset-0 flex items-center justify-center text-8xl font-black uppercase tracking-widest text-white/[0.03]">EasyPips</div><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-5 py-3">Export CSV</button>}>
       <div className="mb-2 grid gap-1.5 md:grid-cols-4">
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Strategies</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Pairs</option></select>
@@ -1868,22 +1868,21 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
           </tbody>
         </table>
       </div>
-    </Panel>
+    </Panel></div>
   );
 }
 
 function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
   return (
     <div className="space-y-1.5">
-      <Panel title="Reports">
+      <div className="relative"><div className="pointer-events-none absolute inset-0 flex items-center justify-center text-8xl font-black uppercase tracking-widest text-white/[0.03]">EasyPips</div><Panel title="Reports">
         <div className="grid gap-1.5 md:grid-cols-4">
           <button className="rounded-xl bg-yellow-400 px-2 py-1.5 font-black text-black">Download Daily Report</button>
           <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Download Weekly Report</button>
           <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Download Monthly Report</button>
           <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Export CSV</button>
         </div>
-      </Panel>
-      <PerformancePage closed={closed} allSignals={allSignals} />
+      </Panel></div>`n      <PerformancePage closed={closed} allSignals={allSignals} />
     </div>
   );
 }
@@ -2109,6 +2108,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
