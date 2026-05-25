@@ -1203,7 +1203,7 @@ er:bg-white/10"
           <SystemRule />
 
         
-          {page !== "settings" && page !== "history" && stats}
+          {page !== "settings" && page !== "history" && page !== "reports" && stats}
 
           {page === "dashboard" && (
   <div className="space-y-2">
@@ -2109,6 +2109,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
