@@ -500,7 +500,7 @@ function SignalCard({ s }: { s: Signal }) {
           <p className="text-[9px] text-slate-500">LIVE MARKET GENERATED</p>
           <h3 className="mt-1 text-sm font-black text-white">{s.symbol}</h3>
           <p className="text-[9px] text-slate-500">{formatDate(s.created_at)}</p>
-          <p className="text-lg font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
+          <p className="text-sm font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-sm font-black ${isLocked ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
@@ -577,7 +577,7 @@ function LiveTradingChart() {
           <select
             value={pair}
             onChange={(e) => setPair(e.target.value)}
-            className="rounded-xl border border-white/8 bg-black/40 px-2 py-1.5 text-lg font-black text-yellow-300 outline-none"
+            className="rounded-xl border border-white/8 bg-black/40 px-2 py-1.5 text-sm font-black text-yellow-300 outline-none"
           >
             {pairs.map((p) => (
               <option key={p.value} value={p.value}>
@@ -658,7 +658,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
           </div>
         ))}
       </div>
-      <Link href="/news-calendar" className="mt-2 block text-center text-lg font-black text-yellow-300">
+      <Link href="/news-calendar" className="mt-2 block text-center text-sm font-black text-yellow-300">
         View full calendar →
       </Link>
     </Panel>
@@ -1062,7 +1062,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         </nav>
 
         <div className="mt-8 rounded-xl border border-yellow-400/40 bg-yellow-400/[0.03] p-1.5">
-          <h3 className="text-lg font-black text-yellow-300">Premium AI Signals</h3>
+          <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-1.5 text-sm">
             <p>✓ AI powered strategies</p>
             <p>✓ Desk 1 and Trading Room</p>
@@ -1253,7 +1253,7 @@ er:bg-white/10"
               Liquidity monitoring active.
             </p>
 
-            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-3 text-lg font-black text-yellow-300">
+            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-3 text-sm font-black text-yellow-300">
               Go to Trading Room
             </button>
           </div>
@@ -1971,7 +1971,7 @@ function SettingsPage({
             <p className="text-sm">
               Selected: <span className="font-black text-emerald-300">{selectedPairs.length} pairs</span>
             </p>
-            <button onClick={() => setSelectedPairs([])} className="text-lg font-black text-yellow-300">
+            <button onClick={() => setSelectedPairs([])} className="text-sm font-black text-yellow-300">
               Clear All
             </button>
           </div>
@@ -2062,7 +2062,7 @@ function HelpCenterPage() {
       <Panel title="Help Center">
         <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-6">
-            <h3 className="text-lg font-black text-yellow-300">Premium Support</h3>
+            <h3 className="text-sm font-black text-yellow-300">Premium Support</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Contact admin for billing, premium access, Telegram access, or MT4/MT5 connection help.
             </p>
@@ -2108,6 +2108,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
