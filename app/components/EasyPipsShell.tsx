@@ -812,6 +812,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [pairSearch, setPairSearch] = useState("");
   const [cat, setCat] = useState("Major");
   const [isPremium, setIsPremium] = useState(false);
+  const [adminPreview, setAdminPreview] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState("");
 const clientToken =
   typeof window !== "undefined"
@@ -975,7 +976,7 @@ const visibleLiveRaw = sessionAllowed
       return s.strategy === filter;
     })
   : live.slice(0, 6);
-
+  const effectivePremium = isPremium || adminPreview;
   const visibleLive = visibleLiveRaw;
 
   const totalSignals = allSignals.length + closed.length;
@@ -1201,6 +1202,21 @@ er:bg-white/10"
 
         <div className="mx-auto max-w-[1600px] p-1.5">
           <SystemRule />
+{page === "dashboard" && (
+  <div className="mb-2 flex justify-end">
+    <button
+      type="button"
+      onClick={() => setAdminPreview((v) => !v)}
+      className={`rounded-xl border px-3 py-1.5 text-xs font-black ${
+        adminPreview
+          ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+          : "border-white/10 bg-white/[0.03] text-slate-400"
+      }`}
+    >
+      Admin Preview: {adminPreview ? "ON" : "OFF"}
+    </button>
+  </div>
+)}
 
         
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
@@ -1215,7 +1231,7 @@ er:bg-white/10"
           signals={visibleLive}
           filter={filter}
           setFilter={setFilter}
-          isPremium={isPremium}
+          isPremium={effectivePremium}
           compact
         />
       </div>
@@ -1287,7 +1303,7 @@ er:bg-white/10"
 
           {page === "live-signals" && (
             <div className="space-y-1.5">
-              <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={isPremium} />
+              <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={effectivePremium} />
               {!isPremium && (
                 <PremiumLock
                   title="Full Live Signals Locked"
