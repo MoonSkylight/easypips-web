@@ -1107,7 +1107,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
       </span>
 
       <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
-        Protection: Active
+        Institutional Monitoring
       </span>
     </div>
   </div>
@@ -1272,7 +1272,7 @@ er:bg-white/10"
 
             <div className="flex justify-between">
               <span className="text-slate-400">
-                Premium zones
+                Premium zones (L, NY)
               </span>
 
               <span className="font-black text-yellow-300">
@@ -2135,6 +2135,7 @@ function HelpCenterPage() {
   );
 }
             
+
 
 
 
