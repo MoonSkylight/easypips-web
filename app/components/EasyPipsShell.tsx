@@ -275,7 +275,7 @@ function StatCard({
     <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-black uppercase">{title}</p>
-        <span className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
+        <span className="flex h-12 lg:h-16 w-16 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
           {icon}
         </span>
       </div>
@@ -427,7 +427,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       <div className="flex h-6 w-6 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-base shadow-lg shadow-yellow-400/15">
+       <div className="flex h-6 w-6 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-sm lg:text-base shadow-lg shadow-yellow-400/15">
           🔒
         </div>
       </div>
@@ -1023,9 +1023,9 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 }
 `}</style>
       <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute left-[-160px] top-[-160px] h-[230px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
-        <div className="absolute right-[-180px] top-[120px] h-[230px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
-        <div className="absolute bottom-[-220px] left-[35%] h-[230px] w-[520px] rounded-full bg-cyan-400/10 blur-[150px]" />
+        <div className="absolute left-[-160px] top-[-160px] h-[190px] lg:h-[230px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
+        <div className="absolute right-[-180px] top-[120px] h-[190px] lg:h-[230px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
+        <div className="absolute bottom-[-220px] left-[35%] h-[190px] lg:h-[230px] w-[520px] rounded-full bg-cyan-400/10 blur-[150px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
@@ -1354,7 +1354,7 @@ function PremiumLock({
     <div className="relative overflow-hidden rounded-[2rem] border border-yellow-300/40  bg-gradient-to-br from-yellow-400/[0.12] via-white/[0.045] to-emerald-400/[0.08] p-[1px] shadow-xl shadow-yellow-500/10">
       <div className="rounded-[2rem] bg-[#07101b]/95 p-8 text-center backdrop-blur-xl">
         <div className="mx-auto flex h-6 w-6 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/15">
-          <svg className="h-16 w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="h-12 lg:h-16 w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="10" width="16" height="10" rx="2" />
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
           </svg>
@@ -2121,6 +2121,7 @@ function HelpCenterPage() {
   );
 }
             
+
 
 
 
