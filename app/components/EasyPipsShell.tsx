@@ -605,7 +605,7 @@ function LiveTradingChart() {
           </div>
         </div>
 
-        <div className="h-[430px] w-full bg-[#05070D]">
+        <div className="h-[320px] md:h-[360px] xl:h-[420px] w-full bg-[#05070D]">
           <iframe
             key={pair}
             title="EasyPips Live TradingView Chart"
@@ -999,7 +999,7 @@ const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Tra
 const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
 
   const stats = (
-    <div className="mb-2 grid grid-cols-3 gap-1.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1010,7 +1010,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   );
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#030811] text-white">
+    <main className="h-screen overflow-hidden bg-[#030811] text-white">
 <style jsx global>{`
   @keyframes ticker {
   0% {
@@ -1199,7 +1199,7 @@ er:bg-white/10"
           </div>
         </div>
 
-        <div className="mx-auto max-w-[1600px] p-1">
+        <div className="mx-auto h-[calc(100vh-76px)] max-w-[1600px] overflow-hidden p-2">
           <SystemRule />
 
 
@@ -1208,9 +1208,9 @@ er:bg-white/10"
 
           {page === "dashboard" && (
   <div className="space-y-1.5">
-    <div className="grid gap-2 grid-cols-1 grid-cols-1 grid-cols-1 grid-cols-1 xl:grid-cols-[1fr_300px]">
-      <div className="space-y-1.5">
-        
+    <div className="grid h-full grid-cols-1 gap-2 overflow-hidden xl:grid-cols-[1fr_320px]">
+      <div className="min-h-0 overflow-y-auto pr-1">
+
 
         <LiveSignalsPanel
           signals={visibleLive}
@@ -1221,8 +1221,8 @@ er:bg-white/10"
         />
       </div>
 
-      <div className="space-y-1.5">
-        <LiveTradingChart />
+      <div className="space-y-2 xl:sticky xl:top-2">
+  <LiveTradingChart />
 
         <Panel title="Trading Room">
           <div className="space-y-1.5 text-sm">
@@ -1607,13 +1607,13 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
-      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
