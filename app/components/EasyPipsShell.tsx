@@ -1154,7 +1154,7 @@ er:bg-white/10"
           {page === "dashboard" && (
   <div className="space-y-0.5">
     <div className="grid h-full grid-cols-1 gap-2 overflow-hidden xl:grid-cols-[1fr_400px]">
-      <div className="min-h-0 h-[calc(100vh-210px)] overflow-y-scroll pr-3 pb-20 custom-scrollbar">
+      <div className="min-h-0 h-[calc(100vh-270px)] overflow-y-scroll pr-3 pb-40 custom-scrollbar">
 
         <LiveSignalsPanel
           signals={visibleLive}
@@ -2071,6 +2071,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
