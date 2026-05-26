@@ -958,7 +958,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   );
 
   return (
-    <main className="h-screen overflow-hidden bg-[#030811] text-white">
+    <main className="min-h-screen overflow-y-auto bg-[#030811] text-white">
 <style jsx global>{`
   @keyframes ticker {
   0% {
@@ -1146,7 +1146,7 @@ er:bg-white/10"
           </div>
         </div>
 
-        <div className="mx-auto h-[calc(100vh-108px)] max-w-[1700px] overflow-hidden px-2 py-1 pb-16">
+        <div className="mx-auto min-h-screen max-w-[1700px] overflow-visible px-2 py-1 pb-32">
           <SystemRule />
 
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
@@ -1154,7 +1154,7 @@ er:bg-white/10"
           {page === "dashboard" && (
   <div className="space-y-0.5">
     <div className="grid h-full grid-cols-1 gap-2 overflow-hidden xl:grid-cols-[1fr_400px]">
-      <div className="min-h-0 h-[calc(100vh-270px)] overflow-y-scroll pr-3 pb-40 custom-scrollbar">
+      <div className="min-h-0 overflow-visible pr-1">
 
         <LiveSignalsPanel
           signals={visibleLive}
@@ -2080,6 +2080,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
