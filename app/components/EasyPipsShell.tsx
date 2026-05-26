@@ -394,8 +394,8 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
       
        <div className="my-0.5 flex justify-center">
-  <div className="flex h-6 w-6 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 shadow-lg shadow-yellow-400/15">
-    <span className="text-[10px] font-black text-yellow-300">L</span>
+  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 shadow-lg shadow-yellow-400/15">
+    <span className="text-[8px] font-black text-yellow-300">LOCK</span>
   </div>
 </div>
 
@@ -552,7 +552,7 @@ function LiveTradingChart() {
           <iframe
             key={pair}
             title="EasyPips Live TradingView Chart"
-            src={`https://s.tradingview.com/widgetembed/?symbol=${pair}&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=05070D&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1`}
+            src={`https://s.tradingview.com/widgetembed/?symbol=${pair}&interval=15&hidesidetoolbar=1&symboledit=0&saveimage=0&toolbarbg=05070D&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1`}
             className="h-full w-full"
             allowFullScreen
           />
@@ -2069,6 +2069,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
