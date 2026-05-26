@@ -1146,7 +1146,7 @@ er:bg-white/10"
           </div>
         </div>
 
-        <div className="mx-auto h-[calc(100vh-108px)] max-w-[1700px] overflow-hidden px-2 py-1">
+        <div className="mx-auto h-[calc(100vh-108px)] max-w-[1700px] overflow-hidden px-2 py-1 pb-16">
           <SystemRule />
 
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
@@ -2070,6 +2070,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
