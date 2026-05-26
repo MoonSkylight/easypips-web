@@ -395,7 +395,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
       
        <div className="my-0.5 flex justify-center">
   <div className="flex h-8 w-8 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 shadow-lg shadow-yellow-400/15">
-    <span className="text-[8px] font-black text-yellow-300">LOCK</span>
+    <span className="text-[12px]">🔒</span>
   </div>
 </div>
 
@@ -2069,6 +2069,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
