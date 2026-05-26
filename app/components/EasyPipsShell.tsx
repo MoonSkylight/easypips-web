@@ -289,7 +289,7 @@ function StatCard({
 
 function SystemRule() {
   return (
-    <section className="mb-2 rounded-xl border border-yellow-400/20 bg-white/[0.025] p-3">
+    <section className="mb-2 rounded-xl border border-yellow-400/20 bg-white/[0.025] p-2">
       <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -999,7 +999,7 @@ const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Tra
 const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
 
   const stats = (
-    <div className="mb-2 grid grid-cols-3 gap-1.5 xl:grid-cols-6">
+    <div className="mb-2 grid grid-cols-3 gap-1.5 grid-cols-6">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1199,7 +1199,7 @@ er:bg-white/10"
           </div>
         </div>
 
-        <div className="mx-auto max-w-[1600px] p-1.5">
+        <div className="mx-auto max-w-[1600px] p-1">
           <SystemRule />
 {page === "dashboard" && (
   <div className="mb-2 flex justify-end">
@@ -1486,7 +1486,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
 function AccountMini({ accounts }: { accounts: Account[] }) {
   return (
     <Panel title="MT4 / MT5 Connected Accounts">
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-6 gap-1.5">
         <Mini label="Total Connected" value={accounts.length} />
         <Mini label="Approved" value={accounts.filter((a) => a.status === "approved").length} good />
       </div>
@@ -1603,7 +1603,7 @@ const monthlyReturn =
     <div className="space-y-1.5">
       {analytics && (
         <Panel title="Real Backend Analytics">
-          <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-4">
+          <div className="grid grid-cols-6 gap-1.5 lg:grid-cols-4">
             <StatCard title="Closed Trades" value={analytics.totalClosed || 0} color="cyan" />
             <StatCard title="Wins" value={analytics.wins || 0} color="green" />
             <StatCard title="Losses" value={analytics.losses || 0} color="red" />
@@ -1612,7 +1612,7 @@ const monthlyReturn =
         </Panel>
       )}
       <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
-        <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-5">
+        <div className="grid grid-cols-6 gap-1.5 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
           <StatCard title="Winning Trades" value={wins} color="green" />
           <StatCard title="Losing Trades" value={losses} color="red" />
@@ -2062,21 +2062,21 @@ function HelpCenterPage() {
     <div className="grid gap-2 xl:grid-cols-[1fr_300px]">
       <Panel title="Live Admin Support">
         <div className="flex h-[500px] flex-col">
-          <div className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-300">
+          <div className="mb-2 flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-300">
             <span className="h-2 w-2 rounded-full bg-emerald-300" />
             Admin Online
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border border-white/8 bg-black/20 p-3">
-            <div className="max-w-[80%] rounded-xl bg-white/[0.04] p-3 text-sm text-slate-200">
+          <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border border-white/8 bg-black/20 p-2">
+            <div className="max-w-[80%] rounded-xl bg-white/[0.04] p-2 text-sm text-slate-200">
               Welcome to EasyPips support. How can we help you today?
             </div>
 
-            <div className="ml-auto max-w-[80%] rounded-xl bg-yellow-400/10 p-3 text-sm text-yellow-200">
+            <div className="ml-auto max-w-[80%] rounded-xl bg-yellow-400/10 p-2 text-sm text-yellow-200">
               I need help with premium access.
             </div>
 
-            <div className="max-w-[80%] rounded-xl bg-white/[0.04] p-3 text-sm text-slate-200">
+            <div className="max-w-[80%] rounded-xl bg-white/[0.04] p-2 text-sm text-slate-200">
               Our admin team will assist you shortly.
             </div>
           </div>
@@ -2135,6 +2135,7 @@ function HelpCenterPage() {
   );
 }
             
+
 
 
 
