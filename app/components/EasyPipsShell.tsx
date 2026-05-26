@@ -392,17 +392,17 @@ function LockedSignalCard({ s }: { s: Signal }) {
         </p>
       </div>
 
-      <div className="my-0.5 flex justify-center">
+      
+       <div className="my-0.5 flex justify-center">
+  <div className="flex h-6 w-6 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 shadow-lg shadow-yellow-400/15">
+    <span className="text-[10px] font-black text-yellow-300">L</span>
+  </div>
+</div>
 
-       <div className="flex h-6 w-6 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-sm lg:text-base shadow-lg shadow-yellow-400/15">
-          ??
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-white/8 bg-black/30 p-1.5 text-center backdrop-blur-md">
-        <p className="text-[13px] font-black text-white">
-          ••••••••••••••••
-        </p>
+<div className="rounded-xl border border-white/8 bg-black/30 p-1.5 text-center backdrop-blur-md">
+  <p className="text-[13px] font-black text-white">
+    ••••••••••••••••
+  </p>
 
         <p className="mt-1 text-[9px] text-slate-500">
           Unlock this signal instantly for {signalPrice}
@@ -436,10 +436,15 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <p className="text-[9px] text-slate-500">LIVE MARKET GENERATED</p>
+          <p className="text-[9px] font-black uppercase tracking-wider text-emerald-300">
+  LIVE MARKET GENERATED
+</p>
           <h3 className="mt-1 text-[13px] font-black text-white">{s.symbol}</h3>
-          <p className="text-[9px] text-slate-500">{formatDate(s.created_at)}</p>
-          <p className="text-[11px] font-black text-yellow-300">Confidence: {s.confidence || s.score || "-"}</p>
+          <p className="text-[10px] text-slate-400">
+  {formatDate(s.created_at)}
+</p>
+          <p className="rounded-full bg-yellow-400/10 px-2 py-1 text-[10px] font-black text-yellow-300 inline-block mt-1">
+  Confidence: {s.confidence || s.score || "-"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-sm font-black ${isLocked ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
@@ -1000,11 +1005,11 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
         <div className="mt-4 rounded-xl border border-yellow-400/30 bg-yellow-400/[0.03] p-2">
           <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
-          <div className="mt-4 space-y-1.5 text-sm">
-            <p>? AI powered strategies</p>
-            <p>? Desk 1 and Trading Room</p>
-            <p>? News calendar</p>
-            <p>? MT4 / MT5 ready</p>
+          <div className="mt-2 space-y-1 text-[12px] text-slate-300">
+            <p>AI powered strategies</p>
+            <p>• Desk 1 and Trading Room</p>
+            <p>• News calendar</p>
+            <p>• MT4 / MT5 ready</p>
           </div>
           <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-center text-xs font-black text-yellow-300 hover:bg-yellow-400/20">
             Join Telegram
