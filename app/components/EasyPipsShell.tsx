@@ -988,7 +988,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           </div>
         </Link>
 
-        <nav className="space-y-1.5">
+        <nav className="space-y-1">
           {NAV.map((item) => {
             const active = pathname === item.href || page === item.key;
             return (
@@ -1152,7 +1152,7 @@ er:bg-white/10"
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
 
           {page === "dashboard" && (
-  <div className="space-y-1.5">
+  <div className="space-y-1">
     <div className="grid h-full grid-cols-1 gap-2 overflow-hidden xl:grid-cols-[1fr_380px]">
       <div className="min-h-0 max-h-[calc(100vh-260px)] overflow-y-auto pr-2 custom-scrollbar">
 
@@ -1169,7 +1169,7 @@ er:bg-white/10"
   <LiveTradingChart />
 
         <Panel title="Trading Room">
-          <div className="space-y-1.5 text-sm">
+          <div className="space-y-1 text-sm">
             <p className="font-black text-emerald-300">
               AI Desk Live
             </p>
@@ -1189,7 +1189,7 @@ er:bg-white/10"
         </Panel>
 
         <Panel title="AI Market Scan">
-          <div className="space-y-1.5 text-sm">
+          <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-slate-400">
                 Markets monitored
@@ -1229,7 +1229,7 @@ er:bg-white/10"
 )}
 
           {page === "live-signals" && (
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={effectivePremium} />
               {!isPremium && (
                 <PremiumLock
@@ -1398,7 +1398,7 @@ function PerformanceMini({ closed }: { closed: Signal[] }) {
     <Panel title="Performance Overview">
       <div className="flex items-center gap-6">
         <div className="flex h-32 w-32 items-center justify-center rounded-full border-[16px] border-emerald-400/80 text-sm font-black">{rate}%</div>
-        <div className="space-y-1.5 text-sm">
+        <div className="space-y-1 text-sm">
           <p>Win Rate <span className="float-right ml-10">{rate}%</span></p>
           <p>TP Hit Rate <span className="float-right ml-10">0%</span></p>
           <p>SL Hit Rate <span className="float-right ml-10">0%</span></p>
@@ -1413,7 +1413,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
   return (
     <Panel title="Recent Closed Trades">
       {closed.length === 0 ? <p className="text-slate-400">No closed trades yet.</p> : (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-1.5 text-sm">
               <span>{s.symbol} Â· {s.direction}</span>
@@ -1543,17 +1543,8 @@ const monthlyReturn =
   equityCurve.length > 0 ? `${runningEquity > 0 ? "+" : ""}${runningEquity}R` : "0R";
 
   return (
-    <div className="space-y-1.5">
-      {analytics && (
-        <Panel title="Real Backend Analytics">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 lg:grid-cols-4">
-            <StatCard title="Closed Trades" value={analytics.totalClosed || 0} color="cyan" />
-            <StatCard title="Wins" value={analytics.wins || 0} color="green" />
-            <StatCard title="Losses" value={analytics.losses || 0} color="red" />
-            <StatCard title="Real Win Rate" value={`${analytics.winRate || 0}%`} color="yellow" />
-          </div>
-        </Panel>
-      )}
+    <div className="space-y-1">
+      
       <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
@@ -1565,16 +1556,16 @@ const monthlyReturn =
       </Panel>
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
-        <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
+        
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
-        <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
+        
       </div>
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
-          <div className="space-y-1.5 text-sm">
+          <div className="space-y-1 text-sm">
             <Row label="Total Trades" value={closed.length} />
             <Row label="Winning Trades" value={wins} />
             <Row label="Losing Trades" value={losses} />
@@ -1604,7 +1595,7 @@ function FakeChart({ title, value }: { title: string; value: string }) {
 function TablePanel({ title, rows }: { title: string; rows: string[] }) {
   return (
     <Panel title={title}>
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         {rows.map((r, i) => (
           <div key={r} className="grid grid-cols-4 gap-1.5 border-b border-white/5 pb-2 text-sm">
             <span className="col-span-1">{r}</span>
@@ -1768,7 +1759,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
 
   return (
     <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center blur-[1px] opacity-[0.10]"><div className="text-[260px] font-black leading-none text-yellow-300">EP</div><div className="text-[90px] font-black tracking-[0.22em] text-yellow-300">EASYPIPS AI</div><div className="text-[28px] tracking-[0.5em] text-yellow-300">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
-      <div className="mb-2 grid gap-1.5 md:grid-cols-4">
+      <div className="mb-2 grid gap-2 md:grid-cols-4">
         <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Strategies</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Pairs</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Results</option></select>
@@ -1817,9 +1808,9 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
 
 function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <div className="relative"><div className="pointer-events-none absolute inset-0 flex items-center justify-center text-8xl font-black uppercase tracking-widest text-white/[0.03]">EasyPips</div><Panel title="Reports">
-        <div className="grid gap-1.5 md:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-4">
           <button className="rounded-xl bg-yellow-400 px-2 py-1.5 font-black text-black">Download Daily Report</button>
           <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Download Weekly Report</button>
           <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Download Monthly Report</button>
@@ -1950,7 +1941,7 @@ function SettingsPage({
           </div>
         </Panel>
 
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <Panel title="Signal Types">
             <div className="grid gap-1.5 md:grid-cols-2">
               {["Locked Signals", "Locked Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
@@ -2069,7 +2060,7 @@ function HelpCenterPage() {
         </Panel>
 
         <Panel title="Response Time">
-          <div className="space-y-1.5 text-sm text-slate-300">
+          <div className="space-y-1 text-sm text-slate-300">
             <p>Average response: 5–15 minutes</p>
             <p>Priority support for premium users</p>
             <p>24/7  active</p>
@@ -2079,6 +2070,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
