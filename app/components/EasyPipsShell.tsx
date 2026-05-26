@@ -475,7 +475,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 
 
-       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
+       className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-2 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
  
@@ -589,7 +589,7 @@ function LiveTradingChart() {
       }
     >
       <div className="overflow-hidden rounded-xl border border-white/8 bg-black/40">
-        <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-white/8 px-4 py-2">
           <div>
             <p className="text-sm font-black text-white">{currentPair} Live Chart</p>
             <p className="text-[9px] text-slate-500">TradingView market preview</p>
@@ -635,7 +635,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-white/8">
-        <div className="grid grid-cols-[70px_70px_1fr_80px] bg-black/40 px-3 py-3 text-sm font-black text-slate-400">
+        <div className="grid grid-cols-[70px_70px_1fr_80px] bg-black/40 px-3 py-2 text-sm font-black text-slate-400">
           <span>Time</span>
           <span>Curr.</span>
           <span>Event</span>
@@ -648,7 +648,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
           { time: "16:00", currency: "USD", event: "Crude Oil Inventories", impact: "Medium" },
           { time: "18:00", currency: "GBP", event: "BoE Speech", impact: "Medium" },
         ]).map((e, i) => (
-          <div key={i} className="grid grid-cols-[70px_70px_1fr_80px] border-t border-white/5 px-3 py-3 text-sm">
+          <div key={i} className="grid grid-cols-[70px_70px_1fr_80px] border-t border-white/5 px-3 py-2 text-sm">
             <span>{e.time}</span>
             <span className="font-black">{e.currency}</span>
             <span>{e.event}</span>
@@ -1023,9 +1023,9 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 }
 `}</style>
       <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute left-[-160px] top-[-160px] h-[260px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
-        <div className="absolute right-[-180px] top-[120px] h-[260px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
-        <div className="absolute bottom-[-220px] left-[35%] h-[260px] w-[520px] rounded-full bg-cyan-400/10 blur-[150px]" />
+        <div className="absolute left-[-160px] top-[-160px] h-[230px] w-[420px] rounded-full bg-yellow-400/10 blur-[120px]" />
+        <div className="absolute right-[-180px] top-[120px] h-[230px] w-[520px] rounded-full bg-emerald-400/10 blur-[140px]" />
+        <div className="absolute bottom-[-220px] left-[35%] h-[230px] w-[520px] rounded-full bg-cyan-400/10 blur-[150px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
@@ -1047,7 +1047,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
               <Link
                 key={item.key}
                 href={item.href}
-                className={`group flex h-12 items-center gap-1.5 rounded-xl px-4 py-3 font-black tracking-tight ${
+                className={`group flex h-12 items-center gap-1.5 rounded-xl px-4 py-2 font-black tracking-tight ${
                   active ? "border border-yellow-400/40 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/5" : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -1086,15 +1086,15 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
       </aside>
 
       <section className="relative z-10 xl:pl-[240px]">
-        <header className="sticky top-0 z-30 border-b border-white/8 bg-[#030811]/90 px-4 py-3 shadow-xl shadow-black/20 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-white/8 bg-[#030811]/90 px-4 py-2 shadow-xl shadow-black/20 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-1.5">
-            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-3">
+            <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-2">
               <div className="mr-4 flex shrink-0 items-center gap-1.5">
   <span className="h-2 w-2 rounded-full bg-emerald-400" />
 
   <div className="flex items-center gap-1.5">
     <span className="text-sm font-black uppercase tracking-widest text-emerald-300">
-      LIVE MARKET / NEWS STATUS
+      LIVE MARKET STATUS
     </span>
 
     <div className="ml-2 hidden items-center gap-1.5 xl:flex">
@@ -1107,7 +1107,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
       </span>
 
       <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
-        Institutional Monitoring
+        AI MONITORING
       </span>
     </div>
   </div>
@@ -1157,7 +1157,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   <>
     <Link
       href="/client/signup"
-      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 font-black text-black hover:bg-yellow-300"
+      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-2 font-black text-black hover:bg-yellow-300"
     >
       Sign Up
     </Link>
@@ -1165,7 +1165,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
     <Link
  
      href="/client/login"
-      className="rounded-xl border border-white/8 px-3 py-3 font-black text-white hov
+      className="rounded-xl border border-white/8 px-3 py-2 font-black text-white hov
 er:bg-white/10"
     >
       Login
@@ -1189,7 +1189,7 @@ er:bg-white/10"
               <Link
                 key={item.key}
                 href={item.href}
-                className={`shrink-0 rounded-xl px-4 py-3 text-sm font-black ${
+                className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${
                   page === item.key ? "bg-yellow-400 text-black" : "bg-white/10 text-white"
                 }`}
               >
@@ -1221,9 +1221,9 @@ er:bg-white/10"
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
 
           {page === "dashboard" && (
-  <div className="space-y-2">
-    <div className="grid gap-2 grid-cols-1 grid-cols-1 grid-cols-1 xl:grid-cols-[1fr_320px]">
-      <div className="space-y-2">
+  <div className="space-y-1.5">
+    <div className="grid gap-2 grid-cols-1 grid-cols-1 grid-cols-1 xl:grid-cols-[1fr_300px]">
+      <div className="space-y-1.5">
         
 
         <LiveSignalsPanel
@@ -1235,11 +1235,11 @@ er:bg-white/10"
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <LiveTradingChart />
 
         <Panel title="Trading Room">
-          <div className="space-y-2 text-sm">
+          <div className="space-y-1.5 text-sm">
             <p className="font-black text-emerald-300">
               AI Desk Live
             </p>
@@ -1252,14 +1252,14 @@ er:bg-white/10"
               Liquidity monitoring active.
             </p>
 
-            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-3 text-sm font-black text-yellow-300">
+            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-2 text-sm font-black text-yellow-300">
               Go to Trading Room
             </button>
           </div>
         </Panel>
 
         <Panel title="AI Market Scan">
-          <div className="space-y-2 text-sm">
+          <div className="space-y-1.5 text-sm">
             <div className="flex justify-between">
               <span className="text-slate-400">
                 Markets monitored
@@ -1380,14 +1380,14 @@ function PremiumLock({
         <div className="mt-6 flex flex-wrap justify-center gap-1.5">
           <Link
             href="/client/signup"
-            className="rounded-xl bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
+            className="rounded-xl bg-yellow-400 px-6 py-2 font-black text-black hover:bg-yellow-300"
           >
             {cta}
           </Link>
 
           <Link
             href="/dashboard"
-            className="rounded-xl border border-white/8 px-6 py-3 font-black text-white hover:bg-white/10"
+            className="rounded-xl border border-white/8 px-6 py-2 font-black text-white hover:bg-white/10"
           >
             Back to Dashboard
           </Link>
@@ -1611,7 +1611,7 @@ const monthlyReturn =
           </div>
         </Panel>
       )}
-      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-3">Export CSV</button>}>
+      <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
         <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
           <StatCard title="Winning Trades" value={wins} color="green" />
@@ -1756,31 +1756,31 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <input
     name="name"
     placeholder="Full Name"
-    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-2 outline-none"
   />
 
   <input
     name="email"
     placeholder="Email"
-    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-2 outline-none"
   />
 
   <input
     name="account_login"
     placeholder="MT5 Login"
-    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-2 outline-none"
   />
 
   <input
     name="broker"
     placeholder="Broker Server"
-    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-2 outline-none"
   />
 
   <select
     name="platform"
     defaultValue="MT5"
-    className="rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="rounded-xl border border-white/8 bg-black/30 px-4 py-2 outline-none"
   >
     <option>MT5</option>
     <option>MT4</option>
@@ -1789,7 +1789,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <textarea
     name="note"
     placeholder="Risk note / request details"
-    className="min-h-28 rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+    className="min-h-28 rounded-xl border border-white/8 bg-black/30 px-4 py-2 outline-none"
   />
 
     <button
@@ -1809,7 +1809,7 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   <a
     href="/downloads/EasyPipsCopier.ex5"
     download
-    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 font-black text-black"
+    className="mt-4 inline-block rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-2 font-black text-black"
   >
     Download EA
   </a>
@@ -1825,12 +1825,12 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
   ] as Signal[];
 
   return (
-    <div className="relative"><div className="pointer-events-none absolute inset-0 flex items-center justify-center text-8xl font-black uppercase tracking-widest text-white/[0.03]">EasyPips</div><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-3">Export CSV</button>}>
+    <div className="relative"><div className="pointer-events-none absolute inset-0 flex items-center justify-center text-8xl font-black uppercase tracking-widest text-white/[0.03]">EasyPips</div><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
       <div className="mb-2 grid gap-1.5 md:grid-cols-4">
-        <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Strategies</option></select>
-        <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Pairs</option></select>
-        <select className="rounded-xl bg-black/30 px-4 py-3"><option>All Results</option></select>
-        <button className="rounded-xl bg-white/10 px-4 py-3">Reset</button>
+        <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Strategies</option></select>
+        <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Pairs</option></select>
+        <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Results</option></select>
+        <button className="rounded-xl bg-white/10 px-4 py-2">Reset</button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] text-left text-sm">
@@ -1933,7 +1933,7 @@ function SettingsPage({
             value={pairSearch}
             onChange={(e) => setPairSearch(e.target.value)}
             placeholder="Search for a pair or instrument..."
-            className="mb-2 w-full rounded-xl border border-white/8 bg-black/30 px-4 py-3 outline-none"
+            className="mb-2 w-full rounded-xl border border-white/8 bg-black/30 px-4 py-2 outline-none"
           />
 
           <div className="mb-2 flex flex-wrap gap-1.5">
@@ -1941,7 +1941,7 @@ function SettingsPage({
               <button
                 key={c}
                 onClick={() => setCat(c)}
-                className={`rounded-xl px-3 py-3 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
+                className={`rounded-xl px-3 py-2 font-black ${cat === c ? "bg-yellow-400 text-black" : "bg-white/10"}`}
               >
                 {c}
               </button>
@@ -1949,13 +1949,13 @@ function SettingsPage({
           </div>
 
           <div className=" overflow-visible rounded-xl border border-white/8">
-            <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-3 text-sm font-black text-slate-500">
+            <div className="grid grid-cols-[50px_80px_1fr_100px_110px] bg-black/40 px-3 py-2 text-sm font-black text-slate-500">
               <span>Pair</span><span></span><span>Instrument</span><span>Category</span><span>Status</span>
             </div>
             {pairs.map((p) => {
               const selected = selectedPairs.includes(p.pair);
               return (
-                <button key={p.pair} onClick={() => toggle(p.pair)} className="grid w-full grid-cols-[50px_80px_1fr_100px_110px] border-t border-white/5 px-3 py-3 text-left text-sm hover:bg-white/5">
+                <button key={p.pair} onClick={() => toggle(p.pair)} className="grid w-full grid-cols-[50px_80px_1fr_100px_110px] border-t border-white/5 px-3 py-2 text-left text-sm hover:bg-white/5">
                   <span className={`h-5 w-5 rounded border ${selected ? "border-emerald-400 bg-emerald-400 text-black" : "border-slate-600"}`}>{selected ? "?" : ""}</span>
                   <span>{p.icon}</span>
                   <span className="font-black">{p.pair} <span className="font-normal text-slate-400">({p.label})</span></span>
@@ -1991,13 +1991,13 @@ function SettingsPage({
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <button
               onClick={saveSettings}
-              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-3 font-black text-black hover:bg-yellow-300"
+              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-2 font-black text-black hover:bg-yellow-300"
             >
               Save Changes
             </button>
 
             {settingsMessage && (
-              <span className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-black text-emerald-300">
+              <span className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-300">
                 {settingsMessage}
               </span>
             )}
@@ -2026,7 +2026,7 @@ function SettingsPage({
 
           <Panel title="Additional Preferences">
             {["Only high impact news period", "Avoid low liquidity sessions", "Weekend protection"].map((x, i) => (
-              <div key={x} className="flex items-center justify-between border-b border-white/5 py-3">
+              <div key={x} className="flex items-center justify-between border-b border-white/5 py-2">
                 <div>
                   <p className="font-black">{x}</p>
                   <p className="text-[9px] text-slate-500">Customize your signal delivery rules</p>
@@ -2059,7 +2059,7 @@ function HelpCenterPage() {
   const [message, setMessage] = useState("");
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+    <div className="grid gap-2 xl:grid-cols-[1fr_300px]">
       <Panel title="Live Admin Support">
         <div className="flex h-[500px] flex-col">
           <div className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-300">
@@ -2067,7 +2067,7 @@ function HelpCenterPage() {
             Admin Online
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto rounded-2xl border border-white/8 bg-black/20 p-4">
+          <div className="flex-1 space-y-3 overflow-y-auto rounded-2xl border border-white/8 bg-black/20 p-3">
             <div className="max-w-[80%] rounded-2xl bg-white/[0.04] p-3 text-sm text-slate-200">
               Welcome to EasyPips support. How can we help you today?
             </div>
@@ -2086,11 +2086,11 @@ function HelpCenterPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm outline-none focus:border-yellow-300/40"
+              className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm outline-none focus:border-yellow-300/40"
             />
 
             <button
-              className="rounded-xl border border-yellow-300/30 bg-yellow-400/10 px-4 py-3 text-sm font-black text-yellow-300 hover:bg-yellow-400/20"
+              className="rounded-xl border border-yellow-300/30 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300 hover:bg-yellow-400/20"
             >
               Send
             </button>
@@ -2104,27 +2104,27 @@ function HelpCenterPage() {
             <a
               href="https://t.me/"
               target="_blank"
-              className="block rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 hover:bg-white/[0.05]"
+              className="block rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 hover:bg-white/[0.05]"
             >
               Telegram Support
             </a>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
               support@easypips.ai
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
               Billing Assistance
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
               Technical Support
             </div>
           </div>
         </Panel>
 
         <Panel title="Response Time">
-          <div className="space-y-2 text-sm text-slate-300">
+          <div className="space-y-1.5 text-sm text-slate-300">
             <p>Average response: 5–15 minutes</p>
             <p>Priority support for premium users</p>
             <p>24/7 AI monitoring active</p>
@@ -2135,6 +2135,7 @@ function HelpCenterPage() {
   );
 }
             
+
 
 
 
