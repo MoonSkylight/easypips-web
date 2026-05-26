@@ -279,7 +279,7 @@ function StatCard({
           {icon}
         </span>
       </div>
-      <p className="mt-4 text-2xl font-black text-white">{value}</p>
+      <p className="mt-4 text-xl font-black text-white">{value}</p>
       <div className="mt-2 h-2 rounded-full bg-black/40">
         <div className={`h-2 w-1/3 rounded-full ${color === "red" ? "bg-red-400" : color === "yellow" ? "bg-yellow-400" : color === "purple" ? "bg-purple-400" : "bg-emerald-400"}`} />
       </div>
@@ -1918,7 +1918,7 @@ function SettingsPage({
 
   return (
     <div>
-      <h2 className="mb-5 text-2xl font-black">Settings</h2>
+      <h2 className="mb-5 text-xl font-black">Settings</h2>
       <div className="mb-5 flex flex-wrap gap-1.5 border-b border-white/8 pb-3 text-sm font-black">
         {["General", "Notifications", "Signal Preferences", "Risk Management", "Account Connections", "Security", "API Settings"].map((t) => (
           <button key={t} className={t === "Signal Preferences" ? "text-yellow-300" : "text-white"}>{t}</button>
@@ -2067,16 +2067,16 @@ function HelpCenterPage() {
             Admin Online
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto rounded-2xl border border-white/8 bg-black/20 p-3">
-            <div className="max-w-[80%] rounded-2xl bg-white/[0.04] p-3 text-sm text-slate-200">
+          <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border border-white/8 bg-black/20 p-3">
+            <div className="max-w-[80%] rounded-xl bg-white/[0.04] p-3 text-sm text-slate-200">
               Welcome to EasyPips support. How can we help you today?
             </div>
 
-            <div className="ml-auto max-w-[80%] rounded-2xl bg-yellow-400/10 p-3 text-sm text-yellow-200">
+            <div className="ml-auto max-w-[80%] rounded-xl bg-yellow-400/10 p-3 text-sm text-yellow-200">
               I need help with premium access.
             </div>
 
-            <div className="max-w-[80%] rounded-2xl bg-white/[0.04] p-3 text-sm text-slate-200">
+            <div className="max-w-[80%] rounded-xl bg-white/[0.04] p-3 text-sm text-slate-200">
               Our admin team will assist you shortly.
             </div>
           </div>
@@ -2098,7 +2098,7 @@ function HelpCenterPage() {
         </div>
       </Panel>
 
-      <div className="space-y-4">
+      <div className="space-y-2">
         <Panel title="Support Channels">
           <div className="space-y-3 text-sm">
             <a
@@ -2135,6 +2135,7 @@ function HelpCenterPage() {
   );
 }
             
+
 
 
 
