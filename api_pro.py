@@ -2053,7 +2053,29 @@ def cron_check():
         "message": "Strategies checked safely, TP/SL updated",
     }
 
+@app.get("/cron-light")
+def cron_light():
+    strategyC = {"created": 0, "rejected": 0}
+    updated = []
 
+    try:
+        strategyC = generate_strategy_c_signals()
+    except Exception as e:
+        print("Strategy C light cron failed:", str(e))
+        strategyC = {"created": 0, "rejected": 1, "error": str(e)}
+
+    try:
+        updated = update_all_running_results()
+    except Exception as e:
+        print("Light TP/SL update failed:", str(e))
+        updated = []
+
+    return {
+        "status": "ok",
+        "strategyC": strategyC,
+        "checkedSignals": len(updated),
+        "message": "Light cron completed",
+    }
 @app.get("/system-status")
 def system_status():
     signals = get_all_signals()
