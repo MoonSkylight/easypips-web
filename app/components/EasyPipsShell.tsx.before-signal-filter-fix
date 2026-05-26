@@ -328,12 +328,6 @@ function SystemRule() {
   );
 }
 
-function normalizeStrategy(value: any) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
-}
-
 function isHighConfidenceLocked(s: Signal) {
   const confidence = Number(s.confidence || s.score || 0);
   return Number.isFinite(confidence) && confidence >= 85;
@@ -2075,8 +2069,6 @@ function HelpCenterPage() {
     </div>
   );
 }
-
-
 
 
 
