@@ -1295,6 +1295,15 @@ er:bg-white/10"
     © 2026 EasyPips AI. All rights reserved.
   </p>
 </footer>
+<button
+  onClick={() => {
+    localStorage.setItem("easypips_admin", "true");
+    window.location.reload();
+  }}
+  className="fixed bottom-20 right-4 z-[9999] rounded-full border border-yellow-300/40 bg-yellow-400 px-4 py-2 text-xs font-black text-black shadow-lg shadow-yellow-400/20"
+>
+  ADMIN MODE
+</button>
 </main>
   );
 }
@@ -2071,6 +2080,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
