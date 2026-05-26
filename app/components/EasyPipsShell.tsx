@@ -1047,15 +1047,15 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
     <div className="ml-2 hidden items-center gap-1.5 xl:flex">
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        Market Scan ? OPEN
+        
       </span>
 
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        News Scan ? OPEN
+        
       </span>
 
       <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
-        AI MONITORING
+        
       </span>
     </div>
   </div>
@@ -1212,7 +1212,7 @@ er:bg-white/10"
 
             <div className="flex justify-between">
               <span className="text-slate-400">
-                AI monitoring
+                
               </span>
 
               <span className="font-black text-emerald-300">
@@ -2068,13 +2068,14 @@ function HelpCenterPage() {
           <div className="space-y-1.5 text-sm text-slate-300">
             <p>Average response: 5–15 minutes</p>
             <p>Priority support for premium users</p>
-            <p>24/7 AI monitoring active</p>
+            <p>24/7  active</p>
           </div>
         </Panel>
       </div>
     </div>
   );
 }
+
 
 
 
