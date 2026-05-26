@@ -999,7 +999,7 @@ const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Tra
 const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
 
   const stats = (
-    <div className="mb-2 grid grid-cols-3 gap-1.5 grid-cols-6">
+    <div className="mb-2 grid grid-cols-3 gap-1.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1222,7 +1222,7 @@ er:bg-white/10"
 
           {page === "dashboard" && (
   <div className="space-y-1.5">
-    <div className="grid gap-2 grid-cols-1 grid-cols-1 grid-cols-1 xl:grid-cols-[1fr_300px]">
+    <div className="grid gap-2 grid-cols-1 grid-cols-1 grid-cols-1 grid-cols-1 xl:grid-cols-[1fr_300px]">
       <div className="space-y-1.5">
         
 
@@ -1433,7 +1433,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"}`}>
+        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -1486,7 +1486,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
 function AccountMini({ accounts }: { accounts: Account[] }) {
   return (
     <Panel title="MT4 / MT5 Connected Accounts">
-      <div className="grid grid-cols-6 gap-1.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
         <Mini label="Total Connected" value={accounts.length} />
         <Mini label="Approved" value={accounts.filter((a) => a.status === "approved").length} good />
       </div>
@@ -1603,7 +1603,7 @@ const monthlyReturn =
     <div className="space-y-1.5">
       {analytics && (
         <Panel title="Real Backend Analytics">
-          <div className="grid grid-cols-6 gap-1.5 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 lg:grid-cols-4">
             <StatCard title="Closed Trades" value={analytics.totalClosed || 0} color="cyan" />
             <StatCard title="Wins" value={analytics.wins || 0} color="green" />
             <StatCard title="Losses" value={analytics.losses || 0} color="red" />
@@ -1612,7 +1612,7 @@ const monthlyReturn =
         </Panel>
       )}
       <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
-        <div className="grid grid-cols-6 gap-1.5 lg:grid-cols-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 lg:grid-cols-5">
           <StatCard title="Total Trades" value={closed.length} color="cyan" />
           <StatCard title="Winning Trades" value={wins} color="green" />
           <StatCard title="Losing Trades" value={losses} color="red" />
@@ -1621,13 +1621,13 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Panel title="Cumulative Pips"><p className="text-slate-400">Real pip analytics will appear after closed trades are recorded with pip results.</p></Panel>
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         <Panel title="Monthly Pips Comparison"><p className="text-slate-400">Monthly comparison will appear after enough real closed trade data is available.</p></Panel>
       </div>
 
-      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-1.5 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
@@ -2059,7 +2059,7 @@ function HelpCenterPage() {
   const [message, setMessage] = useState("");
 
   return (
-    <div className="grid gap-2 xl:grid-cols-[1fr_300px]">
+    <div className="grid gap-2 grid-cols-1 xl:grid-cols-[1fr_300px]">
       <Panel title="Live Admin Support">
         <div className="flex h-[500px] flex-col">
           <div className="mb-2 flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-300">
@@ -2135,6 +2135,7 @@ function HelpCenterPage() {
   );
 }
             
+
 
 
 
