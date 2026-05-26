@@ -2076,6 +2076,38 @@ def cron_light():
         "checkedSignals": len(updated),
         "message": "Light cron completed",
     }
+@app.get("/cron-fast")
+def cron_fast():
+    strategyC = {"created": 0, "rejected": 0}
+
+    try:
+        strategyC = generate_strategy_c_signals()
+    except Exception as e:
+        print("Strategy C fast cron failed:", str(e))
+        strategyC = {"created": 0, "rejected": 1, "error": str(e)}
+
+    return {
+        "status": "ok",
+        "strategyC": strategyC,
+        "message": "Fast signal generation completed",
+    }
+
+
+@app.get("/cron-results")
+def cron_results():
+    updated = []
+
+    try:
+        updated = update_all_running_results()
+    except Exception as e:
+        print("Cron results failed:", str(e))
+        updated = []
+
+    return {
+        "status": "ok",
+        "checkedSignals": len(updated),
+        "message": "TP/SL result check completed",
+    }
 @app.get("/system-status")
 def system_status():
     signals = get_all_signals()
