@@ -1278,12 +1278,12 @@ er:bg-white/10"
   </p>
 </div>
 <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#030811]/95 px-4 py-2 text-[11px] text-slate-400 backdrop-blur-xl">
-  <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+  <div className="flex flex-col items-center justify-center gap-2 text-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
     <p>
       ⚠️ Risk Disclaimer: Trading forex carries significant risk. Signals are educational only and not financial advice.
     </p>
 
-    <div className="flex flex-wrap gap-4 font-bold">
+    <div className="flex flex-wrap items-center justify-center gap-4 font-bold">
       <a href="/legal/privacy" className="text-emerald-300 hover:text-white">Privacy Policy</a>
       <a href="/legal/terms" className="text-cyan-300 hover:text-white">Terms of Service</a>
       <a href="/legal/disclaimer" className="text-red-300 hover:text-white">Risk Disclaimer</a>
@@ -1291,7 +1291,7 @@ er:bg-white/10"
   </div>
 
   <p className="mt-2 text-center text-slate-500">
-    © 2025 EasyPips AI. All rights reserved.
+    © 2026 EasyPips AI. All rights reserved.
   </p>
 </footer>
 </main>
@@ -2075,6 +2075,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
