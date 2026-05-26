@@ -1767,7 +1767,7 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
   ] as Signal[];
 
   return (
-    <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center opacity-[0.055]"><div className="text-[190px] font-black leading-none text-yellow-300">EP</div><div className="text-[70px] font-black tracking-[0.22em] text-yellow-300">EASYPIPS AI</div><div className="text-[20px] tracking-[0.5em] text-yellow-300">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
+    <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center blur-[1px] opacity-[0.10]"><div className="text-[260px] font-black leading-none text-yellow-300">EP</div><div className="text-[90px] font-black tracking-[0.22em] text-yellow-300">EASYPIPS AI</div><div className="text-[28px] tracking-[0.5em] text-yellow-300">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
       <div className="mb-2 grid gap-1.5 md:grid-cols-4">
         <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Strategies</option></select>
         <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Pairs</option></select>
@@ -1786,12 +1786,12 @@ function HistoryPage({ closed }: { closed: Signal[] }) {
               <tr key={r.id || i} className="border-b border-white/5">
                 <td className="p-1.5">{formatDate(r.created_at)}</td>
                 <td className="p-1.5 font-black">{r.symbol}</td>
-                <td className={`p-1.5 font-black ${String(r.direction).includes("Locked") ? "text-red-300" : "text-emerald-300"}`}>{r.direction}</td>
+                <td className={`p-1.5 font-black ${String(r.direction || "").toUpperCase().includes("SELL") || String(r.direction || "").toUpperCase().includes("LOCKED") ? "text-red-400" : "text-emerald-400"}`}>{r.direction}</td>
                 <td className="p-1.5">{r.strategy || r.desk}</td>
                 <td className="p-1.5">{r.entry}</td>
-                <td className="p-1.5 font-black text-red-400">{r.sl}</td>
+                <td className="p-1.5">{r.sl}</td>
                 <td className="p-1.5 font-black text-emerald-400">{r.tp1}</td>
-                <td className={`p-1.5 font-black ${String(r.result || "").toUpperCase().includes("SL") ? "text-red-400" : "text-emerald-400"}`}>{r.result}</td>
+                <td className={`p-1.5 font-black ${String(r.result || "").toUpperCase().includes("SL") || String(r.result || "").toUpperCase().includes("LOSS") ? "text-red-400" : "text-emerald-400"}`}>{r.result}</td>
                 <td className="p-1.5 text-emerald-300">
   {r.result === "TP3"
     ? "3.0R"
@@ -2079,6 +2079,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
