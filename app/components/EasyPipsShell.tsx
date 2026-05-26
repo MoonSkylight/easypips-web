@@ -1154,7 +1154,7 @@ er:bg-white/10"
           {page === "dashboard" && (
   <div className="space-y-0.5">
     <div className="grid h-full grid-cols-1 gap-2 overflow-hidden xl:grid-cols-[1fr_400px]">
-      <div className="min-h-0 max-h-[calc(100vh-190px)] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="min-h-0 h-[calc(100vh-140px)] overflow-y-auto pr-1 custom-scrollbar">
 
         <LiveSignalsPanel
           signals={visibleLive}
@@ -1284,10 +1284,11 @@ er:bg-white/10"
     </p>
 
     <div className="flex flex-wrap items-center justify-center gap-4 font-bold">
-      <a href="/legal/privacy" className="text-emerald-300 hover:text-white">Privacy Policy</a>
-      <a href="/legal/terms" className="text-cyan-300 hover:text-white">Terms of Service</a>
-      <a href="/legal/disclaimer" className="text-red-300 hover:text-white">Risk Disclaimer</a>
-    </div>
+  <a href="/legal/privacy" className="text-emerald-300 hover:text-white">Privacy Policy</a>
+  <a href="/legal/terms" className="text-cyan-300 hover:text-white">Terms of Service</a>
+  <a href="/legal/disclaimer" className="text-red-300 hover:text-white">Risk Disclaimer</a>
+  <a href="/legal/refund-policy" className="text-yellow-300 hover:text-white">Refund Policy</a>
+</div>
   </div>
 
   <p className="mt-2 text-center text-slate-500">
