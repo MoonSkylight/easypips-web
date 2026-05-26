@@ -1146,7 +1146,7 @@ er:bg-white/10"
           </div>
         </div>
 
-        <div className="mx-auto h-[calc(100vh-72px)] max-w-[1700px] overflow-hidden px-2 py-1">
+        <div className="mx-auto h-[calc(100vh-108px)] max-w-[1700px] overflow-hidden px-2 py-1">
           <SystemRule />
 
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
@@ -1277,7 +1277,7 @@ er:bg-white/10"
     Educational purposes only. Not financial advice. Trading involves risk.
   </p>
 </div>
-<footer className="mx-auto mt-4 max-w-[1700px] border-t border-white/10 px-4 py-3 text-[11px] text-slate-400">
+<footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#030811]/95 px-4 py-2 text-[11px] text-slate-400 backdrop-blur-xl">
   <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
     <p>
       ⚠️ Risk Disclaimer: Trading forex carries significant risk. Signals are educational only and not financial advice.
@@ -2075,6 +2075,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
