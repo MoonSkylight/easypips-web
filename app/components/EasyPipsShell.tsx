@@ -1201,21 +1201,7 @@ er:bg-white/10"
 
         <div className="mx-auto max-w-[1600px] p-1">
           <SystemRule />
-{page === "dashboard" && (
-  <div className="mb-2 flex justify-end">
-    <button
-      type="button"
-      onClick={() => setAdminPreview((v) => !v)}
-      className={`rounded-xl border px-3 py-1.5 text-xs font-black ${
-        adminPreview
-          ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
-          : "border-white/10 bg-white/[0.03] text-slate-400"
-      }`}
-    >
-      Admin Preview: {adminPreview ? "ON" : "OFF"}
-    </button>
-  </div>
-)}
+
 
         
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
@@ -2135,6 +2121,7 @@ function HelpCenterPage() {
   );
 }
             
+
 
 
 
