@@ -952,11 +952,11 @@ const strategyQualityLabel =
 
 const londonLabel = isLondon
   ? "{londonLabel}"
-  : "London Session ○ CLOSED";
+  : "Market Scan ○ CLOSED";
 
 const newYorkLabel = isNewYork
   ? "{newYorkLabel}"
-  : "New York Session ○ CLOSED";
+  : "News Scan ○ CLOSED";
 const visibleLiveRaw = sessionAllowed
   ? live.filter((s) => {
       // Do not hide platform signals from the main dashboard.
@@ -1099,11 +1099,11 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
     <div className="ml-2 hidden items-center gap-1.5 xl:flex">
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        London Session ● OPEN
+        Market Scan ● OPEN
       </span>
 
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        New York Session ● OPEN
+        News Scan ● OPEN
       </span>
 
       <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -2135,6 +2135,7 @@ function HelpCenterPage() {
   );
 }
             
+
 
 
 
