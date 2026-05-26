@@ -1278,9 +1278,9 @@ er:bg-white/10"
     </p>
 
     <div className="flex flex-wrap gap-4 font-bold">
-      <a href="/privacy-policy" className="text-emerald-300 hover:text-white">Privacy Policy</a>
-      <a href="/terms" className="text-cyan-300 hover:text-white">Terms of Service</a>
-      <a href="/risk-disclaimer" className="text-red-300 hover:text-white">Risk Disclaimer</a>
+      <a href="/legal/privacy" className="text-emerald-300 hover:text-white">Privacy Policy</a>
+      <a href="/legal/terms" className="text-cyan-300 hover:text-white">Terms of Service</a>
+      <a href="/legal/disclaimer" className="text-red-300 hover:text-white">Risk Disclaimer</a>
     </div>
   </div>
 
@@ -2069,6 +2069,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
