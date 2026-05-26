@@ -89,8 +89,7 @@ const NAV = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: "dashboard" },
   { key: "live-signals", label: "Live Signals", href: "/live-signals", icon: "activity" },
   { key: "performance", label: "Performance", href: "/performance", icon: "chart" },
-  
-  
+
   { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "account" },
   { key: "history", label: "History", href: "/history", icon: "history" },
   { key: "reports", label: "Reports", href: "/reports", icon: "reports" },
@@ -142,7 +141,6 @@ function signalList(data: any): Signal[] {
     return arr.findIndex((x) => x.id === s.id) === i;
   });
 }
-
 
 function NavIcon({
   name,
@@ -272,7 +270,7 @@ function StatCard({
   };
 
   return (
-    <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.065]`}>
+    <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-white/[0.065]`}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-black uppercase">{title}</p>
         <span className="flex h-12 lg:h-16 w-16 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
@@ -374,21 +372,8 @@ function LockedSignalCard({ s }: { s: Signal }) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-yellow-300/40  bg-gradient-to-br transition-all duration-300 hover:-translate-y-1 hover:border-yellow-300/50 hover:shadow-xl hover:shadow-yellow-400/15 from
-
-
-
-
-
-
-
-
-
-
-
-
--yellow-400/[0.10] via-white/[0.04] to-black/40 p-1.5 shadow-xl shadow-yellow-400/15">
-      <div className="absolute right-4 top-1.5 rounded-full border border-yellow-300/40  bg-yellow-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+    <div className="relative overflow-hidden rounded-xl border border-yellow-300/40  bg-gradient-to-br transition-all duration-300 hover:-translate-y-0.5 hover:border-yellow-300/50 hover:shadow-xl hover:shadow-yellow-400/15 from-yellow-400/[0.10] via-white/[0.04] to-black/40 p-2 shadow-lg shadow-yellow-400/15">
+      <div className="absolute right-2 top-2 rounded-full border border-yellow-300/30 bg-yellow-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-yellow-300">
         Premium
       </div>
 
@@ -396,24 +381,11 @@ function LockedSignalCard({ s }: { s: Signal }) {
         <p className="text-sm font-black uppercase tracking-widest text-yellow-300">
           Premium AI Signal
 
-
-
-
-
-
-
-
         </p>
 
-        <h3 className="mt-2 text-sm font-black text-white">
+        <h3 className="mt-2 text-[13px] font-black text-white">
           {s.symbol}
         </h3>
-
- 
-
-
-
-
 
        <p className="mt-1 text-sm font-black text-slate-500">
           Institutional AI setup hidden
@@ -421,93 +393,60 @@ function LockedSignalCard({ s }: { s: Signal }) {
       </div>
 
       <div className="my-0.5 flex justify-center">
- 
-
-
-
-
 
        <div className="flex h-6 w-6 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 text-sm lg:text-base shadow-lg shadow-yellow-400/15">
-          🔒
+          ??
         </div>
       </div>
 
-
-
-
-
       <div className="rounded-xl border border-white/8 bg-black/30 p-1.5 text-center backdrop-blur-md">
-        <p className="text-sm font-black text-white">
+        <p className="text-[13px] font-black text-white">
           ••••••••••••••••
         </p>
 
-
-
-
-
-
         <p className="mt-1 text-[9px] text-slate-500">
           Unlock this signal instantly for {signalPrice}
- 
-
 
        </p>
       </div>
 
-      <div className="mt-4 flex items-center justify-between rounded-xl border border-white/8 bg-black/35 px-2 py-1.5 text-xs text-slate-300">
- 
-
-
+      <div className="mt-2 flex items-center justify-between rounded-xl border border-white/8 bg-black/35 px-2 py-1.5 text-xs text-slate-300">
 
        <span>{s.strategy || "AI Strategy"}</span>
         <span>Live</span>
         <span>{confidenceValue}%</span>
       </div>
 
-
-
-
-
       <button
         onClick={unlockSignal}
         disabled={loading}
- 
-
-
 
        className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-2 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
         {loading ? "Opening Checkout..." : unlockText}
- 
-
 
      </button>
     </div>
   );
 }
 
-
-
-
-
-
 function SignalCard({ s }: { s: Signal }) {
   const isLocked = String(s.direction || "").toUpperCase().includes("Locked");
   return (
-    <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl transition hover:-translate-y-1 hover:border-yellow-300/40 ">
+    <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
           <p className="text-[9px] text-slate-500">LIVE MARKET GENERATED</p>
-          <h3 className="mt-1 text-sm font-black text-white">{s.symbol}</h3>
+          <h3 className="mt-1 text-[13px] font-black text-white">{s.symbol}</h3>
           <p className="text-[9px] text-slate-500">{formatDate(s.created_at)}</p>
-          <p className="text-sm font-black text-yellow-300">confidence: {s.confidence || s.score || "-"}</p>
+          <p className="text-[11px] font-black text-yellow-300">Confidence: {s.confidence || s.score || "-"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-sm font-black ${isLocked ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
         </span>
       </div>
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-2 flex items-center justify-between">
         <span className="rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-sm font-black text-blue-300">
           "LIVE MARKET GENERATED"
         </span>
@@ -537,16 +476,15 @@ function Mini({ label, value, good, danger }: { label: string; value: any; good?
 
 function Panel({ title, children, right }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-white/8 bg-white/[0.045] p-1.5 shadow-xl shadow-black/30 backdrop-blur-xl">
+    <section className="rounded-xl border border-white/8 bg-white/[0.045] p-2 shadow-lg shadow-black/30 backdrop-blur-xl">
       <div className="mb-5 flex items-center justify-between gap-1.5">
-        <h2 className="text-sm font-black text-white">{title}</h2>
+        <h2 className="text-[13px] font-black text-white">{title}</h2>
         {right}
       </div>
       {children}
     </section>
   );
 }
-
 
 function LiveTradingChart() {
   const [pair, setPair] = useState("OANDA:XAUUSD");
@@ -591,7 +529,7 @@ function LiveTradingChart() {
       <div className="overflow-hidden rounded-xl border border-white/8 bg-black/40">
         <div className="flex items-center justify-between border-b border-white/8 px-4 py-2">
           <div>
-            <p className="text-sm font-black text-white">{currentPair} Live Chart</p>
+            <p className="text-[13px] font-black text-white">{currentPair} Live Chart</p>
             <p className="text-[9px] text-slate-500">TradingView market preview</p>
           </div>
 
@@ -605,7 +543,7 @@ function LiveTradingChart() {
           </div>
         </div>
 
-        <div className="h-[320px] md:h-[360px] xl:h-[420px] w-full bg-[#05070D]">
+        <div className="h-[300px] md:h-[340px] xl:h-[390px] 2xl:h-[430px] w-full bg-[#05070D]">
           <iframe
             key={pair}
             title="EasyPips Live TradingView Chart"
@@ -659,7 +597,7 @@ function NewsCalendar({ events }: { events: NewsEvent[] }) {
         ))}
       </div>
       <Link href="/news-calendar" className="mt-2 block text-center text-sm font-black text-yellow-300">
-        View full calendar →
+        View full calendar ?
       </Link>
     </Panel>
   );
@@ -819,7 +757,6 @@ const clientToken =
     ? localStorage.getItem("easypips_client_token")
     : null;
 
-  
   async function loadData() {
     try {
       const [signalsRes, closedRes, newsRes, accountRes, priceRes] = await Promise.allSettled([
@@ -912,7 +849,7 @@ if (priceRes.status === "fulfilled") {
           savedAt: new Date().toISOString(),
         })
       );
-      setSettingsMessage("Preferences saved ✓");
+      setSettingsMessage("Preferences saved ?");
       setTimeout(() => setSettingsMessage(""), 2500);
     } catch {
       setSettingsMessage("Unable to save preferences");
@@ -952,11 +889,11 @@ const strategyQualityLabel =
 
 const londonLabel = isLondon
   ? "{londonLabel}"
-  : "Market Scan ○ CLOSED";
+  : "Market Scan ? CLOSED";
 
 const newYorkLabel = isNewYork
   ? "{newYorkLabel}"
-  : "News Scan ○ CLOSED";
+  : "News Scan ? CLOSED";
 const visibleLiveRaw = sessionAllowed
   ? live.filter((s) => {
       // Do not hide platform signals from the main dashboard.
@@ -1029,7 +966,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
-      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[200px] border-r border-white/8 bg-[#07101b]/90 p-1.5 shadow-xl backdrop-blur-xl xl:block">
+      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[200px] border-r border-white/8 bg-[#07101b]/90 p-2 shadow-lg backdrop-blur-xl xl:block">
         <Link href="/dashboard" className="mb-5 flex items-center gap-1.5 px-1">
           <div className="flex h-6 w-6 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
           <div>
@@ -1061,13 +998,13 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
           })}
         </nav>
 
-        <div className="mt-8 rounded-xl border border-yellow-400/40 bg-yellow-400/[0.03] p-1.5">
+        <div className="mt-4 rounded-xl border border-yellow-400/30 bg-yellow-400/[0.03] p-2">
           <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
           <div className="mt-4 space-y-1.5 text-sm">
-            <p>✓ AI powered strategies</p>
-            <p>✓ Desk 1 and Trading Room</p>
-            <p>✓ News calendar</p>
-            <p>✓ MT4 / MT5 ready</p>
+            <p>? AI powered strategies</p>
+            <p>? Desk 1 and Trading Room</p>
+            <p>? News calendar</p>
+            <p>? MT4 / MT5 ready</p>
           </div>
           <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-center text-xs font-black text-yellow-300 hover:bg-yellow-400/20">
             Join Telegram
@@ -1099,11 +1036,11 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
 
     <div className="ml-2 hidden items-center gap-1.5 xl:flex">
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        Market Scan ● OPEN
+        Market Scan ? OPEN
       </span>
 
       <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        News Scan ● OPEN
+        News Scan ? OPEN
       </span>
 
       <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -1113,7 +1050,7 @@ const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => 
   </div>
 </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-sm font-black text-white">
+  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-[13px] font-black text-white">
     {visibleLive.slice(0, 8).map((s, i) => {
       const status = tickerStatus(s, livePrices);
 
@@ -1175,7 +1112,6 @@ er:bg-white/10"
       Join Telegram
     </a>
 
-
   </>
 )}
             </div>
@@ -1199,18 +1135,15 @@ er:bg-white/10"
           </div>
         </div>
 
-        <div className="mx-auto h-[calc(100vh-76px)] max-w-[1600px] overflow-hidden p-2">
+        <div className="mx-auto h-[calc(100vh-72px)] max-w-[1700px] overflow-hidden px-2 py-1">
           <SystemRule />
 
-
-        
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
 
           {page === "dashboard" && (
   <div className="space-y-1.5">
-    <div className="grid h-full grid-cols-1 gap-2 overflow-hidden xl:grid-cols-[1fr_320px]">
+    <div className="grid h-full grid-cols-1 gap-2 overflow-hidden xl:grid-cols-[1fr_380px]">
       <div className="min-h-0 overflow-y-auto pr-1">
-
 
         <LiveSignalsPanel
           signals={visibleLive}
@@ -1278,11 +1211,9 @@ er:bg-white/10"
           </div>
         </Panel>
 
-        
       </div>
     </div>
 
-    
   </div>
 )}
 
@@ -1340,7 +1271,6 @@ er:bg-white/10"
   );
 }
 
-
 function PremiumLock({
   title,
   message,
@@ -1360,7 +1290,7 @@ function PremiumLock({
           </svg>
         </div>
 
-        <h3 className="mt-2 text-sm font-black text-white">{title}</h3>
+        <h3 className="mt-2 text-[13px] font-black text-white">{title}</h3>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-1.5">
@@ -1403,7 +1333,7 @@ isPremium,
 
   return (
     <Panel title={`Live Signals (${signals.length})`}>
-      <div className="mb-2 flex flex-wrap gap-1.5">
+      <div className="space-y-1">
         {filters.map((f) => (
           <button
             key={f}
@@ -1695,7 +1625,6 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
   );
 }
 
-
 function NewsCalendarPage({ events }: { events: NewsEvent[] }) {
   return <NewsCalendar events={events} />;
 }
@@ -1952,7 +1881,7 @@ function SettingsPage({
             })}
           </div>
 
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-2 flex items-center justify-between">
             <p className="text-sm">
               Selected: <span className="font-black text-emerald-300">{selectedPairs.length} pairs</span>
             </p>
@@ -1995,7 +1924,7 @@ function SettingsPage({
             <div className="grid gap-1.5 md:grid-cols-2">
               {["Locked Signals", "Locked Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-xl border border-white/8 bg-black/35 p-1.5">
-                  <p className="font-black text-white">✓ {x}</p>
+                  <p className="font-black text-white">? {x}</p>
                   <p className="text-[9px] text-slate-500">Receive {x.toLowerCase()}</p>
 
                 </div>
@@ -2039,7 +1968,6 @@ function Slider({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
 
 function HelpCenterPage() {
   const [message, setMessage] = useState("");
@@ -2120,162 +2048,6 @@ function HelpCenterPage() {
     </div>
   );
 }
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
