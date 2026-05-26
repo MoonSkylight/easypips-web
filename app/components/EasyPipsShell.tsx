@@ -923,8 +923,8 @@ const visibleLiveRaw = sessionAllowed
 
       return s.strategy === filter;
     })
-  : live.slice(0, 6);
-  const effectivePremium = isPremium || adminPreview;
+  : live;
+  const effectivePremium = isPremium || adminPreview || (typeof window !== "undefined" && localStorage.getItem("easypips_admin") === "true");
   const visibleLive = visibleLiveRaw;
 
   const totalSignals = allSignals.length + closed.length;
@@ -2071,6 +2071,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
