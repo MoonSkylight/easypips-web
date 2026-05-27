@@ -943,7 +943,7 @@ const weeklyLive = allSignals.filter((s) => {
 
 const totalSignals = weeklyLive.length + weeklyClosed.length;
 const activeCount = live.length;
-const closedCount = closed.length;
+const closedCount = weeklyClosed.length;
 
 const wins = closed.filter((s) => String(s.result || "").includes("WIN")).length;
 
@@ -954,11 +954,16 @@ const dashboardWinRate =
     ? ((wins / closedCount) * 100).toFixed(1)
     : "0.0";
 
-const tpHits = allSignals.filter((s) => s.hit_tp1 || s.hit_tp2 || s.hit_tp3).length + closed.filter((s) => String(s.result || "").includes("TP")).length;
+const tpHits = weeklyLive.filter((s) => s.hit_tp1 || s.hit_tp2 || s.hit_tp3).length +
+  weeklyClosed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
 
 const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Trading Room").length;
 
-const slHits = allSignals.filter((s) => s.hit_sl).length + closed.filter((s) => String(s.result || "").includes("SL")).length;
+const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && !s.hit_tp3).length +
+  weeklyClosed.filter((s) => {
+    const r = String(s.result || "").toUpperCase();
+    return (r.includes("SL") || r.includes("LOSS")) && !r.includes("TP") && !r.includes("WIN");
+  }).length;
 
   const stats = (
     <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
@@ -1402,7 +1407,7 @@ isPremium,
       ) : (
         <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
           {signals.map((s, i) =>
-            !isPremium && isHighConfidenceLocked(s) ? (
+            !isPremium && isHighConfidenceLocked(s) && !s.hit_tp2 && !s.hit_tp3 ? (
               <LockedSignalCard key={s.id || i} s={s} />
             ) : (
               <SignalCard key={s.id || i} s={s} />
@@ -2102,6 +2107,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
