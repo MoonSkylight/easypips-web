@@ -168,6 +168,15 @@ def create_client_token(client_user: dict):
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
+
+def create_admin_token():
+    expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
+    payload = {
+        "sub": ADMIN_USERNAME,
+        "role": "admin",
+        "exp": expire,
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 def verify_client_token(authorization: str):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing client token")
@@ -2673,3 +2682,5 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
         "status": "expired",
         "message": "License invalid or expired"
     }
+
+
