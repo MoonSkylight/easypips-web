@@ -1028,38 +1028,67 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
           </a>
         </div>
 
-       <div className="mt-2 rounded-xl border border-cyan-400/25 bg-cyan-400/[0.05] p-2 shadow-lg shadow-cyan-400/10">
-  <div className="flex items-center justify-between">
-    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">
-      AI Brain
-    </p>
+      <div className="mt-2 overflow-hidden rounded-xl border border-cyan-400/25 bg-gradient-to-br from-cyan-400/[0.10] via-white/[0.03] to-emerald-400/[0.08] p-[1px] shadow-lg shadow-cyan-500/10">
+  <div className="relative rounded-xl bg-[#07101b]/95 p-2.5">
+    <div className="flex items-center justify-between">
+      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">
+        AI Brain
+      </p>
 
-    <span className="h-2 w-2 animate-ping rounded-full bg-emerald-400"></span>
-  </div>
-
-  <div className="mt-3 flex justify-center">
-    <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-cyan-300/30 bg-cyan-400/10 shadow-lg shadow-cyan-400/20">
-      <div className="absolute h-20 w-20 animate-pulse rounded-full border border-emerald-400/20"></div>
-
-      <span className="text-sm font-black text-cyan-200">
-        AI
+      <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[8px] font-black text-emerald-300">
+        ANALYZING
       </span>
     </div>
-  </div>
 
-  <div className="mt-3 space-y-2 text-[10px] font-bold text-slate-300">
-    <div className="flex justify-between">
-      <span>Market Analysis</span>
-      <span className="text-emerald-300">LIVE</span>
+    <div className="relative mt-4 flex h-24 items-center justify-center">
+      <div className="absolute left-3 top-3 rounded-lg border border-cyan-400/20 bg-black/30 px-2 py-1 text-[8px] text-cyan-200">
+        NEWS
+      </div>
+
+      <div className="absolute right-3 top-3 rounded-lg border border-yellow-400/20 bg-black/30 px-2 py-1 text-[8px] text-yellow-200">
+        RISK
+      </div>
+
+      <div className="absolute left-3 bottom-3 rounded-lg border border-emerald-400/20 bg-black/30 px-2 py-1 text-[8px] text-emerald-200">
+        PRICE
+      </div>
+
+      <div className="absolute right-3 bottom-3 rounded-lg border border-purple-400/20 bg-black/30 px-2 py-1 text-[8px] text-purple-200">
+        AI
+      </div>
+
+      <div className="absolute h-[1px] w-[82%] bg-gradient-to-r from-cyan-300/0 via-cyan-300/60 to-cyan-300/0"></div>
+
+      <div className="absolute h-[82%] w-[1px] bg-gradient-to-b from-emerald-300/0 via-emerald-300/60 to-emerald-300/0"></div>
+
+      <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-cyan-300/40 bg-cyan-400/10 shadow-lg shadow-cyan-400/20">
+        <div className="absolute h-20 w-20 animate-pulse rounded-full border border-emerald-400/20"></div>
+
+        <div className="absolute h-10 w-10 animate-ping rounded-full border border-cyan-300/20"></div>
+
+        <span className="text-sm font-black text-cyan-100">
+          AI
+        </span>
+      </div>
     </div>
 
-    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-      <div className="h-full w-[82%] animate-pulse rounded-full bg-gradient-to-r from-cyan-300 to-emerald-300"></div>
-    </div>
+    <div className="mt-3 space-y-2 text-[10px] font-bold text-slate-300">
+      <div className="flex justify-between">
+        <span>Market Scan</span>
 
-    <p className="rounded-lg border border-white/8 bg-black/30 p-2 text-[9px] text-slate-400">
-      AI scanning liquidity, volatility, news risk, and premium signal zones.
-    </p>
+        <span className="text-emerald-300">
+          LIVE
+        </span>
+      </div>
+
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+        <div className="h-full w-[82%] animate-pulse rounded-full bg-gradient-to-r from-cyan-300 via-yellow-300 to-emerald-300"></div>
+      </div>
+
+      <p className="rounded-lg border border-cyan-400/20 bg-black/30 p-2 text-[9px] leading-4 text-slate-400">
+        AI pipes connect news, liquidity, volatility, risk and signal boxes before sending premium setups.
+      </p>
+    </div>
   </div>
 </div>
       </aside>
