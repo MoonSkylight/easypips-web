@@ -468,7 +468,7 @@ function SignalCard({ s }: { s: Signal }) {
 
 function Mini({ label, value, good, danger }: { label: string; value: any; good?: boolean; danger?: boolean }) {
   return (
-    <div className={`rounded-xl border p-1.5 ${good ? "border-emerald-400/40 bg-emerald-400/15" : danger ? "border-red-400/35 bg-red-400/10" : "border-white/5 bg-black/35"}`}>
+    <div className={`rounded-xl border p-1.5 ${good ? "border-emerald-400/40 bg-emerald-400/15" : danger ? "border-white/5 bg-black/35" : "border-white/5 bg-black/35"}`}>
       <p className={`text-[9px] ${good ? "text-emerald-200" : danger ? "text-red-200" : "text-slate-500"}`}>{label}</p>
       <p className={`mt-1 max-w-full break-words text-sm font-black leading-tight ${good ? "text-emerald-200" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
     </div>
@@ -2104,6 +2104,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
