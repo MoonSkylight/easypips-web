@@ -442,34 +442,24 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <p className="text-[9px] font-black uppercase tracking-wider text-emerald-300">
-  LIVE MARKET GENERATED
-</p>
           <h3 className="mt-1 text-[13px] font-black text-white">{s.symbol}</h3>
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
           <p className="rounded-full bg-yellow-400/10 px-2 py-1 text-[10px] font-black text-yellow-300 inline-block mt-1">
-  Confidence: {s.confidence || s.score || "-"}</p>
+  AI Confidence: {s.confidence || s.score || "-"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-sm font-black ${isLocked ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
         </span>
       </div>
 
-      <div className="mt-2 flex items-center justify-between">
-        <span className="rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 py-1 text-sm font-black text-blue-300">
-          "LIVE MARKET GENERATED"
-        </span>
-        <span className="text-sm font-black text-emerald-300">{s.status || "ACTIVE"}</span>
-      </div>
-
       <div className="mt-2 grid grid-cols-3 gap-1.5">
         <Mini label="Entry" value={s.entry} />
         <Mini label="SL" value={s.sl} danger />
-        <Mini label="TP1" value={s.tp1} good />
-        <Mini label="TP2" value={s.tp2} good />
-        <Mini label="TP3" value={s.tp3} good />
+        <Mini label="TP1" value={s.tp1} good={!!s.hit_tp1} />
+        <Mini label="TP2" value={s.tp2} good={!!s.hit_tp2} />
+        <Mini label="TP3" value={s.tp3} good={!!s.hit_tp3} />
         <Mini label="Score" value={s.score || s.confidence} />
       </div>
     </div>
@@ -942,7 +932,7 @@ const weeklyLive = allSignals.filter((s) => {
 });
 
 const totalSignals = weeklyLive.length + weeklyClosed.length;
-const activeCount = live.length;
+const activeCount = weeklyLive.length;
 const closedCount = weeklyClosed.length;
 
 const wins = closed.filter((s) => String(s.result || "").includes("WIN")).length;
@@ -957,7 +947,7 @@ const dashboardWinRate =
 const tpHits = weeklyLive.filter((s) => s.hit_tp1 || s.hit_tp2 || s.hit_tp3).length +
   weeklyClosed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
 
-const helpDesk = allSignals.filter((s) => s.desk === "Desk 1" || s.desk === "Trading Room").length;
+const helpDesk = weeklyLive.filter((s) => s.desk === "Desk 1" || s.desk === "Trading Room").length;
 
 const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && !s.hit_tp3).length +
   weeklyClosed.filter((s) => {
@@ -2107,6 +2097,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
