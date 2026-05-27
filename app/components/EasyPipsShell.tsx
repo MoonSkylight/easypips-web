@@ -751,7 +751,13 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [pairSearch, setPairSearch] = useState("");
   const [cat, setCat] = useState("Major");
   const [isPremium, setIsPremium] = useState(false);
-  const [adminPreview, setAdminPreview] = useState(false);
+  const [adminPreview, setAdminPreview] = useState(
+  typeof window !== "undefined" &&
+  (
+    window.location.pathname.includes("/admin") ||
+    localStorage.getItem("easypips_admin") === "true"
+  )
+);
   const [settingsMessage, setSettingsMessage] = useState("");
 const clientToken =
   typeof window !== "undefined"
@@ -2158,6 +2164,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
