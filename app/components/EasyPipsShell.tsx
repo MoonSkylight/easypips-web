@@ -927,7 +927,21 @@ const visibleLiveRaw = sessionAllowed
   const effectivePremium = isPremium || adminPreview || (typeof window !== "undefined" && localStorage.getItem("easypips_admin") === "true");
   const visibleLive = visibleLiveRaw;
 
-  const totalSignals = allSignals.length + closed.length;
+  const weekStart = new Date();
+weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+weekStart.setHours(0, 0, 0, 0);
+
+const weeklyClosed = closed.filter((s) => {
+  const created = new Date(s.created_at || Date.now());
+  return created >= weekStart;
+});
+
+const weeklyLive = allSignals.filter((s) => {
+  const created = new Date(s.created_at || Date.now());
+  return created >= weekStart;
+});
+
+const totalSignals = weeklyLive.length + weeklyClosed.length;
 const activeCount = live.length;
 const closedCount = closed.length;
 
@@ -1245,7 +1259,7 @@ er:bg-white/10"
           {page === "news-calendar" && <NewsCalendarPage events={news} />}
           {page === "account" && <AccountPage accounts={accounts} />}
 
-          {page === "history" && <HistoryPage closed={closed} />}
+          {page === "history" && <HistoryPage closed={closed} allSignals={allSignals} />}
 
           {page === "reports" && <ReportsPage closed={closed} allSignals={allSignals} />}
           {page === "help-center" && <HelpCenterPage />}
@@ -1761,8 +1775,16 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   );
 }
 
-function HistoryPage({ closed }: { closed: Signal[] }) {
-  const rows = closed.length ? closed : [
+function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
+  const tpHitRows = (allSignals || []).flatMap((s) => {
+    const rows: any[] = [];
+    if (s.hit_tp1) rows.push({ ...s, result: "TP1" });
+    if (s.hit_tp2) rows.push({ ...s, result: "TP2" });
+    if (s.hit_tp3) rows.push({ ...s, result: "TP3" });
+    return rows;
+  });
+
+  const rows = [...tpHitRows, ...closed].length ? [...tpHitRows, ...closed] : [
     { symbol: "BTC/USD", direction: "Locked", strategy: "Strategy A", entry: "81317.35", sl: "80317.35", tp1: "82317.35", result: "Win", confidence: 82, created_at: "2026-05-15T10:22:00Z" },
     { symbol: "EUR/USD", direction: "Locked", strategy: "Strategy A", entry: "1.16550", sl: "1.17550", tp1: "1.15550", result: "Win", confidence: 95, created_at: "2026-05-15T01:33:00Z" },
   ] as Signal[];
@@ -2080,6 +2102,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
