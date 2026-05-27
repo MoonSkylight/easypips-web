@@ -1156,7 +1156,7 @@ er:bg-white/10"
         </div>
 
         <div className="mx-auto min-h-screen max-w-[1700px] overflow-visible px-2 py-1 pb-32">
-          <SystemRule />
+          
 
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
 
@@ -2097,6 +2097,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
