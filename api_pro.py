@@ -446,34 +446,16 @@ def result_message(signal: dict, result: str):
     symbol = signal.get("symbol") or "-"
     direction = signal.get("direction") or "-"
     confidence = signal.get("confidence") or signal.get("score") or "N/A"
- 
-
-
-
-
-
-
-
-   result_text = str(result or "").upper()
+    result_text = str(result or "").upper()
 
     if "SL" in result_text:
         title = "*EASY PIPS AI - STOP LOSS*"
         status = "SL HIT"
- 
-
-
-
-
-       note = "Risk managed correctly. Waiting for next high probability setup."
+        note = "Risk managed correctly. Waiting for next high probability setup."
     else:
         title = "*EASY PIPS AI - TARGET HIT*"
         status = f"{result_text} HIT"
         note = "Partial profits secured. Manage remaining position carefully."
-
-
-
-
-
 
     return f"""
 {title}
@@ -481,25 +463,17 @@ def result_message(signal: dict, result: str):
 ------------------------------
 *PAIR:* {symbol}
 *RESULT:* {status}
--
+--
 
 
 
 
-
-
------------------------------
+----------------------------
 
 *TYPE:* {direction}
 *CONFIDENCE:* {confidence}%
 
 {note}
-
-
-
-
-
-
 
 #EasyPipsAI #{str(symbol).replace("/", "").replace(":", "")}
 """
