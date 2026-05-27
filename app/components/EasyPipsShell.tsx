@@ -754,8 +754,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [adminPreview, setAdminPreview] = useState(
   typeof window !== "undefined" &&
   (
-    window.location.pathname.includes("/admin") ||
-    localStorage.getItem("easypips_admin") === "true"
+    window.location.pathname.includes("/admin")
   )
 );
   const [settingsMessage, setSettingsMessage] = useState("");
@@ -920,7 +919,7 @@ const visibleLiveRaw = sessionAllowed
       return s.strategy === filter;
     })
   : live;
-  const effectivePremium = isPremium || adminPreview || (typeof window !== "undefined" && localStorage.getItem("easypips_admin") === "true");
+  const effectivePremium = isPremium || adminPreview ;
   const visibleLive = visibleLiveRaw;
 
   const weekStart = new Date();
@@ -2155,6 +2154,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
