@@ -1149,7 +1149,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 <div className="flex items-center gap-1.5">
               <div className="hidden text-right text-xs md:block">
                 <UTCClock />
-              </div>{clientToken ? (
+              </div>{adminPreview ? null : clientToken ? (
   <>
     <button
       type="button"
@@ -2154,6 +2154,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
