@@ -386,504 +386,123 @@ def send_telegram_image(message: str, image_path: str):
 
 def new_signal_message(signal: dict):
     source = signal.get("desk") or signal.get("strategy") or signal.get("source") or "EasyPips"
+    symbol = signal.get("symbol") or signal.get("pair") or "-"
+    direction = signal.get("direction") or signal.get("type") or "-"
+    entry = signal.get("entry") or "-"
+    sl = signal.get("sl") or "-"
+    tp1 = signal.get("tp1") or "-"
+    tp2 = signal.get("tp2") or "-"
+    tp3 = signal.get("tp3") or "-"
+    confidence = signal.get("confidence") or signal.get("score") or "N/A"
+    pattern = signal.get("pattern") or "AI confirmed setup"
+
     return f"""
-ðŸš€ *EASY PIPS VIP SIGNAL*
+*EASY PIPS AI - LIVE SIGNAL*
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+------------------------------
+*PAIR:* {symbol}
+*TYPE:* {direction}
+------------------------------
 
-ðŸ“Š *Pair:* {signal.get("symbol")}
-ðŸ“ˆ *Direction:* {signal.get("direction")}
-ðŸ§  *Source:* {source}
-ðŸ“Œ *Pattern:* {signal.get("pattern", "manual_signal")}
-â­ *Score:* {signal.get("score", "N/A")}
+*ENTRY:* `{entry}`
+*STOP LOSS:* `{sl}`
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+*TAKE PROFIT 1:* `{tp1}`
+*TAKE PROFIT 2:* `{tp2}`
+*TAKE PROFIT 3:* `{tp3}`
 
-ðŸŽ¯ *ENTRY:* `{signal.get("entry")}`
-ðŸ›‘ *STOP LOSS:* `{signal.get("sl")}`
 
-ðŸ’° *TP1:* `{signal.get("tp1")}`
-ðŸ’° *TP2:* `{signal.get("tp2")}`
-ðŸ’° *TP3:* `{signal.get("tp3")}`
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-ðŸ“Š Confidence: *{signal.get("confidence", "N/A")}*
-âš ï¸ Educational only. Trading involves risk.
+
+
+
+
+
+
+
+------------------------------
+*STRATEGY:* {source}
+*CONFIDENCE:* {confidence}%
+*SETUP:* {pattern}
+*AI STATUS:* CONFIRMED
+------------------------------
+
+Risk properly. Educational signal only.
+#EasyPipsAI #{str(symbol).replace("/", "").replace(":", ""
+
+
+
+
+
+
+
+
+)}
 """
+
 
 def result_message(signal: dict, result: str):
-    emoji = "âœ…"
+    symbol = signal.get("symbol") or "-"
+    direction = signal.get("direction") or "-"
+    confidence = signal.get("confidence") or signal.get("score") or "N/A"
+ 
 
-    if result == "TP2":
-        emoji = "ðŸš€"
-    elif result == "TP3":
-        emoji = "ðŸ”¥"
-    elif result == "SL":
-        emoji = "âŒ"
+
+
+
+
+
+
+   result_text = str(result or "").upper()
+
+    if "SL" in result_text:
+        title = "*EASY PIPS AI - STOP LOSS*"
+        status = "SL HIT"
+ 
+
+
+
+
+       note = "Risk managed correctly. Waiting for next high probability setup."
+    else:
+        title = "*EASY PIPS AI - TARGET HIT*"
+        status = f"{result_text} HIT"
+        note = "Partial profits secured. Manage remaining position carefully."
+
+
+
+
+
 
     return f"""
-{emoji} *EASY PIPS SIGNAL UPDATE*
+{title}
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+------------------------------
+*PAIR:* {symbol}
+*RESULT:* {status}
+-
 
-ðŸ“Š *Pair:* {signal.get("symbol")}
-ðŸ“ˆ *Direction:* {signal.get("direction")}
-ðŸ§  *Strategy:* {signal.get("strategy", "Strategy A")}
-ðŸŽ¯ *Result:* {result}
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-Entry: `{signal.get("entry")}`
-SL: `{signal.get("sl")}`
 
-TP1: `{signal.get("tp1")}`
-TP2: `{signal.get("tp2")}`
-TP3: `{signal.get("tp3")}`
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-ðŸ“Œ Status: *{signal.get("status", "ACTIVE")}*
+-----------------------------
+
+*TYPE:* {direction}
+*CONFIDENCE:* {confidence}%
+
+{note}
+
+
+
+
+
+
+
+#EasyPipsAI #{str(symbol).replace("/", "").replace(":", "")}
 """
-
-
-def create_admin_token():
-    expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
-    payload = {"sub": "admin", "role": "admin", "exp": expire}
-    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-
-
-def verify_admin_token(authorization: str):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing admin token")
-
-    token = authorization.replace("Bearer ", "")
-
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        if payload.get("role") != "admin":
-            raise HTTPException(status_code=403, detail="Not admin")
-        return payload
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-
-def format_price(symbol: str, price: float) -> str:
-    if price is None:
-        return ""
-
-    if "JPY" in symbol:
-        return f"{price:.3f}"
-
-    if "XAU" in symbol or "BTC" in symbol:
-        return f"{price:.2f}"
-
-    return f"{price:.5f}"
-
-
-def pip_size(symbol: str) -> float:
-    if "JPY" in symbol:
-        return 0.01
-    if "XAU" in symbol:
-        return 0.10
-    if "BTC" in symbol:
-        return 10.0
-    return 0.0001
-
-
-def target_distance(symbol: str) -> float:
-    return pip_size(symbol) * 100
-
-
-def get_live_price(yahoo_symbol: str):
-    try:
-        data = yf.Ticker(yahoo_symbol).history(period="2d", interval="15m")
-
-        if data.empty:
-            return None, None
-
-        current_price = float(data["Close"].iloc[-1])
-        previous_price = float(data["Close"].iloc[-5]) if len(data) >= 5 else float(data["Close"].iloc[0])
-
-        return current_price, previous_price
-
-    except Exception:
-        return None, None
-
-
-def calculate_rsi(series, period=14):
-    delta = series.diff()
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
-
-    avg_gain = gain.rolling(period).mean()
-    avg_loss = loss.rolling(period).mean()
-
-    rs = avg_gain / avg_loss.replace(0, pd.NA)
-    rsi = 100 - (100 / (1 + rs))
-
-    return rsi.fillna(50)
-
-
-def calculate_atr(data, period=14):
-    high_low = data["High"] - data["Low"]
-    high_close = (data["High"] - data["Close"].shift()).abs()
-    low_close = (data["Low"] - data["Close"].shift()).abs()
-
-    tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
-
-    return tr.rolling(period).mean().fillna(tr.mean())
-
-
-def analyze_strategy_a(symbol: str, yahoo_symbol: str):
-    try:
-        data = yf.Ticker(yahoo_symbol).history(period="5d", interval="15m")
-
-        if data.empty or len(data) < 80:
-            return None
-
-        close = data["Close"]
-        ema20 = close.ewm(span=20, adjust=False).mean()
-        ema50 = close.ewm(span=50, adjust=False).mean()
-        rsi = calculate_rsi(close)
-
-        price = float(close.iloc[-1])
-        previous = float(close.iloc[-5])
-        e20 = float(ema20.iloc[-1])
-        e50 = float(ema50.iloc[-1])
-        current_rsi = float(rsi.iloc[-1])
-        momentum = price - previous
-
-        if price > e50 and e20 > e50 and 50 <= current_rsi <= 70 and momentum > 0:
-            confidence = min(95, int(80 + (current_rsi - 50)))
-            return {
-                "strategy": "Strategy A",
-                "pattern": "ema_rsi_momentum_buy",
-                "direction": "BUY",
-                "price": price,
-                "confidence": confidence,
-                "score": confidence,
-                "note": f"EMA bullish trend, RSI {round(current_rsi, 2)}, positive momentum.",
-            }
-
-        if price < e50 and e20 < e50 and 30 <= current_rsi <= 50 and momentum < 0:
-            confidence = min(95, int(80 + (50 - current_rsi)))
-            return {
-                "strategy": "Strategy A",
-                "pattern": "ema_rsi_momentum_sell",
-                "direction": "SELL",
-                "price": price,
-                "confidence": confidence,
-                "score": confidence,
-                "note": f"EMA bearish trend, RSI {round(current_rsi, 2)}, negative momentum.",
-            }
-
-        return None
-
-    except Exception as e:
-        print("Strategy A error:", e)
-        return None
-
-
-def detect_swings(data, lookback=3):
-    swings = []
-
-    for i in range(lookback, len(data) - lookback):
-        window = data.iloc[i - lookback : i + lookback + 1]
-        candle = data.iloc[i]
-
-        if candle["High"] == window["High"].max():
-            swings.append({"index": i, "type": "high", "price": float(candle["High"])})
-
-        if candle["Low"] == window["Low"].min():
-            swings.append({"index": i, "type": "low", "price": float(candle["Low"])})
-
-    return sorted(swings, key=lambda x: x["index"])
-
-
-def latest_swing_range(swings):
-    latest_low = None
-    latest_high = None
-
-    for swing in reversed(swings):
-        if swing["type"] == "low" and latest_low is None:
-            latest_low = swing
-        elif swing["type"] == "high" and latest_high is None:
-            latest_high = swing
-
-        if latest_low and latest_high:
-            return latest_low, latest_high
-
-    return None, None
-
-
-def fib_levels(low: float, high: float, direction: str):
-    move = high - low
-
-    if move <= 0:
-        return {}
-
-    levels = {}
-
-    retracements = {
-        "0.382": 0.382,
-        "0.500": 0.500,
-        "0.618": 0.618,
-        "0.786": 0.786,
-    }
-
-    extensions = {
-        "1.000": 1.000,
-        "1.272": 1.272,
-        "1.618": 1.618,
-    }
-
-    if direction == "BUY":
-        for name, value in retracements.items():
-            levels[name] = high - move * value
-        for name, value in extensions.items():
-            levels[f"ext_{name}"] = low + move * value
-
-    if direction == "SELL":
-        for name, value in retracements.items():
-            levels[name] = low + move * value
-        for name, value in extensions.items():
-            levels[f"ext_{name}"] = high - move * value
-
-    return levels
-
-
-def nearest_fib_match(price: float, levels: dict, atr: float):
-    tolerance = max(atr * 0.35, price * 0.0003)
-
-    best_name = None
-    best_price = None
-    best_distance = math.inf
-
-    for name, level_price in levels.items():
-        if name.startswith("ext_"):
-            continue
-
-        distance = abs(price - level_price)
-
-        if distance <= tolerance and distance < best_distance:
-            best_name = name
-            best_price = level_price
-            best_distance = distance
-
-    return best_name, best_price, best_distance, tolerance
-
-
-def bullish_confirmation(data):
-    last = data.iloc[-1]
-    prev = data.iloc[-2]
-
-    bullish_close = last["Close"] > last["Open"]
-    close_above_mid = last["Close"] > (last["High"] + last["Low"]) / 2
-    close_above_prev = last["Close"] >= prev["Close"]
-
-    return bool(bullish_close and close_above_mid and close_above_prev)
-
-
-def bearish_confirmation(data):
-    last = data.iloc[-1]
-    prev = data.iloc[-2]
-
-    bearish_close = last["Close"] < last["Open"]
-    close_below_mid = last["Close"] < (last["High"] + last["Low"]) / 2
-    close_below_prev = last["Close"] <= prev["Close"]
-
-    return bool(bearish_close and close_below_mid and close_below_prev)
-
-
-def risk_reward(entry: float, stop: float, target: float, direction: str):
-    if direction == "BUY":
-        risk = entry - stop
-        reward = target - entry
-    else:
-        risk = stop - entry
-        reward = entry - target
-
-    if risk <= 0:
-        return 0.0
-
-    return reward / risk
-
-
-def analyze_strategy_b(symbol: str, yahoo_symbol: str):
-    try:
-        data = yf.Ticker(yahoo_symbol).history(period="15d", interval="15m")
-
-        if data.empty or len(data) < 220:
-            return None
-
-        data = data.dropna().copy()
-
-        data["ema50"] = data["Close"].ewm(span=50, adjust=False).mean()
-        data["ema200"] = data["Close"].ewm(span=200, adjust=False).mean()
-        data["atr"] = calculate_atr(data)
-
-        latest = data.iloc[-1]
-
-        price = float(latest["Close"])
-        atr = float(latest["atr"])
-
-        if not atr or math.isnan(atr):
-            return None
-
-        trend = "sideways"
-
-        if price > float(latest["ema50"]) > float(latest["ema200"]):
-            trend = "bullish"
-        elif price < float(latest["ema50"]) < float(latest["ema200"]):
-            trend = "bearish"
-
-        swings = detect_swings(data)
-        swing_low, swing_high = latest_swing_range(swings)
-
-        if not swing_low or not swing_high:
-            return None
-
-        low = float(swing_low["price"])
-        high = float(swing_high["price"])
-
-        if trend == "bullish" and swing_low["index"] < swing_high["index"]:
-            levels = fib_levels(low, high, "BUY")
-            fib_name, fib_price, distance, tolerance = nearest_fib_match(price, levels, atr)
-
-            if fib_name and bullish_confirmation(data):
-                stop = min(low, price - atr * 1.2)
-                tp1 = levels.get("ext_1.000", high)
-                tp2 = levels.get("ext_1.272", high + (high - low) * 0.272)
-                tp3 = levels.get("ext_1.618", high + (high - low) * 0.618)
-
-                rr = risk_reward(price, stop, tp1, "BUY")
-
-                if rr >= 1.2:
-                    confidence = 82
-
-                    if fib_name in ["0.500", "0.618"]:
-                        confidence += 10
-
-                    confidence += min(8, int(rr * 2))
-
-                    return {
-                        "strategy": "Strategy B",
-                        "pattern": "bullish_fib_pullback",
-                        "direction": "BUY",
-                        "price": price,
-                        "sl": stop,
-                        "tp1": tp1,
-                        "tp2": tp2,
-                        "tp3": tp3,
-                        "confidence": min(98, confidence),
-                        "score": min(98, confidence),
-                        "note": f"Bullish Fibonacci pullback confirmed at Fib {fib_name}. RR {round(rr, 2)}.",
-                    }
-
-        if trend == "bearish" and swing_high["index"] < swing_low["index"]:
-            levels = fib_levels(low, high, "SELL")
-            fib_name, fib_price, distance, tolerance = nearest_fib_match(price, levels, atr)
-
-            if fib_name and bearish_confirmation(data):
-                stop = max(high, price + atr * 1.2)
-                tp1 = levels.get("ext_1.000", low)
-                tp2 = levels.get("ext_1.272", low - (high - low) * 0.272)
-                tp3 = levels.get("ext_1.618", low - (high - low) * 0.618)
-
-                rr = risk_reward(price, stop, tp1, "SELL")
-
-                if rr >= 1.2:
-                    confidence = 82
-
-                    if fib_name in ["0.500", "0.618"]:
-                        confidence += 10
-
-                    confidence += min(8, int(rr * 2))
-
-                    return {
-                        "strategy": "Strategy B",
-                        "pattern": "bearish_fib_pullback",
-                        "direction": "SELL",
-                        "price": price,
-                        "sl": stop,
-                        "tp1": tp1,
-                        "tp2": tp2,
-                        "tp3": tp3,
-                        "confidence": min(98, confidence),
-                        "score": min(98, confidence),
-                        "note": f"Bearish Fibonacci pullback confirmed at Fib {fib_name}. RR {round(rr, 2)}.",
-                    }
-
-        return None
-
-    except Exception as e:
-        print("Strategy B error:", e)
-        return None
-
-
-def build_ai_signal(symbol: str, analysis: dict):
-    price = analysis["price"]
-    direction = analysis["direction"]
-    strategy = analysis["strategy"]
-
-    if strategy == "Strategy B" and all(k in analysis for k in ["sl", "tp1", "tp2", "tp3"]):
-        sl = analysis["sl"]
-        tp1 = analysis["tp1"]
-        tp2 = analysis["tp2"]
-        tp3 = analysis["tp3"]
-    else:
-        distance = target_distance(symbol)
-
-        if direction == "BUY":
-            sl = price - distance
-            tp1 = price + distance
-            tp2 = price + distance * 2
-            tp3 = price + distance * 3
-        else:
-            sl = price + distance
-            tp1 = price - distance
-            tp2 = price - distance * 2
-            tp3 = price - distance * 3
-
-    return {
-        "source": "AI Engine",
-        "desk": None,
-        "strategy": strategy,
-        "pattern": analysis.get("pattern"),
-        "timeframe": "15m",
-        "symbol": symbol,
-        "direction": direction,
-        "entry": format_price(symbol, price),
-        "sl": format_price(symbol, sl),
-        "tp1": format_price(symbol, tp1),
-        "tp2": format_price(symbol, tp2),
-        "tp3": format_price(symbol, tp3),
-        "confidence": analysis.get("confidence", 80),
-        "score": analysis.get("score", analysis.get("confidence", 80)),
-        "analyst": "AI Strategy Engine",
-        "note": analysis.get("note", ""),
-        "status": "ACTIVE",
-        "result": "RUNNING",
-        "hit_tp1": False,
-        "hit_tp2": False,
-        "hit_tp3": False,
-        "hit_sl": False,
-    }
-
-
-def get_all_signals():
-    if not db_enabled():
-        return []
-
-    response = (
-        supabase.table("signals")
-        .select("*")
-        .order("created_at", desc=True)
-        .execute()
-    )
-
-    return response.data or []
 
 
 def get_active_signals(source=None, strategy=None, desk=None):
