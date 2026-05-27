@@ -1170,7 +1170,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
   <>
     <Link
       href="/client/signup"
-      className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-2 font-black text-black hover:bg-yellow-300"
+      className="group relative overflow-hidden rounded-xl border border-yellow-300/40 bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-500 px-4 py-2 text-sm font-black tracking-wide text-black shadow-lg shadow-yellow-500/20 transition hover:scale-[1.03] hover:shadow-yellow-400/30"
     >
       Sign Up
     </Link>
@@ -2012,7 +2012,7 @@ function SettingsPage({
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <button
               onClick={saveSettings}
-              className="rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-2 font-black text-black hover:bg-yellow-300"
+              className="group relative overflow-hidden rounded-xl border border-yellow-300/40 bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-500 px-4 py-2 text-sm font-black tracking-wide text-black shadow-lg shadow-yellow-500/20 transition hover:scale-[1.03] hover:shadow-yellow-400/30"
             >
               Save Changes
             </button>
@@ -2154,6 +2154,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
