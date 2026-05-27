@@ -1822,8 +1822,9 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
 
   const historyStart = new Date();
   if (historyRange === "today") {
-    historyStart.setHours(0, 0, 0, 0);
-  } else if (historyRange === "week") {
+  historyStart.setDate(historyStart.getDate() - 1);
+  historyStart.setHours(0, 0, 0, 0);
+} else if (historyRange === "week") {
     historyStart.setDate(historyStart.getDate() - 7);
     historyStart.setHours(0, 0, 0, 0);
   } else if (historyRange === "month") {
@@ -2189,6 +2190,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
