@@ -468,9 +468,9 @@ function SignalCard({ s }: { s: Signal }) {
 
 function Mini({ label, value, good, danger }: { label: string; value: any; good?: boolean; danger?: boolean }) {
   return (
-    <div className="rounded-xl bg-black/35 p-1.5">
-      <p className="text-[9px] text-slate-500">{label}</p>
-      <p className={`mt-1 max-w-full break-words text-sm font-black leading-tight ${good ? "text-emerald-300" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
+    <div className={`rounded-xl border p-1.5 ${good ? "border-emerald-400/40 bg-emerald-400/15" : danger ? "border-red-400/35 bg-red-400/10" : "border-white/5 bg-black/35"}`}>
+      <p className={`text-[9px] ${good ? "text-emerald-200" : danger ? "text-red-200" : "text-slate-500"}`}>{label}</p>
+      <p className={`mt-1 max-w-full break-words text-sm font-black leading-tight ${good ? "text-emerald-200" : danger ? "text-red-300" : "text-white"}`}>{value || "-"}</p>
     </div>
   );
 }
@@ -935,14 +935,11 @@ const totalSignals = weeklyLive.length + weeklyClosed.length;
 const activeCount = weeklyLive.length;
 const closedCount = weeklyClosed.length;
 
-const wins = closed.filter((s) => String(s.result || "").includes("WIN")).length;
+const wins = weeklyClosed.filter((s) => String(s.result || "").toUpperCase().includes("WIN") || String(s.result || "").toUpperCase().includes("TP")).length;
 
-const losses = closed.filter((s) => String(s.result || "").includes("LOSS")).length;
+const losses = weeklyClosed.filter((s) => { const r = String(s.result || "").toUpperCase(); return (r.includes("LOSS") || r.includes("SL")) && !r.includes("TP") && !r.includes("WIN"); }).length;
 
-const dashboardWinRate =
-  closedCount > 0
-    ? ((wins / closedCount) * 100).toFixed(1)
-    : "0.0";
+const dashboardWinRate = weeklyClosed.length > 0 ? ((wins / weeklyClosed.length) * 100).toFixed(1) : "0.0";
 
 const tpHits = weeklyLive.filter((s) => s.hit_tp1 || s.hit_tp2 || s.hit_tp3).length +
   weeklyClosed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
@@ -2097,6 +2094,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
