@@ -1898,7 +1898,7 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
           <tbody>
             {rows.map((r, i) => (
               <tr key={r.id || i} className="border-b border-white/5">
-                <td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td>`r`n                <td className="p-1.5 text-slate-400">{formatDate(r.created_at)}</td>`r`n                <td className="p-1.5 font-black">{r.symbol}</td>
+                <td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td>                <td className="p-1.5 text-slate-400">{formatDate(r.created_at)}</td>                <td className="p-1.5 font-black">{r.symbol}</td>
                 <td className={`p-1.5 font-black ${String(r.direction || "").toUpperCase().includes("SELL") || String(r.direction || "").toUpperCase().includes("LOCKED") ? "text-red-400" : "text-emerald-400"}`}>{r.direction}</td>
                 <td className="p-1.5">{r.strategy || r.desk}</td>
                 <td className="p-1.5">{r.entry}</td>
@@ -2192,6 +2192,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
