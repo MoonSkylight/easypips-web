@@ -56,6 +56,7 @@ type Signal = {
   note?: string;
   status?: string;
   created_at?: string;
+  closed_at?: string;
   result?: string;
   hit_tp1?: boolean;
   hit_tp2?: boolean;
@@ -1836,8 +1837,8 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
   }
 
   const inHistoryRange = (s: Signal) => {
-    const created = new Date(s.created_at || Date.now());
-    return created >= historyStart;
+    const closedTime = new Date(s.closed_at || s.created_at || Date.now());
+    return closedTime >= historyStart;
   };
   const tpHitRows = (allSignals || []).filter(inHistoryRange).flatMap((s) => {
     const rows: any[] = [];
@@ -1857,7 +1858,9 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
     return true;
   });
 
-  const rows = [...tpHitRows, ...cleanClosed].length ? [...tpHitRows, ...cleanClosed] : [
+  const sortedHistoryRows = [...tpHitRows, ...cleanClosed].sort((a, b) => new Date(b.closed_at || b.created_at || 0).getTime() - new Date(a.closed_at || a.created_at || 0).getTime());
+
+  const rows = sortedHistoryRows.length ? sortedHistoryRows : [
     { symbol: "BTC/USD", direction: "Locked", strategy: "Strategy A", entry: "81317.35", sl: "80317.35", tp1: "82317.35", result: "Win", confidence: 82, created_at: "2026-05-15T10:22:00Z" },
     { symbol: "EUR/USD", direction: "Locked", strategy: "Strategy A", entry: "1.16550", sl: "1.17550", tp1: "1.15550", result: "Win", confidence: 95, created_at: "2026-05-15T01:33:00Z" },
   ] as Signal[];
@@ -1889,14 +1892,13 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-black/30 text-slate-400">
             <tr>
-              {["Date & Time", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-1.5">{h}</th>)}
+              {["Close Date", "Published Date", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-1.5">{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {rows.map((r, i) => (
               <tr key={r.id || i} className="border-b border-white/5">
-                <td className="p-1.5">{formatDate(r.created_at)}</td>
-                <td className="p-1.5 font-black">{r.symbol}</td>
+                <td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td>`r`n                <td className="p-1.5 text-slate-400">{formatDate(r.created_at)}</td>`r`n                <td className="p-1.5 font-black">{r.symbol}</td>
                 <td className={`p-1.5 font-black ${String(r.direction || "").toUpperCase().includes("SELL") || String(r.direction || "").toUpperCase().includes("LOCKED") ? "text-red-400" : "text-emerald-400"}`}>{r.direction}</td>
                 <td className="p-1.5">{r.strategy || r.desk}</td>
                 <td className="p-1.5">{r.entry}</td>
@@ -2190,6 +2192,10 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
+
 
 
 
