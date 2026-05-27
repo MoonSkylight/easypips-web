@@ -1818,7 +1818,27 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
 }
 
 function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
-  const tpHitRows = (allSignals || []).flatMap((s) => {
+  const [historyRange, setHistoryRange] = useState("today");
+
+  const historyStart = new Date();
+  if (historyRange === "today") {
+    historyStart.setHours(0, 0, 0, 0);
+  } else if (historyRange === "week") {
+    historyStart.setDate(historyStart.getDate() - 7);
+    historyStart.setHours(0, 0, 0, 0);
+  } else if (historyRange === "month") {
+    historyStart.setMonth(historyStart.getMonth() - 1);
+    historyStart.setHours(0, 0, 0, 0);
+  } else {
+    historyStart.setFullYear(2000, 0, 1);
+    historyStart.setHours(0, 0, 0, 0);
+  }
+
+  const inHistoryRange = (s: Signal) => {
+    const created = new Date(s.created_at || Date.now());
+    return created >= historyStart;
+  };
+  const tpHitRows = (allSignals || []).filter(inHistoryRange).flatMap((s) => {
     const rows: any[] = [];
     if (s.hit_tp1) rows.push({ ...s, result: "TP1" });
     if (s.hit_tp2) rows.push({ ...s, result: "TP2" });
@@ -1826,7 +1846,7 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
     return rows;
   });
 
-  const cleanClosed = closed.filter((s) => {
+  const cleanClosed = closed.filter(inHistoryRange).filter((s) => {
     const r = String(s.result || "").toUpperCase();
 
     if ((r.includes("SL") || r.includes("LOSS")) && (s.hit_tp1 || s.hit_tp2 || s.hit_tp3)) {
@@ -1843,13 +1863,28 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
 
   return (
     <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center blur-[1px] opacity-[0.10]"><div className="text-[260px] font-black leading-none text-yellow-300">EP</div><div className="text-[90px] font-black tracking-[0.22em] text-yellow-300">EASYPIPS AI</div><div className="text-[28px] tracking-[0.5em] text-yellow-300">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
-      <div className="mb-2 grid gap-2 md:grid-cols-4">
-        <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Strategies</option></select>
-        <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Pairs</option></select>
-        <select className="rounded-xl bg-black/30 px-4 py-2"><option>All Results</option></select>
-        <button className="rounded-xl bg-white/10 px-4 py-2">Reset</button>
-      </div>
-      <div className="overflow-x-auto">
+      <div className="mb-3 flex flex-wrap gap-2">
+  {[
+    ["today", "Today Signals History"],
+    ["week", "Last Week History"],
+    ["month", "Last Month History"],
+    ["custom", "Custom History"],
+  ].map(([key, label]) => (
+    <button
+      key={key}
+      onClick={() => setHistoryRange(key)}
+      className={`rounded-xl border px-4 py-2 text-xs font-black transition ${
+        historyRange === key
+          ? "border-yellow-300/50 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/10"
+          : "border-white/8 bg-black/30 text-slate-300 hover:bg-white/10"
+      }`}
+    >
+      {label}
+    </button>
+  ))}
+</div>
+
+<div className="overflow-x-auto">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-black/30 text-slate-400">
             <tr>
@@ -2154,6 +2189,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
