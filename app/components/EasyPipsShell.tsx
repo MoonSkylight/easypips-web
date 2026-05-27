@@ -1818,6 +1818,18 @@ function AccountPage({ accounts }: { accounts: Account[] }) {
   );
 }
 
+function tradeDuration(start?: string, end?: string) {
+  if (!start || !end) return "-";
+  const ms = new Date(end).getTime() - new Date(start).getTime();
+  if (!Number.isFinite(ms) || ms <= 0) return "Instant";
+  const mins = Math.floor(ms / 60000);
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ${mins % 60}m`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ${hrs % 24}h`;
+}
+
 function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
   const [historyRange, setHistoryRange] = useState("today");
 
@@ -1892,13 +1904,13 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-black/30 text-slate-400">
             <tr>
-              {["Close Date", "Published Date", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-1.5">{h}</th>)}
+              {["Published Date", "Closed Date", "Duration", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-1.5">{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {rows.map((r, i) => (
               <tr key={r.id || i} className="border-b border-white/5">
-                <td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td>                <td className="p-1.5 text-slate-400">{formatDate(r.created_at)}</td>                <td className="p-1.5 font-black">{r.symbol}</td>
+                <td className="p-1.5 text-slate-400">{formatDate(r.created_at)}</td><td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td><td className="p-1.5 text-cyan-300">{tradeDuration(r.created_at, r.closed_at || r.created_at)}</td><td className="p-1.5 font-black">{r.symbol}</td>
                 <td className={`p-1.5 font-black ${String(r.direction || "").toUpperCase().includes("SELL") || String(r.direction || "").toUpperCase().includes("LOCKED") ? "text-red-400" : "text-emerald-400"}`}>{r.direction}</td>
                 <td className="p-1.5">{r.strategy || r.desk}</td>
                 <td className="p-1.5">{r.entry}</td>
@@ -2192,6 +2204,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
