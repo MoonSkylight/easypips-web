@@ -1776,7 +1776,17 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
     return rows;
   });
 
-  const rows = [...tpHitRows, ...closed].length ? [...tpHitRows, ...closed] : [
+  const cleanClosed = closed.filter((s) => {
+    const r = String(s.result || "").toUpperCase();
+
+    if ((r.includes("SL") || r.includes("LOSS")) && (s.hit_tp1 || s.hit_tp2 || s.hit_tp3)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const rows = [...tpHitRows, ...cleanClosed].length ? [...tpHitRows, ...cleanClosed] : [
     { symbol: "BTC/USD", direction: "Locked", strategy: "Strategy A", entry: "81317.35", sl: "80317.35", tp1: "82317.35", result: "Win", confidence: 82, created_at: "2026-05-15T10:22:00Z" },
     { symbol: "EUR/USD", direction: "Locked", strategy: "Strategy A", entry: "1.16550", sl: "1.17550", tp1: "1.15550", result: "Win", confidence: 95, created_at: "2026-05-15T01:33:00Z" },
   ] as Signal[];
@@ -2094,6 +2104,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
