@@ -1028,15 +1028,40 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
           </a>
         </div>
 
-        <div className="mt-2 rounded-xl border border-white/8 bg-white/[0.04] p-1.5">
-          <p className="text-slate-400">Market Status</p>
-          <p className="mt-2 font-black text-emerald-300">OPEN</p>
-          <div className="mt-4 h-4 rounded-full bg-emerald-500/20">
-            <div className="h-4 w-3/4 rounded-full bg-emerald-400" />
-          </div>
-          <p className="mt-6 text-slate-400">System Status</p>
-          <p className="mt-2 font-black text-emerald-300">RUNNING ?</p>
-        </div>
+       <div className="mt-2 rounded-xl border border-cyan-400/25 bg-cyan-400/[0.05] p-2 shadow-lg shadow-cyan-400/10">
+  <div className="flex items-center justify-between">
+    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">
+      AI Brain
+    </p>
+
+    <span className="h-2 w-2 animate-ping rounded-full bg-emerald-400"></span>
+  </div>
+
+  <div className="mt-3 flex justify-center">
+    <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-cyan-300/30 bg-cyan-400/10 shadow-lg shadow-cyan-400/20">
+      <div className="absolute h-20 w-20 animate-pulse rounded-full border border-emerald-400/20"></div>
+
+      <span className="text-sm font-black text-cyan-200">
+        AI
+      </span>
+    </div>
+  </div>
+
+  <div className="mt-3 space-y-2 text-[10px] font-bold text-slate-300">
+    <div className="flex justify-between">
+      <span>Market Analysis</span>
+      <span className="text-emerald-300">LIVE</span>
+    </div>
+
+    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+      <div className="h-full w-[82%] animate-pulse rounded-full bg-gradient-to-r from-cyan-300 to-emerald-300"></div>
+    </div>
+
+    <p className="rounded-lg border border-white/8 bg-black/30 p-2 text-[9px] text-slate-400">
+      AI scanning liquidity, volatility, news risk, and premium signal zones.
+    </p>
+  </div>
+</div>
       </aside>
 
       <section className="relative z-10 xl:pl-[240px]">
