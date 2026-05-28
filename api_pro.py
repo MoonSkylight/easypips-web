@@ -2699,25 +2699,28 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
 
 
 
-@app.get("/real-backtest-analytics")
-def real_backtest_analytics():
-    signals = get_all_signals()
-    return {
-        "success": True,
-        "totalSignals": len(signals),
-        "generatedAt": datetime.now(timezone.utc).isoformat(),
-    }
-
 
 @app.get("/real-backtest-analytics")
 def real_backtest_analytics():
-    signals = get_all_signals()
-    return {
-        "success": True,
-        "totalSignals": len(signals),
-        "generatedAt": datetime.now(timezone.utc).isoformat(),
-    }
+    try:
+        if not db_enabled():
+            return {"success": True, "totalSignals": 0, "strategies": {}, "message": "Database disabled"}
 
+        response = supabase.table("signals").select("*").execute()
+        signals = response.data or []
 
+        return {
+            "success": True,
+            "totalSignals": len(signals),
+            "generatedAt": datetime.now(timezone.utc).isoformat(),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "totalSignals": 0,
+            "strategies": {},
+            "error": str(e),
+            "generatedAt": datetime.now(timezone.utc).isoformat(),
+        }
 
 
