@@ -2686,3 +2686,100 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
 
 
 
+
+@app.get("/real-backtest-analytics")
+def real_backtest_analytics():
+    signals = get_all_signals()
+
+    def is_win(s):
+        r = str(s.get("result") or "").upper()
+        return s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in r or "WIN" in r
+
+    def is_loss(s):
+        r = str(s.get("result") or "").upper()
+        return ("SL" in r or "LOSS" in r) and not is_win(s)
+
+    strategies = {}
+
+    for strategy in ["Strategy A", "Strategy B", "Strategy C"]:
+        trades = [s for s in signals if s.get("strategy") == strategy]
+        wins = [s for s in trades if is_win(s)]
+        losses = [s for s in trades if is_loss(s)]
+        closed = len(wins) + len(losses)
+
+        pairs = {}
+        for s in trades:
+            pair = s.get("symbol") or "Unknown"
+            pairs.setdefault(pair, {"total": 0, "wins": 0})
+            pairs[pair]["total"] += 1
+            if is_win(s):
+                pairs[pair]["wins"] += 1
+
+ 
+
+
+       pair_rows = []
+        for pair, data in
+ pairs.items():
+            total = data["total"]
+            pair_rows.append({
+        
+
+
+        "pair": pair,
+                "total": total,
+                "wins": data["wins"],
+                "winRate": round((data["wins"] /
+
+
+ total) * 100, 2) if total else 0,
+            })
+
+        pair_rows.sort(key=lambda x: x["winRate"]
+
+
+, reverse=True)
+
+        strategies[strategy] = {
+            "strategy": strategy,
+ 
+
+
+
+           "totalTrades": len(trades),
+ 
+           "wins": len(wins),
+            "losses": len(losses),
+            "winRate": round((len(wins) / closed) * 100, 2) if closed else 0,
+ 
+
+
+           "tp1": len([s for s in trades if s.get("hit_tp1")]),
+            "tp2": len([s for s in trades if s.get("hit_tp2")]),
+ 
+
+           "tp3": len([s for s in trades if s.get("hit_tp3")]),
+            "directSL": len(losses),
+            "bestPair": pair_rows[0][
+
+"pair"] if pair_rows else "-",
+            "worstPair": pair_rows[-1]["pair"] if pair_rows else "-",
+ 
+
+           "pairs": pair_rows,
+        }
+
+ 
+
+
+   return {
+        "success": True,
+        "strategies": strategies,
+ 
+
+
+       "generatedAt": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+
