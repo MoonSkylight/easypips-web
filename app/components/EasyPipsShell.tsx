@@ -391,7 +391,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
         </p>
 
         <h3 className="mt-2 text-[18px] font-black tracking-wide text-white">
-          {s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}
+          {s.symbol}
         </h3>
 
        <p className="mt-1 text-sm font-black text-slate-500">
@@ -443,7 +443,7 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <h3 className="mt-1 text-[18px] font-black tracking-wide text-white">{s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}</h3>
+          <h3 className="mt-1 text-[18px] font-black tracking-wide text-white">{s.symbol}</h3>
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
@@ -1140,7 +1140,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       return (
         <span key={s.id || i} className="mr-10">
           <span className="font-black text-white">
-            {s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}
+            {s.symbol}
           </span>{" "}
 
           <span className={status.color}>
@@ -1488,7 +1488,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
         <div className="space-y-0.5">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex items-center justify-between rounded-xl bg-black/30 p-1.5 text-sm">
-              <span>{s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol} Â· {s.direction}</span>
+              <span>{s.symbol} Â· {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -2284,6 +2284,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
