@@ -1063,14 +1063,17 @@ def update_all_running_results():
 
                 if result in ["TP1", "TP2", "TP3"]:
                     partial["hit_tp1"] = True
+                    partial["hit_tp1_at"] = datetime.now(timezone.utc).isoformat()
                     partial["result"] = result
 
                 if result in ["TP2", "TP3"]:
                     partial["hit_tp2"] = True
+                    partial["hit_tp2_at"] = datetime.now(timezone.utc).isoformat()
                     partial["result"] = result
 
                 if result == "TP3":
                     partial["hit_tp3"] = True
+                    partial["hit_tp3_at"] = datetime.now(timezone.utc).isoformat()
                     partial["hit_sl"] = False
                     partial["result"] = "TP3"
                     partial["status"] = "CLOSED"
@@ -1081,6 +1084,7 @@ def update_all_running_results():
             def close_sl():
                 return {
                     "hit_sl": True,
+                    "hit_sl_at": datetime.now(timezone.utc).isoformat(),
                     "result": "SL",
                     "status": "CLOSED",
                     "closed_at": datetime.now(timezone.utc).isoformat(),
@@ -1129,6 +1133,7 @@ def update_all_running_results():
                     if direction_base == "BUY":
                         # SL closes immediately.
                         if low <= sl:
+                            if not hit_tp1 and not hit_tp2 and not hit_tp3:
                             updates = close_sl()
                             final_result = "SL"
                             break
@@ -1145,6 +1150,7 @@ def update_all_running_results():
                     elif direction_base == "SELL":
                         # SL closes immediately.
                         if high >= sl:
+                            if not hit_tp1 and not hit_tp2 and not hit_tp3:
                             updates = close_sl()
                             final_result = "SL"
                             break
@@ -1169,6 +1175,7 @@ def update_all_running_results():
                 if current_price is not None:
                     if direction_base == "BUY":
                         if current_price <= sl:
+                            if not hit_tp1 and not hit_tp2 and not hit_tp3:
                             updates = close_sl()
                             final_result = "SL"
                         elif tp3 is not None and current_price >= tp3:
@@ -1180,6 +1187,7 @@ def update_all_running_results():
 
                     elif direction_base == "SELL":
                         if current_price >= sl:
+                            if not hit_tp1 and not hit_tp2 and not hit_tp3:
                             updates = close_sl()
                             final_result = "SL"
                         elif tp3 is not None and current_price <= tp3:
@@ -2682,6 +2690,7 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
         "status": "expired",
         "message": "License invalid or expired"
     }
+
 
 
 
