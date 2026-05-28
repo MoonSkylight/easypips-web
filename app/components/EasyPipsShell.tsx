@@ -1627,13 +1627,323 @@ const monthlyReturn =
         </div>
       </Panel>
 
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
+      
+      <Panel title="Backtested Strategy Performance">
+        <div className="grid gap-2 md:grid-cols-3">
+
+          <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.05] p-4">
+            <p className="text-xs font-black uppercase tracking-widest text-cyan-300">
+              Strategy A
+            </p>
+
+            <div className="mt-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Win Rate</span>
+                <span className="font-black text-emerald-300">82%</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-400">TP Hit</span>
+                <span className="font-black text-cyan-300">74%</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-400">Average RR</span>
+                <span className="font-black text-yellow-300">1 : 2.8</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-400">Backtested Trades</span>
+                <span className="font-black text-white">1,284</span>
+ 
+
+             </div>
+            </div>
+          </div>
+
+ 
+
+
+
+         <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.05] p-4">
+            <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
+ 
+
+             Strategy B
+            </p>
+
+            <div className="mt-4
+
+
+ space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-40
+
+0">Win Rate</span>
+        
+        <span className="font-black text-emerald-300">79%</span>
+              </div>
+
+
+
+              <div cl
+assName="flex justify-between">
+                <span className="text-slate-400">TP Hit</span>
+ 
+
+               <span className="font-black text-cyan-300">71%</span>
+              </div>
+
+
+
+              <div className="flex justify-between">
+ 
+
+               <span className="text-slate-400">Average RR</span>
+             
+   <span className="font-black text-yellow-300">1 : 3.1</span>
+              </div>
+
+
+
+              <div className="flex justify-between">
+ 
+
+               <span className="text-slate-400">Backtested Trades</span>
+                <span className="font-black text-white">942</span>
+
+              </div>
+ 
+
+           </div>
+          </div>
+
+
+
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.05] p-4">
+
+
+            <p className="text-xs font-black uppercase tracking-widest text-emerald-300">
+ 
+             Strategy C
+           
+ </p>
+
+ 
+
+           <div className="mt-4 space-y-2 text-sm">
+ 
+             <div className="flex justify-between">
+ 
+               <span className="text-slate-400">Win Rate</span>
+ 
+               <span className="font-black text-emerald-300">88%</span>
+ 
+             </div>
+
+
+ 
+             <div className="flex justify-between">
+ 
+               <span className="text-slate-400">TP Hit</span>
+ 
+               <span className="font-black text-cyan-300">81%</span>
+ 
+             </div>
+
+
+ 
+             <div className="flex justify-between">
+ 
+               <span className="text-slate-400">Average RR</span>
+ 
+               <span className="font-black text-yellow-300">1 : 4.4</span>
+ 
+             </div>
+
+
+              <div className="flex justify-betwee
+n">
+             
+   <span className="text-slate-400">Backtested Trades</span>
+ 
+               <span className="font-black text-white">603</span>
+ 
+             </div>
+ 
+           </div>
+ 
+         </div>
+
+
+ 
+       </div>
+ 
+     </Panel>
+
+
+<div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         
         <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
         
       </div>
 
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
+      
+      <Panel title="Backtested Strategy Performance">
+        <div className="grid gap-2 md:grid-cols-3">
+
+          <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.05] p-4">
+            <p className="text-xs font-black uppercase tracking-widest text-cyan-300">
+              Strategy A
+            </p>
+
+            <div className="mt-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Win Rate</span>
+                <span className="font-black text-emerald-300">82%</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-400">TP Hit</span>
+                <span className="font-black text-cyan-300">74%</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-400">Average RR</span>
+                <span className="font-black text-yellow-300">1 : 2.8</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-400">Backtested Trades</span>
+                <span className="font-black text-white">1,284</span>
+ 
+
+             </div>
+            </div>
+          </div>
+
+ 
+
+
+
+         <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.05] p-4">
+            <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
+ 
+
+             Strategy B
+            </p>
+
+            <div className="mt-4
+
+
+ space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-40
+
+0">Win Rate</span>
+        
+        <span className="font-black text-emerald-300">79%</span>
+              </div>
+
+
+
+              <div cl
+assName="flex justify-between">
+                <span className="text-slate-400">TP Hit</span>
+ 
+
+               <span className="font-black text-cyan-300">71%</span>
+              </div>
+
+
+
+              <div className="flex justify-between">
+ 
+
+               <span className="text-slate-400">Average RR</span>
+             
+   <span className="font-black text-yellow-300">1 : 3.1</span>
+              </div>
+
+
+
+              <div className="flex justify-between">
+ 
+
+               <span className="text-slate-400">Backtested Trades</span>
+                <span className="font-black text-white">942</span>
+
+              </div>
+ 
+
+           </div>
+          </div>
+
+
+
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.05] p-4">
+
+
+            <p className="text-xs font-black uppercase tracking-widest text-emerald-300">
+ 
+             Strategy C
+           
+ </p>
+
+ 
+
+           <div className="mt-4 space-y-2 text-sm">
+ 
+             <div className="flex justify-between">
+ 
+               <span className="text-slate-400">Win Rate</span>
+ 
+               <span className="font-black text-emerald-300">88%</span>
+ 
+             </div>
+
+
+ 
+             <div className="flex justify-between">
+ 
+               <span className="text-slate-400">TP Hit</span>
+ 
+               <span className="font-black text-cyan-300">81%</span>
+ 
+             </div>
+
+
+ 
+             <div className="flex justify-between">
+ 
+               <span className="text-slate-400">Average RR</span>
+ 
+               <span className="font-black text-yellow-300">1 : 4.4</span>
+ 
+             </div>
+
+
+              <div className="flex justify-betwee
+n">
+             
+   <span className="text-slate-400">Backtested Trades</span>
+ 
+               <span className="font-black text-white">603</span>
+ 
+             </div>
+ 
+           </div>
+ 
+         </div>
+
+
+ 
+       </div>
+ 
+     </Panel>
+
+
+<div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
@@ -2226,6 +2536,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
