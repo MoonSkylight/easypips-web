@@ -959,7 +959,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
   }).length;
 
   const stats = (
-    <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+    <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1211,7 +1211,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
           </div>
         </div>
 
-        <div className="mx-auto min-h-screen max-w-[1700px] overflow-visible px-2 py-1 pb-32">
+        <div className="mx-auto min-h-screen max-w-[1700px] overflow-visible px-3 py-2 pb-36 sm:px-4 xl:px-2">
           
 
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
@@ -1342,7 +1342,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     Educational purposes only. Not financial advice. Trading involves risk.
   </p>
 </div>
-<footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#030811]/95 px-4 py-1 text-[10px] text-slate-400 backdrop-blur-xl">
+<footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#030811]/95 px-3 py-1 text-[9px] text-slate-400 backdrop-blur-xl sm:text-[10px]">
   <div className="flex flex-col items-center justify-center gap-2 text-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
     <p>
       ⚠️ Risk Disclaimer: Trading forex carries significant risk. Signals are educational only and not financial advice.
@@ -1442,7 +1442,7 @@ isPremium,
       {signals.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
-        <div className={`grid  gap-1.5 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
+        <div className={`grid gap-2 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
           {signals.map((s, i) =>
             !isPremium && isHighConfidenceLocked(s) && !s.hit_tp2 && !s.hit_tp3 ? (
               <LockedSignalCard key={s.id || i} s={s} />
@@ -2203,6 +2203,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
