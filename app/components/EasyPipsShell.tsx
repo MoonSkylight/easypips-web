@@ -1877,7 +1877,7 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
   ] as Signal[];
 
   return (
-    <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center blur-0 opacity-[0.18]"><div className="text-[260px] font-black leading-none text-yellow-300">EP</div><div className="text-[90px] font-black tracking-[0.22em] text-yellow-300">EASYPIPS AI</div><div className="text-[28px] tracking-[0.5em] text-yellow-300">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
+    <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-[0.08]"><div className="text-[180px] font-black tracking-[0.12em] text-white/[0.08]">EP</div><div className="hidden">EASYPIPS AI</div><div className="hidden">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
       <div className="mb-3 flex flex-wrap gap-2">
   {[
     ["week", "Last Week History"],
@@ -2202,6 +2202,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
