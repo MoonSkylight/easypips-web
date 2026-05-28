@@ -840,7 +840,7 @@ def generate_strategy_a_signals():
         if len(get_active_signals(source="AI Engine", strategy="Strategy A")) >= MAX_AI_SIGNALS_PER_STRATEGY:
             break
 
-        analysis = analyze_strategy_a(symbol, yahoo_symbol)
+        analysis = None
 
         if not analysis:
             continue
@@ -2682,5 +2682,6 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
         "status": "expired",
         "message": "License invalid or expired"
     }
+
 
 
