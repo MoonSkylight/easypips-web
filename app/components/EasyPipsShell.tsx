@@ -1898,6 +1898,24 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
   ))}
 </div>
 
+
+{historyRange === "custom" && (
+  <div className="mb-3 flex flex-wrap gap-2">
+    <input
+      type="date"
+      className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm text-white outline-none"
+    />
+
+    <input
+      type="date"
+      className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm text-white outline-none"
+    />
+
+    <button className="rounded-xl border border-yellow-300/40 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300">
+      Apply Filter
+    </button>
+  </div>
+)}
 <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-black/30 text-slate-400">
@@ -2202,6 +2220,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
