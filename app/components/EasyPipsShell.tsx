@@ -391,18 +391,18 @@ function LockedSignalCard({ s }: { s: Signal }) {
         </p>
 
         <h3 className="mt-2 text-[13px] font-black text-white">
-          {s.symbol}
+          {s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}
         </h3>
 
        <p className="mt-1 text-sm font-black text-slate-500">
-          Institutional AI setup hidden
+          Premium setup secured. This signal unlocked after hitting multiple profit targets.
         </p>
       </div>
 
       
        <div className="my-0.5 flex justify-center">
   <div className="flex h-8 w-8 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 shadow-lg shadow-yellow-400/15">
-    <span className="text-[12px]">🔒</span>
+    <span className="text-[24px]">🔒</span>
   </div>
 </div>
 
@@ -417,7 +417,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
        </p>
       </div>
 
-      <div className="mt-2 flex items-center justify-between rounded-xl border border-white/8 bg-black/35 px-2 py-1.5 text-xs text-slate-300">
+      <div className="mt-2 flex items-center items-center justify-between rounded-xl border border-white/8 bg-black/35 px-2 py-1.5 text-xs font-black tracking-wide text-white">
 
        <span>{s.strategy || "AI Strategy"}</span>
         <span>Live</span>
@@ -443,7 +443,7 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <h3 className="mt-1 text-[13px] font-black text-white">{s.symbol}</h3>
+          <h3 className="mt-1 text-[13px] font-black text-white">{s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}</h3>
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
@@ -1023,7 +1023,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 
         <div className="mt-4 rounded-xl border border-yellow-400/30 bg-yellow-400/[0.03] p-2">
           <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
-          <div className="mt-2 space-y-0.5 text-[12px] text-slate-300">
+          <div className="mt-2 space-y-0.5 text-[24px] text-slate-300">
             <p>AI powered strategies</p>
             <p>• Desk 1 and Trading Room</p>
             <p>• News calendar</p>
@@ -1134,7 +1134,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       return (
         <span key={s.id || i} className="mr-10">
           <span className="font-black text-white">
-            {s.symbol}
+            {s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}
           </span>{" "}
 
           <span className={status.color}>
@@ -1481,8 +1481,8 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
       {closed.length === 0 ? <p className="text-slate-400">No closed trades yet.</p> : (
         <div className="space-y-0.5">
           {closed.slice(0, 5).map((s, i) => (
-            <div key={s.id || i} className="flex justify-between rounded-xl bg-black/30 p-1.5 text-sm">
-              <span>{s.symbol} Â· {s.direction}</span>
+            <div key={s.id || i} className="flex items-center justify-between rounded-xl bg-black/30 p-1.5 text-sm">
+              <span>{s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol} Â· {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -2220,6 +2220,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
