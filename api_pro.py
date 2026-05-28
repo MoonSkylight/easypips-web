@@ -829,107 +829,6 @@ def generate_strategy_c_signals():
 
     return {"created": created, "rejected": rejected}
 
-
-def analyze_strategy_a(symbol: str, yahoo_symbol: str):
-    data = yf.Ticker(yahoo_symbol).history(period="7d", interval="15m")
-
-    if data is None or data.empty or len(data) < 60:
-        return None
-
-    close = data["Close"]
-    price = float(close.iloc[-1])
-    previous = float(close.iloc[-2])
-
-    ema_fast = close.ewm(span=9, adjust=False).mean()
-    ema_slow = close.ewm(span=21, adjust=False).mean()
-
-    delta = close.diff()
-    gain = delta.clip(lower=0).rolling(14).mean()
-    loss = (-delta.clip(upper=0)).rolling(14).mean()
-    rs = gain / loss.replace(0, 0.000001)
-    rsi = 100 - (100 / (1 + rs))
-    rsi_now = float(rsi.iloc[-1])
-
-    pip = pip_size(symbol)
-    direction = None
-    score = 0
-
-    if ema_fast.iloc[-1] > ema_slow.iloc[-1] and price > previous and 50 <= rsi_now <= 72:
-        direction = "BUY"
-        score = int(min(95, 75 + (rsi_now - 50)))
-    elif ema_fast.iloc[-1] < ema_slow.iloc[-1] and price < previous and 28 <= rsi_now <= 50:
-        direction = "SELL"
- 
-
-
-
-       score = int(min(95, 75 + (50 - rsi_now)))
-    else:
-        return None
-
-    risk = 100 * pip
-    if direction == "BUY":
-        sl = price - risk
-        tp1 = price + risk
-        tp2 = price + (risk * 2)
-        tp3 = price + (risk * 3)
-        pattern = "ema_rsi_momentum_buy"
-        note = f"EMA bullish trend, RSI {rsi_now:.2f}, positive momentum."
-    else:
-        sl = price + risk
-        tp1 = price - risk
-        tp2 = price - (risk * 2)
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-       tp3 = price - (risk * 3)
-        pattern = "ema_rsi_momentum_sell"
-        note = f"EMA bearish trend, RSI {rsi_now:.2f}, negative momentum."
-
-    return {
-        "direction": direction,
-        "entry": format_price(symbol, price),
-        "sl": format_price(symbol, sl),
-        "tp1": format_price(symbol, tp1),
-        "tp2": format_price(symbol, t
-
-
-
-
-
-
-
-
-p2),
-        "tp3": format_price(symbol, tp3),
-        "confidence": score,
-        "score": score,
-        "pattern": pattern,
-        "note": note,
-        "strategy": "Strategy A",
-        "timeframe": "15m",
- 
-
-
-
-
-
-
-
-   }
 def generate_strategy_a_signals():
     created = 0
     rejected = 0
@@ -2783,6 +2682,5 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
         "status": "expired",
         "message": "License invalid or expired"
     }
-
 
 
