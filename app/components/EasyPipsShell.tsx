@@ -1179,8 +1179,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     <Link
  
      href="/client/login"
-      className="rounded-xl border border-white/8 px-3 py-2 font-black text-white hov
-er:bg-white/10"
+      className="min-w-[92px] rounded-xl border border-yellow-300/40 bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-500 px-4 py-2 text-center text-sm font-black tracking-wide text-black shadow-lg shadow-yellow-500/20 transition hover:scale-[1.03] hover:shadow-yellow-400/30"
     >
       Login
     </Link>
@@ -2204,6 +2203,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
