@@ -443,7 +443,7 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <h3 className="mt-1 text-[18px] font-black tracking-wide text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">🔓 Previously Premium Signal</p>}
+          <h3 className="mt-1 text-[18px] font-black tracking-wide text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">🔓 PREMIUM UNLOCK</p>}
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
@@ -2282,6 +2282,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
