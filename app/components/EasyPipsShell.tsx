@@ -1877,10 +1877,9 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
   ] as Signal[];
 
   return (
-    <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center blur-[1px] opacity-[0.10]"><div className="text-[260px] font-black leading-none text-yellow-300">EP</div><div className="text-[90px] font-black tracking-[0.22em] text-yellow-300">EASYPIPS AI</div><div className="text-[28px] tracking-[0.5em] text-yellow-300">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
+    <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center blur-0 opacity-[0.18]"><div className="text-[260px] font-black leading-none text-yellow-300">EP</div><div className="text-[90px] font-black tracking-[0.22em] text-yellow-300">EASYPIPS AI</div><div className="text-[28px] tracking-[0.5em] text-yellow-300">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
       <div className="mb-3 flex flex-wrap gap-2">
   {[
-    ["today", "Today Signals History"],
     ["week", "Last Week History"],
     ["month", "Last Month History"],
     ["custom", "Custom History"],
@@ -1903,13 +1902,13 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-black/30 text-slate-400">
             <tr>
-              {["Published Date", "Closed Date", "Duration", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-1.5">{h}</th>)}
+              {["Close Date", "Published Date", "Duration", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-1.5">{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {rows.map((r, i) => (
               <tr key={r.id || i} className="border-b border-white/5">
-                <td className="p-1.5 text-slate-400">{formatDate(r.created_at)}</td><td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td><td className="p-1.5 text-cyan-300">{tradeDuration(r.created_at, r.closed_at || r.created_at)}</td><td className="p-1.5 font-black">{r.symbol}</td>
+                <td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td><td className="p-1.5 text-slate-400">{formatDate(r.created_at)}</td><td className="p-1.5 text-cyan-300">{tradeDuration(r.created_at, r.closed_at || r.created_at)}</td><td className="p-1.5 font-black">{r.symbol}</td>
                 <td className={`p-1.5 font-black ${String(r.direction || "").toUpperCase().includes("SELL") || String(r.direction || "").toUpperCase().includes("LOCKED") ? "text-red-400" : "text-emerald-400"}`}>{r.direction}</td>
                 <td className="p-1.5">{r.strategy || r.desk}</td>
                 <td className="p-1.5">{r.entry}</td>
@@ -2203,6 +2202,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
