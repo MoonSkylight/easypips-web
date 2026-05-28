@@ -390,12 +390,12 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
         </p>
 
-        <h3 className="mt-2 text-[13px] font-black text-white">
+        <h3 className="mt-2 text-[18px] font-black tracking-wide text-white">
           {s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}
         </h3>
 
        <p className="mt-1 text-sm font-black text-slate-500">
-          Premium setup secured. This signal unlocked after hitting multiple profit targets.
+          
         </p>
       </div>
 
@@ -407,7 +407,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 </div>
 
 <div className="rounded-xl border border-white/8 bg-black/30 p-1.5 text-center backdrop-blur-md">
-  <p className="text-[13px] font-black text-white">
+  <p className="text-[18px] font-black tracking-wide text-white">
     ••••••••••••••••
   </p>
 
@@ -443,7 +443,7 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <h3 className="mt-1 text-[13px] font-black text-white">{s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}</h3>
+          <h3 className="mt-1 text-[18px] font-black tracking-wide text-white">{s.hit_tp2 || s.hit_tp3 ? "🔓 PREMIUM UNLOCKED" : s.symbol}</h3>
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
@@ -480,7 +480,7 @@ function Panel({ title, children, right }: { title: string; children: React.Reac
   return (
     <section className="rounded-xl border border-white/8 bg-white/[0.045] p-2 shadow-lg shadow-black/30 backdrop-blur-xl">
       <div className="mb-5 flex items-center justify-between gap-1.5">
-        <h2 className="text-[13px] font-black text-white">{title}</h2>
+        <h2 className="text-[18px] font-black tracking-wide text-white">{title}</h2>
         {right}
       </div>
       {children}
@@ -531,7 +531,7 @@ function LiveTradingChart() {
       <div className="overflow-hidden rounded-xl border border-white/8 bg-black/40">
         <div className="flex items-center justify-between border-b border-white/8 px-4 py-2">
           <div>
-            <p className="text-[13px] font-black text-white">{currentPair} Live Chart</p>
+            <p className="text-[18px] font-black tracking-wide text-white">{currentPair} Live Chart</p>
             <p className="text-[9px] text-slate-500">TradingView market preview</p>
           </div>
 
@@ -1133,7 +1133,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
   </div>
 </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-[13px] font-black text-white">
+  <div className="animate-[ticker_60s_linear_infinite] will-change-transform text-[18px] font-black tracking-wide text-white">
     {visibleLive.slice(0, 8).map((s, i) => {
       const status = tickerStatus(s, livePrices);
 
@@ -1389,7 +1389,7 @@ function PremiumLock({
           </svg>
         </div>
 
-        <h3 className="mt-2 text-[13px] font-black text-white">{title}</h3>
+        <h3 className="mt-2 text-[18px] font-black tracking-wide text-white">{title}</h3>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-300">{message}</p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-1.5">
@@ -2284,6 +2284,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
