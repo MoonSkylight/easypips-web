@@ -947,7 +947,7 @@ const losses = weeklyClosed.filter((s) => { const r = String(s.result || "").toU
 
 const dashboardWinRate = weeklyClosed.length > 0 ? ((wins / weeklyClosed.length) * 100).toFixed(1) : "0.0";
 
-const tpHits = weeklyLive.filter((s) => s.hit_tp1 || s.hit_tp2 || s.hit_tp3).length +
+const tpHits = weeklyLive.filter((s) => s.hit_tp1 || (s.hit_tp2 || s.hit_tp3)).length +
   weeklyClosed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
 
 const helpDesk = weeklyLive.filter((s) => s.desk === "Desk 1" || s.desk === "Trading Room").length;
@@ -1138,7 +1138,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       const status = tickerStatus(s, livePrices);
 
       return (
-        <span key={s.id || i} className="mr-10">
+        <span key={s.id || i} className="mr-6">
           <span className="font-black text-white">
             {s.symbol}
           </span>{" "}
@@ -1526,7 +1526,7 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
 const realBacktestStats = ["Strategy A", "Strategy B", "Strategy C"].map((strategy) => {
   const trades = (allSignals || []).filter((s) => s.strategy === strategy);
   const wins = trades.filter((s) =>
-    s.hit_tp1 || s.hit_tp2 || s.hit_tp3 || String(s.result || "").toUpperCase().includes("TP")
+    s.hit_tp1 || (s.hit_tp2 || s.hit_tp3) || String(s.result || "").toUpperCase().includes("TP")
   ).length;
   const losses = trades.filter((s) => {
     const r = String(s.result || "").toUpperCase();
@@ -1542,7 +1542,7 @@ const realBacktestStats = ["Strategy A", "Strategy B", "Strategy C"].map((strate
     const pair = s.symbol || "Unknown";
     acc[pair] = acc[pair] || { total: 0, wins: 0 };
     acc[pair].total += 1;
-    if (s.hit_tp1 || s.hit_tp2 || s.hit_tp3 || String(s.result || "").toUpperCase().includes("TP")) acc[pair].wins += 1;
+    if (s.hit_tp1 || (s.hit_tp2 || s.hit_tp3) || String(s.result || "").toUpperCase().includes("TP")) acc[pair].wins += 1;
     return acc;
   }, {});
 
@@ -1926,7 +1926,7 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
   const cleanClosed = closed.filter(inHistoryRange).filter((s) => {
     const r = String(s.result || "").toUpperCase();
 
-    if ((r.includes("SL") || r.includes("LOSS")) && (s.hit_tp1 || s.hit_tp2 || s.hit_tp3)) {
+    if ((r.includes("SL") || r.includes("LOSS")) && (s.hit_tp1 || (s.hit_tp2 || s.hit_tp3))) {
       return false;
     }
 
@@ -2284,6 +2284,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
