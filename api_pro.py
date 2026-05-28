@@ -2686,3 +2686,23 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
 
 
 
+
+@app.get("/real-backtest-analytics")
+def real_backtest_analytics():
+    signals = get_all_signals()
+    return {
+        "success": True,
+        "totalSignals": len(signals),
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@app.get("/real-backtest-analytics")
+def real_backtest_analytics():
+    signals = get_all_signals()
+    return {
+        "success": True,
+        "totalSignals": len(signals),
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+    }
+
