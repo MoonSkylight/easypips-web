@@ -1757,20 +1757,19 @@ def admin_me(authorization: str = Header(default="")):
     return {"success": True, "admin": payload.get("sub")}
 
 
-@app.get("/live-prices")
 
 def get_live_price(yahoo_symbol: str):
     try:
         data = yf.Ticker(yahoo_symbol).history(period="1d", interval="1m")
         if data is None or data.empty:
             return None, None
-
         price = float(data["Close"].iloc[-1])
         timestamp = str(data.index[-1])
         return price, timestamp
     except Exception as e:
         print("Live price helper failed:", str(e))
         return None, None
+@app.get("/live-prices")
 def live_prices():
     prices = {}
 
@@ -2718,6 +2717,7 @@ def real_backtest_analytics():
         "totalSignals": len(signals),
         "generatedAt": datetime.now(timezone.utc).isoformat(),
     }
+
 
 
 
