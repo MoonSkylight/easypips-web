@@ -2706,3 +2706,4 @@ def real_backtest_analytics():
         "generatedAt": datetime.now(timezone.utc).isoformat(),
     }
 
+
