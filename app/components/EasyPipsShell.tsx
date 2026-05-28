@@ -1686,8 +1686,7 @@ const monthlyReturn =
 
 
 
-              <div cl
-assName="flex justify-between">
+              <div className="flex justify-between">
                 <span className="text-slate-400">TP Hit</span>
  
 
@@ -1847,8 +1846,7 @@ n">
 
 
 
-              <div cl
-assName="flex justify-between">
+              <div className="flex justify-between">
                 <span className="text-slate-400">TP Hit</span>
  
 
@@ -2536,6 +2534,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
