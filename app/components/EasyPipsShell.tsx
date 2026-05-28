@@ -1021,18 +1021,24 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
           })}
         </nav>
 
-        <div className="mt-4 rounded-xl border border-yellow-400/30 bg-yellow-400/[0.03] p-2">
-          <h3 className="text-sm font-black text-yellow-300">Premium AI Signals</h3>
-          <div className="mt-2 space-y-0.5 text-[24px] text-slate-300">
-            <p>AI powered strategies</p>
-            <p>• Desk 1 and Trading Room</p>
-            <p>• News calendar</p>
-            <p>• MT4 / MT5 ready</p>
-          </div>
-          <a href="https://t.me/" target="_blank" className="mt-2 block rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-center text-xs font-black text-yellow-300 hover:bg-yellow-400/20">
-            Join Telegram
-          </a>
-        </div>
+        <div className="mt-4 overflow-hidden rounded-2xl border border-yellow-300/25 bg-gradient-to-br from-yellow-400/[0.10] via-white/[0.03] to-emerald-400/[0.08] p-[1px] shadow-lg shadow-yellow-500/10">
+  <div className="rounded-2xl bg-[#07101b]/95 p-3">
+    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
+      Premium AI Signals
+    </p>
+
+    <div className="mt-3 space-y-2 text-[11px] font-bold text-slate-300">
+      <p>AI-powered strategy alerts</p>
+      <p>Desk 1 + Trading Room signals</p>
+      <p>News calendar monitoring</p>
+      <p>MT4 / MT5 read-side support</p>
+    </div>
+
+    <a href="https://t.me/" target="_blank" className="mt-3 block rounded-xl border border-yellow-300/30 bg-yellow-400/10 px-3 py-2 text-center text-[11px] font-black text-yellow-300 transition hover:bg-yellow-400/20">
+      Join Telegram
+    </a>
+  </div>
+</div>
 
       <div className="mt-2 overflow-hidden rounded-xl border border-cyan-400/25 bg-gradient-to-br from-cyan-400/[0.10] via-white/[0.03] to-emerald-400/[0.08] p-[1px] shadow-lg shadow-cyan-500/10">
   <div className="relative rounded-xl bg-[#07101b]/95 p-2.5">
@@ -2220,6 +2226,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
