@@ -1447,6 +1447,11 @@ def system_status():
         "database": "connected" if db_enabled() else "not connected",
         "telegram": "connected" if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID else "not connected",
         "totalSignals": len(signals),
+            "strategyA": {
+                "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy A"]),
+                "wins": len([s for s in signals if s.get("strategy") == "Strategy A" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
+                "losses": len([s for s in signals if s.get("strategy") == "Strategy A" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
+            },
         "activeSignals": len([s for s in signals if s.get("status") == "ACTIVE"]),
         "closedSignals": len([s for s in signals if s.get("status") == "CLOSED"]),
         "rejectedSignals": len([s for s in signals if s.get("status") == "REJECTED"]),
@@ -2723,6 +2728,11 @@ def real_backtest_analytics():
         return {
             "success": True,
             "totalSignals": len(signals),
+            "strategyA": {
+                "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy A"]),
+                "wins": len([s for s in signals if s.get("strategy") == "Strategy A" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
+                "losses": len([s for s in signals if s.get("strategy") == "Strategy A" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
+            },
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
     except Exception as e:
@@ -2732,6 +2742,7 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
 
