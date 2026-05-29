@@ -1735,7 +1735,6 @@ const monthlyReturn =
 
 
 <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
-        <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
         <Panel title="Performance by Strategy">
   <div className="space-y-0.5 text-sm">
     {[
@@ -2342,6 +2341,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
