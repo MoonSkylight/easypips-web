@@ -809,7 +809,7 @@ def generate_strategy_c_signals():
                 "tp2": str(round(tp2, 5)),
                 "tp3": str(round(tp3, 5)),
                 "confidence": setup.get("confidence", 90),
-                "score": setup.get("rr", 10),
+                "score": setup.get("confidence", 88),
                 "status": "ACTIVE",
                 "result": "RUNNING",
                 "hit_tp1": False,
@@ -914,7 +914,7 @@ def generate_strategy_b_signals():
                 "tp2": str(setup["tp2"]),
                 "tp3": str(setup["tp3"]),
                 "confidence": setup.get("confidence", 88),
-                "score": setup.get("rr", 10),
+                "score": setup.get("confidence", 88),
                 "status": "ACTIVE",
                 "result": "RUNNING",
                 "hit_tp1": False,
@@ -2781,6 +2781,7 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
 
