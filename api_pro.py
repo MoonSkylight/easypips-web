@@ -1470,9 +1470,9 @@ def system_status():
                 "wins": len([s for s in signals if s.get("strategy") == "Strategy C" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
                 "losses": len([s for s in signals if s.get("strategy") == "Strategy C" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
                 "winRate": 66.67,
-                      "tp1": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp1")]),
-                      "tp2": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp2")]),
-                      "tp3": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp3")]),
+                      "tp1": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp1")]),
+                      "tp2": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp2")]),
+                      "tp3": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp3")]),
             },
         "activeSignals": len([s for s in signals if s.get("status") == "ACTIVE"]),
         "closedSignals": len([s for s in signals if s.get("status") == "CLOSED"]),
@@ -2773,9 +2773,9 @@ def real_backtest_analytics():
                 "wins": len([s for s in signals if s.get("strategy") == "Strategy C" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
                 "losses": len([s for s in signals if s.get("strategy") == "Strategy C" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
                 "winRate": 66.67,
-                      "tp1": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp1")]),
-                      "tp2": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp2")]),
-                      "tp3": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp3")]),
+                      "tp1": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp1")]),
+                      "tp2": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp2")]),
+                      "tp3": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp3")]),
             },
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
@@ -2786,6 +2786,7 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
 
