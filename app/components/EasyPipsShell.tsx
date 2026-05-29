@@ -1737,6 +1737,25 @@ const currentStreak =
   });
 
 
+
+  const thisMonthRows = (closed || []).filter((s: any) => {
+    const t = new Date(s.closed_at || s.created_at || Date.now());
+    const now = new Date();
+    return t.getMonth() === now.getMonth() && t.getFullYear() === now.getFullYear();
+  });
+
+  const thisMonthWins = thisMonthRows.filter((s: any) => {
+    const r = String(s.result || "").toUpperCase();
+    return r.includes("WIN") || r.includes("TP") || s.hit_tp1 || s.hit_tp2 || s.hit_tp3;
+  }).length;
+
+  const thisMonthLosses = thisMonthRows.filter((s: any) => {
+    const r = String(s.result || "").toUpperCase();
+    return (r.includes("SL") || r.includes("LOSS")) && !s.hit_tp1 && !s.hit_tp2 && !s.hit_tp3;
+  }).length;
+
+  const thisMonthClosed = thisMonthWins + thisMonthLosses;
+  const thisMonthWinRate = thisMonthClosed > 0 ? Math.round((thisMonthWins / thisMonthClosed) * 100) : 0;
 const monthlyReturn =
   equityCurve.length > 0 ? `${runningEquity > 0 ? "+" : ""}${runningEquity}R` : "0R";
 
