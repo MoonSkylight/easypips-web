@@ -773,7 +773,7 @@ def generate_strategy_c_signals():
         print("Strategy C pre-check failed:", str(e))
         existing_symbols = set()
 
-    for symbol, yahoo_symbol in SYMBOLS.items():
+    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
         try:
             if created >= 1:
                 break
@@ -848,7 +848,7 @@ def generate_strategy_a_signals():
     created = 0
     rejected = 0
 
-    for symbol, yahoo_symbol in SYMBOLS.items():
+    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
         if active_strategy_signal_exists(symbol, "Strategy A"):
             continue
 
@@ -897,7 +897,7 @@ def generate_strategy_b_signals():
         print("Strategy B pre-check failed:", str(e))
         existing_symbols = set()
 
-    for symbol, yahoo_symbol in SYMBOLS.items():
+    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
         try:
             if created >= 1:
                 break
@@ -1472,7 +1472,7 @@ def system_status():
 def strategy_debug():
     results = []
 
-    for symbol, yahoo_symbol in SYMBOLS.items():
+    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
         item = {
             "symbol": symbol,
             "strategyA": {},
@@ -1783,7 +1783,7 @@ def get_live_price(yahoo_symbol: str):
 def live_prices():
     prices = {}
 
-    for symbol, yahoo_symbol in SYMBOLS.items():
+    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
         price, _ = get_live_price(yahoo_symbol)
         prices[symbol] = format_price(symbol, price) if price else None
 
@@ -2796,6 +2796,8 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
+
 
 
 
