@@ -1542,7 +1542,7 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
       : 0;
 
 const realPairStats = Object.values(
-  (allSignals || []).reduce((acc: any, s: any) => {
+  ((allSignals && allSignals.length ? allSignals : closed) || []).reduce((acc: any, s: any) => {
     const pair = s.symbol || "Unknown";
     acc[pair] = acc[pair] || { pair, totalTrades: 0, wins: 0, losses: 0, tp1: 0, tp2: 0, tp3: 0 };
 
