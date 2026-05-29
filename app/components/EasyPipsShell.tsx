@@ -1541,7 +1541,31 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
       ? Math.round((apiWins / (apiWins + apiLosses)) * 100)
       : 0;
 
-const realBacktestStats = ["Strategy A", "Strategy B", "Strategy C"].map((strategy) => {
+
+  const realPairStats = Object.values(
+    (allSignals || []).reduce((acc: any, s: any) => {
+      const pair = s.symbol || "Unknown";
+      acc[pair] = acc[pair] || { pair, totalTrades: 0, wins: 0, losses: 0, tp1: 0, tp2: 0, tp3: 0 };
+
+      acc[pair].totalTrades += 1;
+
+      const isWin = s.hit_tp1 || s.hit_tp2 || s.hit_tp3 || String(s.result || "").toUpperCase().includes("TP");
+      const isLoss = String(s.result || "").toUpperCase().includes("SL") && !s.hit_tp1 && !s.hit_tp2 && !s.hit_tp3;
+
+      if (isWin) acc[pair].wins += 1;
+      if (isLoss) acc[pair].losses += 1;
+      if (s.hit_tp1) acc[pair].tp1 += 1;
+      if (s.hit_tp2) acc[pair].tp2 += 1;
+      if (s.hit_tp3) acc[pair].tp3 += 1;
+
+      return acc;
+    }, {})
+  ).map((p: any) => ({
+    ...p,
+    winRate: p.wins + p.losses > 0 ? Math.round((p.wins / (p.wins + p.losses)) * 100) : 0,
+  })).sort((a: any, b: any) => b.winRate - a.winRate).slice(0, 6);
+
+ ["Strategy A", "Strategy B", "Strategy C"].map((strategy) => {
   const trades = (allSignals || []).filter((s) => s.strategy === strategy);
   const wins = trades.filter((s) =>
     s.hit_tp1 || (s.hit_tp2 || s.hit_tp3) || String(s.result || "").toUpperCase().includes("TP")
@@ -1735,7 +1759,19 @@ const monthlyReturn =
 
 
 <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
-        <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
+        <Panel title="Performance by Pair">
+  <div className="space-y-0.5 text-sm">
+    {realPairStats.map((p: any) => (
+      <div key={p.pair} className="grid grid-cols-5 gap-1.5 border-b border-white/5 pb-2">
+        <span className="font-black">{p.pair}</span>
+        <span>{p.totalTrades} trades</span>
+        <span>{p.winRate}%</span>
+        <span className="text-emerald-300">{p.wins}W / {p.losses}L</span>
+        <span className="text-yellow-300">TP {p.tp1}/{p.tp2}/{p.tp3}</span>
+      </div>
+    ))}
+  </div>
+</Panel>
         <Panel title="Performance by Strategy">
   <div className="space-y-0.5 text-sm">
     {[
@@ -2342,6 +2378,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
