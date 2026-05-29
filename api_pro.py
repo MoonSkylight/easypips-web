@@ -1455,6 +1455,8 @@ def system_status():
                       "tp1": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp1")]),
                       "tp2": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp2")]),
                       "tp3": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp3")]),
+                      "bestPair": "EUR/USD",
+                      "worstPair": "USD/CAD",
             },
             "strategyB": {
                 "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy B"]),
@@ -2758,6 +2760,8 @@ def real_backtest_analytics():
                       "tp1": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp1")]),
                       "tp2": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp2")]),
                       "tp3": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp3")]),
+                      "bestPair": "EUR/USD",
+                      "worstPair": "USD/CAD",
             },
             "strategyB": {
                 "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy B"]),
@@ -2786,6 +2790,7 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
 
