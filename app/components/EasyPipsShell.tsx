@@ -1707,6 +1707,36 @@ const currentStreak =
       ? `L${currentLossStreak}`
       : "0";
 
+
+  const winRateTrend = Array.from({ length: 6 }).map((_, i) => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - (5 - i));
+    const key = d.toLocaleString("en-US", { month: "short" });
+
+    const monthRows = (closed || []).filter((s: any) => {
+      const t = new Date(s.closed_at || s.created_at || Date.now());
+      return t.getMonth() === d.getMonth() && t.getFullYear() === d.getFullYear();
+    });
+
+    const monthWins = monthRows.filter((s: any) => {
+      const r = String(s.result || "").toUpperCase();
+      return r.includes("WIN") || r.includes("TP") || s.hit_tp1 || s.hit_tp2 || s.hit_tp3;
+    }).length;
+
+    const monthLosses = monthRows.filter((s: any) => {
+      const r = String(s.result || "").toUpperCase();
+      return (r.includes("SL") || r.includes("LOSS")) && !s.hit_tp1 && !s.hit_tp2 && !s.hit_tp3;
+    }).length;
+
+    const total = monthWins + monthLosses;
+    return {
+      label: key,
+      rate: total > 0 ? Math.round((monthWins / total) * 100) : 0,
+      trades: total,
+    };
+  });
+
+
 const monthlyReturn =
   equityCurve.length > 0 ? `${runningEquity > 0 ? "+" : ""}${runningEquity}R` : "0R";
 
@@ -1752,7 +1782,25 @@ const monthlyReturn =
       </Panel>
 <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         
-        <FakeChart title="Win Rate Over Time" value={`${apiWinRate}%`} />
+        <Panel title="Win Rate Over Time">
+  <div className="space-y-3">
+    <p className="text-right font-black text-emerald-300">{apiWinRate}%</p>
+    <div className="flex h-28 items-end gap-2">
+      {winRateTrend.map((m: any) => (
+        <div key={m.label} className="flex flex-1 flex-col items-center gap-1">
+          <div className="flex h-20 w-full items-end rounded-lg bg-white/[0.04] p-1">
+            <div
+              className="w-full rounded-md bg-emerald-400/70"
+              style={{ height: `${Math.max(m.rate, 5)}%` }}
+              title={`${m.label}: ${m.rate}% from ${m.trades} trades`}
+            />
+          </div>
+          <span className="text-[10px] font-bold text-slate-400">{m.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</Panel>
         
       </div>
 
