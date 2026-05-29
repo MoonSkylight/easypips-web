@@ -1452,6 +1452,11 @@ def system_status():
                 "wins": len([s for s in signals if s.get("strategy") == "Strategy A" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
                 "losses": len([s for s in signals if s.get("strategy") == "Strategy A" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
             },
+            "strategyB": {
+                "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy B"]),
+                "wins": len([s for s in signals if s.get("strategy") == "Strategy B" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
+                "losses": len([s for s in signals if s.get("strategy") == "Strategy B" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
+            },
         "activeSignals": len([s for s in signals if s.get("status") == "ACTIVE"]),
         "closedSignals": len([s for s in signals if s.get("status") == "CLOSED"]),
         "rejectedSignals": len([s for s in signals if s.get("status") == "REJECTED"]),
@@ -2733,6 +2738,11 @@ def real_backtest_analytics():
                 "wins": len([s for s in signals if s.get("strategy") == "Strategy A" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
                 "losses": len([s for s in signals if s.get("strategy") == "Strategy A" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
             },
+            "strategyB": {
+                "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy B"]),
+                "wins": len([s for s in signals if s.get("strategy") == "Strategy B" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
+                "losses": len([s for s in signals if s.get("strategy") == "Strategy B" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
+            },
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
     except Exception as e:
@@ -2742,6 +2752,7 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
 
