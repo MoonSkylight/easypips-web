@@ -1521,6 +1521,24 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
   const wins = closed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
 
   const losses = closed.filter((s) => String(s.result || "").toUpperCase().includes("SL") || String(s.result || "").toUpperCase().includes("LOSS")).length;
+  const apiA = analytics?.strategyA || {};
+  const apiB = analytics?.strategyB || {};
+  const apiC = analytics?.strategyC || {};
+
+  const apiTotalTrades =
+    (apiA.totalTrades || 0) + (apiB.totalTrades || 0) + (apiC.totalTrades || 0);
+
+  const apiWins =
+    (apiA.wins || 0) + (apiB.wins || 0) + (apiC.wins || 0);
+
+  const apiLosses =
+    (apiA.losses || 0) + (apiB.losses || 0) + (apiC.losses || 0);
+
+  const apiWinRate =
+    apiWins + apiLosses > 0
+      ? Math.round((apiWins / (apiWins + apiLosses)) * 100)
+      : 0;
+
 const realBacktestStats = ["Strategy A", "Strategy B", "Strategy C"].map((strategy) => {
   const trades = (allSignals || []).filter((s) => s.strategy === strategy);
   const wins = trades.filter((s) =>
@@ -1673,10 +1691,10 @@ const monthlyReturn =
       
       <Panel title="Performance Overview" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 lg:grid-cols-5">
-          <StatCard title="Total Trades" value={closed.length} color="cyan" />
-          <StatCard title="Winning Trades" value={wins} color="green" />
-          <StatCard title="Losing Trades" value={losses} color="red" />
-          <StatCard title="Win Rate" value={`${rate}%`} color="yellow" />
+          <StatCard title="Total Trades" value={apiTotalTrades} color="cyan" />
+          <StatCard title="Winning Trades" value={apiWins} color="green" />
+          <StatCard title="Losing Trades" value={apiLosses} color="red" />
+          <StatCard title="Win Rate" value={`${apiWinRate}%`} color="yellow" />
           <StatCard title="Total Pips" value="Real data only" color="green" />
         </div>
       </Panel>
@@ -1684,7 +1702,7 @@ const monthlyReturn =
 
 <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         
-        <FakeChart title="Win Rate Over Time" value={`${rate}%`} />
+        <FakeChart title="Win Rate Over Time" value={`${apiWinRate}%`} />
         
       </div>
 
@@ -1694,10 +1712,10 @@ const monthlyReturn =
         <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
         <Panel title="Summary">
           <div className="space-y-0.5 text-sm">
-            <Row label="Total Trades" value={closed.length} />
-            <Row label="Winning Trades" value={wins} />
-            <Row label="Losing Trades" value={losses} />
-            <Row label="Win Rate" value={`${rate}%`} />
+            <Row label="Total Trades" value={apiTotalTrades} />
+            <Row label="Winning Trades" value={apiWins} />
+            <Row label="Losing Trades" value={apiLosses} />
+            <Row label="Win Rate" value={`${apiWinRate}%`} />
             <Row label="Average RR" value="Real data only" />
             <Row label="Profit Factor" value="Real data only" />
           </div>
@@ -2282,6 +2300,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
