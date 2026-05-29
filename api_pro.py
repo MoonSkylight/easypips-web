@@ -45,6 +45,21 @@ MAX_SIGNALS_PER_DAY = int(os.environ.get("MAX_SIGNALS_PER_DAY", "8"))
 SIGNAL_COOLDOWN_MINUTES = int(os.environ.get("SIGNAL_COOLDOWN_MINUTES", "90"))
 MAX_AI_SIGNALS_PER_STRATEGY = int(os.environ.get("MAX_AI_SIGNALS_PER_STRATEGY", "6"))
 
+
+YAHOO_CACHE = {}
+YAHOO_CACHE_SECONDS = 300
+
+def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15m"):
+    key = f"{yahoo_symbol}:{period}:{interval}"
+    now = time.time()
+
+    cached = YAHOO_CACHE.get(key)
+    if cached and now - cached["time"] < YAHOO_CACHE_SECONDS:
+        return cached["data"]
+
+    data = yf.Ticker(yahoo_symbol).history(period=period, interval=interval)
+    YAHOO_CACHE[key] = {"time": now, "data": data}
+    return data
 supabase: Client | None = None
 
 if SUPABASE_URL and SUPABASE_KEY:
@@ -347,7 +362,7 @@ def create_chart(symbol: str, yahoo_symbol: str):
         if not yahoo_symbol:
             return None
 
-        data = yf.Ticker(yahoo_symbol).history(period="1d", interval="15m")
+        data = get_yahoo_history(yahoo_symbol, period="1d", interval="15m")
 
         if data.empty:
             return None
@@ -766,7 +781,7 @@ def generate_strategy_c_signals():
             if symbol in existing_symbols:
                 continue
 
-            data = yf.Ticker(yahoo_symbol).history(period="7d", interval="15m")
+            data = get_yahoo_history(yahoo_symbol, period="7d", interval="15m")
 
             if data is None or data.empty or len(data) < 100:
                 continue
@@ -890,7 +905,7 @@ def generate_strategy_b_signals():
             if symbol in existing_symbols:
                 continue
 
-            data = yf.Ticker(yahoo_symbol).history(period="10d", interval="15m")
+            data = get_yahoo_history(yahoo_symbol, period="10d", interval="15m")
 
             if data is None or data.empty or len(data) < 120:
                 continue
@@ -949,7 +964,7 @@ def get_price_range_since_signal(yahoo_symbol: str, created_at: str):
     because TP/SL may have been touched between cron checks.
     """
     try:
-        data = yf.Ticker(yahoo_symbol).history(period="7d", interval="15m")
+        data = get_yahoo_history(yahoo_symbol, period="7d", interval="15m")
 
         if data.empty:
             return None, None
@@ -983,7 +998,7 @@ def get_candles_since_signal(yahoo_symbol: str, created_at: str):
     Used to check TP/SL in real candle order, so SL cannot wrongly override TP.
     """
     try:
-        data = yf.Ticker(yahoo_symbol).history(period="7d", interval="15m")
+        data = get_yahoo_history(yahoo_symbol, period="7d", interval="15m")
 
         if data.empty:
             return None
@@ -1465,7 +1480,7 @@ def strategy_debug():
         }
 
         try:
-            data_a = yf.Ticker(yahoo_symbol).history(period="5d", interval="15m")
+            data_a = get_yahoo_history(yahoo_symbol, period="5d", interval="15m")
 
             if data_a.empty or len(data_a) < 80:
                 item["strategyA"] = {"status": "blocked", "reason": "Not enough data"}
@@ -1510,7 +1525,7 @@ def strategy_debug():
             item["strategyA"] = {"status": "error", "reason": str(e)}
 
         try:
-            data_b = yf.Ticker(yahoo_symbol).history(period="15d", interval="15m")
+            data_b = get_yahoo_history(yahoo_symbol, period="15d", interval="15m")
 
             if data_b.empty or len(data_b) < 220:
                 item["strategyB"] = {"status": "blocked", "reason": "Not enough data"}
@@ -1755,7 +1770,7 @@ def admin_me(authorization: str = Header(default="")):
 
 def get_live_price(yahoo_symbol: str):
     try:
-        data = yf.Ticker(yahoo_symbol).history(period="1d", interval="1m")
+        data = get_yahoo_history(yahoo_symbol, period="1d", interval="1m")
         if data is None or data.empty:
             return None, None
         price = float(data["Close"].iloc[-1])
@@ -2781,6 +2796,7 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
 
