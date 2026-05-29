@@ -2348,7 +2348,7 @@ function HelpCenterPage() {
               target="_blank"
               className="block rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 hover:bg-white/[0.05]"
             >
-              Telegram Support Channel
+              Telegram Support Channel Channel
             </a>
 
             <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
@@ -2360,7 +2360,7 @@ function HelpCenterPage() {
             </div>
 
             <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
-              MT4 / MT5 Technical Support
+              MT4 / MT5 MT4 / MT5 Technical Support
             </div>
           </div>
         </Panel>
@@ -2376,6 +2376,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
