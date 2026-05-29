@@ -1736,7 +1736,22 @@ const monthlyReturn =
 
 <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         <TablePanel title="Performance by Pair" rows={["EUR/USD", "BTC/USD", "XAU/USD", "GBP/USD", "USD/JPY"]} />
-        <TablePanel title="Performance by Strategy" rows={["Strategy A", "Strategy B", "Strategy C", "Trading Room"]} />
+        <Panel title="Performance by Strategy">
+  <div className="space-y-0.5 text-sm">
+    {[
+      ["Strategy A", analytics?.strategyA],
+      ["Strategy B", analytics?.strategyB],
+      ["Strategy C", analytics?.strategyC],
+    ].map(([name, s]: any) => (
+      <div key={name} className="grid grid-cols-4 gap-1.5 border-b border-white/5 pb-2">
+        <span className="font-black">{name}</span>
+        <span>{s?.totalTrades || 0} trades</span>
+        <span>{s?.winRate || 0}%</span>
+        <span className="text-emerald-300">TP {s?.tp1 || 0}/{s?.tp2 || 0}/{s?.tp3 || 0}</span>
+      </div>
+    ))}
+  </div>
+</Panel>
         <Panel title="Summary">
           <div className="space-y-0.5 text-sm">
             <Row label="Total Trades" value={apiTotalTrades} />
@@ -2327,6 +2342,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
