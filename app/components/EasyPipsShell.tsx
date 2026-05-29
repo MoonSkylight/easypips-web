@@ -1719,7 +1719,8 @@ const monthlyReturn =
           <StatCard title="Winning Trades" value={apiWins} color="green" />
           <StatCard title="Losing Trades" value={apiLosses} color="red" />
           <StatCard title="Win Rate" value={`${apiWinRate}%`} color="yellow" />
-          <StatCard title="Total Pips" value="Real data only" color="green" />
+                    <StatCard title="Best Pair" value={analytics?.strategyA?.bestPair || "-"} color="green" />
+          <StatCard title="Worst Pair" value={analytics?.strategyA?.worstPair || "-"} color="red" />
         </div>
       </Panel>
 
