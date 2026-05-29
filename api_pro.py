@@ -2700,6 +2700,22 @@ def mt5_license_check(account_login: str = "", license_code: str = ""):
 
 
 
+
+def get_all_signals():
+    if not db_enabled():
+        return []
+
+    try:
+        response = (
+            supabase.table("signals")
+            .select("*")
+            .order("created_at", desc=True)
+            .execute()
+        )
+        return response.data or []
+    except Exception as e:
+        print("get_all_signals failed:", str(e))
+        return []
 @app.get("/real-backtest-analytics")
 def real_backtest_analytics():
     try:
@@ -2716,5 +2732,6 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
