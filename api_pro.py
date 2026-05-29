@@ -1438,79 +1438,21 @@ def cron_check():
     }
 
 
+
 @app.get("/system-status")
 def system_status():
     signals = get_all_signals()
-
-        pair_names = sorted(list(set([s.get("symbol") for s in signals if s.get("symbol")])))
-        pair_analytics = []
-
-        for pair in pair_names:
-            pair_trades = [s for s in signals if s.get("symbol") == pair]
-            pair_wins = [s for s in pair_trades if s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper()]
-            pair_losses = [s for s in pair_trades if ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]
-            pair_closed = len(pair_wins) + len(pair_losses)
-
-            pair_analytics.append({
-                "pair": pair,
-                "totalTrades": len(pair_trades),
-                "wins": len(pair_wins),
-                "losses": len(pair_losses),
-                "winRate": round((len(pair_wins) / pair_closed) * 100, 2) if pair_closed else 0,
-                "tp1": len([s for s in pair_trades if s.get("hit_tp1")]),
-                "tp2": len([s for s in pair_trades if s.get("hit_tp2")]),
-                "tp3": len([s for s in pair_trades if s.get("hit_tp3")]),
-            })
-
-        pair_analytics = sorted(pair_analytics, key=lambda x: x["winRate"], reverse=True)
-        return {
+    return {
         "status": "running",
         "database": "connected" if db_enabled() else "not connected",
         "telegram": "connected" if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID else "not connected",
-        "totalSignals": len(signals),            "strategyA": {
-                "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy A"]),
-                "wins": len([s for s in signals if s.get("strategy") == "Strategy A" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
-                "losses": len([s for s in signals if s.get("strategy") == "Strategy A" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
-                "winRate": 66.67,
-                      "tp1": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp1")]),
-                      "tp2": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp2")]),
-                      "tp3": len([s for s in signals if s.get("strategy") == "Strategy A" and s.get("hit_tp3")]),
-                      "bestPair": "EUR/USD",
-                      "worstPair": "USD/CAD",
-            },
-            "strategyB": {
-                "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy B"]),
-                "wins": len([s for s in signals if s.get("strategy") == "Strategy B" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
-                "losses": len([s for s in signals if s.get("strategy") == "Strategy B" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
-                "winRate": 0,
-                      "tp1": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp1")]),
-                      "tp2": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp2")]),
-                      "tp3": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp3")]),
-                      "bestPair": "-",
-                      "worstPair": "-",
-            },
-            "strategyC": {
-                "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy C"]),
-                "wins": len([s for s in signals if s.get("strategy") == "Strategy C" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
-                "losses": len([s for s in signals if s.get("strategy") == "Strategy C" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
-                "winRate": 66.67,
-                      "tp1": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp1")]),
-                      "tp2": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp2")]),
-                      "tp3": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp3")]),
-                      "bestPair": "GBP/USD",
-                      "worstPair": "USD/CAD",
-            },
+        "totalSignals": len(signals),
         "activeSignals": len([s for s in signals if s.get("status") == "ACTIVE"]),
         "closedSignals": len([s for s in signals if s.get("status") == "CLOSED"]),
         "rejectedSignals": len([s for s in signals if s.get("status") == "REJECTED"]),
-        "strategyAActive": len(get_active_signals(source="AI Engine", strategy="Strategy A")),
-        "strategyBActive": len(get_active_signals(source="AI Engine", strategy="Strategy B")),
-        "strategyCActive": len(get_active_signals(source="AI Engine", strategy="Strategy C")),
         "lastSignalTime": signals[0].get("created_at") if signals else None,
         "serverTimeUTC": datetime.now(timezone.utc).isoformat(),
     }
-
-
 @app.get("/strategy-debug")
 def strategy_debug():
     results = []
@@ -2839,6 +2781,8 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
+
 
 
 
