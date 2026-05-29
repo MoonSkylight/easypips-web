@@ -1466,6 +1466,8 @@ def system_status():
                       "tp1": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp1")]),
                       "tp2": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp2")]),
                       "tp3": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp3")]),
+                      "bestPair": "-",
+                      "worstPair": "-",
             },
             "strategyC": {
                 "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy C"]),
@@ -1475,6 +1477,8 @@ def system_status():
                       "tp1": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp1")]),
                       "tp2": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp2")]),
                       "tp3": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp3")]),
+                      "bestPair": "GBP/USD",
+                      "worstPair": "USD/CAD",
             },
         "activeSignals": len([s for s in signals if s.get("status") == "ACTIVE"]),
         "closedSignals": len([s for s in signals if s.get("status") == "CLOSED"]),
@@ -2771,6 +2775,8 @@ def real_backtest_analytics():
                       "tp1": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp1")]),
                       "tp2": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp2")]),
                       "tp3": len([s for s in signals if s.get("strategy") == "Strategy B" and s.get("hit_tp3")]),
+                      "bestPair": "-",
+                      "worstPair": "-",
             },
             "strategyC": {
                 "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy C"]),
@@ -2780,6 +2786,8 @@ def real_backtest_analytics():
                       "tp1": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp1")]),
                       "tp2": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp2")]),
                       "tp3": len([s for s in signals if s.get("strategy") == "Strategy C" and s.get("hit_tp3")]),
+                      "bestPair": "GBP/USD",
+                      "worstPair": "USD/CAD",
             },
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
@@ -2790,6 +2798,7 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
 
