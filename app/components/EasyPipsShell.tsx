@@ -1512,7 +1512,7 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
   const [analytics, setAnalytics] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${API}/real-analytics`)
+    fetch(`${API}/real-backtest-analytics`)
       .then((r) => r.json())
       .then(setAnalytics)
       .catch(() => setAnalytics(null));
@@ -2282,6 +2282,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
