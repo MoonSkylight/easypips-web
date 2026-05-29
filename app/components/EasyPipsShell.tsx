@@ -1702,6 +1702,31 @@ const monthlyReturn =
       </Panel>
 
 
+
+      <Panel title="Backtested Strategy Performance">
+        <div className="grid gap-2 md:grid-cols-3">
+          {["strategyA", "strategyB", "strategyC"].map((key) => {
+            const s = analytics?.[key] || {};
+            const label = key === "strategyA" ? "Strategy A" : key === "strategyB" ? "Strategy B" : "Strategy C";
+
+            return (
+              <div key={key} className="rounded-2xl border border-yellow-300/20 bg-yellow-400/[0.04] p-4">
+                <p className="text-xs font-black uppercase tracking-widest text-yellow-300">{label}</p>
+
+                <div className="mt-4 space-y-2 text-sm">
+                  <Row label="Total Trades" value={s.totalTrades || 0} />
+                  <Row label="Wins" value={s.wins || 0} />
+                  <Row label="Losses" value={s.losses || 0} />
+                  <Row label="Win Rate" value={`${s.winRate || 0}%`} />
+                  <Row label="TP1 / TP2 / TP3" value={`${s.tp1 || 0} / ${s.tp2 || 0} / ${s.tp3 || 0}`} />
+                  <Row label="Best Pair" value={s.bestPair || "-"} />
+                  <Row label="Worst Pair" value={s.worstPair || "-"} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
 <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
         
         <FakeChart title="Win Rate Over Time" value={`${apiWinRate}%`} />
@@ -2302,6 +2327,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
