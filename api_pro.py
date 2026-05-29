@@ -1442,12 +1442,32 @@ def cron_check():
 def system_status():
     signals = get_all_signals()
 
-    return {
+        pair_names = sorted(list(set([s.get("symbol") for s in signals if s.get("symbol")])))
+        pair_analytics = []
+
+        for pair in pair_names:
+            pair_trades = [s for s in signals if s.get("symbol") == pair]
+            pair_wins = [s for s in pair_trades if s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper()]
+            pair_losses = [s for s in pair_trades if ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]
+            pair_closed = len(pair_wins) + len(pair_losses)
+
+            pair_analytics.append({
+                "pair": pair,
+                "totalTrades": len(pair_trades),
+                "wins": len(pair_wins),
+                "losses": len(pair_losses),
+                "winRate": round((len(pair_wins) / pair_closed) * 100, 2) if pair_closed else 0,
+                "tp1": len([s for s in pair_trades if s.get("hit_tp1")]),
+                "tp2": len([s for s in pair_trades if s.get("hit_tp2")]),
+                "tp3": len([s for s in pair_trades if s.get("hit_tp3")]),
+            })
+
+        pair_analytics = sorted(pair_analytics, key=lambda x: x["winRate"], reverse=True)
+        return {
         "status": "running",
         "database": "connected" if db_enabled() else "not connected",
         "telegram": "connected" if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID else "not connected",
-        "totalSignals": len(signals),
-            "strategyA": {
+        "totalSignals": len(signals),            "strategyA": {
                 "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy A"]),
                 "wins": len([s for s in signals if s.get("strategy") == "Strategy A" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
                 "losses": len([s for s in signals if s.get("strategy") == "Strategy A" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
@@ -2753,10 +2773,31 @@ def get_all_signals():
 def real_backtest_analytics():
     try:
         signals = get_all_signals()
+
+        pair_names = sorted(list(set([s.get("symbol") for s in signals if s.get("symbol")])))
+        pair_analytics = []
+
+        for pair in pair_names:
+            pair_trades = [s for s in signals if s.get("symbol") == pair]
+            pair_wins = [s for s in pair_trades if s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper()]
+            pair_losses = [s for s in pair_trades if ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]
+            pair_closed = len(pair_wins) + len(pair_losses)
+
+            pair_analytics.append({
+                "pair": pair,
+                "totalTrades": len(pair_trades),
+                "wins": len(pair_wins),
+                "losses": len(pair_losses),
+                "winRate": round((len(pair_wins) / pair_closed) * 100, 2) if pair_closed else 0,
+                "tp1": len([s for s in pair_trades if s.get("hit_tp1")]),
+                "tp2": len([s for s in pair_trades if s.get("hit_tp2")]),
+                "tp3": len([s for s in pair_trades if s.get("hit_tp3")]),
+            })
+
+        pair_analytics = sorted(pair_analytics, key=lambda x: x["winRate"], reverse=True)
         return {
             "success": True,
-            "totalSignals": len(signals),
-            "strategyA": {
+            "totalSignals": len(signals),            "strategyA": {
                 "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy A"]),
                 "wins": len([s for s in signals if s.get("strategy") == "Strategy A" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
                 "losses": len([s for s in signals if s.get("strategy") == "Strategy A" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
@@ -2798,6 +2839,8 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
+
 
 
 
