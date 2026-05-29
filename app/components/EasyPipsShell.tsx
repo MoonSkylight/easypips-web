@@ -1029,7 +1029,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 
     <div className="mt-3 space-y-2 text-[11px] font-bold text-slate-300">
       <p>AI-powered strategy alerts</p>
-      <p>Desk 1 + Trading Room signals</p>
+      <p>Desk 1 • Trading Room • Premium Analysts signals</p>
       <p>News calendar monitoring</p>
       <p>MT4 / MT5 read-side support</p>
     </div>
@@ -1244,7 +1244,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
             </p>
 
             <p className="text-slate-300">
-              High probability setups forming.
+              Institutional-grade setups monitored in real time.
             </p>
 
             <p className="text-slate-400">
@@ -1252,7 +1252,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
             </p>
 
             <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-2 text-sm font-black text-yellow-300">
-              Go to Trading Room
+              Enter Trading Room
             </button>
           </div>
         </Panel>
@@ -2376,6 +2376,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
