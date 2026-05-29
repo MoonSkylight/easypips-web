@@ -47,7 +47,7 @@ MAX_AI_SIGNALS_PER_STRATEGY = int(os.environ.get("MAX_AI_SIGNALS_PER_STRATEGY", 
 
 
 YAHOO_CACHE = {}
-YAHOO_CACHE_SECONDS = 300
+YAHOO_CACHE_SECONDS = 1800
 
 def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15m"):
     key = f"{yahoo_symbol}:{period}:{interval}"
@@ -2796,6 +2796,7 @@ def real_backtest_analytics():
             "error": str(e),
             "generatedAt": datetime.now(timezone.utc).isoformat(),
         }
+
 
 
 
