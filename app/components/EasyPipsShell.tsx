@@ -2311,15 +2311,15 @@ function HelpCenterPage() {
 
           <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border border-white/8 bg-black/20 p-2">
             <div className="max-w-[80%] rounded-xl bg-white/[0.04] p-2 text-sm text-slate-200">
-              Welcome to EasyPips support. How can we help you today?
+              Welcome to EasyPips Support. Our team can help with premium access, MT4/MT5 setup, billing, and signal delivery.
             </div>
 
             <div className="ml-auto max-w-[80%] rounded-xl bg-yellow-400/10 p-2 text-sm text-yellow-200">
-              I need help with premium access.
+              I need help with my EasyPips account.
             </div>
 
             <div className="max-w-[80%] rounded-xl bg-white/[0.04] p-2 text-sm text-slate-200">
-              Our admin team will assist you shortly.
+              A support specialist will review your request and guide you step by step.
             </div>
           </div>
 
@@ -2327,7 +2327,7 @@ function HelpCenterPage() {
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Ask about premium access, MT4/MT5 setup, billing, or signals..."
               className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm outline-none focus:border-yellow-300/40"
             />
 
@@ -2348,7 +2348,7 @@ function HelpCenterPage() {
               target="_blank"
               className="block rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 hover:bg-white/[0.05]"
             >
-              Telegram Support
+              Telegram Support Channel
             </a>
 
             <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
@@ -2356,11 +2356,11 @@ function HelpCenterPage() {
             </div>
 
             <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
-              Billing Assistance
+              Billing & Subscription Help
             </div>
 
             <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
-              Technical Support
+              MT4 / MT5 Technical Support
             </div>
           </div>
         </Panel>
@@ -2376,6 +2376,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
