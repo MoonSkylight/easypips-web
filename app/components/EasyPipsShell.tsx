@@ -1525,6 +1525,8 @@ function PerformancePage({ closed, allSignals }: { closed: Signal[]; allSignals:
   const apiB = analytics?.strategyB || {};
   const apiC = analytics?.strategyC || {};
 
+  console.log("REAL ANALYTICS", analytics);
+
   const apiTotalTrades =
     (apiA.totalTrades || 0) + (apiB.totalTrades || 0) + (apiC.totalTrades || 0);
 
@@ -2300,6 +2302,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
