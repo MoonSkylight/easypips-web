@@ -1,4 +1,4 @@
-﻿MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
+MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -774,11 +774,8 @@ def generate_strategy_c_signals():
         print("Strategy C pre-check failed:", str(e))
         existing_symbols = set()
 
-    for symbol, yahoo_symbol in SYMBOLS.items():
-    if symbol == "USD/CAD":
-        continue
-
-       try:
+    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
+        try:
             if created >= 1:
                 break
 
