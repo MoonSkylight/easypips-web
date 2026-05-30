@@ -2904,3 +2904,63 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
+
+@app.get("/strategy-d-check")
+def strategy_d_check():
+    symbol = "EUR/USD"
+    yahoo_symbol = SYMBOLS.get(symbol)
+
+    try:
+        data = get_yahoo_history(yahoo_symbol, period="2d", interval="1m")
+
+        if data is None or data.empty or len(data) < 220:
+            return {
+                "status": "blocked",
+                "strategy": "Strategy D",
+                "symbol": symbol,
+                "reason": "Not enough 1m data",
+                "livePublishing": False,
+            }
+
+        setup = generate_strategy_d_signal(data, symbol)
+
+        if not setup:
+            return {
+                "status": "blocked",
+                "strategy": "Strategy D",
+                "symbol": symbol,
+                "reason": "Scalping conditions not aligned",
+                "livePublishing": False,
+ 
+           }
+
+        return {
+            "status": "signal",
+            "strategy": "Strategy D",
+            "symbol": symbol,
+            "setup": setup,
+            "livePubli
+
+
+
+
+
+
+shing": False,
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "strategy": "Strategy D",
+ 
+
+
+
+
+
+
+           "symbol": symbol,
+            "reason": str(e),
+            "livePublishing": False,
+        }
