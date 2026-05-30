@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 from strategy_c import generate_strategy_c_signal
 from strategy_b import generate_strategy_b_signal
+from strategy_d import generate_strategy_d_signal
 import pandas as pd
 from supabase import create_client, Client
 
@@ -2880,4 +2881,7 @@ def strategy_backtest():
 
 
        }
+
+
+
 
