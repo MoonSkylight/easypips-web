@@ -37,6 +37,13 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
 
     df = df.dropna().copy()
 
+    last_time = df.index[-1]
+    hour = last_time.hour
+
+    # Trade Strategy D only during London / New York active hours.
+    if hour < 7 or hour > 20:
+        return None
+
     if not isinstance(df.index, pd.DatetimeIndex):
         return None
 
@@ -72,7 +79,7 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
 
     sell_confirm = (
         last_1m["Close"] < last_1m["Open"]
-        and last_1m["Close"] < prev_1m["Low"]
+        and last_1m["Close"] < prev_1m["Close"]
     )
 
     entry = float(row["Close"])
@@ -94,7 +101,7 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
     swept_low = float(row["Low"]) < float(prev["Low"].min()) and float(row["Close"]) > float(prev["Low"].min())
     swept_high = float(row["High"]) > float(prev["High"].max()) and float(row["Close"]) < float(prev["High"].max())
 
-    if trend_buy and ema_buy and pullback_buy and bullish_close and swept_low and buy_confirm and 50 <= rsi_now <= 65:
+    if trend_buy and ema_buy and pullback_buy and bullish_close and swept_low and buy_confirm and 48 <= rsi_now <= 68:
         sl = entry - (atr_now * 1.8)
         risk = entry - sl
 
@@ -117,7 +124,7 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
             "timeframe": "3m",
         }
 
-    if trend_sell and ema_sell and pullback_sell and bearish_close and swept_high and sell_confirm and 35 <= rsi_now <= 50:
+    if trend_sell and ema_sell and pullback_sell and bearish_close and swept_high and sell_confirm and 32 <= rsi_now <= 52:
         sl = entry + (atr_now * 1.8)
         risk = sl - entry
 
@@ -141,6 +148,14 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
         }
 
     return None
+
+
+
+
+
+
+
+
 
 
 
