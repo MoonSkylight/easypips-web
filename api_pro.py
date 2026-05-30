@@ -850,10 +850,10 @@ def generate_strategy_a_signals():
     rejected = 0
 
     for symbol, yahoo_symbol in SYMBOLS.items():
-    if symbol == "USD/CAD":
-        continue
+        if symbol == "USD/CAD":
+            continue
 
-    if active_strategy_signal_exists(symbol, "Strategy A"):
+        if active_strategy_signal_exists(symbol, "Strategy A"):
             continue
 
         if len(get_active_signals(source="AI Engine", strategy="Strategy A")) >= MAX_AI_SIGNALS_PER_STRATEGY:
