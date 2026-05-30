@@ -1,4 +1,4 @@
-﻿from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict
 from typing import Optional
 import pandas as pd
 import numpy as np
@@ -28,15 +28,15 @@ class AdvancedSniperSMCStrategy:
         self,
         swing_lookback: int = 2,
         atr_period: int = 14,
-        stop_padding_atr: float = 0.03,
-        zone_padding_atr: float = 0.03,
+        stop_padding_atr: float = 0.35,
+        zone_padding_atr: float = 0.08,
         displacement_atr_mult: float = 1.4,
-        confirmation_body_atr: float = 0.5,
+        confirmation_body_atr: float = 0.7,
         sweep_lookback: int = 8,
         choch_lookback: int = 20,
         session_mode: str = "london_ny",
-        min_rr: float = 3.0,
-        tp1_rr: float = 1.5,
+        min_rr: float = 2.0,
+        tp1_rr: float = 1.0,
         partial_size: float = 0.7,
         max_holding_bars: int = 96,
         cooldown_bars: int = 8,
@@ -452,5 +452,10 @@ class AdvancedSniperSMCStrategy:
 def generate_strategy_b_signal(df: pd.DataFrame, symbol: str = "UNKNOWN"):
     strategy = AdvancedSniperSMCStrategy()
     return strategy.latest_signal(df, symbol)
+
+
+
+
+
 
 
