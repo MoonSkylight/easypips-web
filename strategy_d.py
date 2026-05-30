@@ -62,6 +62,19 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
     row = data_3m.iloc[-1]
     prev = data_3m.iloc[-8:-1]
 
+    last_1m = df.iloc[-1]
+    prev_1m = df.iloc[-2]
+
+    buy_confirm = (
+        last_1m["Close"] > last_1m["Open"]
+        and last_1m["Close"] > prev_1m["High"]
+    )
+
+    sell_confirm = (
+        last_1m["Close"] < last_1m["Open"]
+        and last_1m["Close"] < prev_1m["Low"]
+    )
+
     entry = float(row["Close"])
     atr_now = float(atr.iloc[-1]) if np.isfinite(atr.iloc[-1]) else 0
     rsi_now = float(rsi.iloc[-1]) if np.isfinite(rsi.iloc[-1]) else 50
@@ -81,8 +94,8 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
     swept_low = float(row["Low"]) < float(prev["Low"].min()) and float(row["Close"]) > float(prev["Low"].min())
     swept_high = float(row["High"]) > float(prev["High"].max()) and float(row["Close"]) < float(prev["High"].max())
 
-    if trend_buy and ema_buy and pullback_buy and bullish_close and swept_low and 50 <= rsi_now <= 65:
-        sl = entry - (atr_now * 1.2)
+    if trend_buy and ema_buy and pullback_buy and bullish_close and swept_low and buy_confirm and 50 <= rsi_now <= 65:
+        sl = entry - (atr_now * 1.8)
         risk = entry - sl
 
         if risk <= 0:
@@ -95,8 +108,8 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
             "entry": round(entry, 5),
             "sl": round(sl, 5),
             "tp1": round(entry + risk, 5),
-            "tp2": round(entry + risk * 1.5, 5),
-            "tp3": round(entry + risk * 2, 5),
+            "tp2": round(entry + risk * 1.2, 5),
+            "tp3": round(entry + risk * 1.6, 5),
             "rr": 2,
             "confidence": 88,
             "score": 88,
@@ -104,8 +117,8 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
             "timeframe": "3m",
         }
 
-    if trend_sell and ema_sell and pullback_sell and bearish_close and swept_high and 35 <= rsi_now <= 50:
-        sl = entry + (atr_now * 1.2)
+    if trend_sell and ema_sell and pullback_sell and bearish_close and swept_high and sell_confirm and 35 <= rsi_now <= 50:
+        sl = entry + (atr_now * 1.8)
         risk = sl - entry
 
         if risk <= 0:
@@ -118,8 +131,8 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
             "entry": round(entry, 5),
             "sl": round(sl, 5),
             "tp1": round(entry - risk, 5),
-            "tp2": round(entry - risk * 1.5, 5),
-            "tp3": round(entry - risk * 2, 5),
+            "tp2": round(entry - risk * 1.2, 5),
+            "tp3": round(entry - risk * 1.6, 5),
             "rr": 2,
             "confidence": 88,
             "score": 88,
@@ -128,3 +141,9 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
         }
 
     return None
+
+
+
+
+
+
