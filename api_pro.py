@@ -2833,7 +2833,7 @@ def strategy_backtest():
             }
 
         ranked = sorted(
-            [calc("Strategy A"), calc("Strategy B"), calc("Strategy C")],
+            [calc("Strategy A"), calc("Strategy B"), calc("Strategy C"), calc("Strategy D")],
             key=lambda x: (x["winRate"], x["closedTrades"]),
  
 
@@ -2904,3 +2904,5 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
+
+
