@@ -2895,3 +2895,12 @@ def strategy_d_status():
         "engineLoaded": True,
         "livePublishing": False,
     }
+
+@app.get("/strategy-d-debug-lite")
+def strategy_d_debug_lite():
+    return {
+        "status": "ok",
+        "strategy": "Strategy D",
+        "message": "Debug endpoint ready. Live publishing remains off.",
+        "livePublishing": False,
+    }
