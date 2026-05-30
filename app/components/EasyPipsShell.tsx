@@ -996,7 +996,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
             <h1 className="text-sm font-black">
               Easy<span className="text-yellow-300">Pips</span> <span className="text-emerald-300">AI</span>
             </h1>
-            <p className="text-[9px] text-slate-500">Smart Forex Signals</p>
+            <p className="text-[9px] text-slate-500">Capital-Protected AI Signals</p>
           </div>
         </Link>
 
@@ -1024,12 +1024,12 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
         <div className="mt-4 overflow-hidden rounded-2xl border border-yellow-300/25 bg-gradient-to-br from-yellow-400/[0.10] via-white/[0.03] to-emerald-400/[0.08] p-[1px] shadow-lg shadow-yellow-500/10">
   <div className="rounded-2xl bg-[#07101b]/95 p-3">
     <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
-      Premium AI Signals
+      Capital-Protected AI Signals
     </p>
 
     <div className="mt-3 space-y-2 text-[11px] font-bold text-slate-300">
-      <p>AI-powered strategy alerts</p>
-      <p>Desk 1 â€¢ Trading Room â€¢ Premium Analysts signals</p>
+      <p>AI signals filtered by strict capital-protection rules</p>
+      <p>Desk 1 • Trading Room • Premium Analyst Signals</p>
       <p>News calendar monitoring</p>
       <p>MT4 / MT5 read-side support</p>
     </div>
@@ -1098,7 +1098,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       </div>
 
       <p className="rounded-lg border border-cyan-400/20 bg-black/30 p-2 text-[9px] leading-4 text-slate-400">
-        AI pipes connect news, liquidity, volatility, risk and signal boxes before sending premium setups.
+        Every setup is filtered by score, cooldown, pair quality, volatility and risk controls before publication.
       </p>
     </div>
   </div>
@@ -2444,6 +2444,11 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
 
