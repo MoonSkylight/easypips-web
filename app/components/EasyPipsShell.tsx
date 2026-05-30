@@ -461,7 +461,7 @@ function SignalCard({ s }: { s: Signal }) {
         <Mini label="TP1" value={s.tp1} good={!!s.hit_tp1} />
         <Mini label="TP2" value={s.tp2} good={!!s.hit_tp2} />
         <Mini label="TP3" value={s.tp3} good={!!s.hit_tp3} />
-        <Mini label="Risk/Reward" value={s.score ? `${s.score}R` : "-"} />
+        <Mini label="Reward" value={s.entry && s.sl && s.tp3 ? `${Math.round(Math.abs((Number(s.tp3) - Number(s.entry)) / (Number(s.entry) - Number(s.sl))))}R` : "-"} />
       </div>
     </div>
   );
@@ -2444,6 +2444,11 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
 
