@@ -408,7 +408,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
 <div className="rounded-xl border border-white/8 bg-black/30 p-1.5 text-center backdrop-blur-md">
   <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">
-    â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢
+    Entry, SL and TP levels hidden
   </p>
 
         <p className="mt-1 text-[9px] text-slate-500">
@@ -2444,95 +2444,4 @@ function HelpCenterPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
