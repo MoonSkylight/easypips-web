@@ -443,12 +443,12 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <h3 className="mt-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-yellow-300/40 bg-yellow-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">ðŸ”“ PREMIUM UNLOCK</p>}
+          <h3 className="mt-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-yellow-300/40 bg-yellow-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">🔓 PREMIUM ACCESS</p>}
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
           <p className="rounded-full bg-yellow-400/10 px-2 py-1 text-[10px] font-black text-yellow-300 inline-block mt-1">
-  AI Confidence: {s.confidence || s.score || "-"}</p>
+  Signal Quality: {s.confidence || s.score || "-"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-sm font-black ${isLocked ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
           {s.direction}
@@ -461,7 +461,7 @@ function SignalCard({ s }: { s: Signal }) {
         <Mini label="TP1" value={s.tp1} good={!!s.hit_tp1} />
         <Mini label="TP2" value={s.tp2} good={!!s.hit_tp2} />
         <Mini label="TP3" value={s.tp3} good={!!s.hit_tp3} />
-        <Mini label="Score" value={s.score || s.confidence} />
+        <Mini label="Risk/Reward" value={s.score ? `${s.score}R` : "-"} />
       </div>
     </div>
   );
@@ -2444,4 +2444,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
 
