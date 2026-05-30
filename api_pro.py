@@ -2885,3 +2885,13 @@ def strategy_backtest():
 
 
 
+
+@app.get("/strategy-d-status")
+def strategy_d_status():
+    return {
+        "status": "ok",
+        "strategy": "Strategy D",
+        "name": "3-Min Scalping AI",
+        "engineLoaded": True,
+        "livePublishing": False,
+    }
