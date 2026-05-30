@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -99,20 +99,20 @@ const NAV = [
 ];
 
 const PAIRS = [
-  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "ðŸŸ¡" },
-  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "ðŸ‡ªðŸ‡º" },
-  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "ðŸ‡¬ðŸ‡§" },
-  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "ðŸ‡¯ðŸ‡µ" },
-  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "ðŸ‡¨ðŸ‡¦" },
-  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "ðŸ‡¨ðŸ‡­" },
-  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "ðŸ‡¦ðŸ‡º" },
-  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "ðŸ‡³ðŸ‡¿" },
-  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "â‚¿" },
-  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?†" },
-  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "ðŸ‡ªðŸ‡º" },
-  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "ðŸ‡¯ðŸ‡µ" },
-  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "ðŸ‡¬ðŸ‡§" },
-  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "ðŸ‡¦ðŸ‡º" },
+  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "Ã°Å¸Å¸Â¡" },
+  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "Ã°Å¸â€¡ÂªÃ°Å¸â€¡Âº" },
+  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â¬Ã°Å¸â€¡Â§" },
+  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "Ã°Å¸â€¡Â¯Ã°Å¸â€¡Âµ" },
+  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â¦" },
+  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â­" },
+  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â¦Ã°Å¸â€¡Âº" },
+  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â³Ã°Å¸â€¡Â¿" },
+  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "Ã¢â€šÂ¿" },
+  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?â€ " },
+  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "Ã°Å¸â€¡ÂªÃ°Å¸â€¡Âº" },
+  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¯Ã°Å¸â€¡Âµ" },
+  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¬Ã°Å¸â€¡Â§" },
+  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¦Ã°Å¸â€¡Âº" },
 ];
 
 function n(v: any, fallback = 0) {
@@ -308,19 +308,19 @@ function SystemRule() {
 
         <div className="flex flex-wrap items-center gap-1.5 text-[8px] font-black uppercase tracking-widest text-slate-300">
           <span>Volatility NORMAL</span>
-          <span>•</span>
+          <span>â€¢</span>
 
           <span>Liquidity HIGH</span>
-          <span>•</span>
+          <span>â€¢</span>
 
           <span>Spreads STABLE</span>
-          <span>•</span>
+          <span>â€¢</span>
 
           <span>News LOW</span>
-          <span>•</span>
+          <span>â€¢</span>
 
           <span>Quality A</span>
-          <span>•</span>
+          <span>â€¢</span>
 
           <span>Protection ACTIVE</span>
         </div>
@@ -402,13 +402,13 @@ function LockedSignalCard({ s }: { s: Signal }) {
       
        <div className="my-0.5 flex justify-center">
   <div className="flex h-8 w-8 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 shadow-lg shadow-yellow-400/15">
-    <span className="text-[24px]">🔒</span>
+    <span className="text-[24px]">ðŸ”’</span>
   </div>
 </div>
 
 <div className="rounded-xl border border-white/8 bg-black/30 p-1.5 text-center backdrop-blur-md">
   <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">
-    ••••••••••••••••
+    â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢
   </p>
 
         <p className="mt-1 text-[9px] text-slate-500">
@@ -443,7 +443,7 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <h3 className="mt-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-yellow-300/40 bg-yellow-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">🔓 PREMIUM UNLOCK</p>}
+          <h3 className="mt-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-yellow-300/40 bg-yellow-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">ðŸ”“ PREMIUM UNLOCK</p>}
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
@@ -1029,7 +1029,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 
     <div className="mt-3 space-y-2 text-[11px] font-bold text-slate-300">
       <p>AI-powered strategy alerts</p>
-      <p>Desk 1 • Trading Room • Premium Analysts signals</p>
+      <p>Desk 1 â€¢ Trading Room â€¢ Premium Analysts signals</p>
       <p>News calendar monitoring</p>
       <p>MT4 / MT5 read-side support</p>
     </div>
@@ -1303,7 +1303,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
               {!isPremium && (
                 <PremiumLock
                   title="Full Live Signals Locked"
-                  message="Free users can preview a few Strategy A signals. Premium unlocks all real-time signals, Strategy B, Strategy C, Trading Room signals, and Telegram delivery."
+                  message="Free users can preview a few Strategy A signals. Premium unlocks all real-time signals, Strategy B, Strategy C, Strategy D Scalping, Trading Room signals, and Telegram delivery."
                 />
               )}
             </div>
@@ -1349,7 +1349,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#030811]/95 px-3 py-1 text-[9px] text-slate-400 backdrop-blur-xl sm:text-[10px]">
   <div className="flex flex-col items-center justify-center gap-2 text-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
     <p>
-      ⚠️ Risk Disclaimer: Trading forex carries significant risk. Signals are educational only and not financial advice.
+      âš ï¸ Risk Disclaimer: Trading forex carries significant risk. Signals are educational only and not financial advice.
     </p>
 
     <div className="flex flex-wrap items-center justify-center gap-4 font-bold">
@@ -1361,7 +1361,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
   </div>
 
   <p className="mt-2 text-center text-slate-500">
-    © 2026 EasyPips AI. All rights reserved.
+    Â© 2026 EasyPips AI. All rights reserved.
   </p>
 </footer>
 </main>
@@ -1486,7 +1486,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
         <div className="space-y-0.5">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex items-center justify-between rounded-xl bg-black/30 p-1.5 text-sm">
-              <span>{s.symbol} Â· {s.direction}</span>
+              <span>{s.symbol} Ã‚Â· {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -1908,7 +1908,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
     { title: "Strategy A", sub: "EMA + RSI + Momentum", color: "blue" },
     { title: "Strategy B", sub: "Advanced SMC Sniper", color: "purple" },
     { title: "Strategy C", sub: "Smart Money High RR", color: "green" },
-    { title: "Strategy D", sub: "Institutional Liquidity Scalper", color: "cyan" },
+    { title: "Strategy D", sub: "3-Min Scalping AI", color: "cyan" },
     { title: "Trading Room", sub: "Manual support desk signals", color: "yellow" },
   ];
   return (
@@ -2435,7 +2435,7 @@ function HelpCenterPage() {
 
         <Panel title="Response Time">
           <div className="space-y-0.5 text-sm text-slate-300">
-            <p>Average response: 5–15 minutes</p>
+            <p>Average response: 5â€“15 minutes</p>
             <p>Priority support for premium users</p>
             <p>24/7  active</p>
           </div>
@@ -2444,6 +2444,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
