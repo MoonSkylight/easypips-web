@@ -747,6 +747,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [news, setNews] = useState<NewsEvent[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [livePrices, setLivePrices] = useState<Record<string, any>>({});
+  const [systemStatus, setSystemStatus] = useState<any>(null);
   const [filter, setFilter] = useState("All");
   const [selectedPairs, setSelectedPairs] = useState<string[]>(["XAU/USD", "EUR/USD", "GBP/USD"]);
   const [pairSearch, setPairSearch] = useState("");
@@ -766,11 +767,11 @@ const clientToken =
 
   async function loadData() {
     try {
-      const [signalsRes, closedRes, newsRes, accountRes, priceRes] = await Promise.allSettled([
+      const [signalsRes, closedRes, newsRes, accountRes, priceRes, statusRes] = await Promise.allSettled([
         fetch(`${API}/all-paid-signals`),
         fetch(`${API}/closed-signals`),
         fetch(`${API}/news-calendar`),
-        fetch(`${API}/client-accounts`),fetch(`${API}/live-prices`),
+        fetch(`${API}/client-accounts`),fetch(`${API}/live-prices`),fetch(`${API}/system-status`),
       ]);
 
       if (signalsRes.status === "fulfilled") {
@@ -795,6 +796,14 @@ const clientToken =
 if (priceRes.status === "fulfilled") {
   const data = await priceRes.value.json();
   setLivePrices(data || {});
+}
+if (statusRes.status === "fulfilled") {
+  const data = await statusRes.value.json();
+  setSystemStatus(data || null);
+}
+if (statusRes.status === "fulfilled") {
+  const data = await statusRes.value.json();
+  setSystemStatus(data || null);
 }
     } catch {
       // Keep UI stable.
@@ -937,9 +946,9 @@ const weeklyLive = allSignals.filter((s) => {
   return created >= weekStart;
 });
 
-const totalSignals = weeklyLive.length + weeklyClosed.length;
-const activeCount = weeklyLive.length;
-const closedCount = weeklyClosed.length;
+const totalSignals = systemStatus?.totalSignals ?? (weeklyLive.length + weeklyClosed.length);
+const activeCount = systemStatus?.activeSignals ?? weeklyLive.length;
+const closedCount = systemStatus?.closedSignals ?? weeklyClosed.length;
 
 const wins = weeklyClosed.filter((s) => String(s.result || "").toUpperCase().includes("WIN") || String(s.result || "").toUpperCase().includes("TP")).length;
 
@@ -2444,6 +2453,15 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 
 
 
