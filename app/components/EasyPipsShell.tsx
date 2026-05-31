@@ -2404,7 +2404,7 @@ function HelpCenterPage() {
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask about premium access, MT4/MT5 setup, billing, or signals..."
+              placeholder="Type your question about billing, premium access, MT4/MT5 setup, or signals..."
               className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm outline-none focus:border-yellow-300/40"
             />
 
@@ -2425,7 +2425,7 @@ function HelpCenterPage() {
               target="_blank"
               className="block rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 hover:bg-white/[0.05]"
             >
-              Telegram Support Channel Channel
+              Telegram Support Channel
             </a>
 
             <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
@@ -2437,22 +2437,20 @@ function HelpCenterPage() {
             </div>
 
             <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2">
-              MT4 / MT5 MT4 / MT5 Technical Support
+              MT4 / MT5 Technical Support
             </div>
           </div>
         </Panel>
 
         <Panel title="Response Time">
           <div className="space-y-0.5 text-sm text-slate-300">
-            <p>Average response: 5â€“15 minutes</p>
+            <p>Average response: 5-15 minutes</p>
             <p>Priority support for premium users</p>
-            <p>24/7  active</p>
+            <p>24/7 support monitoring</p>
           </div>
         </Panel>
       </div>
     </div>
   );
 }
-
-
 
