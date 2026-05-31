@@ -95,6 +95,7 @@ const NAV = [
   { key: "history", label: "History", href: "/history", icon: "history" },
   
   
+  { key: "pricing", label: "Buy Coins", href: "/pricing", icon: "billing" },
   { key: "help-center", label: "Help Center", href: "/help-center", icon: "account" },
 ];
 
@@ -2465,12 +2466,4 @@ function HelpCenterPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
 
