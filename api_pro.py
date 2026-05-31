@@ -136,6 +136,10 @@ class ClientLoginRequest(BaseModel):
     password: str
 
 
+
+class AddCoinsRequest(BaseModel):
+    coins: float
+    note: Optional[str] = ""
 class TradeHistoryRequest(BaseModel):
     account_id: str
     signal_id: Optional[str] = None
@@ -2214,6 +2218,57 @@ Login: {account.get("account_login")}
     }
 
 
+
+@app.post("/admin/client-accounts/{account_id}/add-coins")
+def admin_add_coins(account_id: str, data: AddCoinsRequest, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    account_rows = (
+        supabase.table("client_accounts")
+        .select("*")
+        .eq("id", account_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not account_rows:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    account = account_rows[0]
+    current_balance = float(account.get("coin_balance") or 0)
+    coins_to_add = float(data.coins or 0)
+
+    if coins_to_add <= 0:
+        raise HTTPException(status_code=400, detail="Coins must be greater than 0")
+
+    new_balance = current_balance + coins_to_add
+
+    updated = (
+        supabase.table("client_accounts")
+        .update({"coin_balance": new_balance})
+        .eq("id", account_id)
+        .execute()
+    )
+
+    log_action(account_id, "COINS_ADDED", {
+        "coins_added": coins_to_add,
+        "previous_balance": current_balance,
+        "new_balance": new_balance,
+        "note": data.note,
+    })
+
+    return {
+        "success": True,
+        "account_id": account_id,
+        "coins_added": coins_to_add,
+        "coin_balance": new_balance,
+        "account": updated.data[0] if updated.data else None,
+    }
+
 @app.patch("/admin/client-accounts/{account_id}/update-risk")
 def update_client_account_risk(
     account_id: str,
@@ -2920,4 +2975,5 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
+
 
