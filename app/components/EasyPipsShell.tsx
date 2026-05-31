@@ -350,34 +350,49 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
   const [loading, setLoading] = useState(false);
 
-  async function unlockSignal() {
-    try {
-      setLoading(true);
+ async function unlockSignal() {
+  try {
+    setLoading(true);
 
-      const res = await fetch("/api/create-single-signal-checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          signalId: s.id || s.symbol || "single-signal",
-        }),
-      });
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("easypips_client_token")
+        : null;
 
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-        return;
-      }
-
-      alert("Checkout could not start. Please try again.");
-    } catch {
-      alert("Checkout error. Please try again.");
-    } finally {
-      setLoading(false);
+    if (!token) {
+      alert("Please login before unlocking signals.");
+      window.location.href = "/client/login";
+      return;
     }
+
+    const res = await fetch(`${API}/client/unlock-signal`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        signal_id: s.id || s.symbol || "single-signal",
+        confidence: confidenceValue,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.message || "Not enough coins. Please buy more coins.");
+      window.location.href = "/pricing";
+      return;
+    }
+
+    alert(`Signal unlocked. Coins used: ${data.coins_used}`);
+    window.location.reload();
+  } catch {
+    alert("Unlock failed. Please try again.");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-yellow-300/40  bg-gradient-to-br transition-all duration-300 hover:-translate-y-0.5 hover:border-yellow-300/50 hover:shadow-xl hover:shadow-yellow-400/15 from-yellow-400/[0.10] via-white/[0.04] to-black/40 p-2 shadow-lg shadow-yellow-400/15">
