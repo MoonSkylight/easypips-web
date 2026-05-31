@@ -1777,8 +1777,8 @@ const monthlyReturn =
           <StatCard title="Winning Trades" value={apiWins} color="green" />
           <StatCard title="Losing Trades" value={apiLosses} color="red" />
           <StatCard title="Win Rate" value={`${apiWinRate}%`} color="yellow" />
-                    <StatCard title="Best Pair" value={analytics?.strategyA?.bestPair || "-"} color="green" />
-          <StatCard title="Worst Pair" value={analytics?.strategyA?.worstPair || "-"} color="red" />
+                    <StatCard title="Best Pair A" value={analytics?.strategyA?.bestPair || "-"} color="green" />
+          <StatCard title="Worst Pair A" value={analytics?.strategyA?.worstPair || "-"} color="red" />
         </div>
       </Panel>
 
@@ -2453,21 +2453,4 @@ function HelpCenterPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
