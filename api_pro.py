@@ -2554,6 +2554,9 @@ def client_dashboard(authorization: str = Header(default="")):
 
     account = account_rows[0] if account_rows else None
 
+    if account is not None:
+        account["coin_balance"] = float(account.get("coin_balance") or 0)
+
     trades = (
         supabase.table("trade_history")
         .select("*")
