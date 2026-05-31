@@ -344,8 +344,8 @@ function LockedSignalCard({ s }: { s: Signal }) {
   const confidenceValue = Number(s.confidence || s.score || 0);
   const signalPrice = confidenceValue >= 90 ? "$5" : "$3";
   const unlockText = confidenceValue >= 90
-    ? "Unlock $5"
-    : "Unlock $3";
+    ? "Unlock (2 Coins)"
+    : "Unlock (1 Coin)";
 
   const [loading, setLoading] = useState(false);
 
@@ -386,7 +386,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
       <div>
         <p className="text-sm font-black uppercase tracking-widest text-yellow-300">
-          Premium AI Signal
+          Premium Signal
 
         </p>
 
@@ -412,7 +412,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
   </p>
 
         <p className="mt-1 text-[9px] text-slate-500">
-          Unlock this signal instantly for {signalPrice}
+          Unlock this signal using your EasyPips Coins
 
        </p>
       </div>
@@ -430,7 +430,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
        className="mt-2 w-full rounded-lg border border-yellow-300/40 bg-gradient-to-r from-yellow-300 to-yellow-500 px-3 py-2 text-center text-sm font-black text-black shadow-lg shadow-yellow-400/15 transition hover:scale-[1.02] disabled:opacity-60"
       >
-        {loading ? "Opening Checkout..." : unlockText}
+        {loading ? "Opening Coin Checkout..." : unlockText}
 
      </button>
     </div>
@@ -2453,5 +2453,10 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
