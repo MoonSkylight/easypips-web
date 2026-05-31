@@ -1,4 +1,4 @@
-MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
+﻿MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -42,7 +42,7 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 MIN_SIGNAL_SCORE = int(os.environ.get("MIN_SIGNAL_SCORE", "88"))
-MAX_SIGNALS_PER_DAY = int(os.environ.get("MAX_SIGNALS_PER_DAY", "3"))
+MAX_SIGNALS_PER_DAY = int(os.environ.get("MAX_SIGNALS_PER_DAY", "5"))
 SIGNAL_COOLDOWN_MINUTES = int(os.environ.get("SIGNAL_COOLDOWN_MINUTES", "180"))
 MAX_AI_SIGNALS_PER_STRATEGY = int(os.environ.get("MAX_AI_SIGNALS_PER_STRATEGY", "2"))
 
@@ -1725,7 +1725,7 @@ def closed_signals():
 
 @app.get("/telegram-test")
 def telegram_test():
-    send_telegram("🚀 *EasyPips Telegram connected successfully!*")
+    send_telegram("ðŸš€ *EasyPips Telegram connected successfully!*")
     return {"status": "ok", "message": "Telegram test sent"}
 
 
@@ -2026,7 +2026,7 @@ def request_account_connection(account: ClientAccountRequest):
         })
 
     send_telegram(f"""
-🧾 *NEW ACCOUNT CONNECTION REQUEST*
+ðŸ§¾ *NEW ACCOUNT CONNECTION REQUEST*
 
 Name: {account.name}
 Platform: {account.platform.upper()}
@@ -2146,7 +2146,7 @@ def approve_client_account(account_id: str, authorization: str = Header(default=
 
     if account:
         send_telegram(f"""
-✅ *ACCOUNT APPROVED*
+âœ… *ACCOUNT APPROVED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2186,7 +2186,7 @@ def reject_client_account(account_id: str, authorization: str = Header(default="
 
     if account:
         send_telegram(f"""
-❌ *ACCOUNT REJECTED*
+âŒ *ACCOUNT REJECTED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2301,7 +2301,7 @@ def admin_toggle_auto_trade(account_id: str, authorization: str = Header(default
     updated = response.data[0] if response.data else None
 
     send_telegram(f"""
-⚙️ *AUTO TRADE UPDATED*
+âš™ï¸ *AUTO TRADE UPDATED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2364,7 +2364,7 @@ def toggle_kill_switch(account_id: str, authorization: str = Header(default=""))
     })
 
     send_telegram(f"""
-🛑 *KILL SWITCH UPDATED*
+ðŸ›‘ *KILL SWITCH UPDATED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2649,7 +2649,7 @@ def admin_get_trade_history(account_id: str, authorization: str = Header(default
 @app.get("/admin/telegram-health")
 def admin_telegram_health(authorization: str = Header(default="")):
     verify_admin_token(authorization)
-    ok = send_telegram("✅ *EasyPips Telegram health check*\\n\\nTelegram is connected and Markdown formatting is working.")
+    ok = send_telegram("âœ… *EasyPips Telegram health check*\\n\\nTelegram is connected and Markdown formatting is working.")
     return {"success": ok}
 
 @app.get("/debug-telegram")
@@ -2907,6 +2907,7 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
+
 
 
 
