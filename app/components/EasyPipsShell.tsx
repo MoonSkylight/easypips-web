@@ -93,7 +93,7 @@ const NAV = [
 
   { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "account" },
   { key: "history", label: "History", href: "/history", icon: "history" },
-  { key: "reports", label: "Reports", href: "/reports", icon: "reports" },
+  
   
   { key: "help-center", label: "Help Center", href: "/help-center", icon: "account" },
 ];
@@ -1325,7 +1325,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 
           {page === "history" && <HistoryPage closed={closed} allSignals={allSignals} />}
 
-          {page === "reports" && <ReportsPage closed={closed} allSignals={allSignals} />}
+          
           {page === "help-center" && <HelpCenterPage />}
 
           {page === "settings" && (
@@ -2453,4 +2453,6 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
