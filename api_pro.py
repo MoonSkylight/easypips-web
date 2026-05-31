@@ -2758,7 +2758,9 @@ def real_backtest_analytics():
         pair_analytics = sorted(pair_analytics, key=lambda x: x["winRate"], reverse=True)
         return {
             "success": True,
-            "totalSignals": len(signals),            "strategyA": {
+            "totalSignals": len(signals),
+            "pairAnalytics": pair_analytics,
+            "strategyA": {
                 "totalTrades": len([s for s in signals if s.get("strategy") == "Strategy A"]),
                 "wins": len([s for s in signals if s.get("strategy") == "Strategy A" and (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())]),
                 "losses": len([s for s in signals if s.get("strategy") == "Strategy A" and ("SL" in str(s.get("result") or "").upper()) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3"))]),
@@ -2907,11 +2909,4 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
-
-
-
-
-
-
-
 
