@@ -747,6 +747,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [closed, setClosed] = useState<Signal[]>([]);
   const [news, setNews] = useState<NewsEvent[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [coinBalance, setCoinBalance] = useState(0);
   const [livePrices, setLivePrices] = useState<Record<string, any>>({});
   const [systemStatus, setSystemStatus] = useState<any>(null);
   const [filter, setFilter] = useState("All");
@@ -793,14 +794,22 @@ const clientToken =
       if (accountRes.status === "fulfilled") {
         const data = await accountRes.value.json();
         setAccounts(data.accounts || []);
+
+        if (clientToken) {
+          try {
+            const dash = await fetch(`${API}/client/dashboard`, {
+              headers: {
+                Authorization: `Bearer ${clientToken}`,
+              },
+            });
+            const dashData = await dash.json();
+            setCoinBalance(Number(dashData?.account?.coin_balance || 0));
+          } catch {}
+        }
       }
 if (priceRes.status === "fulfilled") {
   const data = await priceRes.value.json();
   setLivePrices(data || {});
-}
-if (statusRes.status === "fulfilled") {
-  const data = await statusRes.value.json();
-  setSystemStatus(data || null);
 }
 if (statusRes.status === "fulfilled") {
   const data = await statusRes.value.json();
@@ -1047,7 +1056,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     <div className="mt-3 rounded-xl border border-yellow-300/25 bg-black/30 p-2">
       <div className="flex items-center justify-between text-[11px]">
         <span className="font-black text-yellow-300">Coin Balance</span>
-        <span className="font-black text-white">0 Coins</span>
+        <span className="font-black text-white">{coinBalance} Coins</span>
       </div>
       <button className="mt-2 w-full rounded-xl border border-yellow-300/30 bg-yellow-400/10 px-3 py-2 text-[11px] font-black text-yellow-300 transition hover:bg-yellow-400/20">
         Buy Coins
@@ -1188,7 +1197,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     </button>
 
 
-    <div className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300">Coin Balance: 0</div>
+    <div className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300">Coin Balance: {coinBalance}</div>
 
 
   </>
@@ -1210,7 +1219,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     </Link>
 
 
-    <div className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300">Coin Balance: 0</div>
+    <div className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300">Coin Balance: {coinBalance}</div>
 
 
 
@@ -2466,4 +2475,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
 
