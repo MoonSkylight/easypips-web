@@ -1043,6 +1043,16 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       <p>MT4 / MT5 read-side support</p>
     </div>
 
+    <div className="mt-3 rounded-xl border border-yellow-300/25 bg-black/30 p-2">
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="font-black text-yellow-300">Coin Balance</span>
+        <span className="font-black text-white">0 Coins</span>
+      </div>
+      <button className="mt-2 w-full rounded-xl border border-yellow-300/30 bg-yellow-400/10 px-3 py-2 text-[11px] font-black text-yellow-300 transition hover:bg-yellow-400/20">
+        Buy Coins
+      </button>
+    </div>
+
     <a href="https://t.me/" target="_blank" className="mt-3 block rounded-xl border border-yellow-300/30 bg-yellow-400/10 px-3 py-2 text-center text-[11px] font-black text-yellow-300 transition hover:bg-yellow-400/20">
       Join Telegram
     </a>
@@ -1176,6 +1186,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       Logout
     </button>
 
+
     <a href="https://t.me/" target="_blank" className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300 hover:bg-yellow-400/20">
       Join Telegram
     </a>
@@ -1196,6 +1207,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     >
       Login
     </Link>
+
 
     <a href="https://t.me/" target="_blank" className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300 hover:bg-yellow-400/20">
       Join Telegram
@@ -2453,6 +2465,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
