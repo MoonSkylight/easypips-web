@@ -78,6 +78,14 @@ SYMBOLS = {
     "USD/CAD": "CAD=X",
     "XAU/USD": "GC=F",
     "BTC/USD": "BTC-USD",
+    "EUR/GBP": "EURGBP=X",
+    "EUR/JPY": "EURJPY=X",
+    "GBP/JPY": "GBPJPY=X",
+    "AUD/JPY": "AUDJPY=X",
+    "CHF/JPY": "CHFJPY=X",
+    "GBP/CHF": "GBPCHF=X",
+    "EUR/CHF": "EURCHF=X",
+    "AUD/NZD": "AUDNZD=X",
 }
 
 
