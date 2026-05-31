@@ -2254,6 +2254,16 @@ def admin_add_coins(account_id: str, data: AddCoinsRequest, authorization: str =
         .execute()
     )
 
+
+    supabase.table("coin_transactions").insert({
+        "account_id": account_id,
+        "type": "ADMIN_CREDIT",
+        "coins": coins_to_add,
+        "balance_before": current_balance,
+        "balance_after": new_balance,
+        "note": data.note,
+    }).execute()
+
     log_action(account_id, "COINS_ADDED", {
         "coins_added": coins_to_add,
         "previous_balance": current_balance,
