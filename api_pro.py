@@ -140,6 +140,11 @@ class ClientLoginRequest(BaseModel):
 class AddCoinsRequest(BaseModel):
     coins: float
     note: Optional[str] = ""
+
+class UnlockSignalRequest(BaseModel):
+    signal_id: Optional[str] = None
+    confidence: Optional[float] = 0
+
 class TradeHistoryRequest(BaseModel):
     account_id: str
     signal_id: Optional[str] = None
@@ -2594,8 +2599,63 @@ def client_me(authorization: str = Header(default="")):
         },
     }
 
+@app.post("/client/unlock-signal")
+def client_unlock_signal(
+    data: UnlockSignalRequest,
+    authorization: str = Header(default="")
+):
+    payload = verify_client_token(authorization)
 
-@app.get("/client/dashboard")
+    account_id = payload.get("account_id")
+
+    if not account_id:
+        raise HTTPException(status_code=400, detail="No account linked")
+
+    account_rows = (
+        supabase.table("client_accounts")
+        .select("*")
+        .eq("id", account_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not account_rows:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    account = account_rows[0]
+
+    current_balance = float(account.get("coin_balance") or 0)
+
+    cost = 2 if float(data.confidence or 0) >= 90 else 1
+
+    if current_balance < cost:
+        return {
+            "success": False,
+            "message": "Not enough coins",
+            "coin_balance": current_balance,
+        }
+
+    new_balance = current_balance - cost
+
+    supabase.table("client_accounts").update({
+        "coin_balance": new_balance
+    }).eq("id", account_id).execute()
+
+    supabase.table("coin_transactions").insert({
+        "account_id": account_id,
+        "type": "SIGNAL_UNLOCK",
+        "coins": -cost,
+        "balance_before": current_balance,
+        "balance_after": new_balance,
+        "note": data.signal_id,
+    }).execute()
+
+    return {
+        "success": True,
+        "coins_used": cost,
+        "coin_balance": new_balance,
+    }@app.get("/client/dashboard")
 def client_dashboard(authorization: str = Header(default="")):
     payload = verify_client_token(authorization)
     account_id = payload.get("account_id")
