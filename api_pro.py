@@ -44,7 +44,7 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 MIN_SIGNAL_SCORE = int(os.environ.get("MIN_SIGNAL_SCORE", "88"))
 MAX_SIGNALS_PER_DAY = int(os.environ.get("MAX_SIGNALS_PER_DAY", "5"))
 SIGNAL_COOLDOWN_MINUTES = int(os.environ.get("SIGNAL_COOLDOWN_MINUTES", "180"))
-MAX_AI_SIGNALS_PER_STRATEGY = int(os.environ.get("MAX_AI_SIGNALS_PER_STRATEGY", "2"))
+MAX_AI_SIGNALS_PER_STRATEGY = int(os.environ.get("MAX_AI_SIGNALS_PER_STRATEGY", "4"))
 
 
 YAHOO_CACHE = {}
@@ -2907,6 +2907,7 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
+
 
 
 
