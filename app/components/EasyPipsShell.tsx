@@ -1187,9 +1187,9 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     </button>
 
 
-    <a href="https://t.me/" target="_blank" className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300 hover:bg-yellow-400/20">
-      Join Telegram
-    </a>
+    <div className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300">Coin Balance: 0</div>
+
+
   </>
 ) : (
   <>
@@ -1209,9 +1209,9 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     </Link>
 
 
-    <a href="https://t.me/" target="_blank" className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300 hover:bg-yellow-400/20">
-      Join Telegram
-    </a>
+    <div className="rounded-lg border border-yellow-300/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-black text-yellow-300">Coin Balance: 0</div>
+
+
 
   </>
 )}
@@ -2465,6 +2465,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
