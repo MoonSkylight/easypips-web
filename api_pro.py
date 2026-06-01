@@ -2657,7 +2657,29 @@ def client_unlock_signal(
         "coin_balance": new_balance,
     }
 
+@app.get("/client/coin-transactions")
+def client_coin_transactions(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    account_id = payload.get("account_id")
 
+    if not account_id:
+        return {"success": True, "transactions": []}
+
+    rows = (
+        supabase.table("coin_transactions")
+        .select("*")
+        .eq("account_id", account_id)
+        .order("created_at", desc=True)
+        .limit(100)
+        .execute()
+        .data
+        or []
+    )
+
+    return {
+        "success": True,
+        "transactions": rows,
+    }
 @app.get("/client/dashboard")
 def client_dashboard(authorization: str = Header(default="")):
     payload = verify_client_token(authorization)
