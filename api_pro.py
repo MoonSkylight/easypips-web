@@ -2245,6 +2245,18 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
         "coins": coins,
     }).eq("id", submission_id).execute()
 
+
+    send_telegram(f"""
+✅ *PAYMENT APPROVED*
+
+Package: {submission.get("package")}
+Contact: {submission.get("contact")}
+Coins Credited: {coins}
+New Balance: {new_balance}
+TX Hash: `{submission.get("tx_hash")}`
+
+Customer can now unlock EasyPips signals.
+""")
     return {
         "success": True,
         "message": "Payment approved and coins credited",
