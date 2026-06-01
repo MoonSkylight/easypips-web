@@ -250,6 +250,9 @@ if (paymentRes.status === "fulfilled") {
   (a) => String(a.status || "").toLowerCase() !== "approved"
 );
 
+const pendingPayments = paymentSubmissions.filter(
+  (p) => String(p.status || "").toLowerCase() !== "approved"
+);
 if (!token) {
   return (
     <main className="min-h-screen bg-[#030811] px-5 py-6 text-white">
@@ -456,15 +459,15 @@ return (
   <div className="mb-5 flex items-center justify-between gap-3">
     <h2 className="text-2xl font-black">Payment Submissions</h2>
     <span className="rounded-full border border-yellow-300/30 bg-yellow-400/10 px-3 py-1 text-xs font-black text-yellow-300">
-      {paymentSubmissions.length} Pending
+      {pendingPayments.length} Pending
     </span>
   </div>
 
   <div className="space-y-3">
-    {paymentSubmissions.length === 0 ? (
+    {pendingPayments.length === 0 ? (
       <p className="text-slate-400">No payment submissions yet.</p>
     ) : (
-      paymentSubmissions.slice(0, 20).map((p, i) => (
+      pendingPayments.slice(0, 20).map((p, i) => (
         <div key={p.id || i} className="rounded-2xl border border-white/8 bg-black/30 p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -663,4 +666,5 @@ function EditModal({
     </div>
   );
 }
+
 
