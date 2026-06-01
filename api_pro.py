@@ -2132,6 +2132,26 @@ def desk_performance():
         "Desk 2": calc("Desk 2"),
     }
 
+@app.get("/admin/payment-submissions")
+def admin_payment_submissions(authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": True, "submissions": []}
+
+    response = (
+        supabase.table("payment_submissions")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(100)
+        .execute()
+    )
+
+    return {
+        "success": True,
+        "submissions": response.data or [],
+    } 
+
 
 @app.get("/admin/client-accounts")
 def admin_client_accounts(authorization: str = Header(default="")):
