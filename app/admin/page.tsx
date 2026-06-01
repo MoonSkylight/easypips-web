@@ -490,14 +490,24 @@ return (
 
           <button
             onClick={async () => {
-              await apiAction(
-                `${API}/admin/payment-submissions/${p.id}/approve`,
-                {
-                  method: "POST",
-                }
-              );
+              const res = await fetch(`${API}/admin/payment-submissions/${p.id}/approve`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("easypips-admin-token") || token}`,
+                },
+              });
+
+              const data = await res.json();
+
+              if (!data.success) {
+                alert(data.message || "Payment approval failed");
+                return;
+              }
+
+              alert("Payment approved and coins credited");
+              await loadData();
             }}
-            className="mt-3 rounded-xl bg-emerald-400 px-3 py-2 text-xs font-black text-black"
           >
             Approve & Credit Coins
           </button>
