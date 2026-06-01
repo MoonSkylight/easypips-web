@@ -2636,6 +2636,16 @@ def create_payment_submission(data: PaymentSubmissionRequest):
 
     response = supabase.table("payment_submissions").insert(payload).execute()
 
+    send_telegram(f"""
+💰 *NEW USDT PAYMENT SUBMISSION*
+
+Package: {data.package}
+Contact: {data.contact}
+TX Hash: `{data.tx_hash.strip()}`
+
+Check Admin Panel → Payment Submissions.
+""")
+
     return {
         "success": True,
         "message": "Payment submission received",
