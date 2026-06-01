@@ -145,6 +145,11 @@ class UnlockSignalRequest(BaseModel):
     signal_id: Optional[str] = None
     confidence: Optional[float] = 0
 
+
+class PaymentSubmissionRequest(BaseModel):
+    package: str
+    tx_hash: str
+    contact: Optional[str] = ""
 class TradeHistoryRequest(BaseModel):
     account_id: str
     signal_id: Optional[str] = None
@@ -2494,7 +2499,28 @@ def account_audit_logs(account_id: str, authorization: str = Header(default=""))
 
     return {"logs": response.data or []}
 
+@app.post("/payment-submissions")
+def create_payment_submission(data: PaymentSubmissionRequest):
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
 
+    if not data.tx_hash.strip():
+        raise HTTPException(status_code=400, detail="Transaction hash is required")
+
+    payload = {
+        "package": data.package,
+        "tx_hash": data.tx_hash.strip(),
+        "contact": data.contact,
+        "status": "pending",
+    }
+
+    response = supabase.table("payment_submissions").insert(payload).execute()
+
+    return {
+        "success": True,
+        "message": "Payment submission received",
+        "submission": response.data[0] if response.data else None,
+    }
 @app.post("/client/register")
 def client_register(data: ClientRegisterRequest):
     if not db_enabled():
@@ -3070,4 +3096,6 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
+
+
 
