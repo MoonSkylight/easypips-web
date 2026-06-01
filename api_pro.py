@@ -2655,7 +2655,10 @@ def client_unlock_signal(
         "success": True,
         "coins_used": cost,
         "coin_balance": new_balance,
-    }@app.get("/client/dashboard")
+    }
+
+
+@app.get("/client/dashboard")
 def client_dashboard(authorization: str = Header(default="")):
     payload = verify_client_token(authorization)
     account_id = payload.get("account_id")
@@ -3045,5 +3048,4 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
-
 
