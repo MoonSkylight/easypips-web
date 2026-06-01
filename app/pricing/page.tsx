@@ -90,13 +90,77 @@ export default function PricingPage() {
           ))}
         </div>
 
-        <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-center text-slate-300">
-          Manual crypto payments are now supported.
-          <br />
-          Pay with USDT (TRC20), then send your transaction hash to support for coin crediting.
-          <br />
-          Wallet address: TNVYxfehv8MYkAcTwrMyuBHt4J6ZHootQF
-        </div>
+        <div className="mt-10 rounded-3xl border border-yellow-300/20 bg-white/[0.04] p-6">
+  <div className="text-center">
+    <p className="text-xs font-black uppercase tracking-widest text-yellow-300">
+      Manual USDT Payment
+    </p>
+    <h2 className="mt-2 text-3xl font-black">Submit Your Transaction Hash</h2>
+    <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+      Pay with USDT (TRC20), then submit your transaction hash below for manual coin crediting.
+    </p>
+    <p className="mt-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-black text-slate-200">
+      USDT TRC20 Wallet: TNVYxfehv8MYkAcTwrMyuBHt4J6ZHootQF
+    </p>
+  </div>
+
+  <form
+    className="mx-auto mt-6 grid max-w-2xl gap-3"
+    onSubmit={async (e) => {
+      e.preventDefault();
+
+      const fd = new FormData(e.currentTarget);
+
+      const res = await fetch("https://easypips-api.onrender.com/payment-submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          package: fd.get("package"),
+          tx_hash: fd.get("tx_hash"),
+          contact: fd.get("contact"),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.message || "Submission failed");
+        return;
+      }
+
+      alert("Payment submitted. Admin will verify and credit your coins.");
+      e.currentTarget.reset();
+    }}
+  >
+    <select
+      name="package"
+      className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none"
+    >
+      <option>Starter - 5 Coins - $7.50</option>
+      <option>Trader - 10 Coins - $15</option>
+      <option>Pro - 25 Coins - $35</option>
+      <option>Elite - 60 Coins - $75</option>
+    </select>
+
+    <input
+      name="tx_hash"
+      placeholder="USDT TRC20 transaction hash"
+      className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none"
+    />
+
+    <input
+      name="contact"
+      placeholder="Telegram username or email"
+      className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none"
+    />
+
+    <button className="rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black hover:bg-yellow-300">
+      Submit Payment Hash
+    </button>
+  </form>
+</div>
 
         <div className="mt-10 flex justify-center gap-4">
           <Link
