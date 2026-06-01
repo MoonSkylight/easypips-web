@@ -2152,6 +2152,106 @@ def admin_payment_submissions(authorization: str = Header(default="")):
         "submissions": response.data or [],
     } 
 
+@app.post("/admin/payment-submissions/{submission_id}/approve")
+def approve_payment_submission(submission_id: str, authorization: str = Header(default="")):
+    verify_admin_token(authorization)
+
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    rows = (
+        supabase.table("payment_submissions")
+        .select("*")
+        .eq("id", submission_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not rows:
+        raise HTTPException(status_code=404, detail="Payment submission not found")
+
+    submission = rows[0]
+
+    if submission.get("status") == "approved":
+        return {"success": False, "message": "Payment already approved"}
+
+    package_text = str(submission.get("package") or "")
+    coins = 0
+
+    if "5 Coins" in package_text:
+        coins = 5
+    elif "10 Coins" in package_text:
+        coins = 10
+    elif "25 Coins" in package_text:
+        coins = 25
+    elif "60 Coins" in package_text:
+        coins = 60
+
+    if coins <= 0:
+        raise HTTPException(status_code=400, detail="Unable to detect coin package")
+
+    contact = str(submission.get("contact") or "").strip().lower()
+
+    user_rows = (
+        supabase.table("client_users")
+        .select("*")
+        .eq("email", contact)
+        .execute()
+        .data
+        or []
+    )
+
+    if not user_rows:
+        raise HTTPException(status_code=404, detail="No client user found for this contact email")
+
+    user = user_rows[0]
+    account_id = user.get("account_id")
+
+    if not account_id:
+        raise HTTPException(status_code=400, detail="Client user has no linked account")
+
+    account_rows = (
+        supabase.table("client_accounts")
+        .select("*")
+        .eq("id", account_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not account_rows:
+        raise HTTPException(status_code=404, detail="Client account not found")
+
+    account = account_rows[0]
+    current_balance = float(account.get("coin_balance") or 0)
+    new_balance = current_balance + coins
+
+    supabase.table("client_accounts").update({
+        "coin_balance": new_balance
+    }).eq("id", account_id).execute()
+
+    supabase.table("coin_transactions").insert({
+        "account_id": account_id,
+        "type": "USDT_PURCHASE",
+        "coins": coins,
+        "balance_before": current_balance,
+        "balance_after": new_balance,
+        "note": submission.get("tx_hash"),
+    }).execute()
+
+    supabase.table("payment_submissions").update({
+        "status": "approved",
+        "coins": coins,
+    }).eq("id", submission_id).execute()
+
+    return {
+        "success": True,
+        "message": "Payment approved and coins credited",
+        "coins": coins,
+        "account_id": account_id,
+        "coin_balance": new_balance,
+    }
 
 @app.get("/admin/client-accounts")
 def admin_client_accounts(authorization: str = Header(default="")):
