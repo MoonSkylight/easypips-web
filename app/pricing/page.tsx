@@ -91,9 +91,11 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-center text-slate-300">
-          Crypto payments coming soon.
+          Manual crypto payments are now supported.
           <br />
-          First supported payment method: USDT (TRC20)
+          Pay with USDT (TRC20), then send your transaction hash to support for coin crediting.
+          <br />
+          Wallet address: Coming soon
         </div>
 
         <div className="mt-10 flex justify-center gap-4">
