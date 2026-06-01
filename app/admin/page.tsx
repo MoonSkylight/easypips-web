@@ -68,6 +68,7 @@ function formatDate(v?: string) {
 export default function AdminPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [paymentSubmissions, setPaymentSubmissions] = useState<any[]>([]);
   const [token, setToken] = useState("");
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
@@ -122,9 +123,13 @@ async function loginAdmin() {
 
   async function loadData() {
     try {
-      const [signalRes, accountRes] = await Promise.allSettled([
+      const [signalRes, accountRes, paymentRes] = await Promise.allSettled([
         fetch(`${API}/all-paid-signals`, { cache: "no-store" }),
         fetch(`${API}/client-accounts`, { cache: "no-store" }),
+        fetch(`${API}/admin/payment-submissions`, {
+          cache: "no-store",
+          headers,
+        }),
       ]);
 
       if (signalRes.status === "fulfilled") {
@@ -136,6 +141,10 @@ async function loginAdmin() {
         const data = await accountRes.value.json();
         setAccounts(data.accounts || data.clientAccounts || []);
       }
+if (paymentRes.status === "fulfilled") {
+  const data = await paymentRes.value.json();
+  setPaymentSubmissions(data.submissions || []);
+}
     } catch {
       setMessage("Unable to load admin data.");
     }
@@ -443,7 +452,43 @@ return (
               </table>
             </div>
           </section>
+<section className="mb-5 rounded-3xl border border-yellow-300/20 bg-white/[0.04] p-5 shadow-2xl shadow-black/30">
+  <div className="mb-5 flex items-center justify-between gap-3">
+    <h2 className="text-2xl font-black">Payment Submissions</h2>
+    <span className="rounded-full border border-yellow-300/30 bg-yellow-400/10 px-3 py-1 text-xs font-black text-yellow-300">
+      {paymentSubmissions.length} Pending
+    </span>
+  </div>
 
+  <div className="space-y-3">
+    {paymentSubmissions.length === 0 ? (
+      <p className="text-slate-400">No payment submissions yet.</p>
+    ) : (
+      paymentSubmissions.slice(0, 20).map((p, i) => (
+        <div key={p.id || i} className="rounded-2xl border border-white/8 bg-black/30 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-black text-yellow-300">{p.package}</p>
+              <p className="mt-1 text-xs text-slate-400">{formatDate(p.created_at)}</p>
+            </div>
+
+            <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-emerald-300">
+              {p.status || "pending"}
+            </span>
+          </div>
+
+          <p className="mt-3 break-all text-xs text-slate-300">
+            TX: {p.tx_hash}
+          </p>
+
+          <p className="mt-2 text-sm text-slate-400">
+            Contact: {p.contact || "-"}
+          </p>
+        </div>
+      ))
+    )}
+  </div>
+</section>
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/30">
             <h2 className="text-2xl font-black">Customer Account Approvals</h2>
 
