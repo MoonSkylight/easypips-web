@@ -1361,7 +1361,13 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
           {page === "news-calendar" && <NewsCalendarPage events={news} />}
           {page === "account" && <AccountPage accounts={accounts} />}
 
-          {page === "history" && <HistoryPage closed={closed} allSignals={allSignals} />}
+          {page === "history" && (
+            <HistoryPage
+              closed={closed}
+              allSignals={allSignals}
+              coinTransactions={coinTransactions}
+            />
+           )}
 
           
           {page === "help-center" && <HelpCenterPage />}
@@ -2100,7 +2106,15 @@ function tradeDuration(start?: string, end?: string) {
   return `${days}d ${hrs % 24}h`;
 }
 
-function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
+function HistoryPage({
+  closed,
+  allSignals,
+  coinTransactions,
+}: {
+  closed: Signal[];
+  allSignals: Signal[];
+  coinTransactions: any[];
+}) {
   const [historyRange, setHistoryRange] = useState("today");
 
   const historyStart = new Date();
@@ -2233,19 +2247,30 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
           <span>Balance</span>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
-          <span className="text-slate-400">Coming soon</span>
-          <span className="font-black text-yellow-300">ADMIN_CREDIT</span>
-          <span className="font-black text-emerald-300">+10</span>
-          <span className="text-white">10</span>
-        </div>
-
-        <div className="grid grid-cols-4 gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
-          <span className="text-slate-400">Coming soon</span>
-          <span className="font-black text-cyan-300">SIGNAL_UNLOCK</span>
-          <span className="font-black text-red-300">-1</span>
-          <span className="text-white">9</span>
-        </div>
+        {coinTransactions.length === 0 ? (
+  <div className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 text-center text-slate-400">
+    No coin transactions yet.
+  </div>
+) : (
+  coinTransactions.slice(0, 20).map((tx, i) => (
+    <div
+      key={tx.id || i}
+      className="grid grid-cols-4 gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2"
+    >
+      <span className="text-slate-400">{formatDate(tx.created_at)}</span>
+      <span className="font-black text-yellow-300">{tx.type}</span>
+      <span
+        className={`font-black ${
+          Number(tx.coins) >= 0 ? "text-emerald-300" : "text-red-300"
+        }`}
+      >
+        {Number(tx.coins) > 0 ? "+" : ""}
+        {tx.coins}
+      </span>
+      <span className="text-white">{tx.balance_after}</span>
+    </div>
+  ))
+)}
       </div>
     </Panel>
 
