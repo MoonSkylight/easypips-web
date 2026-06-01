@@ -95,7 +95,7 @@ export default function PricingPage() {
           <br />
           Pay with USDT (TRC20), then send your transaction hash to support for coin crediting.
           <br />
-          Wallet address: Coming soon
+          Wallet address: TNVYxfehv8MYkAcTwrMyuBHt4J6ZHootQF
         </div>
 
         <div className="mt-10 flex justify-center gap-4">
