@@ -764,6 +764,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [coinBalance, setCoinBalance] = useState(0);
   const [livePrices, setLivePrices] = useState<Record<string, any>>({});
+  const [coinTransactions, setCoinTransactions] = useState<any[]>([]);
   const [systemStatus, setSystemStatus] = useState<any>(null);
   const [filter, setFilter] = useState("All");
   const [selectedPairs, setSelectedPairs] = useState<string[]>(["XAU/USD", "EUR/USD", "GBP/USD"]);
@@ -2222,6 +2223,32 @@ function HistoryPage({ closed, allSignals }: { closed: Signal[]; allSignals: Sig
       </div>
     </Panel>
     </div>
+
+    <Panel title="Coin Transactions">
+      <div className="space-y-2 text-sm">
+        <div className="grid grid-cols-4 gap-2 rounded-xl bg-black/30 px-3 py-2 font-black text-slate-400">
+          <span>Date</span>
+          <span>Type</span>
+          <span>Coins</span>
+          <span>Balance</span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
+          <span className="text-slate-400">Coming soon</span>
+          <span className="font-black text-yellow-300">ADMIN_CREDIT</span>
+          <span className="font-black text-emerald-300">+10</span>
+          <span className="text-white">10</span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
+          <span className="text-slate-400">Coming soon</span>
+          <span className="font-black text-cyan-300">SIGNAL_UNLOCK</span>
+          <span className="font-black text-red-300">-1</span>
+          <span className="text-white">9</span>
+        </div>
+      </div>
+    </Panel>
+
     </div>
   );
 }
