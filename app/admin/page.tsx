@@ -501,7 +501,7 @@ return (
               const data = await res.json();
 
               if (!data.success) {
-                alert(data.message || "Payment approval failed");
+                alert(JSON.stringify(data));
                 return;
               }
 
@@ -676,6 +676,7 @@ function EditModal({
     </div>
   );
 }
+
 
 
 
