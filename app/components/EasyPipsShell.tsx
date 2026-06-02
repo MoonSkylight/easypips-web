@@ -341,6 +341,24 @@ function isHighConfidenceLocked(s: Signal) {
   return Number.isFinite(confidence) && confidence >= 85;
 }
 
+
+function signalUnlockKey(s: Signal) {
+  return String(s.id || s.symbol || "single-signal");
+}
+
+function isSignalUnlocked(s: Signal) {
+  if (typeof window === "undefined") return false;
+
+  try {
+    const unlocked = JSON.parse(
+      localStorage.getItem("easypips_unlocked_signals") || "[]"
+    );
+
+    return Array.isArray(unlocked) && unlocked.includes(signalUnlockKey(s));
+  } catch {
+    return false;
+  }
+}
 function LockedSignalCard({ s }: { s: Signal }) {
   const confidenceValue = Number(s.confidence || s.score || 0);
   const signalPrice = confidenceValue >= 90 ? "$5" : "$3";
@@ -2542,6 +2560,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
