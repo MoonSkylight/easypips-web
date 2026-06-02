@@ -942,34 +942,28 @@ def analyze_strategy_a(symbol: str, yahoo_symbol: str):
         rs = gain / loss
         rsi = float((100 - (100 / (1 + rs))).iloc[-1])
 
-        if ema_fast > ema_slow:
+        if ema_fast >= ema_slow:
             return {
                 "direction": "BUY",
                 "entry": current,
-                "confidence": 87,
+                "confidence": 88,
                 "pattern": "ema_rsi_momentum_buy",
                 "note": f"EMA bullish trend, RSI {rsi:.2f}, positive momentum.",
             }
 
-        if ema_fast < ema_slow:
-            return {
- 
-
-
-               "direction": "SELL",
-                "entry": current,
-                "confidence": 87,
-                "pattern": "ema_rsi_momentum_sell",
-                "note": f"EMA bearish trend, RSI {rsi:.2f}, negative momentum.",
-            }
+        return {
+            "direction": "SELL",
+            "entry": current,
+            "confidence": 88,
+            "pattern": "ema_rsi_momentum_sell",
+            "n
 
 
 
 
 
-
-
-        return None
+ote": f"EMA bearish trend, RSI {rsi:.2f}, negative momentum.",
+        }
     except Exception as e:
         print("Strategy A analysis error:", symbol, str(e))
         return None
