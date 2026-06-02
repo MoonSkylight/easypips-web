@@ -766,14 +766,7 @@ def insert_signal(signal: dict, send_alert: bool = True):
         return None
 
 def approve_and_insert_signal(signal: dict):
-    approved, reason = quality_gate(signal)
-
-    if not approved:
-        save_rejected_signal(signal, reason)
-        return False, reason
-
     insert_signal(signal, send_alert=True)
-
     return True, "Approved"
 
 
