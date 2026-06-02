@@ -446,7 +446,7 @@ function LockedSignalCard({ s }: { s: Signal }) {
       
        <div className="my-0.5 flex justify-center">
   <div className="flex h-8 w-8 items-center justify-center rounded-full border border-yellow-400/50 bg-yellow-400/10 shadow-lg shadow-yellow-400/15">
-    <span className="text-[24px]">🔒</span>
+    <span className="text-[24px]">??</span>
   </div>
 </div>
 
@@ -487,7 +487,7 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <h3 className="mt-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-yellow-300/40 bg-yellow-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">🔓 PREMIUM ACCESS</p>}
+          <h3 className="mt-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-yellow-300/40 bg-yellow-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">?? PREMIUM ACCESS</p>}
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
@@ -682,6 +682,15 @@ function getLivePrice(symbol: string | undefined, livePrices: Record<string, any
 }
 
 function pipSize(symbol?: string) {
+  const s = String(symbol || "").toUpperCase();
+
+  if (s.includes("JPY")) return 0.01;
+  if (s.includes("XAU")) return 0.1;
+  if (s.includes("BTC") || s.includes("ETH")) return 1;
+
+  return 0.0001;
+}
+
 function displayPips(s: Signal, livePrices: Record<string, any>) {
   const entry = Number(s.entry);
 
@@ -699,53 +708,17 @@ function displayPips(s: Signal, livePrices: Record<string, any>) {
     return Math.round(Math.abs(Number(s.tp1) - entry) / pipSize(s.symbol));
   }
 
-  return null;
-}
-
-function tickerStatus(s: Signal, livePrices: Record<string, any>) {
-  const pips = displayPips(s, livePrices);
-
-  if (s.hit_tp3) {
-    return {
-      text: `TP3 HIT +${pips} PIPS`,
-      color: "text-emerald-300",
-    };
-  }
-
-  if (s.hit_tp2) {
-    return {
-      text: `TP2 HIT +${pips} PIPS`,
-      color: "text-emerald-300",
-    };
-  }
-
-  if (s.hit_tp1) {
-    return {
-      text: `TP1 HIT +${pips} PIPS`,
-      color: "text-emerald-300",
-    };
-  }
-
-  return {
-    text: "ACTIVE",
-    color: "text-yellow-300 ",
-  };
-}
-  const s = cleanSymbol(symbol);
-  if (s.includes("JPY")) return 0.01;
-  if (s.includes("XAU")) return 0.1;
-  if (s.includes("BTC") || s.includes("ETH")) return 1;
-  return 0.0001;
-}
-
-function runningPips(s: Signal, livePrices: Record<string, any>) {
   const live = getLivePrice(s.symbol, livePrices);
-  const entry = Number(s.entry);
+  if (live === null) return null;
 
-  if (!Number.isFinite(entry) || live === null) return null;
+  const direction = String(s.direction || "").toUpperCase();
+  const diff = direction.includes("SELL") ? entry - live : live - entry;
 
-  const isLocked = String(s.direction || "").toUpperCase().includes("Locked");
-  const diff = isLocked ? entry - live : live - entry;
+
+
+
+
+
 
   return Math.round(diff / pipSize(s.symbol));
 }
@@ -2570,6 +2543,8 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
 
 
 
