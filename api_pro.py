@@ -1954,12 +1954,20 @@ def get_live_price(yahoo_symbol: str):
 
     return None, None
 @app.get("/live-prices")
+@app.get("/live-prices")
 def live_prices():
     prices = {}
 
     for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
-        price, _ = get_live_price(yahoo_symbol)
-        prices[symbol] = format_price(symbol, price) if price else None
+        try:
+            price, timestamp = get_live_price(yahoo_symbol)
+            if price is None:
+                prices[symbol] = None
+            else:
+                prices[symbol] = format_price(symbol, price)
+        except Exception as e:
+            print("live_prices endpoint failed for", symbol, str(e))
+            prices[symbol] = None
 
     return prices
 
