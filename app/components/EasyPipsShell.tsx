@@ -2419,7 +2419,7 @@ function SettingsPage({
             <div className="grid gap-1.5 md:grid-cols-2">
               {["Locked Signals", "Locked Signals", "Breakout Signals", "Reversal Signals"].map((x) => (
                 <div key={x} className="rounded-xl border border-white/8 bg-black/35 p-1.5">
-                  <p className="font-black text-white">? {x}</p>
+                  <p className="font-black text-white">🔒 {x}</p>
                   <p className="text-[9px] text-slate-500">Receive {x.toLowerCase()}</p>
 
                 </div>
@@ -2543,6 +2543,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
