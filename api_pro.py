@@ -3538,3 +3538,42 @@ def strategy_d_debug():
     }
 
 
+
+@app.get("/debug-twelvedata")
+def debug_twelvedata():
+    td_key = os.environ.get("TWELVEDATA_API_KEY")
+    results = {}
+
+    for symbol in ["EUR/USD", "GBP/USD", "AUD/USD", "NZD/USD", "USD/JPY"]:
+        item = {
+            "has_key": bool(td_key),
+            "symbol": symbol,
+            "status_code": None,
+            "body": None,
+            "error": None,
+        }
+
+        try:
+            response = requests.get(
+                "https://api.twelvedata.com/time_series",
+                params={
+                    "symbol": symbol,
+                    "interval": "5min",
+                    "outputsize": 10,
+                    "apikey": td_key,
+                },
+                timeout=12,
+            )
+            item["status_code"] = response.status_code
+            item["body"] = response.text[:800]
+        except Exception as e:
+            item["error"] = str(e)
+
+        results[symbol] = item
+
+
+
+
+
+
+    return results
