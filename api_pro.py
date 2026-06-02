@@ -80,13 +80,96 @@ def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15
 
     try:
         data = yf.Ticker(yahoo_symbol).history(period=period, interval=interval)
-        YAHOO_CACHE[key] = {"time": now, "data": data}
-        return data
+        if data is not None and not data.empty:
+            YAHOO_CACHE[key] = {"time": now, "data": data}
+            return data
     except Exception as e:
         print("Yahoo history failed:", yahoo_symbol, str(e))
-        if cached:
-            return cached["data"]
-        return pd.DataFrame()
+
+    try:
+        td_key = os.environ.get("TWELVEDATA_API_KEY")
+        reverse_symbols = {v: k for k, v in SYMBOLS.items()} if "SYMBOLS" in globals() else {}
+        td_symbol = reverse_symbols.get(yahoo_symbol)
+
+        if td_key and td_symbol and interval in ["1m", "5m", "15m"]:
+            response = requests.get(
+                "https://api.twelvedata.com/time_series",
+                params={
+                    "symbol": td_symbol,
+                    "interval": interval,
+
+                    "outputsize": 500,
+                    "apikey": td_key,
+                },
+                timeout=12,
+            )
+            payload = response.json()
+            values = payload.get("values") or []
+
+            if values:
+                df = pd.DataFrame(values)
+                df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
+                df = df.set_index("datetime").sort_index()
+                df = df.rename(columns={"open": "Open", "high": "High", "low": "Low", "close": "Close", "volume": "Volume"})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                for col in ["Open", "High", "Low", "Close"]:
+                    df[col] = pd.to_numeric(df[col], errors="coerce")
+
+                if "Volume" not in df.columns:
+                    df["Volume"] = 0
+                else:
+                    df["Volume"] = pd.to_numeric(df["Volume"], errors="coerce").fillna(0)
+
+
+
+
+
+
+
+
+
+                df = df[["Open", "High", "Low", "Close", "Volume"]].dropna()
+
+                if not df.empty:
+                    YAHOO_CACHE[key] = {"time": now, "data": df}
+
+
+
+
+
+                    return df
+
+            print("TwelveData history empty:", yahoo_symbol, payload.get("message") or payload.get("status"))
+    except Exception as e:
+
+
+
+
+        print("TwelveData history failed:", yahoo_symbol, str(e))
+
+    if cached:
+        return cached["data"]
+
+   
+
+
+
+
+ return pd.DataFrame()
+
 supabase: Client | None = None
 
 if SUPABASE_URL and SUPABASE_KEY:
