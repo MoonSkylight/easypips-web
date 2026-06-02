@@ -50,6 +50,26 @@ MAX_AI_SIGNALS_PER_STRATEGY = int(os.environ.get("MAX_AI_SIGNALS_PER_STRATEGY", 
 YAHOO_CACHE = {}
 YAHOO_CACHE_SECONDS = 1800
 
+YAHOO_TO_FRANKFURTER = {
+    "EURUSD=X": ("EUR", "USD"),
+    "GBPUSD=X": ("GBP", "USD"),
+    "AUDUSD=X": ("AUD", "USD"),
+    "NZDUSD=X": ("NZD", "USD"),
+    "USDJPY=X": ("USD", "JPY"),
+    "USDCHF=X": ("USD", "CHF"),
+    "USDCAD=X": ("USD", "CAD"),
+    "EURGBP=X": ("EUR", "GBP"),
+    "EURJPY=X": ("EUR", "JPY"),
+    "GBPJPY=X": ("GBP", "JPY"),
+    "AUDJPY=X": ("AUD", "JPY"),
+    "CADJPY=X": ("CAD", "JPY"),
+    "CHFJPY=X": ("CHF", "JPY"),
+    "EURAUD=X": ("EUR", "AUD"),
+    "EURCAD=X": ("EUR", "CAD"),
+    "EURCHF=X": ("EUR", "CHF"),
+    "AUDNZD=X": ("AUD", "NZD"),
+}
+
 def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15m"):
     key = f"{yahoo_symbol}:{period}:{interval}"
     now = time.time()
@@ -58,9 +78,15 @@ def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15
     if cached and now - cached["time"] < YAHOO_CACHE_SECONDS:
         return cached["data"]
 
-    data = yf.Ticker(yahoo_symbol).history(period=period, interval=interval)
-    YAHOO_CACHE[key] = {"time": now, "data": data}
-    return data
+    try:
+        data = yf.Ticker(yahoo_symbol).history(period=period, interval=interval)
+        YAHOO_CACHE[key] = {"time": now, "data": data}
+        return data
+    except Exception as e:
+        print("Yahoo history failed:", yahoo_symbol, str(e))
+        if cached:
+            return cached["data"]
+        return pd.DataFrame()
 supabase: Client | None = None
 
 if SUPABASE_URL and SUPABASE_KEY:
@@ -1906,14 +1932,27 @@ def admin_me(authorization: str = Header(default="")):
 def get_live_price(yahoo_symbol: str):
     try:
         data = get_yahoo_history(yahoo_symbol, period="1d", interval="1m")
-        if data is None or data.empty:
-            return None, None
-        price = float(data["Close"].iloc[-1])
-        timestamp = str(data.index[-1])
-        return price, timestamp
+        if data is not None and not data.empty:
+            price = float(data["Close"].iloc[-1])
+            timestamp = str(data.index[-1])
+            return price, timestamp
     except Exception as e:
-        print("Live price helper failed:", str(e))
-        return None, None
+        print("Live Yahoo price failed:", yahoo_symbol, str(e))
+
+    try:
+        pair = YAHOO_TO_FRANKFURTER.get(yahoo_symbol)
+        if pair:
+            base, quote = pair
+            url = f"https://api.frankfurter.app/latest?from={base}&to={quote}"
+            response = requests.get(url, timeout=8)
+            payload = response.json()
+            rate = payload.get("rates", {}).get(quote)
+            if rate:
+                return float(rate), payload.get("date")
+    except Exception as e:
+        print("Fallback FX price failed:", yahoo_symbol, str(e))
+
+    return None, None
 @app.get("/live-prices")
 def live_prices():
     prices = {}
@@ -3347,6 +3386,8 @@ def strategy_d_debug_lite():
         "message": "Debug endpoint ready. Live publishing remains off.",
         "livePublishing": False,
     }
+
+
 
 
 
