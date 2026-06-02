@@ -92,17 +92,7 @@ def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15
         td_symbol = reverse_symbols.get(yahoo_symbol)
 
         if td_key and td_symbol and interval in ["1m", "5m", "15m"]:
-            response = requests.get(
-                "https://api.twelvedata.com/time_series",
-                params={
-                    "symbol": td_symbol,
-                    "interval": interval,
-
-                    "outputsize": 500,
-                    "apikey": td_key,
-                },
-                timeout=12,
-            )
+            response = requests.get("https://api.twelvedata.com/time_series", params={"symbol": td_symbol, "interval": interval, "outputsize": 500, "apikey": td_key}, timeout=12)
             payload = response.json()
             values = payload.get("values") or []
 
@@ -112,63 +102,51 @@ def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15
                 df = df.set_index("datetime").sort_index()
                 df = df.rename(columns={"open": "Open", "high": "High", "low": "Low", "close": "Close", "volume": "Volume"})
 
-
-
-
-
-
-
-
-
-
-
-
-
-
                 for col in ["Open", "High", "Low", "Close"]:
                     df[col] = pd.to_numeric(df[col], errors="coerce")
 
                 if "Volume" not in df.columns:
                     df["Volume"] = 0
-                else:
+  
+
+
+
+
+
+
+
+
+
+
+              else:
                     df["Volume"] = pd.to_numeric(df["Volume"], errors="coerce").fillna(0)
 
-
-
-
-
-
-
-
-
                 df = df[["Open", "High", "Low", "Close", "Volume"]].dropna()
-
                 if not df.empty:
                     YAHOO_CACHE[key] = {"time": now, "data": df}
-
-
-
-
-
                     return df
+
+
+
+
+
+
+
+
 
             print("TwelveData history empty:", yahoo_symbol, payload.get("message") or payload.get("status"))
     except Exception as e:
-
-
-
-
         print("TwelveData history failed:", yahoo_symbol, str(e))
 
     if cached:
+
+
+
+
+
         return cached["data"]
 
-   
-
-
-
-
- return pd.DataFrame()
+    return pd.DataFrame()
 
 supabase: Client | None = None
 
