@@ -885,7 +885,7 @@ def analyze_strategy_a(symbol: str, yahoo_symbol: str):
         rs = gain / loss
         rsi = float((100 - (100 / (1 + rs))).iloc[-1])
 
-        if ema_fast > ema_slow and 50 <= rsi <= 72:
+        if ema_fast > ema_slow and 45 <= rsi <= 78:
             return {
                 "direction": "BUY",
                 "entry": current,
@@ -894,7 +894,7 @@ def analyze_strategy_a(symbol: str, yahoo_symbol: str):
                 "note": f"EMA bullish trend, RSI {rsi:.2f}, positive momentum.",
             }
 
-        if ema_fast < ema_slow and 28 <= rsi <= 50:
+        if ema_fast < ema_slow and 22 <= rsi <= 55:
             return {
  
 
