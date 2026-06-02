@@ -1970,7 +1970,7 @@ def live_prices():
                     payload = response.json()
                     price = payload.get("rates", {}).get(quote)
 
-            prices[symbol] = format_price(symbol, float(price)) if price else None
+            prices[symbol] = str(round(float(price), 5)) if price else None
 
         except Exception as e:
             print("live_prices endpoint failed for", symbol, str(e))
@@ -3440,5 +3440,6 @@ def debug_price_fallback():
         results[symbol] = item
 
     return results
+
 
 
