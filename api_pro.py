@@ -953,30 +953,26 @@ def analyze_strategy_a(symbol: str, yahoo_symbol: str):
 
         if ema_fast < ema_slow and 22 <= rsi <= 55:
             return {
-
-
-
                 "direction": "SELL",
                 "entry": current,
                 "confidence": 88,
                 "pattern": "ema_rsi_momentum_sell",
                 "note": f"EMA bearish trend, RSI {rsi:.2f}, negative momentum.",
-
-
-
-
-
             }
+
+
+
+
+
+
+
+
+
 
         return None
     except Exception as e:
         print("Strategy A analysis error:", symbol, str(e))
-      
-
-
-
-
-  return None
+        return None
 
 def generate_strategy_a_signals():
     created = 0
