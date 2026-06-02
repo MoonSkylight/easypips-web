@@ -1,4 +1,4 @@
-import pandas as pd
+﻿import pandas as pd
 import numpy as np
 
 MIN_RR = 2.0
@@ -47,10 +47,10 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
     if not isinstance(df.index, pd.DatetimeIndex):
         return None
 
-    data_3m = _resample(df, "3min")
+    data_5m = _resample(df, "5min")
     data_15m = _resample(df, "15min")
 
-    if len(data_3m) < 80 or len(data_15m) < 60:
+    if len(data_5m) < 80 or len(data_15m) < 60:
         return None
 
     close15 = data_15m["Close"]
@@ -60,26 +60,26 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
     trend_buy = close15.iloc[-1] > ema50_15.iloc[-1] and ema20_15.iloc[-1] > ema50_15.iloc[-1]
     trend_sell = close15.iloc[-1] < ema50_15.iloc[-1] and ema20_15.iloc[-1] < ema50_15.iloc[-1]
 
-    close3 = data_3m["Close"]
-    ema9 = close3.ewm(span=9, adjust=False).mean()
-    ema21 = close3.ewm(span=21, adjust=False).mean()
-    rsi = _rsi(close3)
-    atr = _atr(data_3m)
+    close5 = data_5m["Close"]
+    ema9 = close5.ewm(span=9, adjust=False).mean()
+    ema21 = close5.ewm(span=21, adjust=False).mean()
+    rsi = _rsi(close5)
+    atr = _atr(data_5m)
 
-    row = data_3m.iloc[-1]
-    prev = data_3m.iloc[-8:-1]
+    row = data_5m.iloc[-1]
+    prev = data_5m.iloc[-8:-1]
 
-    last_1m = df.iloc[-1]
-    prev_1m = df.iloc[-2]
+    last_5m = data_5m.iloc[-1]
+    prev_5m = data_5m.iloc[-2]
 
     buy_confirm = (
-        last_1m["Close"] > last_1m["Open"]
-        and last_1m["Close"] > prev_1m["High"]
+        last_5m["Close"] > last_5m["Open"]
+        and last_5m["Close"] > prev_5m["High"]
     )
 
     sell_confirm = (
-        last_1m["Close"] < last_1m["Open"]
-        and last_1m["Close"] < prev_1m["Close"]
+        last_5m["Close"] < last_5m["Open"]
+        and last_5m["Close"] < prev_5m["Close"]
     )
 
     entry = float(row["Close"])
@@ -120,8 +120,8 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
             "rr": 2,
             "confidence": 88,
             "score": 88,
-            "pattern": "3m_scalping_liquidity_buy",
-            "timeframe": "3m",
+            "pattern": "5m_scalping_liquidity_buy",
+            "timeframe": "5m",
         }
 
     if trend_sell and ema_sell and pullback_sell and bearish_close and swept_high and sell_confirm and 32 <= rsi_now <= 52:
@@ -143,11 +143,12 @@ def generate_strategy_d_signal(df, symbol="UNKNOWN"):
             "rr": 2,
             "confidence": 88,
             "score": 88,
-            "pattern": "3m_scalping_liquidity_sell",
-            "timeframe": "3m",
+            "pattern": "5m_scalping_liquidity_sell",
+            "timeframe": "5m",
         }
 
     return None
+
 
 
 

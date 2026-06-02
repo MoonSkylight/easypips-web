@@ -3457,12 +3457,12 @@ def strategy_d_debug():
         }
 
         try:
-            data = get_yahoo_history(yahoo_symbol, period="5d", interval="1m")
+            data = get_yahoo_history(yahoo_symbol, period="7d", interval="5m")
 
             if data is None or data.empty:
-                item["reason"] = "No 1m candle data"
+                item["reason"] = "No 5m candle data"
             elif len(data) < 240:
-                item["reason"] = f"Not enough 1m candles: {len(data)}"
+                item["reason"] = f"Not enough 5m candles: {len(data)}"
             else:
                 setup = generate_strategy_d_signal(data, symbol)
 
@@ -3499,4 +3499,5 @@ def strategy_d_debug():
 
 
     }
+
 
