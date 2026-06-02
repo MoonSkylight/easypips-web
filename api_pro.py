@@ -107,42 +107,18 @@ def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15
 
                 if "Volume" not in df.columns:
                     df["Volume"] = 0
-  
-
-
-
-
-
-
-
-
-
-
-              else:
+                else:
                     df["Volume"] = pd.to_numeric(df["Volume"], errors="coerce").fillna(0)
 
                 df = df[["Open", "High", "Low", "Close", "Volume"]].dropna()
                 if not df.empty:
                     YAHOO_CACHE[key] = {"time": now, "data": df}
                     return df
-
-
-
-
-
-
-
-
-
             print("TwelveData history empty:", yahoo_symbol, payload.get("message") or payload.get("status"))
     except Exception as e:
         print("TwelveData history failed:", yahoo_symbol, str(e))
 
     if cached:
-
-
-
-
 
         return cached["data"]
 
