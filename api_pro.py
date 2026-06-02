@@ -867,6 +867,56 @@ def generate_strategy_c_signals():
 
     return {"created": created, "rejected": rejected}
 
+def analyze_strategy_a(symbol: str, yahoo_symbol: str):
+    try:
+        data = get_yahoo_history(yahoo_symbol, period="7d", interval="15m")
+
+        if data is None or data.empty or len(data) < 60:
+            return None
+
+        close = data["Close"]
+        ema_fast = close.ewm(span=9, adjust=False).mean().iloc[-1]
+        ema_slow = close.ewm(span=21, adjust=False).mean().iloc[-1]
+        current = float(close.iloc[-1])
+
+        delta = close.diff()
+        gain = delta.where(delta > 0, 0).rolling(14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
+        rs = gain / loss
+        rsi = float((100 - (100 / (1 + rs))).iloc[-1])
+
+        if ema_fast > ema_slow and 50 <= rsi <= 72:
+            return {
+                "direction": "BUY",
+                "entry": current,
+                "confidence": 87,
+                "pattern": "ema_rsi_momentum_buy",
+                "note": f"EMA bullish trend, RSI {rsi:.2f}, positive momentum.",
+            }
+
+        if ema_fast < ema_slow and 28 <= rsi <= 50:
+            return {
+ 
+
+
+               "direction": "SELL",
+                "entry": current,
+                "confidence": 87,
+                "pattern": "ema_rsi_momentum_sell",
+                "note": f"EMA bearish trend, RSI {rsi:.2f}, negative momentum.",
+            }
+
+
+
+
+
+
+
+        return None
+    except Exception as e:
+        print("Strategy A analysis error:", symbol, str(e))
+        return None
+
 def generate_strategy_a_signals():
     created = 0
     rejected = 0
