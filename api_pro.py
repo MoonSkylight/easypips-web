@@ -3405,3 +3405,34 @@ def strategy_d_debug_lite():
 
 
 
+
+@app.get("/debug-price-fallback")
+def debug_price_fallback():
+    results = {}
+
+    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
+        item = {
+            "yahoo_symbol": yahoo_symbol,
+            "pair": YAHOO_TO_FRANKFURTER.get(yahoo_symbol),
+            "price": None,
+            "error": None,
+        }
+
+        try:
+            pair = YAHOO_TO_FRANKFURTER.get(yahoo_symbol)
+            if pair:
+                base, quote = pair
+                url = f"https://api.frankfurter.app/latest?from={base}&to={quote}"
+                response = requests.get(url, timeout=8)
+                item["status_code"] = response.status_code
+                item["body"] = response.text[:500]
+                payload = response.json()
+                item["price"] = payload.get("rates", {}).get(quote)
+        except Exception as e:
+            item["error"] = str(e)
+
+        results[symbol] = item
+
+    return r
+esults
+
