@@ -100,20 +100,20 @@ const NAV = [
 ];
 
 const PAIRS = [
-  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "Ã°Å¸Å¸Â¡" },
-  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "Ã°Å¸â€¡ÂªÃ°Å¸â€¡Âº" },
-  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â¬Ã°Å¸â€¡Â§" },
-  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "Ã°Å¸â€¡Â¯Ã°Å¸â€¡Âµ" },
-  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â¦" },
-  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "Ã°Å¸â€¡Â¨Ã°Å¸â€¡Â­" },
-  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â¦Ã°Å¸â€¡Âº" },
-  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "Ã°Å¸â€¡Â³Ã°Å¸â€¡Â¿" },
-  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "Ã¢â€šÂ¿" },
-  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "?â€ " },
-  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "Ã°Å¸â€¡ÂªÃ°Å¸â€¡Âº" },
-  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¯Ã°Å¸â€¡Âµ" },
-  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¬Ã°Å¸â€¡Â§" },
-  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "Ã°Å¸â€¡Â¦Ã°Å¸â€¡Âº" },
+  { pair: "XAU/USD", label: "Gold", cat: "Metals", icon: "🟡" },
+  { pair: "EUR/USD", label: "Euro Dollar", cat: "Major", icon: "🇪🇺" },
+  { pair: "GBP/USD", label: "Pound Dollar", cat: "Major", icon: "🇬🇧" },
+  { pair: "USD/JPY", label: "Dollar Yen", cat: "Major", icon: "🇯🇵" },
+  { pair: "USD/CAD", label: "Dollar CAD", cat: "Major", icon: "🇨🇦" },
+  { pair: "USD/CHF", label: "Dollar Swiss", cat: "Major", icon: "🇨🇭" },
+  { pair: "AUD/USD", label: "Aussie Dollar", cat: "Major", icon: "🇦🇺" },
+  { pair: "NZD/USD", label: "Kiwi Dollar", cat: "Major", icon: "🇳🇿" },
+  { pair: "BTC/USD", label: "Bitcoin", cat: "Crypto", icon: "₿" },
+  { pair: "ETH/USD", label: "Ethereum", cat: "Crypto", icon: "Ξ" },
+  { pair: "EUR/GBP", label: "Euro Pound", cat: "Cross", icon: "🇪🇺" },
+  { pair: "EUR/JPY", label: "Euro Yen", cat: "Cross", icon: "🇯🇵" },
+  { pair: "GBP/JPY", label: "Pound Yen", cat: "Cross", icon: "🇬🇧" },
+  { pair: "AUD/JPY", label: "Aussie Yen", cat: "Cross", icon: "🇦🇺" },
 ];
 
 function n(v: any, fallback = 0) {
@@ -309,19 +309,19 @@ function SystemRule() {
 
         <div className="flex flex-wrap items-center gap-1.5 text-[8px] font-black uppercase tracking-widest text-slate-300">
           <span>Volatility NORMAL</span>
-          <span>â€¢</span>
+          <span>•</span>
 
           <span>Liquidity HIGH</span>
-          <span>â€¢</span>
+          <span>•</span>
 
           <span>Spreads STABLE</span>
-          <span>â€¢</span>
+          <span>•</span>
 
           <span>News LOW</span>
-          <span>â€¢</span>
+          <span>•</span>
 
           <span>Quality A</span>
-          <span>â€¢</span>
+          <span>•</span>
 
           <span>Protection ACTIVE</span>
         </div>
@@ -487,7 +487,7 @@ function SignalCard({ s }: { s: Signal }) {
     <div className="group rounded-xl border border-white/8 bg-gradient-to-b from-white/[0.065] to-white/[0.025] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-yellow-300/40 ">
       <div className="flex items-start justify-between gap-1.5">
         <div>
-          <h3 className="mt-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-yellow-300/40 bg-yellow-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">?? PREMIUM ACCESS</p>}
+          <h3 className="mt-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-white">{s.symbol}</h3>{(s.hit_tp2 || s.hit_tp3) && <p className="mt-1 inline-block rounded-full border border-yellow-300/40 bg-yellow-400/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">🔓 PREMIUM ACCESS</p>}
           <p className="text-[10px] text-slate-400">
   {formatDate(s.created_at)}
 </p>
@@ -1403,7 +1403,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#030811]/95 px-3 py-1 text-[9px] text-slate-400 backdrop-blur-xl sm:text-[10px]">
   <div className="flex flex-col items-center justify-center gap-2 text-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
     <p>
-      âš ï¸ Risk Disclaimer: Trading forex carries significant risk. Signals are educational only and not financial advice.
+      ⚠️ Risk Disclaimer: Trading forex carries significant risk. Signals are educational only and not financial advice.
     </p>
 
     <div className="flex flex-wrap items-center justify-center gap-4 font-bold">
@@ -1415,7 +1415,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
   </div>
 
   <p className="mt-2 text-center text-slate-500">
-    Â© 2026 EasyPips AI. All rights reserved.
+    © 2026 EasyPips AI. All rights reserved.
   </p>
 </footer>
 </main>
@@ -1540,7 +1540,7 @@ function RecentClosed({ closed }: { closed: Signal[] }) {
         <div className="space-y-0.5">
           {closed.slice(0, 5).map((s, i) => (
             <div key={s.id || i} className="flex items-center justify-between rounded-xl bg-black/30 p-1.5 text-sm">
-              <span>{s.symbol} Ã‚Â· {s.direction}</span>
+              <span>{s.symbol} · {s.direction}</span>
               <span className="font-black text-emerald-300">{s.result}</span>
             </div>
           ))}
@@ -2543,6 +2543,9 @@ function HelpCenterPage() {
     </div>
   );
 }
+
+
+
 
 
 
