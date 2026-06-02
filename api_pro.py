@@ -881,9 +881,11 @@ def generate_strategy_a_signals():
         if len(get_active_signals(source="AI Engine", strategy="Strategy A")) >= MAX_AI_SIGNALS_PER_STRATEGY:
             break
 
-        analysis = None
+        analysis = analyze_strategy_a(symbol, yahoo_symbol)
 
         if not analysis:
+            print("Strategy A skipped:", symbol, "No valid setup")
+            rejected += 1
             continue
 
         signal = build_ai_signal(symbol, analysis)
