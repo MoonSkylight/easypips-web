@@ -1954,23 +1954,29 @@ def get_live_price(yahoo_symbol: str):
 
     return None, None
 @app.get("/live-prices")
-@app.get("/live-prices")
 def live_prices():
     prices = {}
 
     for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
         try:
             price, timestamp = get_live_price(yahoo_symbol)
+
             if price is None:
-                prices[symbol] = None
-            else:
-                prices[symbol] = format_price(symbol, price)
+                pair = YAHOO_TO_FRANKFURTER.get(yahoo_symbol)
+                if pair:
+                    base, quote = pair
+                    url = f"https://api.frankfurter.app/latest?from={base}&to={quote}"
+                    response = requests.get(url, timeout=8)
+                    payload = response.json()
+                    price = payload.get("rates", {}).get(quote)
+
+            prices[symbol] = format_price(symbol, float(price)) if price else None
+
         except Exception as e:
             print("live_prices endpoint failed for", symbol, str(e))
             prices[symbol] = None
 
     return prices
-
 
 @app.post("/update-results")
 def update_results(authorization: str = Header(default="")):
