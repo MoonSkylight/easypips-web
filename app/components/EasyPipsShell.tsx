@@ -403,6 +403,16 @@ function LockedSignalCard({ s }: { s: Signal }) {
       return;
     }
 
+    const key = signalUnlockKey(s);
+    const unlocked = JSON.parse(
+      localStorage.getItem("easypips_unlocked_signals") || "[]"
+    );
+
+    if (!unlocked.includes(key)) {
+      unlocked.push(key);
+      localStorage.setItem("easypips_unlocked_signals", JSON.stringify(unlocked));
+    }
+
     alert(`Signal unlocked. Coins used: ${data.coins_used}`);
     window.location.reload();
   } catch {
@@ -1519,7 +1529,7 @@ isPremium,
       ) : (
         <div className={`grid gap-2 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
           {signals.map((s, i) =>
-            !isPremium && isHighConfidenceLocked(s) && !s.hit_tp2 && !s.hit_tp3 ? (
+            !isPremium && isHighConfidenceLocked(s) && !isSignalUnlocked(s) && !s.hit_tp2 && !s.hit_tp3 ? (
               <LockedSignalCard key={s.id || i} s={s} />
             ) : (
               <SignalCard key={s.id || i} s={s} />
@@ -2560,6 +2570,7 @@ function HelpCenterPage() {
     </div>
   );
 }
+
 
 
 
