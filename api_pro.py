@@ -3443,3 +3443,60 @@ def debug_price_fallback():
 
 
 
+
+@app.get("/strategy-d-debug")
+def strategy_d_debug():
+    results = []
+
+    for symbol, yahoo_symbol in list(SYMBOLS.items())[:5]:
+        item = {
+            "symbol": symbol,
+            "status": "blocked",
+            "reason": None,
+            "signal": None,
+        }
+
+        try:
+            data = get_yahoo_history(yahoo_symbol, period="5d", interval="1m")
+
+            if data is None or data.empty:
+                item["reason"] = "No 1m candle data"
+            elif len(data) < 240:
+                item["reason"] = f"Not enough 1m candles: {len(data)}"
+            else:
+                setup = generate_strategy_d_signal(data, symbol)
+
+                if setup:
+                    item["status"] = "signal"
+                    item["reason"] = "Strategy D setup found"
+                    item["signal"] = setup
+                else:
+                    item["reason"] = "No valid Strategy D setup"
+
+        except Exception as e:
+            item["status"] = "error"
+            item["reason"] = str(e)
+
+        results.append(item)
+
+    return {
+        "status": "ok",
+        "strategy": "Strategy D",
+        "livePublishing": False,
+        "results": results,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
