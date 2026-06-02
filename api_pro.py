@@ -3433,6 +3433,6 @@ def debug_price_fallback():
 
         results[symbol] = item
 
-    return r
-esults
+    return results
+
 
