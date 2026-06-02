@@ -867,6 +867,70 @@ def generate_strategy_c_signals():
 
     return {"created": created, "rejected": rejected}
 
+def build_ai_signal(symbol: str, analysis: dict):
+    direction = str(analysis.get("direction") or "BUY").upper()
+    entry = float(analysis.get("entry") or 0)
+    confidence = int(analysis.get("confidence") or 88)
+
+    if entry <= 0:
+        raise ValueError("Invalid Strategy A entry price")
+
+    pip_distance = 0.01 if "JPY" in symbol else 0.0010
+
+    if direction == "SELL":
+        sl = entry + pip_distance
+        tp1 = entry - pip_distance
+        tp2 = entry - (pip_distance * 2)
+        tp3 = entry - (pip_distance * 3)
+    else:
+        sl = entry - pip_distance
+        tp1 = entry + pip_distance
+        tp2 = entry + (pip_distance * 2)
+        tp3 = entry + (pip_distance * 3)
+
+    decimals = 3 if "JPY" in symbol else 5
+
+    return {
+        "source": "AI Engine",
+        "desk": None,
+        "strategy": "Strategy A",
+        "pattern": analysis.get("pattern", "ema_rsi_momentum"),
+
+
+        "timeframe": "15m",
+        "symbol": symbol,
+        "direction": direction,
+        "entry": round(entry, decimals),
+        "sl": round(sl, decimals),
+        "tp1": round(tp1, decimals),
+        "tp2": round(tp2, decimals),
+        "tp3": round(tp3, decimals),
+        "confidence": confidence,
+        "score": confidence,
+        "analyst": "AI Strategy Engine",
+        "note": analysis.get("note", "EMA/RSI momentum setup"),
+        "status": "ACTIVE",
+        "result": "RUNNING",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        "hit_tp1": False,
+        "hit_tp2": False,
+        "hit_tp3": False,
+        "hit_sl": False,
+    }
+
 def analyze_strategy_a(symbol: str, yahoo_symbol: str):
     try:
         data = get_yahoo_history(yahoo_symbol, period="7d", interval="15m")
