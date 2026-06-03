@@ -931,7 +931,14 @@ def build_ai_signal(symbol: str, analysis: dict):
     if entry <= 0:
         raise ValueError("Invalid Strategy A entry price")
 
-    pip_distance = 0.01 if "JPY" in symbol else 0.0010
+    if "BTC" in symbol:
+        pip_distance = 1000
+    elif "XAU" in symbol:
+        pip_distance = 10
+    elif "JPY" in symbol:
+        pip_distance = 1.0
+    else:
+        pip_distance = 0.0100
 
     if direction == "SELL":
         sl = entry + pip_distance
@@ -3577,6 +3584,7 @@ def debug_twelvedata():
 
 
     return results
+
 
 
 
