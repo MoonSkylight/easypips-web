@@ -34,7 +34,7 @@ class AdvancedSniperSMCStrategy:
         confirmation_body_atr: float = 0.7,
         sweep_lookback: int = 8,
         choch_lookback: int = 20,
-        session_mode: str = "london_ny",
+        session_mode: str = "all",
         min_rr: float = 2.0,
         tp1_rr: float = 1.0,
         partial_size: float = 0.7,
@@ -257,7 +257,7 @@ class AdvancedSniperSMCStrategy:
         if out.empty:
             return None
 
-        recent = out.tail(5)
+        recent = out.tail(30)
 
         for idx in reversed(recent.index):
             row = recent.loc[idx]
@@ -452,6 +452,7 @@ class AdvancedSniperSMCStrategy:
 def generate_strategy_b_signal(df: pd.DataFrame, symbol: str = "UNKNOWN"):
     strategy = AdvancedSniperSMCStrategy()
     return strategy.latest_signal(df, symbol)
+
 
 
 
