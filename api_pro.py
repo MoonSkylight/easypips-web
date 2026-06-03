@@ -136,9 +136,9 @@ SYMBOLS = {
     "GBP/USD": "GBPUSD=X",
     "AUD/USD": "AUDUSD=X",
     "NZD/USD": "NZDUSD=X",
-    "USD/JPY": "JPY=X",
-    "USD/CHF": "CHF=X",
-    "USD/CAD": "CAD=X",
+    "USD/JPY": "USDJPY=X",
+    "USD/CHF": "USDCHF=X",
+    "USD/CAD": "USDCAD=X",
     "XAU/USD": "GC=F",
     "BTC/USD": "BTC-USD",
     "EUR/GBP": "EURGBP=X",
@@ -3577,4 +3577,5 @@ def debug_twelvedata():
 
 
     return results
+
 
