@@ -7,6 +7,7 @@ from typing import Optional, Union, Dict, Any
 from jose import jwt, JWTError
 import os
 import time
+import threading
 import math
 import hashlib
 import requests
@@ -1928,7 +1929,7 @@ def closed_signals():
 
 @app.get("/telegram-test")
 def telegram_test():
-    send_telegram("ðŸš€ *EasyPips Telegram connected successfully!*")
+    send_telegram("Ã°Å¸Å¡â‚¬ *EasyPips Telegram connected successfully!*")
     return {"status": "ok", "message": "Telegram test sent"}
 
 
@@ -2256,7 +2257,7 @@ def request_account_connection(account: ClientAccountRequest):
         })
 
     send_telegram(f"""
-ðŸ§¾ *NEW ACCOUNT CONNECTION REQUEST*
+Ã°Å¸Â§Â¾ *NEW ACCOUNT CONNECTION REQUEST*
 
 Name: {account.name}
 Platform: {account.platform.upper()}
@@ -2455,7 +2456,7 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
 
 
     send_telegram(f"""
-✅ *PAYMENT APPROVED*
+âœ… *PAYMENT APPROVED*
 
 Package: {submission.get("package")}
 Contact: {submission.get("contact")}
@@ -2508,7 +2509,7 @@ def approve_client_account(account_id: str, authorization: str = Header(default=
 
     if account:
         send_telegram(f"""
-âœ… *ACCOUNT APPROVED*
+Ã¢Å“â€¦ *ACCOUNT APPROVED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2548,7 +2549,7 @@ def reject_client_account(account_id: str, authorization: str = Header(default="
 
     if account:
         send_telegram(f"""
-âŒ *ACCOUNT REJECTED*
+Ã¢ÂÅ’ *ACCOUNT REJECTED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2724,7 +2725,7 @@ def admin_toggle_auto_trade(account_id: str, authorization: str = Header(default
     updated = response.data[0] if response.data else None
 
     send_telegram(f"""
-âš™ï¸ *AUTO TRADE UPDATED*
+Ã¢Å¡â„¢Ã¯Â¸Â *AUTO TRADE UPDATED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2787,7 +2788,7 @@ def toggle_kill_switch(account_id: str, authorization: str = Header(default=""))
     })
 
     send_telegram(f"""
-ðŸ›‘ *KILL SWITCH UPDATED*
+Ã°Å¸â€ºâ€˜ *KILL SWITCH UPDATED*
 
 Name: {account.get("name")}
 Platform: {account.get("platform")}
@@ -2857,13 +2858,13 @@ def create_payment_submission(data: PaymentSubmissionRequest):
     response = supabase.table("payment_submissions").insert(payload).execute()
 
     send_telegram(f"""
-💰 *NEW USDT PAYMENT SUBMISSION*
+ðŸ’° *NEW USDT PAYMENT SUBMISSION*
 
 Package: {data.package}
 Contact: {data.contact}
 TX Hash: `{data.tx_hash.strip()}`
 
-Check Admin Panel → Payment Submissions.
+Check Admin Panel â†’ Payment Submissions.
 """)
 
     return {
@@ -3186,7 +3187,7 @@ def admin_get_trade_history(account_id: str, authorization: str = Header(default
 @app.get("/admin/telegram-health")
 def admin_telegram_health(authorization: str = Header(default="")):
     verify_admin_token(authorization)
-    ok = send_telegram("âœ… *EasyPips Telegram health check*\\n\\nTelegram is connected and Markdown formatting is working.")
+    ok = send_telegram("Ã¢Å“â€¦ *EasyPips Telegram health check*\\n\\nTelegram is connected and Markdown formatting is working.")
     return {"success": ok}
 
 @app.get("/debug-telegram")
@@ -3600,4 +3601,42 @@ def debug_twelvedata():
 
 
 
+
+
+ENGINE_STARTED = False
+
+def engine_loop():
+    last_signal_check = 0
+
+    while True:
+        try:
+            now = time.time()
+
+            # Update TP/SL every 60 seconds
+            update_all_running_results()
+
+            # Create new signals every 5 minutes
+            if now - last_signal_check >= 300:
+                generate_strategy_a_signals()
+                generate_strategy_b_signals()
+                generate_strategy_c_signals()
+                last_signal_check = now
+
+        except Exception as e:
+            print("Engine loop error:", str(e))
+
+        time.sleep(60)
+
+
+@app.on_event("startup")
+def start_engine_loop():
+    global ENGINE_STARTED
+
+    if ENGINE_STARTED:
+        return
+
+    ENGINE_STARTED = True
+    thread = threading.Thread(target=engine_loop, daemon=True)
+    thread.start()
+    print("EasyPips 24/7 engine loop started")
 
