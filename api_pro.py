@@ -1,4 +1,4 @@
-﻿MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
+MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -1112,7 +1112,7 @@ def generate_strategy_b_signals():
 
             data = get_yahoo_history(yahoo_symbol, period="10d", interval="15m")
 
-            if data is None or data.empty or len(data) < 120:
+            if data is None or data.empty or len(data) < 60:
                 rejected += 1
                 continue
 
@@ -3586,6 +3586,7 @@ def debug_twelvedata():
 
 
     return results
+
 
 
 
