@@ -205,7 +205,7 @@ class AdvancedSniperSMCStrategy:
                 (self.liquidity_sweep(df, i, "long") or self.choch_bos(df, i, "long"))
             ):
                 zone = self.find_order_block_zone(df, i, "long")
-                if zone and row["bull_confirm"]:
+                if zone:
                     zl, zh = zone
                     tapped = row["Low"] <= zh + atr * self.zone_padding_atr
                     reclaimed = row["Close"] > zh
@@ -224,7 +224,7 @@ class AdvancedSniperSMCStrategy:
                 and (self.liquidity_sweep(df, i, "short") or self.choch_bos(df, i, "short"))
             ):
                 zone = self.find_order_block_zone(df, i, "short")
-                if zone and row["bear_confirm"]:
+                if zone:
                     zl, zh = zone
                     tapped = row["High"] >= zl - atr * self.zone_padding_atr
                     rejected = row["Close"] < zl
@@ -448,6 +448,7 @@ class AdvancedSniperSMCStrategy:
 def generate_strategy_b_signal(df: pd.DataFrame, symbol: str = "UNKNOWN"):
     strategy = AdvancedSniperSMCStrategy()
     return strategy.latest_signal(df, symbol)
+
 
 
 
