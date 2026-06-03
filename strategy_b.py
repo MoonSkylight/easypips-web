@@ -202,8 +202,7 @@ class AdvancedSniperSMCStrategy:
             info = {}
 
             if (
-                self.liquidity_sweep(df, i, "long")
-                and self.choch_bos(df, i, "long")
+                (self.liquidity_sweep(df, i, "long") or self.choch_bos(df, i, "long"))
                 and self.premium_discount_ok(df, i, "long")
             ):
                 zone = self.find_order_block_zone(df, i, "long")
@@ -223,8 +222,7 @@ class AdvancedSniperSMCStrategy:
 
             if (
                 signal == 0
-                and self.liquidity_sweep(df, i, "short")
-                and self.choch_bos(df, i, "short")
+                and (self.liquidity_sweep(df, i, "short") or self.choch_bos(df, i, "short"))
                 and self.premium_discount_ok(df, i, "short")
             ):
                 zone = self.find_order_block_zone(df, i, "short")
@@ -452,6 +450,9 @@ class AdvancedSniperSMCStrategy:
 def generate_strategy_b_signal(df: pd.DataFrame, symbol: str = "UNKNOWN"):
     strategy = AdvancedSniperSMCStrategy()
     return strategy.latest_signal(df, symbol)
+
+
+
 
 
 
