@@ -1341,7 +1341,7 @@ def update_all_running_results():
 
                     if direction_base == "BUY":
                         # SL closes immediately.
-                        if low <= sl:
+                        if low <= sl and not hit_tp1:
                             updates = close_sl()
                             final_result = "SL"
                             break
@@ -1357,7 +1357,7 @@ def update_all_running_results():
 
                     elif direction_base == "SELL":
                         # SL closes immediately.
-                        if high >= sl:
+                        if high >= sl and not hit_tp1:
                             updates = close_sl()
                             final_result = "SL"
                             break
@@ -1381,7 +1381,7 @@ def update_all_running_results():
 
                 if current_price is not None:
                     if direction_base == "BUY":
-                        if current_price <= sl:
+                        if current_price <= sl and not hit_tp1:
                             updates = close_sl()
                             final_result = "SL"
                         elif tp3 is not None and current_price >= tp3:
@@ -1392,7 +1392,7 @@ def update_all_running_results():
                             apply_target_hit("TP1")
 
                     elif direction_base == "SELL":
-                        if current_price >= sl:
+                        if current_price >= sl and not hit_tp1:
                             updates = close_sl()
                             final_result = "SL"
                         elif tp3 is not None and current_price <= tp3:
@@ -3577,6 +3577,11 @@ def debug_twelvedata():
 
 
     return results
+
+
+
+
+
 
 
 
