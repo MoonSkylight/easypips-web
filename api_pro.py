@@ -1102,7 +1102,7 @@ def generate_strategy_b_signals():
         print("Strategy B pre-check failed:", str(e))
         existing_symbols = set()
 
-    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
+    for symbol, yahoo_symbol in SYMBOLS.items():
         try:
             if created >= 1:
                 break
@@ -1113,11 +1113,13 @@ def generate_strategy_b_signals():
             data = get_yahoo_history(yahoo_symbol, period="10d", interval="15m")
 
             if data is None or data.empty or len(data) < 120:
+                rejected += 1
                 continue
 
             setup = generate_strategy_b_signal(data, symbol)
 
             if not setup:
+                rejected += 1
                 continue
 
             new_signal = {
@@ -3584,6 +3586,8 @@ def debug_twelvedata():
 
 
     return results
+
+
 
 
 
