@@ -210,7 +210,7 @@ class AdvancedSniperSMCStrategy:
                     tapped = row["Low"] <= zh + atr * self.zone_padding_atr
                     reclaimed = row["Close"] > zh
 
-                    if tapped and reclaimed:
+                    if tapped or reclaimed:
                         signal = 1
                         info = {
                             "zone_low": zl,
@@ -229,7 +229,7 @@ class AdvancedSniperSMCStrategy:
                     tapped = row["High"] >= zl - atr * self.zone_padding_atr
                     rejected = row["Close"] < zl
 
-                    if tapped and rejected:
+                    if tapped or rejected:
                         signal = -1
                         info = {
                             "zone_low": zl,
@@ -448,6 +448,7 @@ class AdvancedSniperSMCStrategy:
 def generate_strategy_b_signal(df: pd.DataFrame, symbol: str = "UNKNOWN"):
     strategy = AdvancedSniperSMCStrategy()
     return strategy.latest_signal(df, symbol)
+
 
 
 
