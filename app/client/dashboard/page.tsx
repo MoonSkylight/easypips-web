@@ -3,20 +3,30 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import EasyPipsShell from "../../components/EasyPipsShell";
+import { supabase } from "@/lib/supabase";
 
 export default function ClientDashboardPage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("easypips_client_token");
+    async function checkAccess() {
+      const token = localStorage.getItem("easypips_client_token");
 
-    if (!token) {
-      router.push("/client/login");
-      return;
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+
+      if (!token || !user?.email_confirmed_at) {
+        localStorage.removeItem("easypips_client_token");
+        await supabase.auth.signOut();
+        router.push("/client/login");
+        return;
+      }
+
+      setReady(true);
     }
 
-    setReady(true);
+    checkAccess();
   }, [router]);
 
   if (!ready) {
@@ -29,4 +39,3 @@ export default function ClientDashboardPage() {
 
   return <EasyPipsShell page="dashboard" />;
 }
-
