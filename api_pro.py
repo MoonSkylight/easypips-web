@@ -3657,3 +3657,18 @@ def start_engine_loop():
     thread.start()
     print("EasyPips 24/7 engine loop started")
 
+
+
+@app.get("/payment-debug")
+def payment_debug():
+    try:
+        response = (
+            supabase.table("payment_submissions")
+            .select("*")
+            .limit(5)
+            .execute()
+        )
+        return {"success": True, "rows": response.data}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
