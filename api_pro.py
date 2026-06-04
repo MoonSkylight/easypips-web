@@ -2376,7 +2376,7 @@ def admin_payment_submissions(authorization: str = Header(default="")):
 @app.post("/admin/payment-submissions/{submission_id}/approve")
 def approve_payment_submission(submission_id: str, authorization: str = Header(default="")):
     try:
-        verify_admin_token(authorization)
+        verify_admin_auth(authorization)
     except Exception as e:
         return {"success": False, "debug": "admin_token_failed", "error": str(e)}
 
