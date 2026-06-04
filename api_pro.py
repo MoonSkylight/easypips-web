@@ -3075,16 +3075,29 @@ def client_me(authorization: str = Header(default="")):
     }
 
 @app.post("/client/unlock-signal")
-def client_unlock_signal(
-    data: UnlockSignalRequest,
-    authorization: str = Header(default="")
-):
+def client_unlock_signal(data: UnlockSignalRequest, authorization: str = Header(default="")):
     payload = verify_client_token(authorization)
-
+    user_id = payload.get("client_id")
     account_id = payload.get("account_id")
+    signal_id = str(data.signal_id or "").strip()
 
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
     if not account_id:
         raise HTTPException(status_code=400, detail="No account linked")
+    if not signal_id:
+        raise HTTPException(status_code=400, detail="Missing signal id")
+
+    existing_purchase = (
+        supabase.table("signal_purchases")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("signal_id", signal_id)
+        .eq("unlock_status", True)
+        .execute()
+        .data
+        or []
+    )
 
     account_rows = (
         supabase.table("client_accounts")
@@ -3099,10 +3112,32 @@ def client_unlock_signal(
         raise HTTPException(status_code=404, detail="Account not found")
 
     account = account_rows[0]
-
     current_balance = float(account.get("coin_balance") or 0)
 
-    cost = 2 if float(data.confidence or 0) >= 90 else 1
+    if existing_purchase:
+        return {
+            "success": True,
+            "message": "Premium signal already unlocked.",
+            "already_unlocked": True,
+            "signal_id": signal_id,
+            "coin_balance": current_balance,
+        }
+
+    signal_rows = (
+        supabase.table("signals")
+        .select("*")
+        .eq("id", signal_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not signal_rows:
+        raise HTTPException(status_code=404, detail="Signal not found")
+
+    signal = signal_rows[0]
+    confidence_value = float(signal.get("confidence") or signal.get("score") or data.confidence or 0)
+    cost = 2 if confidence_value >= 90 else 1
 
     if current_balance < cost:
         return {
@@ -3117,20 +3152,54 @@ def client_unlock_signal(
         "coin_balance": new_balance
     }).eq("id", account_id).execute()
 
+    supabase.table("signal_purchases").insert({
+        "user_id": user_id,
+        "signal_id": signal_id,
+        "coin_cost": cost,
+        "unlock_status": True,
+    }).execute()
+
     supabase.table("coin_transactions").insert({
         "account_id": account_id,
         "type": "SIGNAL_UNLOCK",
         "coins": -cost,
         "balance_before": current_balance,
         "balance_after": new_balance,
-        "note": data.signal_id,
+        "note": signal_id,
     }).execute()
 
     return {
         "success": True,
+        "message": "Premium signal unlocked successfully.",
+        "signal_id": signal_id,
         "coins_used": cost,
         "coin_balance": new_balance,
     }
+
+
+@app.get("/client/purchased-signals")
+def client_purchased_signals(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    rows = (
+        supabase.table("signal_purchases")
+        .select("signal_id")
+        .eq("user_id", user_id)
+        .eq("unlock_status", True)
+        .execute()
+        .data
+        or []
+    )
+
+    return {
+        "success": True,
+        "purchased": [str(row.get("signal_id")) for row in rows if row.get("signal_id")],
+    }
+
 
 @app.get("/client/coin-transactions")
 def client_coin_transactions(authorization: str = Header(default="")):
