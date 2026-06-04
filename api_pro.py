@@ -2392,7 +2392,7 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
     try:
         verify_admin_auth(authorization)
     except Exception as e:
-        return {"success": False, "debug": "admin_token_failed", "error": str(e)}
+        return {"success": False, "message": "Invalid or expired admin token"}
 
     if not db_enabled():
         return {"success": False, "message": "Database not connected"}
