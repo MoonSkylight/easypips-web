@@ -2430,7 +2430,7 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
     account_id = user.get("account_id")
 
     if not account_id:
-        raise HTTPException(status_code=400, detail="Client user has no linked account")
+        return {"success": False, "message": "Client user has no linked account. Ask customer to connect an MT4/MT5 account first."}
 
     account_rows = (
         supabase.table("client_accounts")
