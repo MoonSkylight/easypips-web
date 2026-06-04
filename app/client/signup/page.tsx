@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -16,6 +16,12 @@ export default function ClientSignupPage() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    localStorage.removeItem("easypips_client_token");
+    sessionStorage.clear();
+    supabase.auth.signOut();
+  }, []);
 
   async function signup() {
     setMessage("");
