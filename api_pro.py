@@ -2893,7 +2893,7 @@ def client_register(data: ClientRegisterRequest):
         "email": data.email.lower(),
         "password": hash_password(data.password),
         "name": data.name,
-        "account_id": data.account_id,
+        "account_id": data.account_id or None,
     }
 
     response = supabase.table("client_users").insert(payload).execute()
