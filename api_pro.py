@@ -1971,7 +1971,7 @@ def admin_login(data: AdminLogin):
 
 @app.get("/admin/me")
 def admin_me(authorization: str = Header(default="")):
-    payload = verify_admin_token(authorization)
+    payload = verify_admin_auth(authorization)
     return {"success": True, "admin": payload.get("sub")}
 
 
