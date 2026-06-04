@@ -50,42 +50,23 @@ export default function ClientLoginPage() {
         return;
       }
 
-      let res = await fetch(`${API}/client/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: cleanEmail, password }),
-      });
+      const res = await fetch(`${API}/client/supabase-sync`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    email: cleanEmail,
+    password,
+    name: data.user.user_metadata?.name || "",
+    account_id: data.user.user_metadata?.account_id || "",
+  }),
+});
 
-      let backend = await res.json();
+const backend = await res.json();
 
-            if (!backend.access_token) {
-        res = await fetch(`${API}/client/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: cleanEmail,
-            password,
-            name: data.user.user_metadata?.name || "",
-            account_id: data.user.user_metadata?.account_id || "",
-          }),
-        });
-
-        backend = await res.json();
-
-        const backendMessage = String(
-          backend.detail || backend.message || ""
-        ).toLowerCase();
-
-        if (!backend.access_token && backendMessage.includes("already registered")) {
-          const retry = await fetch(`${API}/client/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: cleanEmail, password }),
-          });
-
-          backend = await retry.json();
-        }
-      }
+if (!backend.access_token) {
+  setMessage(backend.detail || backend.message || "Login failed.");
+  return;
+}
 
       if (!backend.access_token) {
         setMessage(backend.detail || backend.message || "Login failed.");
