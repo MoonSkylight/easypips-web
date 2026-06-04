@@ -2345,21 +2345,33 @@ def desk_performance():
 def admin_payment_submissions(authorization: str = Header(default="")):
     verify_admin_token(authorization)
 
-    if not db_enabled():
-        return {"success": True, "submissions": []}
+    try:
+        if not db_enabled():
+            return {"success": True, "submissions": []}
 
-    response = (
-        supabase.table("payment_submissions")
-        .select("*")
-        .order("created_at", desc=True)
-        .limit(100)
-        .execute()
-    )
+        response = (
+            supabase.table("payment_submissions")
+            .select("*")
+            .limit(100)
+            .execute()
+        )
 
-    return {
-        "success": True,
-        "submissions": response.data or [],
-    } 
+        return {
+            "success": True,
+            "submissions": response.data or [],
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+ 
+
+
+
+
+           "error": str(e),
+            "submissions": [],
+        }
 
 @app.post("/admin/payment-submissions/{submission_id}/approve")
 def approve_payment_submission(submission_id: str, authorization: str = Header(default="")):
