@@ -2430,7 +2430,27 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
     account_id = user.get("account_id")
 
     if not account_id:
-        return {"success": False, "message": "Client user has no linked account. Ask customer to connect an MT4/MT5 account first."}
+        wallet_payload = {
+            "name": user.get("name") or contact,
+            "platform": "MT5",
+            "broker": "EasyPips Wallet",
+            "account_login": contact,
+            "status": "approved",
+            "risk_mode": "manual",
+            "max_lot": 0.01,
+            "auto_trade_enabled": False,
+            "consent": True,
+            "kill_switch": False,
+            "coin_balance": 0,
+        }
+
+        wallet_response = supabase.table("client_accounts").insert(wallet_payload).execute()
+        wallet = wallet_response.data[0] if wallet_response.data else wallet_payload
+        account_id = wallet.get("id")
+
+        supabase.table("client_users").update({
+            "account_id": account_id
+        }).eq("id", user.get("id")).execute()
 
     account_rows = (
         supabase.table("client_accounts")
