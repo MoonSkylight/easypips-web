@@ -2903,11 +2903,14 @@ def client_register(data: ClientRegisterRequest):
     token_user["account_id"] = token_user.get("account_id") or token_user.get("id")
     token = create_client_token(token_user)
 
-    log_action(str(data.account_id or ""), "CLIENT_REGISTERED", {
-        "email": data.email.lower(),
-        "name": data.name,
-        "account_id": data.account_id,
-    })
+    try:
+        log_action(str(data.account_id or "new-client"), "CLIENT_REGISTERED", {
+            "email": data.email.lower(),
+            "name": data.name,
+            "account_id": data.account_id or "new-client",
+        })
+    except Exception as e:
+        print("Client register log failed:", str(e))
 
     return {
         "success": True,
