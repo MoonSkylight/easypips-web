@@ -2,40 +2,64 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "https://easypips-api.onrender.com";
+import { supabase } from "@/lib/supabase";
 
 export default function ClientSignupPage() {
   const router = useRouter();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     account_id: "",
   });
+
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function signup() {
-    setMessage("Creating account...");
+    setMessage("");
+
+    const email = form.email.trim().toLowerCase();
+    const password = form.password.trim();
+
+    if (!email || !password) {
+      setMessage("Email and password are required.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const res = await fetch(`${API}/client/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      const redirectTo = `${window.location.origin}/client/login`;
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectTo,
+          data: {
+            name: form.name.trim(),
+            account_id: form.account_id.trim() || "",
+          },
+        },
       });
 
-      const data = await res.json();
-
-      if (!data.access_token) {
-        setMessage(data.detail || "Signup failed");
+      if (error) {
+        setMessage(error.message || "Signup failed. Please try again.");
         return;
       }
 
-      localStorage.setItem("easypips_client_token", data.access_token);
-      router.push("/client/dashboard");
+      setMessage("Account created. Please check your email and verify before logging in.");
     } catch {
-      setMessage("Signup error");
+      setMessage("Signup error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -66,8 +90,7 @@ export default function ClientSignupPage() {
             <div className="mt-8 rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
               <p className="font-black text-yellow-300">Important</p>
               <p className="mt-2 text-sm text-slate-300">
-                If you already submitted an MT4/MT5 account, use the account ID
-                provided by admin. You can also leave it blank and admin can link it later.
+                After signup, verify your email first. You can log in only after verification.
               </p>
             </div>
           </section>
@@ -86,6 +109,7 @@ export default function ClientSignupPage() {
               <input
                 className="w-full rounded-xl bg-white/10 px-4 py-3 text-white outline-none placeholder:text-slate-500"
                 placeholder="Email"
+                type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
@@ -102,16 +126,15 @@ export default function ClientSignupPage() {
                 className="w-full rounded-xl bg-white/10 px-4 py-3 text-white outline-none placeholder:text-slate-500"
                 placeholder="Account ID optional"
                 value={form.account_id}
-                onChange={(e) =>
-                  setForm({ ...form, account_id: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, account_id: e.target.value })}
               />
 
               <button
                 onClick={signup}
-                className="w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black"
+                disabled={loading}
+                className="w-full rounded-2xl bg-yellow-400 px-5 py-4 font-black text-black disabled:opacity-60"
               >
-                Create Client Account
+                {loading ? "Creating Account..." : "Create Client Account"}
               </button>
 
               <button
@@ -133,5 +156,3 @@ export default function ClientSignupPage() {
     </main>
   );
 }
-
-
