@@ -359,7 +359,13 @@ function isSignalUnlocked(s: Signal) {
     return false;
   }
 }
-function LockedSignalCard({ s }: { s: Signal }) {
+function LockedSignalCard({
+  s,
+  onUnlocked,
+}: {
+  s: Signal;
+  onUnlocked: (signalId: string, coinBalance: number, message: string) => void;
+}) {
   const confidenceValue = Number(s.confidence || s.score || 0);
   const signalPrice = confidenceValue >= 90 ? "$5" : "$3";
   const unlockText = confidenceValue >= 90
@@ -379,7 +385,6 @@ function LockedSignalCard({ s }: { s: Signal }) {
 
     if (!token) {
       alert("Please login before unlocking signals.");
-      window.location.href = "/client/login";
       return;
     }
 
@@ -403,18 +408,11 @@ function LockedSignalCard({ s }: { s: Signal }) {
       return;
     }
 
-    const key = signalUnlockKey(s);
-    const unlocked = JSON.parse(
-      localStorage.getItem("easypips_unlocked_signals") || "[]"
+    onUnlocked(
+      String(data.signal_id || s.id || s.symbol || "single-signal"),
+      Number(data.coin_balance || 0),
+      data.message || "Premium signal unlocked successfully."
     );
-
-    if (!unlocked.includes(key)) {
-      unlocked.push(key);
-      localStorage.setItem("easypips_unlocked_signals", JSON.stringify(unlocked));
-    }
-
-    alert(`Signal unlocked. Coins used: ${data.coins_used}`);
-    window.location.reload();
   } catch {
     alert("Unlock failed. Please try again.");
   } finally {
@@ -764,6 +762,8 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [news, setNews] = useState<NewsEvent[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [coinBalance, setCoinBalance] = useState(0);
+  const [unlockedSignals, setUnlockedSignals] = useState<string[]>([]);
+  const [unlockMessage, setUnlockMessage] = useState("");
   const [livePrices, setLivePrices] = useState<Record<string, any>>({});
   const [coinTransactions, setCoinTransactions] = useState<any[]>([]);
   const [systemStatus, setSystemStatus] = useState<any>(null);
@@ -821,6 +821,18 @@ const clientToken =
             });
             const dashData = await dash.json();
             setCoinBalance(Number(dashData?.account?.coin_balance || 0));
+
+            const purchased = await fetch(`${API}/client/purchased-signals`, {
+              headers: {
+                Authorization: `Bearer ${clientToken}`,
+              },
+            });
+            const purchasedData = await purchased.json();
+            setUnlockedSignals(
+              Array.isArray(purchasedData?.purchased)
+                ? purchasedData.purchased.map((x: any) => String(x))
+                : []
+            );
           } catch {}
         }
       }
@@ -1279,6 +1291,15 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
           setFilter={setFilter}
           isPremium={effectivePremium}
           compact
+          unlockedSignals={unlockedSignals}
+          onUnlocked={(signalId, newBalance, message) => {
+            setUnlockedSignals((prev) =>
+              prev.includes(String(signalId)) ? prev : [...prev, String(signalId)]
+            );
+            setCoinBalance(Number(newBalance || 0));
+            setUnlockMessage(message || "Premium signal unlocked successfully.");
+            setTimeout(() => setUnlockMessage(""), 3000);
+          }}
         />
       </div>
 
@@ -1347,7 +1368,26 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 
           {page === "live-signals" && (
             <div className="space-y-0.5">
-              <LiveSignalsPanel signals={visibleLive} filter={filter} setFilter={setFilter} isPremium={effectivePremium} />
+              <LiveSignalsPanel
+                signals={visibleLive}
+                filter={filter}
+                setFilter={setFilter}
+                isPremium={effectivePremium}
+                unlockedSignals={unlockedSignals}
+                onUnlocked={(signalId, newBalance, message) => {
+                  setUnlockedSignals((prev) =>
+                    prev.includes(String(signalId)) ? prev : [...prev, String(signalId)]
+                  );
+                  setCoinBalance(Number(newBalance || 0));
+                  setUnlockMessage(message || "Premium signal unlocked successfully.");
+                  setTimeout(() => setUnlockMessage(""), 3000);
+                }}
+              />
+              {unlockMessage && (
+                <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm font-black text-emerald-300">
+                  {unlockMessage}
+                </div>
+              )}
               {!isPremium && (
                 <PremiumLock
                   title="Full Live Signals Locked"
@@ -1473,12 +1513,16 @@ function LiveSignalsPanel({
   setFilter,
 compact,
 isPremium,
+unlockedSignals,
+onUnlocked,
 }: {
   signals: Signal[];
   filter: string;
   setFilter: (x: string) => void;
  compact?: boolean;
   isPremium: boolean;
+  unlockedSignals: string[];
+  onUnlocked: (signalId: string, coinBalance: number, message: string) => void;
 }) {
   const filters = ["All", "Strategy A", "Strategy B", "Strategy C", "Strategy D", "Trading Room"];
 
@@ -1501,13 +1545,15 @@ isPremium,
         <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
       ) : (
         <div className={`grid gap-2 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
-          {signals.map((s, i) =>
-            !isPremium && isHighConfidenceLocked(s) && !isSignalUnlocked(s) && !s.hit_tp2 && !s.hit_tp3 ? (
-              <LockedSignalCard key={s.id || i} s={s} />
+          {signals.map((s, i) => {
+            const signalId = String(s.id || s.symbol || i);
+            const purchased = unlockedSignals.includes(signalId);
+            return !isPremium && isHighConfidenceLocked(s) && !purchased && !s.hit_tp2 && !s.hit_tp3 ? (
+              <LockedSignalCard key={s.id || i} s={s} onUnlocked={onUnlocked} />
             ) : (
               <SignalCard key={s.id || i} s={s} />
-            )
-          )}
+            );
+          })}
         </div>
       )}
     </Panel>
