@@ -2899,7 +2899,9 @@ def client_register(data: ClientRegisterRequest):
     response = supabase.table("client_users").insert(payload).execute()
 
     user = response.data[0] if response.data else payload
-    token = create_client_token(user)
+    token_user = dict(user)
+    token_user["account_id"] = token_user.get("account_id") or token_user.get("id")
+    token = create_client_token(token_user)
 
     log_action(str(data.account_id or ""), "CLIENT_REGISTERED", {
         "email": data.email.lower(),
