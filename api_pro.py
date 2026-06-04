@@ -2375,7 +2375,10 @@ def admin_payment_submissions(authorization: str = Header(default="")):
 
 @app.post("/admin/payment-submissions/{submission_id}/approve")
 def approve_payment_submission(submission_id: str, authorization: str = Header(default="")):
-    verify_admin_token(authorization)
+    try:
+        verify_admin_token(authorization)
+    except Exception as e:
+        return {"success": False, "debug": "admin_token_failed", "error": str(e)}
 
     if not db_enabled():
         return {"success": False, "message": "Database not connected"}
