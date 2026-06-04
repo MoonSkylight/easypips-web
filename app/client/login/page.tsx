@@ -58,7 +58,7 @@ export default function ClientLoginPage() {
 
       let backend = await res.json();
 
-      if (!backend.access_token) {
+            if (!backend.access_token) {
         res = await fetch(`${API}/client/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -71,6 +71,20 @@ export default function ClientLoginPage() {
         });
 
         backend = await res.json();
+
+        const backendMessage = String(
+          backend.detail || backend.message || ""
+        ).toLowerCase();
+
+        if (!backend.access_token && backendMessage.includes("already registered")) {
+          const retry = await fetch(`${API}/client/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: cleanEmail, password }),
+          });
+
+          backend = await retry.json();
+        }
       }
 
       if (!backend.access_token) {
