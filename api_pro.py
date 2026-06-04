@@ -1,4 +1,4 @@
-MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
+﻿MAX_STRATEGY_C_ACTIVE_SIGNALS = 3
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -2936,6 +2936,50 @@ def client_register(data: ClientRegisterRequest):
         },
     }
 
+@app.post("/client/supabase-sync")
+def client_supabase_sync(data: ClientRegisterRequest):
+    if not db_enabled():
+        return {"success": False, "message": "Database not connected"}
+
+    email = data.email.lower().strip()
+
+    rows = (
+        supabase.table("client_users")
+        .select("*")
+        .eq("email", email)
+        .execute()
+        .data
+        or []
+    )
+
+    if rows:
+        user = rows[0]
+    else:
+        payload = {
+            "email": email,
+            "password": hash_password(data.password or "supabase-auth"),
+            "name": data.name or "",
+            "account_id": data.account_id or None,
+        }
+
+        response = supabase.table("client_users").insert(payload).execute()
+        user = response.data[0] if response.data else payload
+
+    token_user = dict(user)
+    token_user["account_id"] = token_user.get("account_id") or token_user.get("id")
+    token = create_client_token(token_user)
+
+    return {
+        "success": True,
+        "access_token": token,
+        "token_type": "bearer",
+        "client": {
+            "id": user.get("id"),
+            "email": user.get("email"),
+            "name": user.get("name"),
+            "account_id": token_user.get("account_id"),
+        },
+    }
 
 @app.post("/client/login")
 def client_login(data: ClientLoginRequest):
