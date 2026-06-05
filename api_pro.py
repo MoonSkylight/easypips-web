@@ -796,6 +796,20 @@ def insert_signal(signal: dict, send_alert: bool = True):
         # Always mark as not sent before insert. We update to True only after success.
         signal["telegram_sent"] = False
 
+        is_ai_signal = signal.get("source") == "AI Engine"
+
+        if is_ai_signal and send_alert:
+            delay_minutes = int(os.environ.get("UPCOMING_SIGNAL_DELAY_MINUTES", "1"))
+            publish_at = datetime.now(timezone.utc) + timedelta(minutes=max(delay_minutes, 1))
+
+            signal["status"] = "UPCOMING"
+            signal["scheduled_publish_time"] = publish_at.isoformat()
+            signal["published_at"] = None
+            signal["pair_name"] = signal.get("pair_name") or signal.get("symbol")
+            signal["is_premium"] = bool(signal.get("is_premium", False))
+            signal["coin_cost"] = int(signal.get("coin_cost") or 1)
+            send_alert = False
+
         # Ensure required defaults.
         signal.setdefault("status", "ACTIVE")
         signal.setdefault("result", "RUNNING")
@@ -1912,6 +1926,16 @@ def publish_due_upcoming_signals():
         )
 
         updated = response.data[0] if response.data else {**signal, **updates}
+
+        try:
+            if not bool(updated.get("telegram_sent")):
+                ok = send_new_signal_with_chart(updated)
+                if ok and updated.get("id"):
+                    supabase.table("signals").update({"telegram_sent": True}).eq("id", updated.get("id")).execute()
+                    updated["telegram_sent"] = True
+        except Exception as e:
+            print("Telegram publish alert failed:", str(e))
+
         published.append(updated)
 
     return published
