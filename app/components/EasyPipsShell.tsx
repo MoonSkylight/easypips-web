@@ -279,16 +279,16 @@ function StatCard({
   };
 
   return (
-    <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] p-2 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-white/[0.065]`}>
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-black uppercase">{title}</p>
-        <span className="flex h-12 lg:h-16 w-16 items-center justify-center rounded-xl bg-white/5 text-sm opacity-90">
+    <div className={`group rounded-xl border ${colors[color]} bg-white/[0.045] px-2.5 py-1.5 shadow-lg shadow-black/30 backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-white/[0.065]`}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] font-black uppercase tracking-wide">{title}</p>
+        <span className="flex h-8 w-9 items-center justify-center rounded-lg bg-white/5 text-[10px] opacity-90">
           {icon}
         </span>
       </div>
-      <p className="mt-4 text-xl font-black text-white">{value}</p>
-      <div className="mt-2 h-2 rounded-full bg-black/40">
-        <div className={`h-2 w-1/3 rounded-full ${color === "red" ? "bg-red-400" : color === "yellow" ? "bg-yellow-400" : color === "purple" ? "bg-purple-400" : "bg-emerald-400"}`} />
+      <p className="mt-1 text-lg font-black leading-none text-white">{value}</p>
+      <div className="mt-1.5 h-1 rounded-full bg-black/40">
+        <div className={`h-1 w-1/3 rounded-full ${color === "red" ? "bg-red-400" : color === "yellow" ? "bg-yellow-400" : color === "purple" ? "bg-purple-400" : "bg-emerald-400"}`} />
       </div>
     </div>
   );
@@ -1054,7 +1054,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
   }).length;
 
   const stats = (
-    <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+    <div className="mb-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3 xl:grid-cols-6">
       <StatCard title="Total Signals" value={totalSignals} color="cyan" icon="TS" />
       <StatCard title="Active Signals" value={activeCount} color="green" icon="AS" />
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
@@ -1323,16 +1323,15 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
         </div>
 
         <div className="mx-auto min-h-screen max-w-[1700px] overflow-visible px-3 py-2 pb-36 sm:px-4 xl:px-2">
-          
+
+          {page === "dashboard" && (
+            <UpcomingSignalsPanel
+              upcoming={upcomingSignals}
+              serverTimeOffset={serverTimeOffset}
+            />
+          )}
 
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
-         
-          {page === "dashboard" && (
-   <UpcomingSignalsPanel
-    upcoming={upcomingSignals}
-    serverTimeOffset={serverTimeOffset}
-  />
-)}
 
           {page === "dashboard" && (
   <div className="space-y-0.5">
@@ -1598,8 +1597,12 @@ function UpcomingSignalsPanel({
   const serverNow = now + serverTimeOffset;
 
   return (
-    <Panel title="Upcoming Signals">
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="mb-2 rounded-xl border border-yellow-300/15 bg-white/[0.035] px-3 py-2 shadow-lg shadow-black/20">
+      <div className="mb-1.5 flex items-center justify-between">
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-yellow-300">Upcoming Signals</p>
+        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Next releases</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
         {visible.map((s, i) => {
           const publishAt = s.scheduled_publish_time
             ? new Date(String(s.scheduled_publish_time)).getTime()
@@ -1618,10 +1621,10 @@ function UpcomingSignalsPanel({
           return (
             <div
               key={s.id || i}
-              className="rounded-2xl border border-yellow-300/20 bg-gradient-to-b from-yellow-400/10 to-white/[0.03] p-3 text-center shadow-lg shadow-black/30"
+              className="flex items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-b from-yellow-400/10 to-white/[0.03] px-2 py-1.5 text-center shadow-lg shadow-black/30"
             >
-              <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full">
-                <svg viewBox="0 0 100 100" className="h-32 w-32 -rotate-90">
+              <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full">
+                <svg viewBox="0 0 100 100" className="h-16 w-16 -rotate-90">
                   <circle
                     cx="50"
                     cy="50"
@@ -1645,22 +1648,23 @@ function UpcomingSignalsPanel({
                 </svg>
 
                 <div className="absolute flex flex-col items-center">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-yellow-300">
+                  <div className="text-[8px] font-black uppercase tracking-widest text-yellow-300">
                     {pair}
                   </div>
-                  <div className="mt-1 text-lg font-black text-white">
+                  <div className="mt-0.5 text-[10px] font-black text-white">
                     {formatCountdown(remaining)}
                   </div>
-                  <div className="mt-1 text-[9px] uppercase tracking-widest text-slate-400">
-                    Upcoming
-                  </div>
                 </div>
+              </div>
+              <div className="hidden text-left sm:block">
+                <p className="text-[10px] font-black uppercase text-white">{pair}</p>
+                <p className="text-[9px] uppercase tracking-widest text-slate-500">Publishing soon</p>
               </div>
             </div>
           );
         })}
       </div>
-    </Panel>
+    </div>
   );
 }
 
