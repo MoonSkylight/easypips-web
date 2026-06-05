@@ -1879,8 +1879,78 @@ def rejected_signals():
     return {"signals": response.data or []}
 
 
+
+def publish_due_upcoming_signals():
+    if not db_enabled():
+        return []
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    due = (
+        supabase.table("signals")
+        .select("*")
+        .eq("status", "UPCOMING")
+        .lte("scheduled_publish_time", now_iso)
+        .execute()
+        .data
+        or []
+    )
+
+    published = []
+    for signal in due:
+        updates = {
+            "status": "ACTIVE",
+            "published_at": now_iso,
+            "result": signal.get("result") or "RUNNING",
+        }
+
+        response = (
+            supabase.table("signals")
+            .update(updates)
+            .eq("id", signal.get("id"))
+            .execute()
+        )
+
+        updated = response.data[0] if response.data else {**signal, **updates}
+        published.append(updated)
+
+    return published
+
+
+@app.get("/upcoming-signals")
+def upcoming_signals():
+    if not db_enabled():
+        return {
+            "success": True,
+            "server_time": datetime.now(timezone.utc).isoformat(),
+            "upcoming": [],
+            "published": [],
+        }
+
+    published = publish_due_upcoming_signals()
+
+    rows = (
+        supabase.table("signals")
+        .select("*")
+        .eq("status", "UPCOMING")
+        .order("scheduled_publish_time")
+        .limit(3)
+        .execute()
+        .data
+        or []
+    )
+
+    return {
+        "success": True,
+        "server_time": datetime.now(timezone.utc).isoformat(),
+        "upcoming": rows,
+        "published": published,
+    }
+
+
 @app.get("/all-paid-signals")
 def all_paid_signals():
+    publish_due_upcoming_signals()
     try:
         strategy_a = get_active_signals(source="AI Engine", strategy="Strategy A")
     except Exception as e:

@@ -45,6 +45,13 @@ type Signal = {
   source?: string;
   desk?: string;
   symbol?: string;
+
+  scheduled_publish_time?: string;
+  published_at?: string;
+  pair_name?: string;
+  is_premium?: boolean;
+  coin_cost?: number;
+
   direction?: string;
   entry?: string | number;
   sl?: string | number;
@@ -758,6 +765,9 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const pathname = usePathname();
   const isClientDashboard = pathname?.startsWith("/client/dashboard");
   const [allSignals, setAllSignals] = useState<Signal[]>([]);
+  const [upcomingSignals, setUpcomingSignals] = useState<Signal[]>([]);
+  const [serverTimeOffset, setServerTimeOffset] = useState(0);
+  const [countdownTick, setCountdownTick] = useState(0);
   const [closed, setClosed] = useState<Signal[]>([]);
   const [news, setNews] = useState<NewsEvent[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -786,16 +796,34 @@ const clientToken =
 
   async function loadData() {
     try {
-      const [signalsRes, closedRes, newsRes, accountRes, priceRes, statusRes] = await Promise.allSettled([
+      const [signalsRes, closedRes, newsRes, accountRes, priceRes, statusRes, upcomingRes] = await Promise.allSettled([
         fetch(`${API}/all-paid-signals`),
         fetch(`${API}/closed-signals`),
         fetch(`${API}/news-calendar`),
-        fetch(`${API}/client-accounts`),fetch(`${API}/live-prices`),fetch(`${API}/system-status`),
+        fetch(`${API}/client-accounts`),
+        fetch(`${API}/live-prices`),
+        fetch(`${API}/system-status`),
+        fetch(`${API}/upcoming-signals`),
       ]);
 
       if (signalsRes.status === "fulfilled") {
         const data = await signalsRes.value.json();
         setAllSignals(signalList(data));
+      }
+
+      if (upcomingRes.status === "fulfilled") {
+        const data = await upcomingRes.value.json();
+        const serverNow = data?.server_time ? new Date(data.server_time).getTime() : Date.now();
+        setServerTimeOffset(serverNow - Date.now());
+        setUpcomingSignals(Array.isArray(data?.upcoming) ? data.upcoming : []);
+
+        if (Array.isArray(data?.published) && data.published.length > 0) {
+          setAllSignals((prev) => {
+            const existing = new Set(prev.map((s) => String(s.id || "")));
+            const fresh = data.published.filter((s: Signal) => !existing.has(String(s.id || "")));
+            return [...fresh, ...prev];
+          });
+        }
       }
 
       if (closedRes.status === "fulfilled") {
@@ -854,6 +882,25 @@ if (statusRes.status === "fulfilled") {
     const t = setInterval(loadData, 30000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCountdownTick((x) => x + 1);
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const serverNow = Date.now() + serverTimeOffset;
+    const due = upcomingSignals.some((s) => {
+      const publishAt = s.scheduled_publish_time ? new Date(String(s.scheduled_publish_time)).getTime() : 0;
+      return publishAt > 0 && publishAt <= serverNow;
+    });
+
+    if (due) {
+      loadData();
+    }
+  }, [countdownTick]);
 
   useEffect(() => {
     try {
@@ -1507,6 +1554,110 @@ function PremiumLock({
 function PremiumBanner() {
   return null;
 }
+function formatCountdown(ms: number) {
+  if (ms <= 0) return "Publishing";
+  const totalSeconds = Math.floor(ms / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+
+  if (h > 0) {
+    return `${h}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
+  }
+
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function UpcomingSignalsPanel({
+  upcoming,
+  serverTimeOffset,
+}: {
+  upcoming: Signal[];
+  serverTimeOffset: number;
+}) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const visible = upcoming.slice(0, 3);
+
+  if (visible.length === 0) {
+    return null;
+  }
+
+  const serverNow = now + serverTimeOffset;
+
+  return (
+    <Panel title="Upcoming Signals">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {visible.map((s, i) => {
+          const publishAt = s.scheduled_publish_time
+            ? new Date(String(s.scheduled_publish_time)).getTime()
+            : serverNow;
+
+          const createdAt = s.created_at
+            ? new Date(String(s.created_at)).getTime()
+            : serverNow;
+
+          const total = Math.max(publishAt - createdAt, 60000);
+          const remaining = Math.max(publishAt - serverNow, 0);
+          const progress = Math.max(0, Math.min(1, remaining / total));
+          const dash = 283 * progress;
+          const pair = s.pair_name || s.symbol || `Signal ${i + 1}`;
+
+          return (
+            <div
+              key={s.id || i}
+              className="rounded-2xl border border-yellow-300/20 bg-gradient-to-b from-yellow-400/10 to-white/[0.03] p-3 text-center shadow-lg shadow-black/30"
+            >
+              <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full">
+                <svg viewBox="0 0 100 100" className="h-32 w-32 -rotate-90">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.08)"
+                    strokeWidth="8"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray="283"
+                    strokeDashoffset={283 - dash}
+                    className="text-yellow-300 transition-all duration-1000"
+                  />
+                </svg>
+
+                <div className="absolute flex flex-col items-center">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-yellow-300">
+                    {pair}
+                  </div>
+                  <div className="mt-1 text-lg font-black text-white">
+                    {formatCountdown(remaining)}
+                  </div>
+                  <div className="mt-1 text-[9px] uppercase tracking-widest text-slate-400">
+                    Upcoming
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+}
+
+
 function LiveSignalsPanel({
   signals,
   filter,
