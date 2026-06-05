@@ -1326,6 +1326,13 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
           
 
           {page !== "settings" && page !== "history" && page !== "reports" && stats}
+         
+          {page === "dashboard" && (
+   <UpcomingSignalsPanel
+    upcoming={upcomingSignals}
+    serverTimeOffset={serverTimeOffset}
+  />
+)}
 
           {page === "dashboard" && (
   <div className="space-y-0.5">
