@@ -1590,9 +1590,37 @@ function UpcomingSignalsPanel({
 
   const visible = upcoming.slice(0, 3);
 
-  if (visible.length === 0) {
-    return null;
-  }
+if (visible.length === 0) {
+  return (
+    <div className="mb-2 rounded-xl border border-yellow-300/15 bg-white/[0.035] px-3 py-2 shadow-lg shadow-black/20">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-yellow-300">
+          Upcoming Signals
+        </p>
+
+        <p className="text-[9px] uppercase tracking-widest text-slate-500">
+          Waiting
+        </p>
+      </div>
+
+      <div className="mt-2 flex items-center gap-2">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10">
+          <span className="text-[9px] text-slate-500">--:--</span>
+        </div>
+
+        <div>
+          <p className="text-[10px] font-black uppercase text-slate-400">
+            No upcoming signals
+          </p>
+
+          <p className="text-[9px] text-slate-500">
+            New countdowns appear automatically.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   const serverNow = now + serverTimeOffset;
 
