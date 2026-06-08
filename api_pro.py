@@ -2542,6 +2542,7 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
 
     if not account_id:
         wallet_payload = {
+            "user_id": user.get("id"),
             "name": user.get("name") or contact,
             "platform": "MT5",
             "broker": "EasyPips Wallet",
