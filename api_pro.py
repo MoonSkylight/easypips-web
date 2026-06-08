@@ -193,6 +193,7 @@ class ClientRegisterRequest(BaseModel):
     password: str
     name: Optional[str] = ""
     account_id: Optional[str] = None
+    referral_code: Optional[str] = None
 
 
 class ClientLoginRequest(BaseModel):
@@ -3016,6 +3017,95 @@ Check Admin Panel â†’ Payment Submissions.
         "message": "Payment submission received",
         "submission": response.data[0] if response.data else None,
     }
+
+def make_referral_code(user: dict):
+    base = str(user.get("name") or user.get("email") or "EP").upper()
+    clean = "".join(ch for ch in base if ch.isalnum())[:6] or "EP"
+    suffix = str(user.get("id") or "")[:6].replace("-", "").upper()
+    return f"{clean}{suffix}"
+
+
+def get_or_create_referral_code(user_id: str):
+    rows = (
+        supabase.table("referrals")
+        .select("*")
+        .eq("referrer_user_id", user_id)
+        .is_("referred_user_id", "null")
+        .limit(1)
+        .execute()
+        .data
+        or []
+    )
+
+    if rows:
+        return rows[0].get("referral_code")
+
+    user = get_client_user_by_id(user_id) or {"id": user_id}
+    code = make_referral_code(user)
+
+    existing = (
+        supabase.table("referrals")
+        .select("*")
+        .eq("referral_code", code)
+        .execute()
+        .data
+        or []
+    )
+
+    if existing:
+        code = f"{code}{str(user_id).replace('-', '')[:4].upper()}"
+
+    supabase.table("referrals").insert({
+        "referrer_user_id": user_id,
+        "referral_code": code,
+        "status": "Code",
+        "reward_coins": 10,
+    }).execute()
+
+    return code
+
+
+@app.get("/client/referral")
+def client_referral(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    code = get_or_create_referral_code(user_id)
+
+    return {
+        "success": True,
+        "referral_code": code,
+        "referral_link": f"https://easypips.ai/client/signup?ref={code}",
+        "reward_coins": 10,
+    }
+
+
+@app.get("/client/referrals")
+def client_referrals(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    rows = (
+        supabase.table("referrals")
+        .select("*")
+        .eq("referrer_user_id", user_id)
+        .neq("status", "Code")
+        .order("created_at", desc=True)
+        .execute()
+        .data
+        or []
+    )
+
+    return {"success": True, "referrals": rows}
+
+
+
 @app.post("/client/register")
 def client_register(data: ClientRegisterRequest):
     if not db_enabled():
@@ -3043,6 +3133,32 @@ def client_register(data: ClientRegisterRequest):
     response = supabase.table("client_users").insert(payload).execute()
 
     user = response.data[0] if response.data else payload
+
+    if data.referral_code:
+        try:
+            referral_rows = (
+                supabase.table("referrals")
+                .select("*")
+                .eq("referral_code", data.referral_code.strip())
+                .eq("status", "Code")
+                .execute()
+                .data
+                or []
+            )
+
+            if referral_rows:
+                referrer_id = referral_rows[0].get("referrer_user_id")
+                if referrer_id and referrer_id != user.get("id"):
+                    supabase.table("referrals").insert({
+                        "referrer_user_id": referrer_id,
+                        "referred_user_id": user.get("id"),
+                        "referral_code": data.referral_code.strip(),
+                        "status": "Pending",
+                        "reward_coins": 10,
+                    }).execute()
+        except Exception as e:
+            print("Referral apply during register failed:", str(e))
+
     token_user = dict(user)
     token_user["account_id"] = token_user.get("account_id") or token_user.get("id")
     token = create_client_token(token_user)
