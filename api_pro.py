@@ -3431,6 +3431,32 @@ def admin_update_broker_verification(
     }
 
 
+
+@app.get("/admin/broker-rewards-due")
+def admin_broker_rewards_due(authorization: str = Header(default="")):
+    verify_admin_auth(authorization)
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    rows = (
+        supabase.table("broker_verifications")
+        .select("*")
+        .eq("status", "Verified")
+        .neq("monthly_reward_status", "Suspended")
+        .lte("next_reward_date", now_iso)
+        .order("next_reward_date")
+        .execute()
+        .data
+        or []
+    )
+
+    return {
+        "success": True,
+        "server_time": now_iso,
+        "due": rows,
+    }
+
+
 @app.post("/admin/broker-verifications/{verification_id}/pay-monthly-reward")
 def admin_pay_broker_monthly_reward(verification_id: str, authorization: str = Header(default="")):
     verify_admin_auth(authorization)
