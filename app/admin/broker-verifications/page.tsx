@@ -23,6 +23,7 @@ type Verification = {
 
 export default function AdminBrokerVerificationsPage() {
   const [rows, setRows] = useState<Verification[]>([]);
+  const [dueRows, setDueRows] = useState<Verification[]>([]);
   const [message, setMessage] = useState("");
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -43,6 +44,13 @@ export default function AdminBrokerVerificationsPage() {
 
     const data = await res.json();
     setRows(data.verifications || []);
+
+    const dueRes = await fetch(`${API}/admin/broker-rewards-due`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const dueData = await dueRes.json();
+    setDueRows(dueData.due || []);
   }
 
   useEffect(() => {
@@ -112,6 +120,59 @@ export default function AdminBrokerVerificationsPage() {
             Verify broker accounts manually inside the broker IB portal before paying monthly coin rewards.
           </p>
           {message && <p className="mt-3 text-sm font-bold text-yellow-300">{message}</p>}
+        </div>
+
+        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
+                Due Rewards
+              </p>
+              <h2 className="mt-1 text-xl font-black">Monthly Broker Rewards Due</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Verified broker accounts that are due for their 10-coin monthly reward.
+              </p>
+            </div>
+
+            <button
+              onClick={loadRows}
+              className="rounded-xl border border-emerald-300/30 px-4 py-2 text-xs font-black text-emerald-300"
+            >
+              Refresh
+            </button>
+          </div>
+
+          <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+            {dueRows.length === 0 ? (
+              <div className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm text-slate-400">
+                No broker rewards are due right now.
+              </div>
+            ) : (
+              dueRows.map((v) => (
+                <div key={v.id} className="rounded-xl border border-white/10 bg-black/30 p-3">
+                  <div className="flex justify-between gap-2">
+                    <p className="font-black">{v.broker_name || "-"}</p>
+                    <span className="text-xs font-black text-emerald-300">DUE</span>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400">User: {v.user_id}</p>
+                  <p className="text-xs text-slate-400">Account: {v.broker_account_id}</p>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Last paid: {v.last_reward_paid_date || "-"}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Next reward: {v.next_reward_date || "-"}
+                  </p>
+
+                  <button
+                    onClick={() => payReward(v.id)}
+                    className="mt-3 w-full rounded-lg bg-yellow-400 px-3 py-2 text-xs font-black text-black"
+                  >
+                    Pay 10 Coins
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.04]">
