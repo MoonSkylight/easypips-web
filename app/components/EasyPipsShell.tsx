@@ -100,7 +100,7 @@ const NAV = [
 
   { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "account" },
   { key: "history", label: "History", href: "/history", icon: "history" },
-  
+  { key: "brokers", label: "Recommended Brokers", href: "/client/brokers", icon: "account" },
   
   { key: "pricing", label: "Buy Coins", href: "/pricing", icon: "billing" },
   { key: "help-center", label: "Help Center", href: "/help-center", icon: "account" },
