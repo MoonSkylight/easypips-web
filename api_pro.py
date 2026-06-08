@@ -3295,6 +3295,228 @@ def client_purchased_signals(authorization: str = Header(default="")):
     }
 
 
+
+class BrokerClickRequest(BaseModel):
+    broker_name: str
+    affiliate_link_clicked: str
+
+
+class BrokerVerificationRequest(BaseModel):
+    broker_name: str
+    broker_account_id: str
+    registered_email: Optional[str] = None
+    proof_url: Optional[str] = None
+
+
+class BrokerVerificationAdminUpdate(BaseModel):
+    status: Optional[str] = None
+    monthly_reward_status: Optional[str] = None
+    admin_notes: Optional[str] = None
+    next_reward_date: Optional[str] = None
+
+
+@app.post("/client/broker-click")
+def client_broker_click(data: BrokerClickRequest, authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    row = {
+        "user_id": user_id,
+        "broker_name": data.broker_name,
+        "affiliate_link_clicked": data.affiliate_link_clicked,
+        "status": "Clicked",
+    }
+
+    response = supabase.table("broker_clicks").insert(row).execute()
+
+    return {
+        "success": True,
+        "click": response.data[0] if response.data else row,
+    }
+
+
+@app.post("/client/broker-verification-submit")
+def client_broker_verification_submit(data: BrokerVerificationRequest, authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    row = {
+        "user_id": user_id,
+        "broker_name": data.broker_name,
+        "broker_account_id": data.broker_account_id,
+        "registered_email": data.registered_email,
+        "proof_url": data.proof_url,
+        "status": "Pending",
+        "monthly_reward_status": "Pending",
+        "reward_coins": 10,
+    }
+
+    response = supabase.table("broker_verifications").insert(row).execute()
+
+    return {
+        "success": True,
+        "message": "Broker verification submitted. Admin will verify it in the IB portal.",
+        "verification": response.data[0] if response.data else row,
+    }
+
+
+@app.get("/client/broker-verifications")
+def client_broker_verifications(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    rows = (
+        supabase.table("broker_verifications")
+        .select("*")
+        .eq("user_id", user_id)
+        .order("submitted_at", desc=True)
+        .execute()
+        .data
+        or []
+    )
+
+    return {"success": True, "verifications": rows}
+
+
+@app.get("/admin/broker-verifications")
+def admin_broker_verifications(authorization: str = Header(default="")):
+    verify_admin_auth(authorization)
+
+    rows = (
+        supabase.table("broker_verifications")
+        .select("*")
+        .order("submitted_at", desc=True)
+        .execute()
+        .data
+        or []
+    )
+
+    return {"success": True, "verifications": rows}
+
+
+@app.patch("/admin/broker-verifications/{verification_id}")
+def admin_update_broker_verification(
+    verification_id: str,
+    data: BrokerVerificationAdminUpdate,
+    authorization: str = Header(default="")
+):
+    verify_admin_auth(authorization)
+
+    updates = {k: v for k, v in data.dict().items() if v is not None}
+
+    if updates.get("status") == "Verified":
+        updates["verified_at"] = datetime.now(timezone.utc).isoformat()
+        if not updates.get("next_reward_date"):
+            updates["next_reward_date"] = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+
+    response = (
+        supabase.table("broker_verifications")
+        .update(updates)
+        .eq("id", verification_id)
+        .execute()
+    )
+
+    return {
+        "success": True,
+        "verification": response.data[0] if response.data else None,
+    }
+
+
+@app.post("/admin/broker-verifications/{verification_id}/pay-monthly-reward")
+def admin_pay_broker_monthly_reward(verification_id: str, authorization: str = Header(default="")):
+    verify_admin_auth(authorization)
+
+    rows = (
+        supabase.table("broker_verifications")
+        .select("*")
+        .eq("id", verification_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not rows:
+        raise HTTPException(status_code=404, detail="Verification not found")
+
+    verification = rows[0]
+
+    if verification.get("status") != "Verified":
+        return {"success": False, "message": "Broker account is not verified"}
+
+    if verification.get("monthly_reward_status") == "Suspended":
+        return {"success": False, "message": "Monthly rewards are suspended"}
+
+    user_id = verification.get("user_id")
+    coins = int(verification.get("reward_coins") or 10)
+
+    account_rows = (
+        supabase.table("client_accounts")
+        .select("*")
+        .eq("user_id", user_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not account_rows:
+        raise HTTPException(status_code=404, detail="Client account not found")
+
+    account = account_rows[0]
+    account_id = account.get("id")
+    current_balance = float(account.get("coin_balance") or 0)
+    new_balance = current_balance + coins
+
+    supabase.table("client_accounts").update({
+        "coin_balance": new_balance
+    }).eq("id", account_id).execute()
+
+    reward_month = datetime.now(timezone.utc).strftime("%Y-%m")
+
+    supabase.table("broker_monthly_rewards").insert({
+        "verification_id": verification_id,
+        "user_id": user_id,
+        "broker_name": verification.get("broker_name"),
+        "coins": coins,
+        "reward_month": reward_month,
+        "admin_notes": verification.get("admin_notes"),
+    }).execute()
+
+    supabase.table("coin_transactions").insert({
+        "account_id": account_id,
+        "type": "BROKER_MONTHLY_REWARD",
+        "coins": coins,
+        "balance_before": current_balance,
+        "balance_after": new_balance,
+        "note": f"{verification.get('broker_name')} monthly IB reward {reward_month}",
+    }).execute()
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    next_iso = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+
+    supabase.table("broker_verifications").update({
+        "monthly_reward_status": "Paid",
+        "last_reward_paid_date": now_iso,
+        "next_reward_date": next_iso,
+    }).eq("id", verification_id).execute()
+
+    return {
+        "success": True,
+        "message": "Monthly broker reward paid",
+        "coins": coins,
+        "coin_balance": new_balance,
+        "next_reward_date": next_iso,
+    }
+
+
 @app.get("/client/coin-transactions")
 def client_coin_transactions(authorization: str = Header(default="")):
     payload = verify_client_token(authorization)
