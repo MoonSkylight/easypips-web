@@ -324,6 +324,20 @@ return (
               >
                 Dashboard
               </Link>
+
+              <Link
+                href="/admin/broker-verifications"
+                className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-5 py-3 font-black text-emerald-300 hover:bg-emerald-400/20"
+              >
+                Broker Rewards
+              </Link>
+
+              <Link
+                href="/admin/requests"
+                className="rounded-2xl border border-yellow-300/30 bg-yellow-400/10 px-5 py-3 font-black text-yellow-300 hover:bg-yellow-400/20"
+              >
+                Account Requests
+              </Link>
               <button
                 onClick={loadData}
                 className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300"
