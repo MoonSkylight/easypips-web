@@ -28,15 +28,15 @@ class AdvancedSniperSMCStrategy:
         self,
         swing_lookback: int = 2,
         atr_period: int = 14,
-        stop_padding_atr: float = 0.35,
-        zone_padding_atr: float = 0.08,
-        displacement_atr_mult: float = 0.8,
-        confirmation_body_atr: float = 0.35,
-        sweep_lookback: int = 8,
-        choch_lookback: int = 20,
+        stop_padding_atr: float = 1.15,
+        zone_padding_atr: float = 0.06,
+        displacement_atr_mult: float = 1.05,
+        confirmation_body_atr: float = 0.55,
+        sweep_lookback: int = 10,
+        choch_lookback: int = 24,
         session_mode: str = "all",
-        min_rr: float = 2.0,
-        tp1_rr: float = 1.0,
+        min_rr: float = 5.0,
+        tp1_rr: float = 1.5,
         partial_size: float = 0.7,
         max_holding_bars: int = 96,
         cooldown_bars: int = 8,
@@ -55,6 +55,81 @@ class AdvancedSniperSMCStrategy:
         self.partial_size = partial_size
         self.max_holding_bars = max_holding_bars
         self.cooldown_bars = cooldown_bars
+
+    def pip_size(self, symbol: str) -> float:
+        s = str(symbol or "").upper()
+        if "JPY" in s:
+            return 0.01
+        if "XAU" in s:
+            return 0.1
+        if "BTC" in s or "ETH" in s:
+            return 1.0
+        return 0.0001
+
+    def min_stop_distance(self, symbol: str, atr: float) -> float:
+        pip = self.pip_size(symbol)
+        s = str(symbol or "").upper()
+
+        if "XAU" in s:
+            min_pips = 35
+        elif "BTC" in s or "ETH" in s:
+            min_pips = 80
+        elif "JPY" in s:
+            min_pips = 12
+        else:
+            min_pips = 12
+
+        return max(float(atr) * 0.85, pip * min_pips)
+
+    def build_rr_levels(self, symbol: str, direction: str, entry: float, raw_stop: float, atr: float):
+        min_risk = self.min_stop_distance(symbol, atr)
+
+        if direction == "BUY":
+            risk = max(entry - raw_stop, min_risk)
+            sl = entry - risk
+            tp1 = entry + risk * 1.5
+            tp2 = entry + risk * 3.0
+            tp3 = entry + risk * 5.0
+        else:
+            risk = max(raw_stop - entry, min_risk)
+            sl = entry + risk
+            tp1 = entry - risk * 1.5
+            tp2 = entry - risk * 3.0
+            tp3 = entry - risk * 5.0
+
+        if risk < min_risk:
+            return None
+
+        if abs(tp1 - entry) < min_risk * 1.5:
+            return None
+
+        return sl, tp1, tp2, tp3, risk
+
+    def trend_quality_ok(self, df: pd.DataFrame, i: int, side: str) -> bool:
+        window = df.iloc[max(0, i - 60):i + 1]
+        if len(window) < 35:
+            return False
+
+        close = window["Close"]
+        ema20 = close.ewm(span=20, adjust=False).mean()
+        ema50 = close.ewm(span=50, adjust=False).mean()
+
+        current_close = float(close.iloc[-1])
+        current_ema20 = float(ema20.iloc[-1])
+        current_ema50 = float(ema50.iloc[-1])
+        prev_ema20 = float(ema20.iloc[-6])
+        prev_ema50 = float(ema50.iloc[-6])
+
+        if side == "long":
+            return current_close > current_ema20 > current_ema50 and current_ema20 > prev_ema20 and current_ema50 >= prev_ema50
+
+        return current_close < current_ema20 < current_ema50 and current_ema20 < prev_ema20 and current_ema50 <= prev_ema50
+
+    def confirmation_ok(self, row: pd.Series, side: str, atr: float) -> bool:
+        if side == "long":
+            return bool(row["bull_confirm"]) and row["Close"] > row["Open"] and row["body"] >= atr * self.confirmation_body_atr
+
+        return bool(row["bear_confirm"]) and row["Close"] < row["Open"] and row["body"] >= atr * self.confirmation_body_atr
 
     def prepare(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
@@ -202,7 +277,11 @@ class AdvancedSniperSMCStrategy:
             info = {}
 
             if (
-                (self.liquidity_sweep(df, i, "long") or self.choch_bos(df, i, "long"))
+                self.trend_quality_ok(df, i, "long")
+                and self.premium_discount_ok(df, i, "long")
+                and self.confirmation_ok(row, "long", atr)
+                and self.liquidity_sweep(df, i, "long")
+                and self.choch_bos(df, i, "long")
             ):
                 zone = self.find_order_block_zone(df, i, "long")
                 if zone:
@@ -210,7 +289,7 @@ class AdvancedSniperSMCStrategy:
                     tapped = row["Low"] <= zh + atr * self.zone_padding_atr
                     reclaimed = row["Close"] > zh
 
-                    if tapped or reclaimed:
+                    if tapped and reclaimed:
                         signal = 1
                         info = {
                             "zone_low": zl,
@@ -221,7 +300,11 @@ class AdvancedSniperSMCStrategy:
 
             if (
                 signal == 0
-                and (self.liquidity_sweep(df, i, "short") or self.choch_bos(df, i, "short"))
+                and self.trend_quality_ok(df, i, "short")
+                and self.premium_discount_ok(df, i, "short")
+                and self.confirmation_ok(row, "short", atr)
+                and self.liquidity_sweep(df, i, "short")
+                and self.choch_bos(df, i, "short")
             ):
                 zone = self.find_order_block_zone(df, i, "short")
                 if zone:
@@ -229,7 +312,7 @@ class AdvancedSniperSMCStrategy:
                     tapped = row["High"] >= zl - atr * self.zone_padding_atr
                     rejected = row["Close"] < zl
 
-                    if tapped or rejected:
+                    if tapped and rejected:
                         signal = -1
                         info = {
                             "zone_low": zl,
@@ -268,25 +351,20 @@ class AdvancedSniperSMCStrategy:
 
             if sig == 1:
                 direction = "BUY"
-                sl = float(row["Low"] - atr * self.stop_padding_atr)
-                risk = entry - sl
-                if risk <= 0:
-                    continue
-                tp1 = entry + risk * self.tp1_rr
-                tp2 = entry + risk * 1.5
-                tp3 = entry + risk * self.min_rr
-
+                raw_sl = float(row["Low"] - atr * self.stop_padding_atr)
             else:
                 direction = "SELL"
-                sl = float(row["High"] + atr * self.stop_padding_atr)
-                risk = sl - entry
-                if risk <= 0:
-                    continue
-                tp1 = entry - risk * self.tp1_rr
-                tp2 = entry - risk * 1.5
-                tp3 = entry - risk * self.min_rr
+                raw_sl = float(row["High"] + atr * self.stop_padding_atr)
 
+            levels = self.build_rr_levels(symbol, direction, entry, raw_sl, atr)
+            if not levels:
+                continue
+
+            sl, tp1, tp2, tp3, risk = levels
             rr = round(abs(tp3 - entry) / abs(entry - sl), 2)
+
+            if rr < 5.0:
+                continue
 
             return {
                 "strategy": "Strategy B",
@@ -298,7 +376,7 @@ class AdvancedSniperSMCStrategy:
                 "tp2": round(tp2, 5),
                 "tp3": round(tp3, 5),
                 "rr": rr,
-                "confidence": 90 if rr >= self.min_rr else 80,
+                "confidence": 93 if rr >= 5.0 else 0,
                 "pattern": meta.get("reason", "Advanced Sniper SMC"),
                 "timeframe": "15m",
             }
@@ -394,14 +472,13 @@ class AdvancedSniperSMCStrategy:
 
             if sig == 1:
                 entry = float(row["Close"])
-                stop = float(row["Low"] - atr * self.stop_padding_atr)
-                risk = entry - stop
+                raw_stop = float(row["Low"] - atr * self.stop_padding_atr)
+                levels = self.build_rr_levels("UNKNOWN", "BUY", entry, raw_stop, atr)
 
-                if risk <= 0:
+                if not levels:
                     continue
 
-                tp1 = entry + risk * self.tp1_rr
-                final_target = entry + risk * self.min_rr
+                stop, tp1, _tp2, final_target, risk = levels
 
                 position = Trade(
                     "long",
@@ -418,14 +495,13 @@ class AdvancedSniperSMCStrategy:
 
             elif sig == -1:
                 entry = float(row["Close"])
-                stop = float(row["High"] + atr * self.stop_padding_atr)
-                risk = stop - entry
+                raw_stop = float(row["High"] + atr * self.stop_padding_atr)
+                levels = self.build_rr_levels("UNKNOWN", "SELL", entry, raw_stop, atr)
 
-                if risk <= 0:
+                if not levels:
                     continue
 
-                tp1 = entry - risk * self.tp1_rr
-                final_target = entry - risk * self.min_rr
+                stop, tp1, _tp2, final_target, risk = levels
 
                 position = Trade(
                     "short",
