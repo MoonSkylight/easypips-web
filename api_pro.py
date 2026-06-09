@@ -3675,9 +3675,37 @@ def admin_update_broker_verification(
         .execute()
     )
 
+    updated_verification = response.data[0] if response.data else None
+
+    if updated_verification and updates.get("status"):
+        status = updates.get("status")
+        broker_name = updated_verification.get("broker_name") or "your broker"
+
+        if status == "Verified":
+            create_notification(
+                updated_verification.get("user_id"),
+                "Broker account verified",
+                f"Your {broker_name} account has been verified. Monthly broker rewards are now active.",
+                "BROKER_VERIFIED",
+            )
+        elif status == "Rejected":
+            create_notification(
+                updated_verification.get("user_id"),
+                "Broker verification rejected",
+                f"Your {broker_name} broker verification was rejected. Please check your details and submit again.",
+                "BROKER_REJECTED",
+            )
+        elif status == "Suspended":
+            create_notification(
+                updated_verification.get("user_id"),
+                "Broker rewards suspended",
+                f"Monthly rewards for your {broker_name} account have been suspended.",
+                "BROKER_SUSPENDED",
+            )
+
     return {
         "success": True,
-        "verification": response.data[0] if response.data else None,
+        "verification": updated_verification,
     }
 
 
@@ -3783,6 +3811,13 @@ def admin_pay_broker_monthly_reward(verification_id: str, authorization: str = H
         "last_reward_paid_date": now_iso,
         "next_reward_date": next_iso,
     }).eq("id", verification_id).execute()
+
+    create_notification(
+        user_id,
+        "Broker monthly reward paid",
+        f"{coins} EasyPips Coins were added for your verified {verification.get('broker_name')} broker account.",
+        "BROKER_REWARD_PAID",
+    )
 
     return {
         "success": True,
