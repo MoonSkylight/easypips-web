@@ -2594,6 +2594,13 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
         "note": submission.get("tx_hash"),
     }).execute()
 
+    create_notification(
+        user.get("id"),
+        "Payment approved",
+        f"{coins} EasyPips Coins were added to your wallet.",
+        "PAYMENT_APPROVED",
+    )
+
     supabase.table("payment_submissions").update({
         "status": "approved",
         "coins": coins,
@@ -2649,6 +2656,13 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
                     "status": "Verified",
                     "rewarded_at": datetime.now(timezone.utc).isoformat(),
                 }).eq("id", referral.get("id")).execute()
+
+                create_notification(
+                    referrer_user_id,
+                    "Referral reward earned",
+                    f"You earned {reward_coins} EasyPips Coins from a successful referral.",
+                    "REFERRAL_REWARD",
+                )
 
     except Exception as e:
         print("Referral reward activation failed:", str(e))
