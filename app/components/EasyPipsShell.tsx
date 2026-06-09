@@ -773,6 +773,7 @@ export default function EasyPipsShell({ page }: { page: PageKey }) {
   const [news, setNews] = useState<NewsEvent[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [coinBalance, setCoinBalance] = useState(0);
+  const [notificationUnread, setNotificationUnread] = useState(0);
   const [unlockedSignals, setUnlockedSignals] = useState<string[]>([]);
   const [unlockMessage, setUnlockMessage] = useState("");
   const [livePrices, setLivePrices] = useState<Record<string, any>>({});
@@ -850,6 +851,14 @@ const clientToken =
             });
             const dashData = await dash.json();
             setCoinBalance(Number(dashData?.account?.coin_balance || 0));
+
+            const notifications = await fetch(`${API}/client/notifications`, {
+              headers: {
+                Authorization: `Bearer ${clientToken}`,
+              },
+            });
+            const notificationsData = await notifications.json();
+            setNotificationUnread(Number(notificationsData?.unread || 0));
 
             const purchased = await fetch(`${API}/client/purchased-signals`, {
               headers: {
@@ -1111,6 +1120,11 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
                   <NavIcon name={item.icon} active={active} />
                 </span>
                 <span className="truncate min-w-0">{item.label}</span>
+                {item.key === "notifications" && notificationUnread > 0 && (
+                  <span className="ml-auto rounded-full bg-yellow-400 px-2 py-0.5 text-[10px] font-black text-black">
+                    {notificationUnread}
+                  </span>
+                )}
                 {item.key === "history" && <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] text-white">NEW</span>}
               </Link>
             );
@@ -1318,6 +1332,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
                 }`}
               >
                 {item.label.replace(" (MT4/MT5)", "")}
+                {item.key === "notifications" && notificationUnread > 0 ? ` (${notificationUnread})` : ""}
               </Link>
             ))}
           </div>
