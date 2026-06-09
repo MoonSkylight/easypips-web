@@ -3545,6 +3545,79 @@ def client_purchased_signals(authorization: str = Header(default="")):
     }
 
 
+@app.get("/client/purchase-history")
+def client_purchase_history(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    purchases = (
+        supabase.table("signal_purchases")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("unlock_status", True)
+        .order("created_at", desc=True)
+        .limit(100)
+        .execute()
+        .data
+        or []
+    )
+
+    signal_ids = [str(p.get("signal_id")) for p in purchases if p.get("signal_id")]
+
+    signals_by_id = {}
+
+    if signal_ids:
+        signals = (
+            supabase.table("signals")
+            .select("*")
+            .in_("id", signal_ids)
+            .execute()
+            .data
+            or []
+        )
+        signals_by_id = {str(s.get("id")): s for s in signals}
+
+    history = []
+
+    for purchase in purchases:
+        signal_id = str(purchase.get("signal_id") or "")
+        signal = signals_by_id.get(signal_id, {})
+
+        history.append({
+            "purchase_id": purchase.get("id"),
+            "signal_id": signal_id,
+            "coin_cost": purchase.get("coin_cost"),
+            "unlock_status": purchase.get("unlock_status"),
+            "unlocked_at": purchase.get("created_at"),
+            "symbol": signal.get("symbol") or signal.get("pair_name"),
+            "pair_name": signal.get("pair_name") or signal.get("symbol"),
+            "direction": signal.get("direction"),
+            "entry": signal.get("entry"),
+            "sl": signal.get("sl"),
+            "tp1": signal.get("tp1"),
+            "tp2": signal.get("tp2"),
+            "tp3": signal.get("tp3"),
+            "status": signal.get("status"),
+            "result": signal.get("result"),
+            "strategy": signal.get("strategy"),
+            "timeframe": signal.get("timeframe"),
+            "confidence": signal.get("confidence") or signal.get("score"),
+            "hit_tp1": signal.get("hit_tp1"),
+            "hit_tp2": signal.get("hit_tp2"),
+            "hit_tp3": signal.get("hit_tp3"),
+            "hit_sl": signal.get("hit_sl"),
+            "closed_at": signal.get("closed_at"),
+        })
+
+    return {
+        "success": True,
+        "history": history,
+    }
+
+
 
 class BrokerClickRequest(BaseModel):
     broker_name: str
