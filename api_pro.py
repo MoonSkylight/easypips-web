@@ -3119,6 +3119,71 @@ def get_or_create_referral_code(user_id: str):
     return code
 
 
+
+def create_notification(user_id: str, title: str, message: str, type_: str = "INFO"):
+    if not db_enabled() or not user_id:
+        return None
+
+    try:
+        row = {
+            "user_id": user_id,
+            "title": title,
+            "message": message,
+            "type": type_,
+            "is_read": False,
+        }
+
+        response = supabase.table("notifications").insert(row).execute()
+        return response.data[0] if response.data else row
+    except Exception as e:
+        print("Notification create failed:", str(e))
+        return None
+
+
+@app.get("/client/notifications")
+def client_notifications(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    rows = (
+        supabase.table("notifications")
+        .select("*")
+        .eq("user_id", user_id)
+        .order("created_at", desc=True)
+        .limit(50)
+        .execute()
+        .data
+        or []
+    )
+
+    unread = len([n for n in rows if not bool(n.get("is_read"))])
+
+    return {
+        "success": True,
+        "notifications": rows,
+        "unread": unread,
+    }
+
+
+@app.post("/client/notifications/read-all")
+def client_notifications_read_all(authorization: str = Header(default="")):
+    payload = verify_client_token(authorization)
+    user_id = payload.get("client_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid client token")
+
+    supabase.table("notifications").update({
+        "is_read": True
+    }).eq("user_id", user_id).eq("is_read", False).execute()
+
+    return {"success": True}
+
+
+
 @app.get("/client/referral")
 def client_referral(authorization: str = Header(default="")):
     payload = verify_client_token(authorization)
