@@ -102,6 +102,7 @@ const NAV = [
   { key: "history", label: "History", href: "/history", icon: "history" },
   { key: "brokers", label: "Recommended Brokers", href: "/client/brokers", icon: "account" },
   { key: "notifications", label: "Notifications", href: "/client/notifications", icon: "activity" },
+  { key: "purchases", label: "Purchase History", href: "/client/purchases", icon: "history" },
   
   { key: "pricing", label: "Buy Coins", href: "/pricing", icon: "billing" },
   { key: "help-center", label: "Help Center", href: "/help-center", icon: "account" },
