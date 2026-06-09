@@ -2599,6 +2599,60 @@ def approve_payment_submission(submission_id: str, authorization: str = Header(d
         "coins": coins,
     }).eq("id", submission_id).execute()
 
+    try:
+        pending_referrals = (
+            supabase.table("referrals")
+            .select("*")
+            .eq("referred_user_id", user.get("id"))
+            .eq("status", "Pending")
+            .limit(1)
+            .execute()
+            .data
+            or []
+        )
+
+        if pending_referrals:
+            referral = pending_referrals[0]
+            referrer_user_id = referral.get("referrer_user_id")
+            reward_coins = int(referral.get("reward_coins") or 10)
+
+            referrer_accounts = (
+                supabase.table("client_accounts")
+                .select("*")
+                .eq("user_id", referrer_user_id)
+                .limit(1)
+                .execute()
+                .data
+                or []
+            )
+
+            if referrer_accounts:
+                referrer_account = referrer_accounts[0]
+                referrer_account_id = referrer_account.get("id")
+                referrer_balance = float(referrer_account.get("coin_balance") or 0)
+                referrer_new_balance = referrer_balance + reward_coins
+
+                supabase.table("client_accounts").update({
+                    "coin_balance": referrer_new_balance
+                }).eq("id", referrer_account_id).execute()
+
+                supabase.table("coin_transactions").insert({
+                    "account_id": referrer_account_id,
+                    "type": "REFERRAL_REWARD",
+                    "coins": reward_coins,
+                    "balance_before": referrer_balance,
+                    "balance_after": referrer_new_balance,
+                    "note": f"Referral reward from {user.get('email')}",
+                }).execute()
+
+                supabase.table("referrals").update({
+                    "status": "Verified",
+                    "rewarded_at": datetime.now(timezone.utc).isoformat(),
+                }).eq("id", referral.get("id")).execute()
+
+    except Exception as e:
+        print("Referral reward activation failed:", str(e))
+
 
     send_telegram(f"""
 âœ… *PAYMENT APPROVED*
