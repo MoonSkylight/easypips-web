@@ -18,6 +18,7 @@ from strategy_c import generate_strategy_c_signal
 from strategy_b import generate_strategy_b_signal
 from strategy_d import generate_strategy_d_signal
 import pandas as pd
+import numpy as np
 from supabase import create_client, Client
 
 app = FastAPI(title="EasyPips Pro Signals API")
@@ -1823,44 +1824,16 @@ def strategy_debug():
                 elif price < float(latest["ema50"]) < float(latest["ema200"]):
                     trend = "bearish"
 
-                swings = detect_swings(data_b)
-                swing_low, swing_high = latest_swing_range(swings)
+                analysis_b = generate_strategy_b_signal(data_b, symbol)
 
-                analysis_b = analyze_strategy_b(symbol, yahoo_symbol)
+                reason = "No valid Strategy B setup"
 
-                reason = "No valid Fibonacci setup"
-
-                if not swing_low or not swing_high:
-                    reason = "No valid swing range"
-                elif trend == "sideways":
+                if trend == "sideways":
                     reason = "Trend is sideways"
                 elif analysis_b:
-                    reason = analysis_b.get("note")
+                    reason = analysis_b.get("pattern") or "Strategy B setup found"
                 else:
-                    low = float(swing_low["price"])
-                    high = float(swing_high["price"])
-
-                    if trend == "bullish":
-                        levels = fib_levels(low, high, "BUY")
-                        fib_name, fib_price, distance, tolerance = nearest_fib_match(price, levels, atr)
-
-                        if not fib_name:
-                            reason = "Price not near Fibonacci retracement"
-                        elif not bullish_confirmation(data_b):
-                            reason = "No bullish confirmation candle"
-                        else:
-                            reason = "Risk/reward or quality gate blocked"
-
-                    elif trend == "bearish":
-                        levels = fib_levels(low, high, "SELL")
-                        fib_name, fib_price, distance, tolerance = nearest_fib_match(price, levels, atr)
-
-                        if not fib_name:
-                            reason = "Price not near Fibonacci retracement"
-                        elif not bearish_confirmation(data_b):
-                            reason = "No bearish confirmation candle"
-                        else:
-                            reason = "Risk/reward or quality gate blocked"
+                    reason = "Strategy B quality filters blocked setup"
 
                 item["strategyB"] = {
                     "status": "signal" if analysis_b else "blocked",
