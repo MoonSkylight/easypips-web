@@ -280,8 +280,10 @@ class AdvancedSniperSMCStrategy:
                 self.trend_quality_ok(df, i, "long")
                 and self.premium_discount_ok(df, i, "long")
                 and self.confirmation_ok(row, "long", atr)
-                and self.liquidity_sweep(df, i, "long")
-                and self.choch_bos(df, i, "long")
+                and (
+                    self.liquidity_sweep(df, i, "long")
+                    or self.choch_bos(df, i, "long")
+                )
             ):
                 zone = self.find_order_block_zone(df, i, "long")
                 if zone:
@@ -289,7 +291,7 @@ class AdvancedSniperSMCStrategy:
                     tapped = row["Low"] <= zh + atr * self.zone_padding_atr
                     reclaimed = row["Close"] > zh
 
-                    if tapped and reclaimed:
+                    if tapped or reclaimed:
                         signal = 1
                         info = {
                             "zone_low": zl,
@@ -303,8 +305,10 @@ class AdvancedSniperSMCStrategy:
                 and self.trend_quality_ok(df, i, "short")
                 and self.premium_discount_ok(df, i, "short")
                 and self.confirmation_ok(row, "short", atr)
-                and self.liquidity_sweep(df, i, "short")
-                and self.choch_bos(df, i, "short")
+                and (
+                    self.liquidity_sweep(df, i, "short")
+                    or self.choch_bos(df, i, "short")
+                )
             ):
                 zone = self.find_order_block_zone(df, i, "short")
                 if zone:
@@ -312,7 +316,7 @@ class AdvancedSniperSMCStrategy:
                     tapped = row["High"] >= zl - atr * self.zone_padding_atr
                     rejected = row["Close"] < zl
 
-                    if tapped and rejected:
+                    if tapped or rejected:
                         signal = -1
                         info = {
                             "zone_low": zl,

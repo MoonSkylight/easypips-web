@@ -81,11 +81,35 @@ def get_yahoo_history(yahoo_symbol: str, period: str = "7d", interval: str = "15
 
     try:
         data = yf.Ticker(yahoo_symbol).history(period=period, interval=interval)
-        if data is not None and not data.empty:
+        if data is not None and not data.empty and len(data) >= 60:
             YAHOO_CACHE[key] = {"time": now, "data": data}
             return data
     except Exception as e:
-        print("Yahoo history failed:", yahoo_symbol, str(e))
+        print("Yahoo ticker history failed:", yahoo_symbol, str(e))
+
+    try:
+        data = yf.download(
+            yahoo_symbol,
+            period=period,
+            interval=interval,
+            progress=False,
+            auto_adjust=False,
+            threads=False,
+        )
+
+        if data is not None and not data.empty:
+            if isinstance(data.columns, pd.MultiIndex):
+                data.columns = [c[0] if isinstance(c, tuple) else c for c in data.columns]
+
+            required = ["Open", "High", "Low", "Close"]
+            if all(col in data.columns for col in required):
+                data = data.dropna(subset=required)
+                if len(data) >= 60:
+                    YAHOO_CACHE[key] = {"time": now, "data": data}
+                    return data
+
+    except Exception as e:
+        print("Yahoo download fallback failed:", yahoo_symbol, str(e))
 
     try:
         td_key = os.environ.get("TWELVEDATA_API_KEY")
