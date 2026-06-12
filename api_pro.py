@@ -1048,6 +1048,23 @@ def build_ai_signal(symbol: str, analysis: dict):
         "hit_sl": False,
     }
 
+
+def calculate_rsi(close, period: int = 14):
+    delta = close.diff()
+    gain = delta.where(delta > 0, 0).rolling(period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(period).mean()
+    rs = gain / loss.replace(0, np.nan)
+    return 100 - (100 / (1 + rs))
+
+
+def calculate_atr(df, period: int = 14):
+    tr1 = df["High"] - df["Low"]
+    tr2 = (df["High"] - df["Close"].shift()).abs()
+    tr3 = (df["Low"] - df["Close"].shift()).abs()
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    return tr.rolling(period).mean()
+
+
 def analyze_strategy_a(symbol: str, yahoo_symbol: str):
     try:
         data = get_yahoo_history(yahoo_symbol, period="7d", interval="15m")
