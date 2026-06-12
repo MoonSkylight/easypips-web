@@ -1050,6 +1050,24 @@ def build_ai_signal(symbol: str, analysis: dict):
     }
 
 
+
+def format_price(symbol: str, price):
+    try:
+        value = float(price)
+        s = str(symbol or "").upper()
+
+        if "JPY" in s:
+            return round(value, 3)
+        if "XAU" in s:
+            return round(value, 2)
+        if "BTC" in s or "ETH" in s:
+            return round(value, 2)
+
+        return round(value, 5)
+    except Exception:
+        return price
+
+
 def calculate_rsi(close, period: int = 14):
     delta = close.diff()
     gain = delta.where(delta > 0, 0).rolling(period).mean()
