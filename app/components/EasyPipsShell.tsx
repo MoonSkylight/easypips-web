@@ -98,11 +98,11 @@ const NAV = [
   { key: "live-signals", label: "Live Signals", href: "/live-signals", icon: "activity" },
   { key: "performance", label: "Performance", href: "/performance", icon: "chart" },
 
-  { key: "account", label: "Account (MT4/MT5)", href: "/account", icon: "account" },
+  { key: "account", label: "Trading Account", href: "/account", icon: "account" },
   { key: "history", label: "History", href: "/history", icon: "history" },
-  { key: "brokers", label: "Recommended Brokers", href: "/client/brokers", icon: "account" },
+  { key: "brokers", label: "Broker Partners", href: "/client/brokers", icon: "account" },
   { key: "notifications", label: "Notifications", href: "/client/notifications", icon: "activity" },
-  { key: "purchases", label: "Purchase History", href: "/client/purchases", icon: "history" },
+  { key: "purchases", label: "Purchases", href: "/client/purchases", icon: "history" },
   
   { key: "pricing", label: "Buy Coins", href: "/pricing", icon: "billing" },
   { key: "help-center", label: "Help Center", href: "/help-center", icon: "account" },
@@ -1095,7 +1095,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
       </div>
 
-      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[200px] border-r border-white/8 bg-[#07101b]/90 p-2 shadow-lg backdrop-blur-xl xl:block">
+      <aside className="fixed left-0 top-0 z-20 hidden h-screen w-[240px] border-r border-white/8 bg-[#07101b]/90 p-2 shadow-lg backdrop-blur-xl xl:block">
         <Link href="/dashboard" className="mb-5 flex items-center gap-1.5 px-1">
           <div className="flex h-6 w-6 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-emerald-300 font-black text-black shadow-lg shadow-yellow-400/15">EP</div>
           <div>
@@ -1226,7 +1226,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
 </div>
       </aside>
 
-      <section className="relative z-10 xl:pl-[240px]">
+      <section className="relative z-10 xl:pl-[280px]">
         <header className="sticky top-0 z-30 border-b border-white/8 bg-[#030811]/90 px-4 py-2 shadow-xl shadow-black/20 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-1.5">
             <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-2">
@@ -1332,7 +1332,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
                   page === item.key ? "bg-yellow-400 text-black" : "bg-white/10 text-white"
                 }`}
               >
-                {item.label.replace(" (MT4/MT5)", "")}
+                {item.label}
                 {item.key === "notifications" && notificationUnread > 0 ? ` (${notificationUnread})` : ""}
               </Link>
             ))}
