@@ -1239,18 +1239,18 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     </span>
 
     <div className="ml-2 hidden items-center gap-1.5 xl:flex">
-      <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        
-      </span>
+  <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+    Forex Active
+  </span>
 
-      <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-        
-      </span>
+  <span className="rounded-full bg-cyan-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-300">
+    Auto Updating
+  </span>
 
-      <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
-        
-      </span>
-    </div>
+  <span className="rounded-full bg-slate-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+    Live Feed
+  </span>
+</div>
   </div>
 </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
