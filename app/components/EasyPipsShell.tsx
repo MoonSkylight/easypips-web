@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -1015,11 +1015,12 @@ const visibleLiveRaw = sessionAllowed
 
       if (filter === "All") return true;
 
-      if (filter === "Trading Room") {
+      if (filter === "AI Engine") {
         return (
-          s.desk === "Desk 1" ||
-          s.desk === "Help Desk" ||
-          s.desk === "Trading Room"
+          s.strategy === "Strategy A" ||
+          s.strategy === "Strategy B" ||
+          s.strategy === "Strategy C" ||
+          s.strategy === "Strategy D"
         );
       }
 
@@ -1056,7 +1057,7 @@ const dashboardWinRate = weeklyClosed.length > 0 ? ((wins / weeklyClosed.length)
 const tpHits = weeklyLive.filter((s) => s.hit_tp1 || (s.hit_tp2 || s.hit_tp3)).length +
   weeklyClosed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
 
-const helpDesk = weeklyLive.filter((s) => s.desk === "Desk 1" || s.desk === "Trading Room").length;
+const helpDesk = weeklyLive.filter((s) => s.strategy === "Strategy A" || s.strategy === "Strategy B" || s.strategy === "Strategy C" || s.strategy === "Strategy D").length;
 
 const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && !s.hit_tp3).length +
   weeklyClosed.filter((s) => {
@@ -1071,7 +1072,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       <StatCard title="Closed Trades" value={closedCount} color="purple" icon="CT" />
       <StatCard title="TP Hits" value={tpHits} color="green" icon="TP" />
       <StatCard title="SL Hits" value={slHits} color="red" icon="SL" />
-      <StatCard title="Trading Room" value={helpDesk} color="green" icon="TR" />
+      <StatCard title="AI Engine" value={helpDesk} color="green" icon="AI" />
     </div>
   );
 
@@ -1139,8 +1140,8 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
     </p>
 
     <div className="mt-3 space-y-2 text-[11px] font-bold text-slate-300">
-      <p>AI signals filtered by strict capital-protection rules</p>
-      <p>Desk 1 • Trading Room • Premium Analyst Signals</p>
+      <p>Signals generated, filtered, and published by EasyPips AI</p>
+      <p>AI Engine + Premium AI Signals + Automated Market Scanner</p>
       <p>News calendar monitoring</p>
       <p>MT4 / MT5 read-side support</p>
     </div>
@@ -1376,14 +1377,14 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       <div className="space-y-2 xl:sticky xl:top-2">
   <LiveTradingChart />
 
-        <Panel title="Trading Room">
+        <Panel title="AI Engine">
           <div className="space-y-0.5 text-sm">
             <p className="font-black text-emerald-300">
-              AI Desk Live
+              AI Engine Live
             </p>
 
             <p className="text-slate-300">
-              Institutional-grade setups monitored in real time.
+              Human-free AI signal system scanning the market in real time.
             </p>
 
             <p className="text-slate-400">
@@ -1391,7 +1392,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
             </p>
 
             <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-2 text-sm font-black text-yellow-300">
-              Enter Trading Room
+              View AI Engine
             </button>
           </div>
         </Panel>
@@ -1461,7 +1462,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
               {!isPremium && (
                 <PremiumLock
                   title="Full Live Signals Locked"
-                  message="Free users can preview a few Strategy A signals. Premium unlocks all real-time signals, Strategy B, Strategy C, Strategy D Scalping, Trading Room signals, and Telegram delivery."
+                  message="Free users can preview a few Strategy A signals. Premium unlocks all real-time signals, Strategy B, Strategy C, Strategy D Scalping, AI Engine signals, and Telegram delivery."
                 />
               )}
             </div>
@@ -1731,7 +1732,7 @@ onUnlocked,
   unlockedSignals: string[];
   onUnlocked: (signalId: string, coinBalance: number, message: string) => void;
 }) {
-  const filters = ["All", "Strategy A", "Strategy B", "Strategy C", "Strategy D", "Trading Room"];
+  const filters = ["All", "Strategy A", "Strategy B", "Strategy C", "Strategy D", "AI Engine"];
 
   return (
     <Panel title={`Live Signals (${signals.length})`}>
@@ -2216,7 +2217,7 @@ function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
     { title: "Strategy B", sub: "Advanced SMC Sniper", color: "purple" },
     { title: "Strategy C", sub: "Smart Money High RR", color: "green" },
     { title: "Strategy D", sub: "3-Min Scalping AI", color: "cyan" },
-    { title: "Trading Room", sub: "Manual support desk signals", color: "yellow" },
+    { title: "AI Engine", sub: "Automated AI signal publishing", color: "yellow" },
   ];
   return (
     <div className="grid gap-1.5 lg:grid-cols-2">
