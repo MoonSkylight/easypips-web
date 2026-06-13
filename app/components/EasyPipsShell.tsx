@@ -799,15 +799,16 @@ const clientToken =
 
   async function loadData() {
     try {
-      const [signalsRes, closedRes, newsRes, accountRes, priceRes, statusRes, upcomingRes] = await Promise.allSettled([
-        fetch(`${API}/all-paid-signals`),
-        fetch(`${API}/closed-signals`),
-        fetch(`${API}/news-calendar`),
-        fetch(`${API}/client-accounts`),
-        fetch(`${API}/live-prices`),
-        fetch(`${API}/system-status`),
-        fetch(`${API}/upcoming-signals`),
+      const [signalsRes, priceRes, statusRes, upcomingRes] = await Promise.allSettled([
+        fetch(`${API}/all-paid-signals`, { cache: "no-store" }),
+        fetch(`${API}/live-prices`, { cache: "no-store" }),
+        fetch(`${API}/system-status`, { cache: "no-store" }),
+        fetch(`${API}/upcoming-signals`, { cache: "no-store" }),
       ]);
+
+      const closedRes = { status: "skipped" } as any;
+      const newsRes = { status: "skipped" } as any;
+      const accountRes = { status: "skipped" } as any;
 
       if (signalsRes.status === "fulfilled") {
         const data = await signalsRes.value.json();
@@ -888,10 +889,44 @@ if (statusRes.status === "fulfilled") {
     }
   }
 
+  async function loadSlowData() {
+    try {
+      const [closedRes, newsRes, accountRes] = await Promise.allSettled([
+        fetch(`${API}/closed-signals`, { cache: "no-store" }),
+        fetch(`${API}/news-calendar`),
+        fetch(`${API}/client-accounts`),
+      ]);
+
+      if (closedRes.status === "fulfilled") {
+        const data = await closedRes.value.json();
+        setClosed(data.closedSignals || data.signals || []);
+      }
+
+      if (newsRes.status === "fulfilled") {
+        const data = await newsRes.value.json();
+        setNews(data.events || []);
+      }
+
+      if (accountRes.status === "fulfilled") {
+        const data = await accountRes.value.json();
+        setAccounts(data.accounts || []);
+      }
+    } catch (e) {
+      console.log("Slow dashboard refresh failed", e);
+    }
+  }
+
   useEffect(() => {
     loadData();
-    const t = setInterval(loadData, 30000);
-    return () => clearInterval(t);
+    loadSlowData();
+
+    const fastTimer = setInterval(loadData, 15000);
+    const slowTimer = setInterval(loadSlowData, 60000);
+
+    return () => {
+      clearInterval(fastTimer);
+      clearInterval(slowTimer);
+    };
   }, []);
 
   useEffect(() => {

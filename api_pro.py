@@ -2055,17 +2055,20 @@ def closed_signals():
     if not db_enabled():
         return {"closedSignals": []}
 
-    update_all_running_results()
-
     response = (
         supabase.table("signals")
         .select("*")
         .eq("status", "CLOSED")
         .order("closed_at", desc=True)
+        .limit(150)
         .execute()
     )
 
-    return {"closedSignals": response.data or []}
+    return {
+        "closedSignals": response.data or [],
+        "updatedBy": "AI engine loop",
+        "serverTimeUTC": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 @app.get("/telegram-test")
