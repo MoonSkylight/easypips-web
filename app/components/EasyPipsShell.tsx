@@ -142,7 +142,6 @@ function formatDate(value?: string) {
 function signalList(data: any): Signal[] {
   return [
     ...(data?.strategyASignals || []),
-    ...(data?.strategyBSignals || []),
     ...(data?.strategyCSignals || []),
     ...(data?.desk1Signals || []),
     ...(data?.desk2Signals || []),
@@ -1053,9 +1052,7 @@ const visibleLiveRaw = sessionAllowed
       if (filter === "AI Engine") {
         return (
           s.strategy === "Strategy A" ||
-          s.strategy === "Strategy B" ||
-          s.strategy === "Strategy C" ||
-          s.strategy === "Strategy D"
+          s.strategy === "Strategy C"
         );
       }
 
@@ -1092,7 +1089,7 @@ const dashboardWinRate = weeklyClosed.length > 0 ? ((wins / weeklyClosed.length)
 const tpHits = weeklyLive.filter((s) => s.hit_tp1 || (s.hit_tp2 || s.hit_tp3)).length +
   weeklyClosed.filter((s) => String(s.result || "").toUpperCase().includes("TP") || String(s.result || "").toUpperCase().includes("WIN")).length;
 
-const helpDesk = weeklyLive.filter((s) => s.strategy === "Strategy A" || s.strategy === "Strategy B" || s.strategy === "Strategy C" || s.strategy === "Strategy D").length;
+const helpDesk = weeklyLive.filter((s) => s.strategy === "Strategy A" || s.strategy === "Strategy C").length;
 
 const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && !s.hit_tp3).length +
   weeklyClosed.filter((s) => {
@@ -1497,7 +1494,7 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
               {!isPremium && (
                 <PremiumLock
                   title="Full Live Signals Locked"
-                  message="Free users can preview a few Strategy A signals. Premium unlocks all real-time signals, Strategy B, Strategy C, Strategy D Scalping, AI Engine signals, and Telegram delivery."
+                  message="Free users can preview a few Strategy A signals. Premium unlocks all active real-time AI signals, Strategy C, AI Engine signals, and Telegram delivery."
                 />
               )}
             </div>
@@ -1767,7 +1764,7 @@ onUnlocked,
   unlockedSignals: string[];
   onUnlocked: (signalId: string, coinBalance: number, message: string) => void;
 }) {
-  const filters = ["All", "Strategy A", "Strategy B", "Strategy C", "Strategy D", "AI Engine"];
+  const filters = ["All", "Strategy A", "Strategy C", "AI Engine"];
 
   return (
     <Panel title={`Live Signals (${signals.length})`}>
@@ -2249,9 +2246,9 @@ function Row({ label, value }: { label: string; value: any }) {
 function StrategiesPage({ allSignals }: { allSignals: Signal[] }) {
   const cards = [
     { title: "Strategy A", sub: "EMA + RSI + Momentum", color: "blue" },
-    { title: "Strategy B", sub: "Advanced SMC Sniper", color: "purple" },
+    { title: "Strategy B", sub: "Archived Strategy", color: "purple" },
     { title: "Strategy C", sub: "Smart Money High RR", color: "green" },
-    { title: "Strategy D", sub: "3-Min Scalping AI", color: "cyan" },
+    { title: "Strategy D", sub: "Archived Strategy", color: "cyan" },
     { title: "AI Engine", sub: "Automated AI signal publishing", color: "yellow" },
   ];
   return (
