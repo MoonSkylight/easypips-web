@@ -1317,6 +1317,21 @@ def get_candles_since_signal(yahoo_symbol: str, created_at: str):
         return None
 
 
+def normalize_tp_priority(signal: dict) -> dict:
+    """
+    TP result priority:
+    TP3 > TP2 > TP1 > SL.
+    SL is only valid when no TP level has been reached.
+    """
+    if signal.get("hit_tp3"):
+        return {"result": "TP3", "hit_sl": False}
+    if signal.get("hit_tp2"):
+        return {"result": "TP2", "hit_sl": False}
+    if signal.get("hit_tp1"):
+        return {"result": "TP1", "hit_sl": False}
+    return {}
+
+
 def update_all_running_results():
     """
     Safe TP/SL check-and-balance engine.
@@ -1363,8 +1378,8 @@ def update_all_running_results():
                 updated_signals.append(signal)
                 continue
 
-            updates = {}
-            final_result = None
+            updates = normalize_tp_priority(signal)
+            final_result = updates.get("result")
 
             hit_tp1 = bool(signal.get("hit_tp1"))
             hit_tp2 = bool(signal.get("hit_tp2"))
@@ -1577,13 +1592,16 @@ def performance_for_strategy(strategy_name: str, days: int = 7):
         if signal.get("hit_tp3"):
             tp3 += 1
 
-        if signal.get("hit_sl") or signal.get("result") == "SL":
+        has_tp = bool(signal.get("hit_tp1") or signal.get("hit_tp2") or signal.get("hit_tp3") or "TP" in str(signal.get("result") or "").upper())
+        has_clean_sl = bool((signal.get("hit_sl") or signal.get("result") == "SL") and not has_tp)
+
+        if has_clean_sl:
             sl += 1
 
-        if signal.get("status") == "CLOSED" and signal.get("result") == "TP3":
+        if has_tp:
             wins += 1
 
-        if signal.get("status") == "CLOSED" and signal.get("result") == "SL":
+        if has_clean_sl:
             losses += 1
 
     closed = wins + losses
@@ -2466,8 +2484,8 @@ def desk_performance():
         active = len([s for s in rows if s.get("status") == "ACTIVE"])
         closed = [s for s in rows if s.get("status") == "CLOSED"]
 
-        tp = len([s for s in closed if s.get("result") == "TP3"])
-        sl = len([s for s in closed if s.get("result") == "SL"])
+        tp = len([s for s in closed if s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper()])
+        sl = len([s for s in closed if ("SL" in str(s.get("result") or "").upper() or s.get("hit_sl")) and not (s.get("hit_tp1") or s.get("hit_tp2") or s.get("hit_tp3") or "TP" in str(s.get("result") or "").upper())])
 
         closed_count = tp + sl
         win_rate = round((tp / closed_count) * 100, 2) if closed_count else 0

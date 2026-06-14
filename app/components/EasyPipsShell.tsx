@@ -1409,26 +1409,6 @@ const slHits = weeklyLive.filter((s) => s.hit_sl && !s.hit_tp1 && !s.hit_tp2 && 
       <div className="space-y-2 xl:sticky xl:top-2">
   <LiveTradingChart />
 
-        <Panel title="AI Engine">
-          <div className="space-y-0.5 text-sm">
-            <p className="font-black text-emerald-300">
-              AI Engine Live
-            </p>
-
-            <p className="text-slate-300">
-              Human-free AI signal system scanning the market in real time.
-            </p>
-
-            <p className="text-slate-400">
-              Liquidity monitoring active.
-            </p>
-
-            <button className="mt-2 w-full rounded-lg border border-yellow-300/40 px-3 py-2 text-sm font-black text-yellow-300">
-              View AI Engine
-            </button>
-          </div>
-        </Panel>
-
         <Panel title="AI Market Scan">
           <div className="space-y-0.5 text-sm">
             <div className="flex justify-between">
