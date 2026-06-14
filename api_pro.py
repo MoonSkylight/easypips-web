@@ -1722,11 +1722,12 @@ def cron_check():
         print("Strategy A cron failed:", str(e))
         strategyA = {"created": 0, "rejected": 1, "error": str(e)}
 
-    try:
-        strategyB = generate_strategy_b_signals()
-    except Exception as e:
-        print("Strategy B cron failed:", str(e))
-        strategyB = {"created": 0, "rejected": 1, "error": str(e)}
+    # Strategy B archived
+    strategyB = {
+        "created": 0,
+        "rejected": 0,
+        "archived": True
+    }
 
     try:
         strategyC = generate_strategy_c_signals()
@@ -4413,7 +4414,7 @@ def strategy_d_debug():
             elif len(data) < 240:
                 item["reason"] = f"Not enough 5m candles: {len(data)}"
             else:
-                setup = generate_strategy_d_signal(data, symbol)
+                setup = None  # Strategy D archived
 
                 if setup:
                     item["status"] = "signal"
