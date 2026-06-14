@@ -1521,12 +1521,32 @@ def update_all_running_results():
                     supabase.table("signals").update(updates).eq("id", signal["id"]).execute()
                     signal.update(updates)
 
-                    # Telegram update, but TP1/TP2 remain ACTIVE.
+                    # Telegram result update idempotency:
+                    # send each result event only once per signal.
                     if final_result in ["TP1", "TP2", "TP3", "SL"]:
-                        try:
-                            send_telegram(result_message(signal, final_result))
-                        except Exception as e:
-                            print("Telegram result update failed:", str(e))
+                        event_flag = {
+                            "TP1": "telegram_tp1_sent",
+                            "TP2": "telegram_tp2_sent",
+                            "TP3": "telegram_tp3_sent",
+                            "SL": "telegram_sl_sent",
+                        }.get(final_result)
+
+                        already_sent = bool(signal.get(event_flag)) if event_flag else True
+
+                        if event_flag and not already_sent:
+                            try:
+                                ok = send_telegram(result_message(signal, final_result))
+                                if ok:
+                                    supabase.table("signals").update({
+                                        event_flag: True
+                                    }).eq("id", signal["id"]).execute()
+                                    signal[event_flag] = True
+                                else:
+                                    print("Telegram result send returned false:", signal.get("id"), final_result)
+                            except Exception as e:
+                                print("Telegram result update failed:", signal.get("id"), final_result, str(e))
+                        else:
+                            print("Telegram result already sent, skipped:", signal.get("id"), final_result)
 
                 except Exception as e:
                     print("Signal result update failed:", str(e))
