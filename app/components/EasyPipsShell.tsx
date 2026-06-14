@@ -2373,6 +2373,27 @@ function tradeDuration(start?: string, end?: string) {
   return `${days}d ${hrs % 24}h`;
 }
 
+function finalSignalResult(s: Signal) {
+  if (s.hit_tp3 || String(s.result || "").toUpperCase().includes("TP3")) return "TP3";
+  if (s.hit_tp2 || String(s.result || "").toUpperCase().includes("TP2")) return "TP2";
+  if (s.hit_tp1 || String(s.result || "").toUpperCase().includes("TP1") || String(s.result || "").toUpperCase().includes("TP")) return "TP1";
+  if (String(s.result || "").toUpperCase().includes("SL") || s.hit_sl) return "SL";
+  return s.result || "Closed";
+}
+
+function tpHitLabel(s: Signal) {
+  const r = finalSignalResult(s);
+  return r.startsWith("TP") ? r : "-";
+}
+
+function rrForResult(result: string) {
+  if (result === "TP3") return "3.0R";
+  if (result === "TP2") return "2.0R";
+  if (result === "TP1") return "1.0R";
+  if (result === "SL") return "-1.0R";
+  return "-";
+}
+
 function HistoryPage({
   closed,
   allSignals,
@@ -2382,182 +2403,201 @@ function HistoryPage({
   allSignals: Signal[];
   coinTransactions: any[];
 }) {
-  const [historyRange, setHistoryRange] = useState("today");
+  const [historyRange, setHistoryRange] = useState("week");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
 
-  const historyStart = new Date();
-  if (historyRange === "today") {
-  historyStart.setDate(historyStart.getDate() - 1);
-  historyStart.setHours(0, 0, 0, 0);
-} else if (historyRange === "week") {
-    historyStart.setDate(historyStart.getDate() - 7);
-    historyStart.setHours(0, 0, 0, 0);
+  const now = new Date();
+
+  const rangeStart = new Date();
+  let rangeEnd = now;
+
+  if (historyRange === "week") {
+    rangeStart.setDate(now.getDate() - 7);
+    rangeStart.setHours(0, 0, 0, 0);
   } else if (historyRange === "month") {
-    historyStart.setMonth(historyStart.getMonth() - 1);
-    historyStart.setHours(0, 0, 0, 0);
+    rangeStart.setMonth(now.getMonth() - 1);
+    rangeStart.setHours(0, 0, 0, 0);
+  } else if (historyRange === "custom") {
+    const start = customStart ? new Date(customStart) : new Date("2000-01-01T00:00:00Z");
+    const end = customEnd ? new Date(customEnd) : now;
+    rangeStart.setTime(start.getTime());
+    rangeEnd = end;
   } else {
-    historyStart.setFullYear(2000, 0, 1);
-    historyStart.setHours(0, 0, 0, 0);
+    rangeStart.setFullYear(2000, 0, 1);
+    rangeStart.setHours(0, 0, 0, 0);
   }
 
   const inHistoryRange = (s: Signal) => {
-    const closedTime = new Date(s.closed_at || s.created_at || Date.now());
-    return closedTime >= historyStart;
+    if ((s.status || "").toUpperCase() !== "CLOSED") return false;
+
+    const closedTime = new Date(s.closed_at || s.created_at || "");
+    if (!Number.isFinite(closedTime.getTime())) return false;
+
+    return closedTime >= rangeStart && closedTime <= rangeEnd;
   };
-  const tpHitRows = (allSignals || []).filter(inHistoryRange).flatMap((s) => {
-    const rows: any[] = [];
-    if (s.hit_tp1) rows.push({ ...s, result: "TP1" });
-    if (s.hit_tp2) rows.push({ ...s, result: "TP2" });
-    if (s.hit_tp3) rows.push({ ...s, result: "TP3" });
-    return rows;
-  });
 
-  const cleanClosed = closed.filter(inHistoryRange).filter((s) => {
-    const r = String(s.result || "").toUpperCase();
+  const historyRows = (closed || [])
+    .filter(inHistoryRange)
+    .map((s) => ({ ...s, result: finalSignalResult(s) }))
+    .sort(
+      (a, b) =>
+        new Date(b.closed_at || b.created_at || 0).getTime() -
+        new Date(a.closed_at || a.created_at || 0).getTime()
+    );
 
-    if ((r.includes("SL") || r.includes("LOSS")) && (s.hit_tp1 || (s.hit_tp2 || s.hit_tp3))) {
-      return false;
-    }
+  const totalTrades = historyRows.length;
+  const totalTP = historyRows.filter((s) => String(s.result || "").startsWith("TP")).length;
+  const totalSL = historyRows.filter((s) => String(s.result || "") === "SL").length;
+  const winRate = totalTP + totalSL > 0 ? Math.round((totalTP / (totalTP + totalSL)) * 100) : 0;
 
-    return true;
-  });
-
-  const sortedHistoryRows = [...tpHitRows, ...cleanClosed].sort((a, b) => new Date(b.closed_at || b.created_at || 0).getTime() - new Date(a.closed_at || a.created_at || 0).getTime());
-
-  const rows = sortedHistoryRows.length ? sortedHistoryRows : [
-    { symbol: "BTC/USD", direction: "Locked", strategy: "Strategy A", entry: "81317.35", sl: "80317.35", tp1: "82317.35", result: "Win", confidence: 82, created_at: "2026-05-15T10:22:00Z" },
-    { symbol: "EUR/USD", direction: "Locked", strategy: "Strategy A", entry: "1.16550", sl: "1.17550", tp1: "1.15550", result: "Win", confidence: 95, created_at: "2026-05-15T01:33:00Z" },
-  ] as Signal[];
+  const rows = historyRows.slice(0, 150);
 
   return (
-    <div className="relative overflow-hidden"><div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-[0.08]"><div className="text-[180px] font-black tracking-[0.12em] text-white/[0.08]">EP</div><div className="hidden">EASYPIPS AI</div><div className="hidden">SMART FOREX SIGNALS</div></div><div className="relative z-10"><Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
-      <div className="mb-3 flex flex-wrap gap-2">
-  {[
-    ["week", "Last Week History"],
-    ["month", "Last Month History"],
-    ["custom", "Custom History"],
-  ].map(([key, label]) => (
-    <button
-      key={key}
-      onClick={() => setHistoryRange(key)}
-      className={`rounded-xl border px-4 py-2 text-xs font-black transition ${
-        historyRange === key
-          ? "border-yellow-300/50 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/10"
-          : "border-white/8 bg-black/30 text-slate-300 hover:bg-white/10"
-      }`}
-    >
-      {label}
-    </button>
-  ))}
-</div>
+    <div className="relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-[0.08]">
+        <div className="text-[180px] font-black tracking-[0.12em] text-white/[0.08]">EP</div>
+      </div>
 
-
-{historyRange === "custom" && (
-  <div className="mb-3 flex flex-wrap gap-2">
-    <input
-      type="date"
-      className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm text-white outline-none"
-    />
-
-    <input
-      type="date"
-      className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm text-white outline-none"
-    />
-
-    <button className="rounded-xl border border-yellow-300/40 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300">
-      Apply Filter
-    </button>
-  </div>
-)}
-<div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] text-left text-sm">
-          <thead className="bg-black/30 text-slate-400">
-            <tr>
-              {["Close Date", "Published Date", "Duration", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => <th key={h} className="p-1.5">{h}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, i) => (
-              <tr key={r.id || i} className="border-b border-white/5">
-                <td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td><td className="p-1.5 text-slate-400">{formatDate(r.created_at)}</td><td className="p-1.5 text-cyan-300">{tradeDuration(r.created_at, r.closed_at || r.created_at)}</td><td className="p-1.5 font-black">{r.symbol}</td>
-                <td className={`p-1.5 font-black ${String(r.direction || "").toUpperCase().includes("SELL") || String(r.direction || "").toUpperCase().includes("LOCKED") ? "text-red-400" : "text-emerald-400"}`}>{r.direction}</td>
-                <td className="p-1.5">{r.strategy || r.desk}</td>
-                <td className="p-1.5">{r.entry}</td>
-                <td className="p-1.5">{r.sl}</td>
-                <td className="p-1.5 font-black text-emerald-400">{r.tp1}</td>
-                <td className={`p-1.5 font-black ${String(r.result || "").toUpperCase().includes("SL") || String(r.result || "").toUpperCase().includes("LOSS") ? "text-red-400" : "text-emerald-400"}`}>{r.result}</td>
-                <td className="p-1.5 text-emerald-300">
-  {r.result === "TP3"
-    ? "3.0R"
-    : r.result === "TP2"
-    ? "2.0R"
-    : r.result === "TP1"
-    ? "1.0R"
-    : r.result === "SL"
-    ? "-1.0R"
-    : "Pending"}
-</td>
-                <td className="p-1.5">{r.confidence}%</td>
-              </tr>
+      <div className="relative z-10">
+        <Panel title="History (Closed Trades)" right={<button className="rounded-xl border border-white/8 px-3 py-2">Export CSV</button>}>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {[
+              ["week", "Last Week History"],
+              ["month", "Last Month History"],
+              ["all", "All History"],
+              ["custom", "Custom History"],
+            ].map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setHistoryRange(key)}
+                className={`rounded-xl border px-4 py-2 text-xs font-black transition ${
+                  historyRange === key
+                    ? "border-yellow-300/50 bg-yellow-400/15 text-yellow-300 shadow-lg shadow-yellow-500/10"
+                    : "border-white/8 bg-black/30 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                {label}
+              </button>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </Panel>
-    </div>
+          </div>
 
-    <Panel title="Coin Transactions">
-      <div className="space-y-2 text-sm">
-        <div className="grid grid-cols-4 gap-2 rounded-xl bg-black/30 px-3 py-2 font-black text-slate-400">
-          <span>Date</span>
-          <span>Type</span>
-          <span>Coins</span>
-          <span>Balance</span>
+          {historyRange === "custom" && (
+            <div className="mb-3 flex flex-wrap items-end gap-2 rounded-xl border border-white/8 bg-black/20 p-3">
+              <label className="text-xs font-bold text-slate-300">
+                Start date/time
+                <input
+                  type="datetime-local"
+                  value={customStart}
+                  onChange={(e) => setCustomStart(e.target.value)}
+                  className="mt-1 block rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm text-white outline-none"
+                />
+              </label>
+
+              <label className="text-xs font-bold text-slate-300">
+                End date/time
+                <input
+                  type="datetime-local"
+                  value={customEnd}
+                  onChange={(e) => setCustomEnd(e.target.value)}
+                  className="mt-1 block rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm text-white outline-none"
+                />
+              </label>
+
+              <button
+                onClick={() => setHistoryRange("custom")}
+                className="rounded-xl border border-yellow-300/40 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300"
+              >
+                Apply Filter
+              </button>
+            </div>
+          )}
+
+          <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4">
+            <StatCard title="Total Trades" value={totalTrades} color="cyan" icon="TT" />
+            <StatCard title="Total TP" value={totalTP} color="green" icon="TP" />
+            <StatCard title="Total SL" value={totalSL} color="red" icon="SL" />
+            <StatCard title="Win Rate" value={`${winRate}%`} color="yellow" icon="WR" />
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[1050px] text-left text-sm">
+              <thead className="bg-black/30 text-slate-400">
+                <tr>
+                  {["Close Date", "Published Date", "Duration", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => (
+                    <th key={h} className="p-1.5">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={12} className="p-4 text-center text-slate-400">
+                      No closed trades found for this history range.
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map((r, i) => (
+                    <tr key={r.id || i} className="border-b border-white/5">
+                      <td className="p-1.5">{formatDate(r.closed_at || r.created_at)}</td>
+                      <td className="p-1.5 text-slate-400">{formatDate(r.published_at || r.created_at)}</td>
+                      <td className="p-1.5 text-cyan-300">{tradeDuration(r.published_at || r.created_at, r.closed_at || r.created_at)}</td>
+                      <td className="p-1.5 font-black">{r.symbol || r.pair_name}</td>
+                      <td className={`p-1.5 font-black ${String(r.direction || "").toUpperCase().includes("SELL") ? "text-red-400" : "text-emerald-400"}`}>{r.direction}</td>
+                      <td className="p-1.5">{r.strategy || r.desk}</td>
+                      <td className="p-1.5">{r.entry}</td>
+                      <td className="p-1.5">{r.sl}</td>
+                      <td className="p-1.5 font-black text-emerald-400">{tpHitLabel(r)}</td>
+                      <td className={`p-1.5 font-black ${r.result === "SL" ? "text-red-400" : "text-emerald-400"}`}>{r.result}</td>
+                      <td className={`p-1.5 ${r.result === "SL" ? "text-red-300" : "text-emerald-300"}`}>{rrForResult(String(r.result || ""))}</td>
+                      <td className="p-1.5">{r.confidence || r.score || "-"}%</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {historyRows.length > rows.length && (
+            <p className="mt-3 text-xs text-slate-400">
+              Showing latest {rows.length} of {historyRows.length} closed trades. Use a smaller custom range for more focused history.
+            </p>
+          )}
+        </Panel>
+      </div>
+
+      <Panel title="Coin Transactions">
+        <div className="space-y-2 text-sm">
+          <div className="grid grid-cols-4 gap-2 rounded-xl bg-black/30 px-3 py-2 font-black text-slate-400">
+            <span>Date</span>
+            <span>Type</span>
+            <span>Coins</span>
+            <span>Balance</span>
+          </div>
+
+          {coinTransactions.length === 0 ? (
+            <div className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 text-center text-slate-400">
+              No coin transactions yet.
+            </div>
+          ) : (
+            coinTransactions.slice(0, 20).map((tx, i) => (
+              <div
+                key={tx.id || i}
+                className="grid grid-cols-4 gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2"
+              >
+                <span className="text-slate-400">{formatDate(tx.created_at)}</span>
+                <span className="font-black text-yellow-300">{tx.type}</span>
+                <span className={`font-black ${Number(tx.coins) >= 0 ? "text-emerald-300" : "text-red-300"}`}>
+                  {Number(tx.coins) > 0 ? "+" : ""}
+                  {tx.coins}
+                </span>
+                <span className="text-white">{tx.balance_after}</span>
+              </div>
+            ))
+          )}
         </div>
-
-        {coinTransactions.length === 0 ? (
-  <div className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 text-center text-slate-400">
-    No coin transactions yet.
-  </div>
-) : (
-  coinTransactions.slice(0, 20).map((tx, i) => (
-    <div
-      key={tx.id || i}
-      className="grid grid-cols-4 gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2"
-    >
-      <span className="text-slate-400">{formatDate(tx.created_at)}</span>
-      <span className="font-black text-yellow-300">{tx.type}</span>
-      <span
-        className={`font-black ${
-          Number(tx.coins) >= 0 ? "text-emerald-300" : "text-red-300"
-        }`}
-      >
-        {Number(tx.coins) > 0 ? "+" : ""}
-        {tx.coins}
-      </span>
-      <span className="text-white">{tx.balance_after}</span>
-    </div>
-  ))
-)}
-      </div>
-    </Panel>
-
-    </div>
-  );
-}
-
-function ReportsPage({ closed, allSignals }: { closed: Signal[]; allSignals: Signal[] }) {
-  return (
-    <div className="space-y-0.5">
-      <div className="relative"><div className="pointer-events-none absolute inset-0 flex items-center justify-center text-8xl font-black uppercase tracking-widest text-white/[0.03]">EasyPips</div><Panel title="Reports">
-        <div className="grid gap-2 md:grid-cols-4">
-          <button className="rounded-xl bg-yellow-400 px-2 py-1.5 font-black text-black">Download Daily Report</button>
-          <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Download Weekly Report</button>
-          <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Download Monthly Report</button>
-          <button className="rounded-xl bg-white/10 px-2 py-1.5 font-black">Export CSV</button>
-        </div>
-     </Panel>
-      </div>
-      <PerformancePage closed={closed} allSignals={allSignals} />
+      </Panel>
     </div>
   );
 }
