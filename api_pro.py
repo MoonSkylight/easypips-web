@@ -4521,7 +4521,7 @@ def engine_loop():
             # Create new signals every 5 minutes
             if now - last_signal_check >= 300:
                 generate_strategy_a_signals()
-                generate_strategy_b_signals()
+                # Strategy B archived
                 generate_strategy_c_signals()
                 last_signal_check = now
 
