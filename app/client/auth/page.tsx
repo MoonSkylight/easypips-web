@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -19,6 +19,18 @@ export default function ClientAuthPage() {
     password: "",
     account_id: "",
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("verified") === "1") {
+      setTab("login");
+      setMessage("Email verified successfully. You can now sign in.");
+      window.history.replaceState({}, "", "/client/auth");
+    }
+  }, []);
+
 
   async function login() {
     setMessage("");
@@ -80,7 +92,7 @@ export default function ClientAuthPage() {
 
     setLoading(true);
     try {
-      const redirectTo = `${window.location.origin}/client/auth`;
+      const redirectTo = `${window.location.origin}/client/auth/callback`;
 
       const { error } = await supabase.auth.signUp({
         email,
@@ -117,7 +129,7 @@ export default function ClientAuthPage() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/client/auth`,
+        redirectTo: `${window.location.origin}/client/auth/callback`,
       });
 
       setMessage(error ? error.message : "Password reset email sent. Please check your inbox.");
