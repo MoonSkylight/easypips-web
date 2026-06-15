@@ -1727,28 +1727,89 @@ if (visible.length === 0) {
 }
 
 
+function SignalSection({
+  title,
+  subtitle,
+  signals,
+  compact,
+  isPremium,
+  unlockedSignals,
+  onUnlocked,
+  golden,
+}: {
+  title: string;
+  subtitle: string;
+  signals: Signal[];
+  compact?: boolean;
+  isPremium: boolean;
+  unlockedSignals: string[];
+  onUnlocked: (signalId: string, coinBalance: number, message: string) => void;
+  golden?: boolean;
+}) {
+  if (signals.length === 0) return null;
+
+  return (
+    <div className={`rounded-2xl border p-2 ${golden ? "border-yellow-300/30 bg-yellow-400/[0.04] shadow-lg shadow-yellow-400/10" : "border-white/8 bg-black/15"}`}>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className={`text-sm font-black uppercase tracking-widest ${golden ? "text-yellow-300" : "text-white"}`}>
+            {title} ({signals.length})
+          </p>
+          <p className="text-xs text-slate-400">{subtitle}</p>
+        </div>
+      </div>
+
+      <div className={`grid gap-2 overflow-visible pr-0 ${compact ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
+        {signals.map((s, i) => {
+          const signalId = String(s.id || s.symbol || i);
+          const purchased = unlockedSignals.includes(signalId);
+
+          return !isPremium && isHighConfidenceLocked(s) && !purchased && !s.hit_tp2 && !s.hit_tp3 ? (
+            <LockedSignalCard key={s.id || i} s={s} onUnlocked={onUnlocked} />
+          ) : (
+            <SignalCard key={s.id || i} s={s} />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function LiveSignalsPanel({
   signals,
   filter,
   setFilter,
-compact,
-isPremium,
-unlockedSignals,
-onUnlocked,
+  compact,
+  isPremium,
+  unlockedSignals,
+  onUnlocked,
 }: {
   signals: Signal[];
   filter: string;
   setFilter: (x: string) => void;
- compact?: boolean;
+  compact?: boolean;
   isPremium: boolean;
   unlockedSignals: string[];
   onUnlocked: (signalId: string, coinBalance: number, message: string) => void;
 }) {
   const filters = ["All", "Strategy A", "Strategy C", "AI Engine"];
 
+  const activeOnly = (signals || []).filter((s) => {
+    const status = String(s.status || "").toUpperCase();
+    return status === "ACTIVE" || status === "LIVE" || !status;
+  });
+
+  const newSignals = activeOnly.filter((s) => !s.hit_tp1 && !s.hit_tp2 && !s.hit_tp3 && !s.hit_sl);
+
+  const managedSignals = activeOnly.filter((s) => (s.hit_tp1 || s.hit_tp2) && !s.hit_tp3 && !s.hit_sl);
+
+  const goldenWinners = activeOnly.filter((s) => s.hit_tp3);
+
+  const totalVisible = newSignals.length + managedSignals.length + goldenWinners.length;
+
   return (
-    <Panel title={`Live Signals (${signals.length})`}>
-      <div className="space-y-0.5">
+    <Panel title={`Live Signals (${totalVisible})`}>
+      <div className="mb-3 flex flex-wrap gap-1.5">
         {filters.map((f) => (
           <button
             key={f}
@@ -1761,19 +1822,43 @@ onUnlocked,
           </button>
         ))}
       </div>
-      {signals.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">No active signals for this filter yet.</div>
+
+      {totalVisible === 0 ? (
+        <div className="rounded-xl border border-dashed border-white/8 bg-black/30 p-10 text-center text-slate-400">
+          No active signals for this filter yet.
+        </div>
       ) : (
-        <div className={`grid gap-2 overflow-visible pr-0  ${compact ? "md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 md:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
-          {signals.map((s, i) => {
-            const signalId = String(s.id || s.symbol || i);
-            const purchased = unlockedSignals.includes(signalId);
-            return !isPremium && isHighConfidenceLocked(s) && !purchased && !s.hit_tp2 && !s.hit_tp3 ? (
-              <LockedSignalCard key={s.id || i} s={s} onUnlocked={onUnlocked} />
-            ) : (
-              <SignalCard key={s.id || i} s={s} />
-            );
-          })}
+        <div className="space-y-3">
+          <SignalSection
+            title="New Signals"
+            subtitle="Fresh active signals waiting for TP1 or SL."
+            signals={newSignals}
+            compact={compact}
+            isPremium={isPremium}
+            unlockedSignals={unlockedSignals}
+            onUnlocked={onUnlocked}
+          />
+
+          <SignalSection
+            title="Managed Signals"
+            subtitle="Protected trades that already reached TP1 or TP2 and are still being monitored."
+            signals={managedSignals}
+            compact={compact}
+            isPremium={isPremium}
+            unlockedSignals={unlockedSignals}
+            onUnlocked={onUnlocked}
+          />
+
+          <SignalSection
+            title="Golden Winners"
+            subtitle="Full target wins that reached TP3."
+            signals={goldenWinners}
+            compact={compact}
+            isPremium={isPremium}
+            unlockedSignals={unlockedSignals}
+            onUnlocked={onUnlocked}
+            golden
+          />
         </div>
       )}
     </Panel>

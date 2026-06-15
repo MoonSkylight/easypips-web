@@ -1391,15 +1391,28 @@ def update_all_running_results():
                 if result in ["TP1", "TP2", "TP3"]:
                     partial["hit_tp1"] = True
                     partial["result"] = result
+                    partial["highest_tp_hit"] = result
+                    partial["final_result"] = result
+
+                    if result == "TP1":
+                        partial["progress_status"] = "protected"
 
                 if result in ["TP2", "TP3"]:
                     partial["hit_tp2"] = True
                     partial["result"] = result
+                    partial["highest_tp_hit"] = result
+                    partial["final_result"] = result
+
+                    if result == "TP2":
+                        partial["progress_status"] = "running_win"
 
                 if result == "TP3":
                     partial["hit_tp3"] = True
                     partial["hit_sl"] = False
                     partial["result"] = "TP3"
+                    partial["highest_tp_hit"] = "TP3"
+                    partial["final_result"] = "TP3"
+                    partial["progress_status"] = "jackpot"
                     partial["status"] = "CLOSED"
                     partial["closed_at"] = datetime.now(timezone.utc).isoformat()
 
@@ -1409,6 +1422,8 @@ def update_all_running_results():
                 return {
                     "hit_sl": True,
                     "result": "SL",
+                    "final_result": "SL",
+                    "progress_status": "closed",
                     "status": "CLOSED",
                     "closed_at": datetime.now(timezone.utc).isoformat(),
                 }
