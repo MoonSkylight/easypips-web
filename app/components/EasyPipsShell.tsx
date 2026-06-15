@@ -919,7 +919,7 @@ if (statusRes.status === "fulfilled") {
     loadData();
     loadSlowData();
 
-    const fastTimer = setInterval(loadData, 15000);
+    const fastTimer = setInterval(loadData, 5000);
     const slowTimer = setInterval(loadSlowData, 60000);
 
     return () => {
@@ -944,6 +944,16 @@ if (statusRes.status === "fulfilled") {
 
     if (due) {
       loadData();
+
+      setUpcomingSignals((prev) =>
+        prev.filter((s) => {
+          const publishAt = s.scheduled_publish_time
+            ? new Date(String(s.scheduled_publish_time)).getTime()
+            : 0;
+
+          return publishAt > serverNow;
+        })
+      );
     }
   }, [countdownTick]);
 

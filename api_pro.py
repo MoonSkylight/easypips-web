@@ -4568,8 +4568,11 @@ def engine_loop():
         try:
             now = time.time()
 
-            # Update TP/SL every 60 seconds
+            # Update TP/SL every 20 seconds
             update_all_running_results()
+
+            # Publish due upcoming countdown signals from server loop
+            publish_due_upcoming_signals()
 
             # Create new signals every 5 minutes
             if now - last_signal_check >= 300:
@@ -4581,7 +4584,7 @@ def engine_loop():
         except Exception as e:
             print("Engine loop error:", str(e))
 
-        time.sleep(60)
+        time.sleep(20)
 
 
 @app.on_event("startup")
