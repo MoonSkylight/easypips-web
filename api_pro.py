@@ -4580,6 +4580,7 @@ def engine_loop():
         try:
             now = time.time()
             ENGINE_HEALTH["status"] = "running"
+            ENGINE_HEALTH["last_error"] = None
             ENGINE_HEALTH["last_loop_at"] = datetime.now(timezone.utc).isoformat()
             ENGINE_HEALTH["next_scan_due_at"] = datetime.fromtimestamp(last_signal_check + 300, timezone.utc).isoformat() if last_signal_check else datetime.now(timezone.utc).isoformat()
 
