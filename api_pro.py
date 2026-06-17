@@ -899,20 +899,17 @@ def generate_strategy_c_signals():
 
     try:
         existing_c = get_active_signals(source="AI Engine", strategy="Strategy C")
-        if len(existing_c) >= 3:
-            return {"created": 0, "rejected": 0}
-
+        # Strategy C must scan all supported pairs.
+        # Do not cap Strategy C globally; only avoid duplicate active signals per symbol.
         existing_symbols = set([s.get("symbol") for s in existing_c])
     except Exception as e:
         print("Strategy C pre-check failed:", str(e))
         existing_symbols = set()
 
-    for symbol, yahoo_symbol in list(SYMBOLS.items())[:3]:
+    for symbol, yahoo_symbol in SYMBOLS.items():
         try:
-            if created >= 1:
-                break
-
             if symbol in existing_symbols:
+                rejected += 1
                 continue
 
             data = get_yahoo_history(yahoo_symbol, period="7d", interval="15m")
@@ -1817,6 +1814,7 @@ def system_status():
         "closedSignals": len([s for s in signals if s.get("status") == "CLOSED"]),
         "rejectedSignals": len([s for s in signals if s.get("status") == "REJECTED"]),
         "lastSignalTime": signals[0].get("created_at") if signals else None,
+        "engineHealth": ENGINE_HEALTH if "ENGINE_HEALTH" in globals() else None,
         "serverTimeUTC": datetime.now(timezone.utc).isoformat(),
     }
 @app.get("/strategy-debug")
@@ -4561,12 +4559,29 @@ def debug_twelvedata():
 
 ENGINE_STARTED = False
 
+ENGINE_HEALTH = {
+    "status": "starting",
+    "last_loop_at": None,
+    "last_scan_started_at": None,
+    "last_scan_finished_at": None,
+    "next_scan_due_at": None,
+    "last_error": None,
+    "strategyA": None,
+    "strategyC": None,
+    "signals_created": 0,
+    "pairs_configured": len(SYMBOLS),
+    "strategies_scanned": ["Strategy A", "Strategy C"],
+}
+
 def engine_loop():
     last_signal_check = 0
 
     while True:
         try:
             now = time.time()
+            ENGINE_HEALTH["status"] = "running"
+            ENGINE_HEALTH["last_loop_at"] = datetime.now(timezone.utc).isoformat()
+            ENGINE_HEALTH["next_scan_due_at"] = datetime.fromtimestamp(last_signal_check + 300, timezone.utc).isoformat() if last_signal_check else datetime.now(timezone.utc).isoformat()
 
             # Update TP/SL every 20 seconds
             update_all_running_results()
@@ -4576,12 +4591,23 @@ def engine_loop():
 
             # Create new signals every 5 minutes
             if now - last_signal_check >= 300:
-                generate_strategy_a_signals()
+                ENGINE_HEALTH["last_scan_started_at"] = datetime.now(timezone.utc).isoformat()
+
+                strategy_a = generate_strategy_a_signals()
                 # Strategy B archived
-                generate_strategy_c_signals()
+                strategy_c = generate_strategy_c_signals()
+
+                ENGINE_HEALTH["strategyA"] = strategy_a
+                ENGINE_HEALTH["strategyC"] = strategy_c
+                ENGINE_HEALTH["signals_created"] = int(strategy_a.get("created", 0) or 0) + int(strategy_c.get("created", 0) or 0)
+                ENGINE_HEALTH["last_scan_finished_at"] = datetime.now(timezone.utc).isoformat()
+
                 last_signal_check = now
+                ENGINE_HEALTH["next_scan_due_at"] = datetime.fromtimestamp(last_signal_check + 300, timezone.utc).isoformat()
 
         except Exception as e:
+            ENGINE_HEALTH["status"] = "failed"
+            ENGINE_HEALTH["last_error"] = str(e)
             print("Engine loop error:", str(e))
 
         time.sleep(20)
