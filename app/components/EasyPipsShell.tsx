@@ -2489,6 +2489,39 @@ function rrForResult(result: string) {
   return "-";
 }
 
+function shortTime(value?: string) {
+  if (!value) return "";
+  try {
+    return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+
+function tpStatusCell(s: Signal, level: "TP1" | "TP2" | "TP3") {
+  const hit =
+    level === "TP1" ? s.hit_tp1 :
+    level === "TP2" ? s.hit_tp2 :
+    s.hit_tp3;
+
+  const price =
+    level === "TP1" ? s.tp1 :
+    level === "TP2" ? s.tp2 :
+    s.tp3;
+
+  const hitAt =
+    level === "TP1" ? (s as any).hit_tp1_at || (s as any).tp1_hit_at :
+    level === "TP2" ? (s as any).hit_tp2_at || (s as any).tp2_hit_at :
+    (s as any).hit_tp3_at || (s as any).tp3_hit_at;
+
+  return (
+    <div className={hit ? "font-black text-emerald-300" : "text-slate-500"}>
+      <div>{hit ? `Hit${shortTime(hitAt) ? ` at ${shortTime(hitAt)}` : ""}` : "Not Hit"}</div>
+      <div className="text-[10px] font-bold text-slate-400">{price || "-"}</div>
+    </div>
+  );
+}
+
 function HistoryPage({
   closed,
   allSignals,
@@ -2619,7 +2652,7 @@ function HistoryPage({
             <table className="w-full min-w-[1050px] text-left text-sm">
               <thead className="bg-black/30 text-slate-400">
                 <tr>
-                  {["Close Date", "Published Date", "Duration", "Pair", "Type", "Strategy", "Entry", "SL", "TP Hit", "Result", "RR", "Confidence"].map((h) => (
+                  {["Close Date", "Published Date", "Duration", "Pair", "Type", "Strategy", "Entry", "SL", "TP1 Status", "TP2 Status", "TP3 Status", "Final Result", "RR", "Confidence"].map((h) => (
                     <th key={h} className="p-1.5">{h}</th>
                   ))}
                 </tr>
@@ -2643,9 +2676,11 @@ function HistoryPage({
                       <td className="p-1.5">{r.strategy || r.desk}</td>
                       <td className="p-1.5">{r.entry}</td>
                       <td className="p-1.5">{r.sl}</td>
-                      <td className="p-1.5 font-black text-emerald-400">{tpHitLabel(r)}</td>
-                      <td className={`p-1.5 font-black ${r.result === "SL" ? "text-red-400" : "text-emerald-400"}`}>{r.result}</td>
-                      <td className={`p-1.5 ${r.result === "SL" ? "text-red-300" : "text-emerald-300"}`}>{rrForResult(String(r.result || ""))}</td>
+                      <td className="p-1.5">{tpStatusCell(r, "TP1")}</td>
+                      <td className="p-1.5">{tpStatusCell(r, "TP2")}</td>
+                      <td className="p-1.5">{tpStatusCell(r, "TP3")}</td>
+                      <td className={`p-1.5 font-black ${finalSignalResult(r) === "SL" ? "text-red-400" : "text-emerald-400"}`}>{finalSignalResult(r)}</td>
+                      <td className={`p-1.5 ${finalSignalResult(r) === "SL" ? "text-red-300" : "text-emerald-300"}`}>{rrForResult(finalSignalResult(r))}</td>
                       <td className="p-1.5">{r.confidence || r.score || "-"}%</td>
                     </tr>
                   ))

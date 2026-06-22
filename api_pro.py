@@ -1416,6 +1416,35 @@ def update_all_running_results():
                 return partial
 
             def close_sl():
+                # SL is only valid if no TP was reached first.
+                # Once TP1/TP2/TP3 is hit, never downgrade the trade back to SL.
+                if hit_tp3 or signal.get("hit_tp3"):
+                    return {
+                        "hit_sl": False,
+                        "result": "TP3",
+                        "highest_tp_hit": "TP3",
+                        "final_result": "TP3",
+                        "progress_status": "jackpot",
+                    }
+
+                if hit_tp2 or signal.get("hit_tp2"):
+                    return {
+                        "hit_sl": False,
+                        "result": "TP2",
+                        "highest_tp_hit": "TP2",
+                        "final_result": "TP2",
+                        "progress_status": "running_win",
+                    }
+
+                if hit_tp1 or signal.get("hit_tp1"):
+                    return {
+                        "hit_sl": False,
+                        "result": "TP1",
+                        "highest_tp_hit": "TP1",
+                        "final_result": "TP1",
+                        "progress_status": "protected",
+                    }
+
                 return {
                     "hit_sl": True,
                     "result": "SL",
